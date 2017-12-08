@@ -1,4 +1,10 @@
-package eu.prismacloud.primitives.grs;
+package eu.prismacloud.primitives.grs.signature;
+
+import eu.prismacloud.primitives.grs.commitment.ICommitment;
+import eu.prismacloud.primitives.grs.keys.IGSKeyPair;
+import eu.prismacloud.primitives.grs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.topocert.IGraph;
 
 import java.math.BigInteger;
 
@@ -14,7 +20,7 @@ public interface IGraphSignature {
      * @param params        the params
      * @return the key gen pair
      */
-    public IKeyGenPair keyGen(int securityParam, IKeyGenParams params);
+    public IGSKeyPair keyGen(int securityParam, KeyGenParameters params);
 
     /**
      * Commit commitment.
@@ -23,7 +29,7 @@ public interface IGraphSignature {
      * @param rnd   the rnd
      * @return the commitment
      */
-    public ICommitment commit(IGraphRepresentation graph, BigInteger rnd);
+    public ICommitment commit(IGraph graph, BigInteger rnd);
 
     /**
      * Hidden sign graph signature.
@@ -32,7 +38,7 @@ public interface IGraphSignature {
      * @param pk_s the pk s
      * @return the graph signature
      */
-    public IGraphSignature hiddenSign(ICommitment cmt,/*add connection points */ ISignerPublicKey pk_s);
+    public IGraphSignature hiddenSign(ICommitment cmt, IGraph recipientGraph, IGraph signerGraph, SignerPublicKey pk_s);
 
     /**
      * Verify boolean.
@@ -43,6 +49,7 @@ public interface IGraphSignature {
      * @param gsig   the gsig
      * @return the boolean
      */
-    public Boolean verify(ISignerPublicKey pk_s, ICommitment cmt, BigInteger rTilde, IGraphSignature gsig);
+    public Boolean verify(SignerPublicKey pk_s, ICommitment cmt, BigInteger rTilde, IGraphSignature gsig);
 
+    GSGraphSignature getGraphSignature();
 }
