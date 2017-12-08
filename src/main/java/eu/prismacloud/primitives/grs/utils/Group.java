@@ -1,7 +1,15 @@
 package eu.prismacloud.primitives.grs.utils;
 
+import java.math.BigInteger;
+
 /**
- * Created by Ioannis Sfyrakis on 07/12/2017
+ * Group
  */
 public interface Group {
+
+    public BigInteger getOrder();
+    //public int getModulusLength();
+    public BigInteger getGenerator();
+    public BigInteger createGenerator();
+    public boolean isElement();
 }
