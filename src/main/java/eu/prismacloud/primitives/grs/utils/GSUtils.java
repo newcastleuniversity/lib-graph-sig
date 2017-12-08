@@ -217,7 +217,7 @@ public class GSUtils implements INumberUtils {
      * Compute the 2^ha' representation of integer a
      * Input: Odd integer a
      * Output: Integers h and a' such that a = 2^ha'
-     * Post-conditions: a = 2^ha' and a' is odd
+     * Post-conditions: a = 2^h a' and a' is odd
      */
 
     public static ArrayList<BigInteger> splitPowerRemainder() {
