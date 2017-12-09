@@ -29,7 +29,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 1 - topocert-doc
+     * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc
      * Generate Special RSA Modulus N
      * Input: candidate integer a, prime factors of positive, odd integer N: q_1, ..., q_r
      * Output: N,p,q,p',q'
@@ -65,11 +65,12 @@ public class GSUtils implements INumberUtils {
 
 
     /**
+     * Algorithm <tt>alg:computeBigPow</tt> - topocert-doc
      * Calculates BigInteger exponentiations
      *
      * @param base the base
      * @param e    the exponent
-     * @return 
+     * @return b \( base^e \)
      */
     public BigInteger bigPow(BigInteger base, BigInteger e) {
         if (e.compareTo(BigInteger.ZERO) < 0)
@@ -102,26 +103,6 @@ public class GSUtils implements INumberUtils {
     }
 
 
-//    public static BigInteger bigPow(BigInteger x, BigInteger y) {
-//      if (y.compareTo(BigInteger.ZERO) < 0)
-//        throw new IllegalArgumentException();
-//      BigInteger z = x; // z will successively become x^2, x^4, x^8, x^16, x^32...
-//      BigInteger result = BigInteger.ONE;
-//      byte[] bytes = y.toByteArray();
-//      for (int i = bytes.length - 1; i >= 0; i--) {
-//        byte bits = bytes[i];
-//        for (int j = 0; j < 8; j++) {
-//          if ((bits & 1) != 0)
-//            result = result.multiply(z);
-//          // short cut out if there are no more bits to handle:
-//          if ((bits >>= 1) == 0 && i == 0)
-//            return result;
-//          z = z.multiply(z);
-//        }
-//      }
-//      return result;
-//    }
-
     private BigInteger generateGroupModulus(BigInteger rho) {
 
         return new BigInteger("1");
@@ -129,7 +110,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 2 - topocert-doc
+     * Algorithm <tt>alg:jacobi_shoup</tt> - topocert-doc
      * Compute the Jacobi symbol (A | N)
      * Input: candidate integer a, positive odd integer N
      * Output: Jacobi symbol (a | N)
@@ -142,7 +123,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 3 - topocert-doc
+     * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc
      * Determines if an integer  a is an element of QRN
      * Input: candidate integer a, prime factors of positive, odd integer N: q_1, ..., q_r
      * Output: true if a in QRN, false if a not in QRN
@@ -154,7 +135,7 @@ public class GSUtils implements INumberUtils {
     }
 
     /**
-     * Algorithm 4 - topocert-doc
+     * Algorithm <tt>alg:createElementOfZNS</tt> - topocert-doc
      * Generate S' number
      * Input: Special RSA modulus N
      * Output: random number S' of QRN
@@ -180,7 +161,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 5 - topocert-doc
+     * Algorithm <tt>alg:verifySGeneratorOfZNS</tt> - topocert-doc
      * Evaluate generator S properties
      * Input: generator S, p', q'
      * Output: true or false
@@ -190,7 +171,7 @@ public class GSUtils implements INumberUtils {
     }
 
     /**
-     * Algorithm 6 - topocert-doc
+     * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc
      * Create generator of QRN
      * Input: Special RSA modulus N, p', q'
      * Output: generator S of QRN
@@ -213,7 +194,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 7 - topocert-doc
+     * Algorithm <tt>alg:power_split</tt> - topocert-doc
      * Compute the 2^ha' representation of integer a
      * Input: Odd integer a
      * Output: Integers h and a' such that a = 2^ha'
@@ -226,7 +207,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 8 - topocert-doc
+     * Algorithm <tt>alg:generateCLSignature</tt> - topocert-doc
      * Generate Camenisch-Lysyanskaya signature
      * Input: message m
      * Output: signature sigma
@@ -238,7 +219,7 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm 9 - topocert-doc
+     * Algorithm <tt>alg:generateSigProof</tt> - topocert-doc
      * Generate Signature Proof of Knowledge
      * Input: R_0,S, Z, N
      * Output: signature proof of knowledge SPK
@@ -249,7 +230,7 @@ public class GSUtils implements INumberUtils {
     }
 
     /**
-     * Algorithm 2 - topocert-doc
+     * Algorithm <tt>alg:generateRandomSafePrime</tt> - topocert-doc
      * Generate Random Safe Prime
      * Input: l_n bit-length, l_pt
      * Output: safe prime p, Sophie Germain p'
