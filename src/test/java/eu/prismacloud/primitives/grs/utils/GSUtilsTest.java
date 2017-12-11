@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Created by Ioannis Sfyrakis on 02/12/2017
+ * Test GSUtils class
  */
 class GSUtilsTest {
     private static final Logger log = Logger.getLogger(GSUtilsTest.class.getName());

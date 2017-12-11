@@ -88,7 +88,7 @@ public class GSUtils implements INumberUtils {
                     b = b.multiply(temp);
                 
                 bit = (byte) (bit >> 1);
-                log.info("shift: " + bit + " for i: " + i + " for j: " + j );
+                //log.info("shift: " + bit + " for i: " + i + " for j: " + j );
                 // discard rest of bits
 //              if ((bits == 0) && i == 0)
 //                    return b;
@@ -96,9 +96,7 @@ public class GSUtils implements INumberUtils {
             }
         }
 
-
         return b;
-
 
     }
 
