@@ -7,8 +7,11 @@ import java.math.BigInteger;
  */
 public enum NumberConstants {
 
-    TWO(BigInteger.valueOf(2));
-
+    TWO(BigInteger.valueOf(2)),
+    THREE(BigInteger.valueOf(3)),
+    FOUR(BigInteger.valueOf(4)),
+    EIGHT(BigInteger.valueOf(8)),
+    FIVE(BigInteger.valueOf(5));
 
     private final BigInteger bigConstant;
 
