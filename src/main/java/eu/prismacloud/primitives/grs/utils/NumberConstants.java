@@ -10,6 +10,7 @@ public enum NumberConstants {
     TWO(BigInteger.valueOf(2)),
     THREE(BigInteger.valueOf(3)),
     FOUR(BigInteger.valueOf(4)),
+    SEVEN(BigInteger.valueOf(7)),
     EIGHT(BigInteger.valueOf(8)),
     FIVE(BigInteger.valueOf(5));
 

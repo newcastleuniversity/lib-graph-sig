@@ -5,17 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.math.BigInteger;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,25 +27,7 @@ public class JacobiSymbolTest {
 
     @AfterEach
     void tearDown() {
-    }
 
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public void measureJacobiSymbol() {
-        JacobiSymbol.computeJacobiSymbol(new BigInteger("3"), new BigInteger("19"));
-        JacobiSymbol.computeJacobiSymbol(new BigInteger("19"), new BigInteger("27"));
-        JacobiSymbol.computeJacobiSymbol(new BigInteger("15"), new BigInteger("9"));
-
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public void measureJacobiSymbolBA() {
-        JacobiSymbol.computeJacobiSymbolBA(new BigInteger("3"), new BigInteger("19"));
-        JacobiSymbol.computeJacobiSymbolBA(new BigInteger("19"), new BigInteger("27"));
-        JacobiSymbol.computeJacobiSymbolBA(new BigInteger("15"), new BigInteger("9"));
     }
 
 
@@ -62,12 +35,24 @@ public class JacobiSymbolTest {
     @DisplayName("Test compute Jacobi Symbol")
     void computeJacobiSymbol() {
         log.info("@Test: computeJacobiSymbol");
+//        BigInteger alpha = BigInteger.valueOf(118);
+//        BigInteger alpha_prime;
+//        BigInteger h;
+//        log.info("alpha: " + alpha);
+//        h = BigInteger.valueOf(alpha.getLowestSetBit());
+//        alpha_prime = alpha.shiftRight(h.intValue());
+//
+//        log.info("h: " + h);
+//        log.info("alpha_prime: " + alpha_prime);
 
-        assertEquals(-1, JacobiSymbol.computeJacobiSymbolBA(new BigInteger("3"), new BigInteger("19")));
+        assertEquals(0, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(10), BigInteger.valueOf(25)));
+//
+        assertEquals(-1, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(3), BigInteger.valueOf(19)));
+//
+        assertEquals(1, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(19), BigInteger.valueOf(27)));
+//
+        assertEquals(0, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(15), BigInteger.valueOf(9)));
 
-        assertEquals(1, JacobiSymbol.computeJacobiSymbolBA(new BigInteger("19"), new BigInteger("27")));
-
-        assertEquals(0, JacobiSymbol.computeJacobiSymbolBA(new BigInteger("15"), new BigInteger("9")));
     }
 
 
@@ -82,7 +67,6 @@ public class JacobiSymbolTest {
         BigInteger sp1 = JacobiSymbol.splitPowerRemainder(new BigInteger("23297"));
         assertEquals(new BigInteger("6913"), sp1);
 
-
     }
 
     @Test
@@ -90,31 +74,13 @@ public class JacobiSymbolTest {
     void computeJacobiSymbolBA() {
         log.info("@Test: computeJacobiSymbolBA");
 
-        assertEquals(-1, JacobiSymbol.computeJacobiSymbolBA(new BigInteger("3"), new BigInteger("19")));
+        assertEquals(0, JacobiSymbol.computeJacobiSymbolBA(BigInteger.valueOf(10), BigInteger.valueOf(25)));
 
-        assertEquals(1, JacobiSymbol.computeJacobiSymbolBA(new BigInteger("19"), new BigInteger("27")));
+        assertEquals(-1, JacobiSymbol.computeJacobiSymbolBA(BigInteger.valueOf(3), BigInteger.valueOf(19)));
 
-        assertEquals(0, JacobiSymbol.computeJacobiSymbolBA(new BigInteger("15"), new BigInteger("9")));
+        assertEquals(1, JacobiSymbol.computeJacobiSymbolBA(BigInteger.valueOf(19), BigInteger.valueOf(27)));
 
-    }
-
-
-    public static void main(String[] args) throws RunnerException {
-
-        Options opt = new OptionsBuilder()
-
-                .include(JacobiSymbolTest.class.getSimpleName())
-
-                .warmupIterations(5)
-
-                .measurementIterations(5)
-
-                .forks(1)
-
-                .build();
-
-
-        new Runner(opt).run();
+        assertEquals(0, JacobiSymbol.computeJacobiSymbolBA(BigInteger.valueOf(15), BigInteger.valueOf(9)));
 
     }
 
