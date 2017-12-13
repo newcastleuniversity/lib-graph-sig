@@ -35,22 +35,10 @@ public class JacobiSymbolTest {
     @DisplayName("Test compute Jacobi Symbol")
     void computeJacobiSymbol() {
         log.info("@Test: computeJacobiSymbol");
-//        BigInteger alpha = BigInteger.valueOf(118);
-//        BigInteger alpha_prime;
-//        BigInteger h;
-//        log.info("alpha: " + alpha);
-//        h = BigInteger.valueOf(alpha.getLowestSetBit());
-//        alpha_prime = alpha.shiftRight(h.intValue());
-//
-//        log.info("h: " + h);
-//        log.info("alpha_prime: " + alpha_prime);
 
         assertEquals(0, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(10), BigInteger.valueOf(25)));
-//
         assertEquals(-1, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(3), BigInteger.valueOf(19)));
-//
         assertEquals(1, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(19), BigInteger.valueOf(27)));
-//
         assertEquals(0, JacobiSymbol.computeJacobiSymbol(BigInteger.valueOf(15), BigInteger.valueOf(9)));
 
     }
