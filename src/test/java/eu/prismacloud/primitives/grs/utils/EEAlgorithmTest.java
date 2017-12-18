@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test Extended Euclidean Algorithm  
+ * Test Extended Euclidean Algorithm
  */
 class EEAlgorithmTest {
 
@@ -28,12 +28,45 @@ class EEAlgorithmTest {
     @DisplayName("Test Extended Euclidean Algorithm")
     void computeEEAlgorithm() {
         log.info("@Test: Extended Euclidean Algorithm");
-        EEAlgorithm.computeEEAlgorithm(BigInteger.valueOf(100), BigInteger.valueOf(35));
-        log.info("gcd: " + BigInteger.valueOf(100).gcd(BigInteger.valueOf(35)));
-        
-        assertEquals(BigInteger.valueOf(5), EEAlgorithm.getD());// check gcd
-        assertEquals(BigInteger.valueOf(-1), EEAlgorithm.getS()); // check modInverse
-        assertEquals(BigInteger.valueOf(3), EEAlgorithm.getT()); // check
+
+        BigInteger a = BigInteger.valueOf(5);
+        BigInteger b = BigInteger.valueOf(1219);
+
+        EEAlgorithm.computeEEAlgorithm(a, b);
+
+        log.info("modInverse b a : " + b.modInverse(a));
+        log.info("modInverse a b : " + a.modInverse(b));
+        log.info("mod: " + a.mod(b));
+        log.info("gcd: " + a.gcd(b));
+        log.info("gcd eea : " + EEAlgorithm.getD());
+        log.info("S: " + EEAlgorithm.getS());
+        log.info("T: " + EEAlgorithm.getT());
+
+        assertEquals(a.gcd(b), EEAlgorithm.getD());
+//        assertEquals(BigInteger.ONE, EEAlgorithm.getS());
+//        assertEquals(BigInteger.valueOf(-2), EEAlgorithm.getT());
+        // check Bezout's Identity to test EEA algorithm (\ ax + by = gcd(a,b) \)
+        assertEquals(a.gcd(b), a.multiply(EEAlgorithm.getS()).add(b.multiply(EEAlgorithm.getT())));
+
+
+        a = BigInteger.valueOf(1219);
+        b = BigInteger.valueOf(5);
+
+        EEAlgorithm.computeEEAlgorithm(a, b);
+
+        log.info("modInverse b a : " + b.modInverse(a));
+        log.info("modInverse a b : " + a.modInverse(b));
+        log.info("mod: " + a.mod(b));
+        log.info("gcd: " + a.gcd(b));
+        log.info("gcd eea : " + EEAlgorithm.getD());
+        log.info("S: " + EEAlgorithm.getS());
+        log.info("T: " + EEAlgorithm.getT());
+
+        assertEquals(a.gcd(b), EEAlgorithm.getD());
+        //        assertEquals(BigInteger.ONE, EEAlgorithm.getS());
+        //        assertEquals(BigInteger.valueOf(-2), EEAlgorithm.getT());
+        // check Bezout's Identity to test EEA algorithm (\ ax + by = gcd(a,b) \)
+        assertEquals(a.gcd(b), a.multiply(EEAlgorithm.getS()).add(b.multiply(EEAlgorithm.getT())));
 
 
     }

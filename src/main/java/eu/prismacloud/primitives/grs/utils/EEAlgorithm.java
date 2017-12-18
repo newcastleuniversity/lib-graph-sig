@@ -45,20 +45,20 @@ public class EEAlgorithm {
      * Compute the Extended Euclidean Algorithm
      * based on <tt>alg:eea_schoup</tt> in topocert-doc
      *
-     * @param a
-     * @param b
+     * @param a positive BigInteger > 0
+     * @param b positive BigInteger > 0
      * @return d, s, t
      */
     public static EEAlgorithm computeEEAlgorithm(final BigInteger a, final BigInteger b) {
 
+        if (a.compareTo(BigInteger.ZERO) <= 0)
+            throw new IllegalArgumentException("EEA requires positive integers");
+
+        if (b.compareTo(BigInteger.ZERO) <= 0)
+            throw new IllegalArgumentException("EEA requires positive integers");
+
         BigInteger temps;
         BigInteger tempt;
-        
-        // verify a >= b>= 0
-        if (b.compareTo(BigInteger.ZERO) <= 0)
-            if (a.compareTo(b) <= 0) {
-                throw new IllegalArgumentException("Numbers are not in the correct range a>= b >= 0");
-            }
 
         r = a;
         r_prime = b;
@@ -79,19 +79,21 @@ public class EEAlgorithm {
 
             r_prime = r_prime_prime;
 
-            s_prime = temps;
-            t_prime = tempt;
+            temps = s_prime;
+            tempt = t_prime;
 
-            temps = s.subtract(temps.multiply(q));
-            tempt = t.subtract(tempt.multiply(q));
 
-            s = s_prime;
-            t = t_prime;
+            t_prime = t.subtract(t_prime.multiply(q));
+            s_prime = s.subtract(s_prime.multiply(q));
+
+            s = temps;
+            t = tempt;
 
         }
 
         d = r;
 
-        return new EEAlgorithm(d, s, t);
+        return  new EEAlgorithm(d, s, t);
+
     }
 }
