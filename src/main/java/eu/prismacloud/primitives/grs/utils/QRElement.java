@@ -6,115 +6,130 @@ import java.math.BigInteger;
  * element of Quadratic Residue
  */
 public class QRElement {
-	public QRElement(BigInteger representation) {
-		this._representation = representation;
-	}
-	
-	
-	private final BigInteger _representation;
+    private QRGroup group;
 
-	public BigInteger nextProbablePrime() {
-		return _representation.nextProbablePrime();
-	}
 
-	public BigInteger add(BigInteger val) {
-		return _representation.add(val);
-	}
+    private final BigInteger representation;
 
-	public BigInteger subtract(BigInteger val) {
-		return _representation.subtract(val);
-	}
+    public QRElement(BigInteger representation) {
+        this.representation = representation;
+    }
 
-	public BigInteger multiply(BigInteger val) {
-		return _representation.multiply(val);
-	}
+    public QRElement(final QRGroup group, final BigInteger representation) {
 
-	public BigInteger divide(BigInteger val) {
-		return _representation.divide(val);
-	}
+        this.group = group;
+        this.representation = representation;
+    }
 
-	public BigInteger[] divideAndRemainder(BigInteger val) {
-		return _representation.divideAndRemainder(val);
-	}
+    public BigInteger getRepresentation() {
+        return representation;
+    }
 
-	public BigInteger remainder(BigInteger val) {
-		return _representation.remainder(val);
-	}
+    public BigInteger nextProbablePrime() {
+        return representation.nextProbablePrime();
+    }
 
-	public BigInteger gcd(BigInteger val) {
-		return _representation.gcd(val);
-	}
+    public BigInteger add(BigInteger val) {
+        return representation.add(val);
+    }
 
-	public BigInteger abs() {
-		return _representation.abs();
-	}
+    public BigInteger subtract(BigInteger val) {
+        return representation.subtract(val);
+    }
 
-	public BigInteger negate() {
-		return _representation.negate();
-	}
+    public BigInteger multiply(BigInteger val) {
+        return representation.multiply(val);
+    }
 
-	public int signum() {
-		return _representation.signum();
-	}
+    public BigInteger divide(BigInteger val) {
+        return representation.divide(val);
+    }
 
-	public BigInteger mod(BigInteger m) {
-		return _representation.mod(m);
-	}
+    public BigInteger[] divideAndRemainder(BigInteger val) {
+        return representation.divideAndRemainder(val);
+    }
 
-	public BigInteger modPow(BigInteger exponent, BigInteger m) {
-		return _representation.modPow(exponent, m);
-	}
+    public BigInteger remainder(BigInteger val) {
+        return representation.remainder(val);
+    }
 
-	public BigInteger modInverse(BigInteger m) {
-		return _representation.modInverse(m);
-	}
+    public BigInteger gcd(BigInteger val) {
+        return representation.gcd(val);
+    }
 
-	public int getLowestSetBit() {
-		return _representation.getLowestSetBit();
-	}
+    public BigInteger abs() {
+        return representation.abs();
+    }
 
-	public int bitLength() {
-		return _representation.bitLength();
-	}
+    public BigInteger negate() {
+        return representation.negate();
+    }
 
-	public int bitCount() {
-		return _representation.bitCount();
-	}
+    public int signum() {
+        return representation.signum();
+    }
 
-	public boolean isProbablePrime(int certainty) {
-		return _representation.isProbablePrime(certainty);
-	}
+    public BigInteger mod(BigInteger m) {
+        return representation.mod(m);
+    }
 
-	public int compareTo(BigInteger val) {
-		return _representation.compareTo(val);
-	}
+    public BigInteger modPow(BigInteger exponent, BigInteger m) {
+        return representation.modPow(exponent, m);
+    }
 
-	public boolean equals(Object x) {
-		return _representation.equals(x);
-	}
+    public BigInteger modInverse(BigInteger m) {
+        return representation.modInverse(m);
+    }
 
-	public BigInteger min(BigInteger val) {
-		return _representation.min(val);
-	}
+    public int getLowestSetBit() {
+        return representation.getLowestSetBit();
+    }
 
-	public BigInteger max(BigInteger val) {
-		return _representation.max(val);
-	}
+    public int bitLength() {
+        return representation.bitLength();
+    }
 
-	public int hashCode() {
-		return _representation.hashCode();
-	}
+    public int bitCount() {
+        return representation.bitCount();
+    }
 
-	public String toString(int radix) {
-		return _representation.toString(radix);
-	}
+    public boolean isProbablePrime(int certainty) {
+        return representation.isProbablePrime(certainty);
+    }
 
-	public String toString() {
-		return _representation.toString();
-	}
+    public int compareTo(BigInteger val) {
+        return representation.compareTo(val);
+    }
 
-	public byte[] toByteArray() {
-		return _representation.toByteArray();
-	}
-	
+    public boolean equals(Object x) {
+        return representation.equals(x);
+    }
+
+    public BigInteger min(BigInteger val) {
+        return representation.min(val);
+    }
+
+    public BigInteger max(BigInteger val) {
+        return representation.max(val);
+    }
+
+    public int hashCode() {
+        return representation.hashCode();
+    }
+
+    public String toString(int radix) {
+        return representation.toString(radix);
+    }
+
+    public String toString() {
+        return representation.toString();
+    }
+
+    public byte[] toByteArray() {
+        return representation.toByteArray();
+    }
+
+    public QRGroup getGroup() {
+        return group;
+    }
 }
