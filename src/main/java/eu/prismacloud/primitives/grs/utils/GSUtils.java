@@ -15,9 +15,9 @@ public class GSUtils implements INumberUtils {
 //      private final BigInteger p_prime;
 //      private final BigInteger q = null;
 //      private final BigInteger q_prime = null;
-    private static BigInteger n = null;
-    private static SafePrime p;
-    private static SafePrime q;
+    private BigInteger n;
+    private SafePrime p;
+    private SafePrime q;
     private BigInteger rho;
     private BigInteger gamma;
     private BigInteger g;
@@ -51,6 +51,7 @@ public class GSUtils implements INumberUtils {
 
     @Override
     public CommitmentGroup generateCommitmentGroup() {
+        // TODO check if the computations are correct
         rho = generatePrime(KeyGenParameters.l_rho.getValue());
         gamma = generateGroupModulus(rho);
         g = createGenerator(rho, gamma);
@@ -128,8 +129,10 @@ public class GSUtils implements INumberUtils {
      * Dependencies: jacobiSymbol()
      */
 
-    public static Boolean elementOfQR() {
-        return true;
+    public Boolean elementOfQR(BigInteger value, BigInteger modulus)
+    {
+        return value.compareTo(BigInteger.ZERO) > 0 && value.compareTo(modulus.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
+                        && JacobiSymbol.computeJacobiSymbol(value, modulus) == 1;
     }
 
     /**
@@ -138,9 +141,10 @@ public class GSUtils implements INumberUtils {
      * Input: Special RSA modulus N
      * Output: random number S' of QRN
      * Dependencies: isElementOfZNS()
+     * @param n
      */
 
-    public BigInteger createElementOfZNS() {
+    public BigInteger createElementOfZNS(BigInteger n) {
 
         BigInteger s_prime;
         do {
@@ -152,9 +156,9 @@ public class GSUtils implements INumberUtils {
         return s_prime;
     }
 
-    private static boolean isElementOfZNS(BigInteger s_prime) {
+    private boolean isElementOfZNS(BigInteger s_prime) {
         // check gcd(S', N) = 1
-        return (s_prime.gcd(n).equals(BigInteger.ONE));
+        return (s_prime.gcd(this.n).equals(BigInteger.ONE));
     }
 
 
@@ -182,7 +186,7 @@ public class GSUtils implements INumberUtils {
 
         do {
 
-            s_prime = createElementOfZNS();
+            s_prime = createElementOfZNS(n);
             s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
 
 
@@ -234,8 +238,8 @@ public class GSUtils implements INumberUtils {
      * Output: safe prime p, Sophie Germain p'
      */
     public SafePrime generateRandomSafePrime() {
-        BigInteger a = null;
-        BigInteger a_prime = null;
+        BigInteger a = BigInteger.ONE;
+        BigInteger a_prime = BigInteger.ONE;
         do {
 
             a_prime = generatePrime(KeyGenParameters.l_n.getValue() / 2);

@@ -16,4 +16,6 @@ public interface INumberUtils {
     BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound);
 
     CommitmentGroup generateCommitmentGroup();
+
+    Boolean elementOfQR(BigInteger value, BigInteger modulus);
 }
