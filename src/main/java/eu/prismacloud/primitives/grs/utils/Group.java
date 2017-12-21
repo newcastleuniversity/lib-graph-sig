@@ -10,6 +10,7 @@ public interface Group {
     public BigInteger getOrder();
     //public int getModulusLength();
     public BigInteger getGenerator();
-    public BigInteger createGenerator();
-    public boolean isElement();
+    public QRElement createGenerator();
+
+    boolean isElement(BigInteger value);
 }

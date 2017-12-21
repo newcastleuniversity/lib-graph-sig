@@ -67,6 +67,11 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
     }
 
+    @Override
+    public Boolean elementOfQR(BigInteger value, BigInteger modulus) {
+        return null;
+    }
+
     private SystemParameters getSP() {
 
         if (sp == null) {
