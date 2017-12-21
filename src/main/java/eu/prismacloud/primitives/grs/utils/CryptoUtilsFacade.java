@@ -32,4 +32,8 @@ public class CryptoUtilsFacade {
     public static CommitmentGroup commitmentGroupSetup() {
         return CryptoUtilsFactory.getInstance("IDEMIX").generateCommitmentGroup();
     }
+
+    public static Boolean isElementOfQR(BigInteger value, BigInteger modulus) {
+        return CryptoUtilsFactory.getInstance("IDEMIX").elementOfQR(value, modulus);
+    }
 }
