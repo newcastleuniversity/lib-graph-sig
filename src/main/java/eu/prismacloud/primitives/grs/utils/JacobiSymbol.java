@@ -50,13 +50,13 @@ public class JacobiSymbol {
 
             // alpha_prime = splitPowerRemainder(alpha);
 
-            log.info("alpha: " + alpha);
+//            log.info("alpha: " + alpha);
 
             h = BigInteger.valueOf(alpha.getLowestSetBit());
             alpha_prime = alpha.shiftRight(h.intValue());
 
-            log.info("h: " + h);
-            log.info("alpha_prime: " + alpha_prime);
+//            log.info("h: " + h);
+//            log.info("alpha_prime: " + alpha_prime);
 
             if (!isCongruent(h, BigInteger.ZERO, NumberConstants.TWO.getValue()) &&
                     !isCongruent(N, BigInteger.ONE, NumberConstants.EIGHT.getValue()) &&
@@ -86,9 +86,9 @@ public class JacobiSymbol {
 
         h = BigInteger.valueOf(alpha.bitLength()).subtract(BigInteger.ONE);
         BigInteger b = BigInteger.ONE.shiftLeft(h.intValue());
-        log.info("b: " + b);
+//        log.info("b: " + b);
         BigInteger k = alpha.subtract(b);
-        log.info("k: " + k);
+//        log.info("k: " + k);
         return k;//alpha.subtract(b);//alpha_prime;
 
     }
