@@ -44,11 +44,12 @@ class GSUtilsTest {
         log.info("@Test: generate commitment group");
         assertNotNull(classUnderTest);
         CommitmentGroup cg = classUnderTest.generateCommitmentGroup();
+        assertNotNull(cg);
         log.info("rho: " + cg.getRho());
         log.info("gamma: " + cg.getGamma());
         log.info("g: " + cg.getG());
         log.info("h:" + cg.getH());
-        assertNotNull(cg);
+
         
     }
 
