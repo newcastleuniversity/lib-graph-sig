@@ -1,10 +1,7 @@
 package eu.prismacloud.primitives.grs.keys;
 
 import eu.prismacloud.primitives.grs.signature.KeyGenSignature;
-import eu.prismacloud.primitives.grs.utils.CommitmentGroup;
-import eu.prismacloud.primitives.grs.utils.CryptoUtilsFacade;
-import eu.prismacloud.primitives.grs.utils.NumberConstants;
-import eu.prismacloud.primitives.grs.utils.SpecialRSAMod;
+import eu.prismacloud.primitives.grs.utils.*;
 
 import java.math.BigInteger;
 
@@ -13,21 +10,21 @@ import java.math.BigInteger;
  */
 public class GSSignerKeyPair implements IGSKeyPair {
 
-    private SignerPrivateKey privateKey;
-    private SignerPublicKey publicKey;
+    private static SignerPrivateKey privateKey;
+    private static SignerPublicKey publicKey;
     private KeyGenSignature keyGenSignature;
-    private SpecialRSAMod specialRSAMod;
-    private BigInteger S;
-    private BigInteger x_Z;
-    private BigInteger x_R_0;
-    private BigInteger R_0;
-    private BigInteger Z;
-    private CommitmentGroup cg;
+    private static SpecialRSAMod specialRSAMod = null;
+    private static BigInteger S;
+    private static BigInteger x_Z;
+    private static BigInteger x_R_0;
+    private static BigInteger R_0;
+    private static BigInteger Z;
+    private static CommitmentGroup cg;
 
 
     public GSSignerKeyPair(SignerPrivateKey privateKey, SignerPublicKey publicKey) {
-        this.privateKey = new SignerPrivateKey();
-        this.publicKey = new SignerPublicKey();
+        GSSignerKeyPair.privateKey = privateKey;
+        GSSignerKeyPair.publicKey = publicKey;
     }
 
 
@@ -40,9 +37,12 @@ public class GSSignerKeyPair implements IGSKeyPair {
      *
      * @return GSSignerKeyPair
      */
-    public GSSignerKeyPair KeyGen() {
+    public static GSSignerKeyPair KeyGen() {
         specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
-        S = CryptoUtilsFacade.computeQRNGenerator(specialRSAMod.getN());
+
+        QRGroup qrGroup = new QRGroup(specialRSAMod.getP_prime(), specialRSAMod.getQ_prime());
+        S = qrGroup.createGenerator().getRepresentation();
+
         BigInteger upperBound = specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
         x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
         Z = S.modPow(x_Z, specialRSAMod.getN());
@@ -62,11 +62,11 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
 
     public SignerPrivateKey getPrivateKey() {
-        return this.privateKey;
+        return privateKey;
     }
 
     public SignerPublicKey getPublicKey() {
-        return this.publicKey;
+        return publicKey;
     }
 
     public KeyGenSignature getSignature() {
