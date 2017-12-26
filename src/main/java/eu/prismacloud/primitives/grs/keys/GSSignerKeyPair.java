@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.grs.signature.KeyGenSignature;
 import eu.prismacloud.primitives.grs.utils.*;
 
 import java.math.BigInteger;
+import java.util.logging.Logger;
 
 /**
  * Generates key pair for the Signer
@@ -20,7 +21,9 @@ public class GSSignerKeyPair implements IGSKeyPair {
     private static BigInteger R_0;
     private static BigInteger Z;
     private static CommitmentGroup cg;
+    private static final Logger log = GSLoggerConfiguration.getGSlog();
 
+    
 
     public GSSignerKeyPair(SignerPrivateKey privateKey, SignerPublicKey publicKey) {
         GSSignerKeyPair.privateKey = privateKey;
@@ -38,6 +41,8 @@ public class GSSignerKeyPair implements IGSKeyPair {
      * @return GSSignerKeyPair
      */
     public static GSSignerKeyPair KeyGen() {
+        
+        
         specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
 
         QRGroup qrGroup = new QRGroup(specialRSAMod.getP_prime(), specialRSAMod.getQ_prime());
