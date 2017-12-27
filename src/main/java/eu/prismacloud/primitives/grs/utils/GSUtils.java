@@ -1,20 +1,14 @@
 package eu.prismacloud.primitives.grs.utils;
 
-import com.ibm.zurich.idmx.utils.Utils;
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-
 public class GSUtils implements INumberUtils {
     private static final Logger log = Logger.getLogger(GSUtils.class.getName());
-
-    //      private static BigInteger p;
-//      private final BigInteger p_prime;
-//      private final BigInteger q = null;
-//      private final BigInteger q_prime = null;
     private BigInteger n;
     private SafePrime p;
     private SafePrime q;
@@ -44,67 +38,74 @@ public class GSUtils implements INumberUtils {
     }
 
 
-    @Override
+    // @Override
     public BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
-        return null;
+        return new BigInteger(upperBound.bitLength(), new SecureRandom());
     }
 
     @Override
     public CommitmentGroup generateCommitmentGroup() {
         // TODO check if the computations are correct
         rho = generatePrime(KeyGenParameters.l_rho.getValue());
-        gamma = generateGroupModulus(rho);
-        g = createGenerator(rho, gamma);
+        gamma = computeCommitmentGroupModulus(rho);
+        g = createCommitmentGroupGenerator(rho, gamma);
         r = createRandomNumber(BigInteger.ZERO, rho);
-        h = bigPow(g, r);
+        h = g.modPow(r, gamma);
         return new CommitmentGroup(rho, gamma, g, h);
     }
 
-    private BigInteger createGenerator(BigInteger rho, BigInteger gamma) {
-        return new BigInteger("1");
-    }
 
+    @Override
+    public BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
+        BigInteger exp, g, h;
+        exp = gamma.subtract(BigInteger.ONE).divide(rho);
+
+        do {
+            h = createRandomNumber(NumberConstants.TWO.getValue(), gamma);
+            log.info("h: " + h);
+            g = h.modPow(exp, gamma);
+            log.info("g: " + g);
+
+        } while (h.equals(BigInteger.ONE));
+
+        return g;
+    }
 
     /**
-     * Algorithm <tt>alg:computeBigPow</tt> - topocert-doc
-     * Calculates BigInteger exponentiations
+     * Compute group modulus for the commitment group.
      *
-     * @param base the base
-     * @param e    the exponent
-     * @return b \( base^e \)
+     * @param rho prime number
+     * @return gamma commitment group modulus
      */
-    public BigInteger bigPow(BigInteger base, BigInteger e) {
-        if (e.compareTo(BigInteger.ZERO) < 0)
-            throw new IllegalArgumentException("exponent must not be negative");
-        BigInteger temp = base;
-        BigInteger b = BigInteger.ONE;
+    public BigInteger computeCommitmentGroupModulus(final BigInteger rho) {
 
-        byte[] bytes = e.toByteArray();
+        int l_b = KeyGenParameters.l_gamma.getValue() - rho.bitLength();
+        BigInteger b;
+        BigInteger[] res;
 
+        do {
 
-        for (int i = bytes.length - 1; i >= 0; i--) {
-            byte bit = bytes[i];
-            for (int j = 0; j < 8; j++) {
-                if ((bit & 1) != 0)
-                    b = b.multiply(temp);
-                
-                bit = (byte) (bit >> 1);
-                //log.info("shift: " + bit + " for i: " + i + " for j: " + j );
-                // discard rest of bits
-//              if ((bits == 0) && i == 0)
-//                    return b;
-                temp = temp.multiply(temp);
-            }
+            do {
+
+                b = new BigInteger(l_b, new SecureRandom());
+                // TODO refactor to computeRandomNumber
+                if (b.equals(BigInteger.ZERO)) break;
+
+                gamma = rho.multiply(b).add(BigInteger.ONE);
+//                log.info("gamma: " + gamma);
+
+            } while (!gamma.isProbablePrime(KeyGenParameters.l_pt.getValue()));
+
+            // rho divides gamma - 1
+            res = gamma.subtract(BigInteger.ONE).divideAndRemainder(rho);
+            log.info("remainder 1: " + res[1]);
+
         }
+        while (!res[1].equals(BigInteger.ZERO) || gamma.bitLength() != KeyGenParameters.l_gamma.getValue());
 
-        return b;
+        log.info("gamma: " + gamma);
+        return gamma;
 
-    }
-
-
-    private BigInteger generateGroupModulus(BigInteger rho) {
-
-        return new BigInteger("1");
     }
 
 
@@ -117,7 +118,7 @@ public class GSUtils implements INumberUtils {
      * Dependencies: splitPowerRemainder()
      */
     public static int computeJacobiSymbol(BigInteger alpha, BigInteger N) {
-        return JacobiSymbol.computeJacobiSymbol(alpha,N);
+        return JacobiSymbol.computeJacobiSymbol(alpha, N);
     }
 
 
@@ -129,10 +130,9 @@ public class GSUtils implements INumberUtils {
      * Dependencies: jacobiSymbol()
      */
 
-    public Boolean elementOfQR(BigInteger value, BigInteger modulus)
-    {
+    public Boolean elementOfQR(BigInteger value, BigInteger modulus) {
         return value.compareTo(BigInteger.ZERO) > 0 && value.compareTo(modulus.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
-                        && JacobiSymbol.computeJacobiSymbol(value, modulus) == 1;
+                && JacobiSymbol.computeJacobiSymbol(value, modulus) == 1;
     }
 
     /**
@@ -141,6 +141,7 @@ public class GSUtils implements INumberUtils {
      * Input: Special RSA modulus N
      * Output: random number S' of QRN
      * Dependencies: isElementOfZNS()
+     *
      * @param n
      */
 
@@ -238,13 +239,14 @@ public class GSUtils implements INumberUtils {
      * Output: safe prime p, Sophie Germain p'
      */
     public SafePrime generateRandomSafePrime() {
-        BigInteger a = BigInteger.ONE;
-        BigInteger a_prime = BigInteger.ONE;
+        BigInteger a;
+        BigInteger a_prime;
+
         do {
 
             a_prime = generatePrime(KeyGenParameters.l_n.getValue() / 2);
             log.info("a_prime: " + a_prime);
-            a = new BigInteger("2").multiply(a_prime).add(BigInteger.valueOf(1));
+            a = NumberConstants.TWO.getValue().multiply(a_prime).add(BigInteger.ONE);
             log.info("a: " + a);
             log.info("isPrime: " + isPrime(a));
 
@@ -264,13 +266,12 @@ public class GSUtils implements INumberUtils {
     }
 
     /**
-     * Generate prime big integer.
+     * Generate prime big integer with bitLength.
      *
+     * @param bitLength length of prime number
      * @return the big integer
      */
     public static BigInteger generatePrime(int bitLength) {
-
-        BigInteger a = Utils.genPrime(KeyGenParameters.l_n.getValue() / 2, KeyGenParameters.l_pt.getValue());
-        return a;
+        return BigInteger.probablePrime(bitLength, new SecureRandom());
     }
 }
