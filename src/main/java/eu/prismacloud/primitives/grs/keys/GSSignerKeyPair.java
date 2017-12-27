@@ -24,12 +24,23 @@ public class GSSignerKeyPair implements IGSKeyPair {
     private static final Logger log = GSLoggerConfiguration.getGSlog();
 
 
+    /**
+     * Instantiates a new Gs signer key pair.
+     *
+     * @param privateKey the private key
+     * @param publicKey  the public key
+     */
     public GSSignerKeyPair(final SignerPrivateKey privateKey, final SignerPublicKey publicKey) {
         GSSignerKeyPair.privateKey = privateKey;
         GSSignerKeyPair.publicKey = publicKey;
     }
 
 
+    /**
+     * Gets key gen signature.
+     *
+     * @return the key gen signature
+     */
     public static KeyGenSignature getKeyGenSignature() {
         return keyGenSignature;
     }
@@ -37,7 +48,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
     /**
      * Generate a key pair for the signer.
      *
-     * @return GSSignerKeyPair
+     * @return GSSignerKeyPair gs signer key pair
      */
     public static GSSignerKeyPair KeyGen() {
 
@@ -59,6 +70,9 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
     }
 
+    /**
+     * Generate key signature.
+     */
     public void generateKeySignature() {
         /* TODO generate key signature */
     }
