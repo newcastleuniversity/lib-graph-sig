@@ -5,24 +5,25 @@ import java.math.BigInteger;
 /**
  * Commitment Group value class
  */
-public class CommitmentGroup {
-    /** order of the subgroup of the commitment group /( \rho \)*/
+public final class CommitmentGroup extends Group {
+    /**
+     * order of the subgroup of the commitment group /( \rho \)
+     */
     private BigInteger rho;
-    /** commitment group modulus /( \Gamma \)*/
+    /**
+     * commitment group modulus /( \Gamma \)
+     */
     private BigInteger gamma;
-    private BigInteger g;
+    private CommitmentGroupElement g;
     private BigInteger r;
-    private BigInteger h;
-    private int l_rho;
-    private int l_gamma;
+    private CommitmentGroupElement h;
 
-    public CommitmentGroup(BigInteger rho, BigInteger gamma, BigInteger g, BigInteger h){
-
+    public CommitmentGroup(final BigInteger rho, final BigInteger gamma, final BigInteger g, BigInteger h) {
 
         this.rho = rho;
         this.gamma = gamma;
-        this.g = g;
-        this.h = h;
+        this.g = new CommitmentGroupElement(this, g);
+        this.h = new CommitmentGroupElement(this, h);
     }
 
 
@@ -35,10 +36,37 @@ public class CommitmentGroup {
     }
 
     public BigInteger getG() {
-        return g;
+        return g.getValue();
     }
 
     public BigInteger getH() {
-        return h;
+        return h.getValue();
+    }
+
+
+    @Override
+    public BigInteger getOrder() {
+        return gamma.subtract(BigInteger.ONE);
+    }
+
+    @Override
+    public BigInteger getGenerator() {
+        return g.getValue();
+    }
+
+    @Override
+    public BigInteger getModulus() {
+        return this.gamma;
+    }
+
+    @Override
+    public GroupElement createGenerator(BigInteger rho, BigInteger gamma) {
+        return new CommitmentGroupElement(this, CryptoUtilsFacade.commitmentGroupGenerator(rho, gamma));
+    }
+
+
+    @Override
+    public boolean isElement(BigInteger value) {
+        return false;
     }
 }
