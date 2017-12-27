@@ -1,13 +1,11 @@
 package eu.prismacloud.primitives.grs.utils;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Quadratic Group
  */
-public class QRGroup implements Group {
+public final class QRGroup extends Group {
 
     private final BigInteger modulus;
     private final BigInteger pPrime;
@@ -22,32 +20,28 @@ public class QRGroup implements Group {
         this.modulus = pPrime.multiply(qPrime);
         this.pPrime = pPrime;
         this.qPrime = qPrime;
-        this.order = computeGroupOrder(pPrime, qPrime);
+        this.order = getOrder();
 
-    }
-
-    private BigInteger computeGroupOrder(BigInteger pPrime, BigInteger qPrime) {
-        // TODO check if calculation is correct for QRGroup when the factorization is known
-        return pPrime.subtract(BigInteger.ONE).multiply(qPrime.subtract(BigInteger.ONE));
     }
 
 
     @Override
     public BigInteger getOrder() {
-        return this.order;
+        return this.pPrime.subtract(BigInteger.ONE).multiply(this.qPrime.subtract(BigInteger.ONE));
     }
 
+    @Override
     public BigInteger getModulus() {
         return this.modulus;
     }
+
 
     @Override
     public BigInteger getGenerator() {
         return this.generator;
     }
 
-    @Override
-    public QRElement createGenerator() {
+    public GroupElement createGenerator() {
         return new QRElement(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus));
     }
 
