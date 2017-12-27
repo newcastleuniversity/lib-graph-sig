@@ -19,6 +19,9 @@ public class IdemixUtils extends Utils implements INumberUtils {
     private SystemParameters sp = null;
     private GroupParameters gp;
 
+    /**
+     * Instantiates a new Idemix utils.
+     */
     public IdemixUtils() {
         super();
     }
@@ -39,13 +42,9 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
     @Override
     public BigInteger createQRNGenerator(BigInteger n) {
-        return null;
+        return Utils.computeGeneratorQuadraticResidue(n, getSP());
     }
 
-//    @Override
-//    public BigInteger createQRNGenerator() {
-//        return null;
-//    }
 
     @Override
     public BigInteger createRandomNumber(final BigInteger lowerBound, final BigInteger upperBound) {
@@ -57,24 +56,23 @@ public class IdemixUtils extends Utils implements INumberUtils {
         StructureStore st = StructureStore.getInstance();
         st.add("idemix", this.getSP());
 
-        GroupParameters gp = null;
         try {
             gp = GroupParameters.generateGroupParams(new URI("idemix"));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+        
         return new CommitmentGroup(gp.getRho(), gp.getCapGamma(), gp.getG(), gp.getH());
-
     }
 
     @Override
     public BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
-       throw new RuntimeException("not implemented");
+        return GroupParameters.newGenerator(rho, gamma, getSP());
     }
 
     @Override
     public Boolean elementOfQR(BigInteger value, BigInteger modulus) {
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException("not implemented in idemix library");
     }
 
     private SystemParameters getSP() {
