@@ -7,6 +7,9 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * Crypto Utilities class for graph signature library
+ */
 public class GSUtils implements INumberUtils {
     private static final Logger log = Logger.getLogger(GSUtils.class.getName());
     private BigInteger n;
@@ -34,12 +37,12 @@ public class GSUtils implements INumberUtils {
         q = this.generateRandomSafePrime();
         n = p.getSafePrime().multiply(q.getSafePrime());
         return new SpecialRSAMod(n, p, q);
-
     }
 
 
     // @Override
     public BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
+        // TODO refactor for creating a random number in range min, max
         return new BigInteger(upperBound.bitLength(), new SecureRandom());
     }
 
@@ -88,7 +91,7 @@ public class GSUtils implements INumberUtils {
             do {
 
                 b = new BigInteger(l_b, new SecureRandom());
-                // TODO refactor to computeRandomNumber
+                // TODO refactor to computeRandomNumber for b > 0
                 if (b.equals(BigInteger.ZERO)) break;
 
                 gamma = rho.multiply(b).add(BigInteger.ONE);
@@ -116,6 +119,10 @@ public class GSUtils implements INumberUtils {
      * Output: Jacobi symbol (a | N)
      * Invariant: N is odd and positive
      * Dependencies: splitPowerRemainder()
+     *
+     * @param alpha the alpha
+     * @param N     the n
+     * @return the int
      */
     public static int computeJacobiSymbol(BigInteger alpha, BigInteger N) {
         return JacobiSymbol.computeJacobiSymbol(alpha, N);
@@ -125,27 +132,29 @@ public class GSUtils implements INumberUtils {
     /**
      * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc
      * Determines if an integer  a is an element of QRN
-     * Input: candidate integer a, prime factors of positive, odd integer N: q_1, ..., q_r
-     * Output: true if a in QRN, false if a not in QRN
+     * 
+     * @param alpha candidate integer a
+     * @param N positive odd integer (prime factors \( N: q_1, \ldots , q_r \) )
+     * @return true if a in QRN, false if a not in QRN
      * Dependencies: jacobiSymbol()
      */
 
-    public Boolean elementOfQR(BigInteger value, BigInteger modulus) {
-        return value.compareTo(BigInteger.ZERO) > 0 && value.compareTo(modulus.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
-                && JacobiSymbol.computeJacobiSymbol(value, modulus) == 1;
+    public Boolean elementOfQR(BigInteger alpha, BigInteger N) {
+        return alpha.compareTo(BigInteger.ZERO) > 0 && alpha.compareTo(N.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
+                && JacobiSymbol.computeJacobiSymbol(alpha, N) == 1;
     }
 
     /**
-     * Algorithm <tt>alg:createElementOfZNS</tt> - topocert-doc
+     * Algorithm <tt>alg:createElementOfQRN</tt> - topocert-doc
      * Generate S' number
      * Input: Special RSA modulus N
      * Output: random number S' of QRN
      * Dependencies: isElementOfZNS()
      *
-     * @param n
+     * @param n the n
+     * @return the big integer
      */
-
-    public BigInteger createElementOfZNS(BigInteger n) {
+    public BigInteger createElementOfQRN(BigInteger n) {
 
         BigInteger s_prime;
         do {
@@ -164,12 +173,15 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm <tt>alg:verifySGeneratorOfZNS</tt> - topocert-doc
+     * Algorithm <tt>alg:verifySGeneratorOfQRN</tt> - topocert-doc
      * Evaluate generator S properties
      * Input: generator S, p', q'
      * Output: true or false
+     *
+     * @param s the s
+     * @return the boolean
      */
-    public static Boolean verifySGeneratorOfZNS(BigInteger s) {
+    public static Boolean verifySGeneratorOfQRN(BigInteger s) {
         return true;
     }
 
@@ -178,7 +190,7 @@ public class GSUtils implements INumberUtils {
      * Create generator of QRN
      * Input: Special RSA modulus N, p', q'
      * Output: generator S of QRN
-     * Dependencies: createElementOfZNS(), verifySGenerator()
+     * Dependencies: createElementOfQRN(), verifySGenerator()
      */
     public BigInteger createQRNGenerator(BigInteger n) {
 
@@ -187,11 +199,10 @@ public class GSUtils implements INumberUtils {
 
         do {
 
-            s_prime = createElementOfZNS(n);
+            s_prime = createElementOfQRN(n);
             s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
 
-
-        } while (!verifySGeneratorOfZNS(s));
+        } while (!verifySGeneratorOfQRN(s));
         return new BigInteger("1");
     }
 
@@ -202,8 +213,9 @@ public class GSUtils implements INumberUtils {
      * Input: Odd integer a
      * Output: Integers h and a' such that a = 2^ha'
      * Post-conditions: a = 2^h a' and a' is odd
+     *
+     * @return the array list
      */
-
     public static ArrayList<BigInteger> splitPowerRemainder() {
         return new ArrayList<BigInteger>(2);
     }
@@ -214,8 +226,10 @@ public class GSUtils implements INumberUtils {
      * Generate Camenisch-Lysyanskaya signature
      * Input: message m
      * Output: signature sigma
+     *
+     * @param m the m
+     * @return the cl signature
      */
-
     public static CLSignature generateCLSignature(CLMessage m) {
         return new CLSignature();
     }
@@ -226,8 +240,9 @@ public class GSUtils implements INumberUtils {
      * Generate Signature Proof of Knowledge
      * Input: R_0,S, Z, N
      * Output: signature proof of knowledge SPK
+     *
+     * @return the s po k
      */
-
     public static SPoK generateSignatureProofOfKnowledge() {
         return new SPoK();
     }
@@ -262,7 +277,6 @@ public class GSUtils implements INumberUtils {
      */
     public static Boolean isPrime(BigInteger number) {
         return number.isProbablePrime(KeyGenParameters.l_pt.getValue());
-
     }
 
     /**
