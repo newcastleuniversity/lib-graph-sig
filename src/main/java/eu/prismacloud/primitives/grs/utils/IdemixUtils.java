@@ -68,8 +68,13 @@ public class IdemixUtils extends Utils implements INumberUtils {
     }
 
     @Override
+    public BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
+       throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Boolean elementOfQR(BigInteger value, BigInteger modulus) {
-        return null;
+        throw new RuntimeException("not implemented");
     }
 
     private SystemParameters getSP() {
