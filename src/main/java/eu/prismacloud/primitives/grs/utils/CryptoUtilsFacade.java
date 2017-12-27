@@ -12,7 +12,6 @@ public class CryptoUtilsFacade {
     }
 
     public SafePrime computeRandomSafePrime() {
-
         return CryptoUtilsFactory.getInstance("GS").generateRandomSafePrime();
     }
 
@@ -34,11 +33,10 @@ public class CryptoUtilsFacade {
     }
 
     public static BigInteger commitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
-
         return CryptoUtilsFactory.getInstance("GS").createCommitmentGroupGenerator(rho, gamma);
     }
 
     public static Boolean isElementOfQR(BigInteger value, BigInteger modulus) {
-        return CryptoUtilsFactory.getInstance("IDEMIX").elementOfQR(value, modulus);
+        return CryptoUtilsFactory.getInstance("GS").elementOfQR(value, modulus);
     }
 }
