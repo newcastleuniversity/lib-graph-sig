@@ -5,12 +5,12 @@ import java.math.BigInteger;
 /**
  * Group
  */
-public interface Group {
+public abstract class Group {
 
-    public BigInteger getOrder();
+    public abstract BigInteger getOrder();
     //public int getModulusLength();
-    public BigInteger getGenerator();
-    public QRElement createGenerator();
-
-    boolean isElement(BigInteger value);
+    public abstract BigInteger getGenerator();
+    public abstract BigInteger getModulus();
+    public abstract GroupElement createGenerator(BigInteger rho, BigInteger gamma);
+    public abstract boolean  isElement(BigInteger value);
 }
