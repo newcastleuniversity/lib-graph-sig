@@ -1,16 +1,15 @@
 package eu.prismacloud.primitives.grs.utils;
 
-import java.math.BigInteger;
-
 /**
- * Provide a factory for different low-level implementations of number theoretic computations
+ * Provides a factory for different low-level implementations of number theoretic computations
  */
 public class CryptoUtilsFactory {
 
     private static IdemixUtils idemixUtil;
     private static GSUtils gsUtil;
 
-    CryptoUtilsFactory() {
+
+    private CryptoUtilsFactory() {
     }
 
     /**
@@ -20,10 +19,10 @@ public class CryptoUtilsFactory {
      * @return instance of factory class
      * @throws IllegalArgumentException if name is empty or null
      */
-    public static INumberUtils getInstance(String name) throws IllegalArgumentException {
+    public static INumberUtils getInstance(final String name) throws IllegalArgumentException {
 
         if ((name == null) || (name.length() == 0))
-            throw new IllegalArgumentException("Missing number theoretic utility class");
+            throw new IllegalArgumentException("Missing number theoretic utility class name");
 
         switch (name) {
             case "IDEMIX":
@@ -34,9 +33,9 @@ public class CryptoUtilsFactory {
             case "GS":
                 //return new GSUtils();
                 return gsUtil = (gsUtil == null) ? new GSUtils() : gsUtil;
-            default:
 
-                return null;
+            default:
+                return gsUtil = (gsUtil == null) ? new GSUtils() : gsUtil;
         }
     }
 
