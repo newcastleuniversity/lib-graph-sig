@@ -13,7 +13,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
     private static SignerPrivateKey privateKey;
     private static SignerPublicKey publicKey;
-    private KeyGenSignature keyGenSignature;
+    private static KeyGenSignature keyGenSignature;
     private static SpecialRSAMod specialRSAMod = null;
     private static BigInteger S;
     private static BigInteger x_Z;
@@ -23,16 +23,15 @@ public class GSSignerKeyPair implements IGSKeyPair {
     private static CommitmentGroup cg;
     private static final Logger log = GSLoggerConfiguration.getGSlog();
 
-    
 
-    public GSSignerKeyPair(SignerPrivateKey privateKey, SignerPublicKey publicKey) {
+    public GSSignerKeyPair(final SignerPrivateKey privateKey, final SignerPublicKey publicKey) {
         GSSignerKeyPair.privateKey = privateKey;
         GSSignerKeyPair.publicKey = publicKey;
     }
 
 
-    public KeyGenSignature getKeyGenSignature() {
-        return this.keyGenSignature;
+    public static KeyGenSignature getKeyGenSignature() {
+        return keyGenSignature;
     }
 
     /**
@@ -41,12 +40,11 @@ public class GSSignerKeyPair implements IGSKeyPair {
      * @return GSSignerKeyPair
      */
     public static GSSignerKeyPair KeyGen() {
-        
-        
+
         specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
 
         QRGroup qrGroup = new QRGroup(specialRSAMod.getP_prime(), specialRSAMod.getQ_prime());
-        S = qrGroup.createGenerator().getRepresentation();
+        S = qrGroup.createGenerator().getValue();
 
         BigInteger upperBound = specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
         x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
@@ -75,11 +73,8 @@ public class GSSignerKeyPair implements IGSKeyPair {
     }
 
     public KeyGenSignature getSignature() {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO implement getSignature
+        throw new RuntimeException("getSignature not implemented");
     }
 
-    public CommitmentGroup getCommitmentGroup() {
-        return cg;
-    }
 }
