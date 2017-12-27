@@ -42,19 +42,19 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
     @Override
     public BigInteger createQRNGenerator(BigInteger n) {
-        return Utils.computeGeneratorQuadraticResidue(n, getSP());
+        return Utils.computeGeneratorQuadraticResidue(n, getIdemixSystemParameters());
     }
 
 
     @Override
     public BigInteger createRandomNumber(final BigInteger lowerBound, final BigInteger upperBound) {
-        return Utils.computeRandomNumber(lowerBound, upperBound, this.getSP());
+        return Utils.computeRandomNumber(lowerBound, upperBound, this.getIdemixSystemParameters());
     }
 
     @Override
     public CommitmentGroup generateCommitmentGroup() {
         StructureStore st = StructureStore.getInstance();
-        st.add("idemix", this.getSP());
+        st.add("idemix", this.getIdemixSystemParameters());
 
         try {
             gp = GroupParameters.generateGroupParams(new URI("idemix"));
@@ -67,7 +67,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
     @Override
     public BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
-        return GroupParameters.newGenerator(rho, gamma, getSP());
+        return GroupParameters.newGenerator(rho, gamma, getIdemixSystemParameters());
     }
 
     @Override
@@ -75,7 +75,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
         throw new RuntimeException("not implemented in idemix library");
     }
 
-    private SystemParameters getSP() {
+    private SystemParameters getIdemixSystemParameters() {
 
         if (sp == null) {
             sp = new SystemParameters(KeyGenParameters.l_e.getValue(), KeyGenParameters.l_prime_e.getValue(), KeyGenParameters.l_gamma.getValue(), KeyGenParameters.l_H.getValue(), 0, KeyGenParameters.l_m.getValue(), KeyGenParameters.l_n.getValue(), KeyGenParameters.l_0.getValue(), KeyGenParameters.l_pt.getValue(), KeyGenParameters.l_r.getValue(), KeyGenParameters.l_res.getValue(), KeyGenParameters.l_rho.getValue(), KeyGenParameters.l_v.getValue(), 0);
