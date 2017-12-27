@@ -59,7 +59,6 @@ public final class CommitmentGroup extends Group {
         return this.gamma;
     }
 
-    @Override
     public GroupElement createGenerator(BigInteger rho, BigInteger gamma) {
         return new CommitmentGroupElement(this, CryptoUtilsFacade.commitmentGroupGenerator(rho, gamma));
     }

@@ -11,6 +11,6 @@ public abstract class Group {
     //public int getModulusLength();
     public abstract BigInteger getGenerator();
     public abstract BigInteger getModulus();
-    public abstract GroupElement createGenerator(BigInteger rho, BigInteger gamma);
+//    public abstract GroupElement createGenerator(BigInteger rho, BigInteger gamma);
     public abstract boolean  isElement(BigInteger value);
 }
