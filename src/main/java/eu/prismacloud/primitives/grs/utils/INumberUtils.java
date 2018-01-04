@@ -19,5 +19,5 @@ public interface INumberUtils {
 
     BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma);
 
-    Boolean elementOfQR(BigInteger value, BigInteger modulus);
+    Boolean elementOfQRN(BigInteger value, BigInteger modulus);
 }
