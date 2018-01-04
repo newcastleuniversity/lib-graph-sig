@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,10 +36,6 @@ class GSUtilsTest {
 
     @Test
     void generateSpecialRSAModulus() {
-    }
-
-    @Test
-    void createRandomNumber() {
     }
 
     @Test
@@ -171,7 +168,7 @@ class GSUtilsTest {
 
         assertNotNull(g);
         // g^rho mod gamma = 1 mod gamma
-        assertEquals(g.modPow(rho,gamma),BigInteger.ONE.mod(gamma));
+        assertEquals(g.modPow(rho, gamma), BigInteger.ONE.mod(gamma));
 
     }
 
@@ -194,4 +191,67 @@ class GSUtilsTest {
         assertEquals(BigInteger.ZERO, res);
 
     }
+
+    @Test
+    @DisplayName("generate random number in range")
+    void createRandomNumber() {
+        log.info("@Test: createRandomNumber ");
+
+        for (int i = 0; i < 1000; i++) {
+            BigInteger rnd = classUnderTest.createRandomNumber(BigInteger.valueOf(1), BigInteger.TEN);
+            log.info("random number " + i + ":  " + rnd);
+            assertTrue(rnd.compareTo(BigInteger.valueOf(1)) >= 0 && rnd.compareTo(BigInteger.TEN) <= 0);
+        }
+
+
+    }
+
+    @Test
+    @DisplayName("generate random number in range with max,min")
+    void createRandomNumberWithMaxMin() {
+        log.info("@Test: createRandomNumber ");
+
+        for (int i = 0; i < 1000; i++) {
+            BigInteger rnd = classUnderTest.createRandomNumber(BigInteger.TEN, BigInteger.ZERO);
+            log.info("random number " + i + ":  " + rnd);
+            assertTrue(rnd.compareTo(BigInteger.valueOf(0)) >= 0 && rnd.compareTo(BigInteger.TEN) <= 0);
+        }
+
+
+    }
+
+    @Test
+    void elementOfQRN() {
+    }
+
+    @Test
+    void verifySGeneratorOfQRN() {
+    }
+
+    @Test
+    @DisplayName("generate random number with factors")
+    void generateRandomNumberWithFactors() {
+
+        log.info("@Test: generateRandomNumberWithFactors");
+
+        BigInteger factor;
+        BigInteger m = BigInteger.ONE;
+
+        ArrayList<BigInteger> factors;
+        factors = classUnderTest.generateRandomNumberWithFactors(BigInteger.valueOf(101));
+
+        log.info("rnd length: " + factors.size());
+
+        for (int i = 0; i < factors.size(); i++) {
+            factor = factors.get(i);
+            log.info("factor " + i + " : " + factor);
+            assertTrue(GSUtils.isPrime(factor));
+            m = m.multiply(factor);
+        }
+        
+        log.info("m: " + m);
+//        assertEquals(factors.getRandomNumber(), m);
+    }
+
+
 }
