@@ -9,7 +9,7 @@ public class CryptoUtilsFactory {
     private static GSUtils gsUtil;
 
 
-    private CryptoUtilsFactory() {
+    CryptoUtilsFactory() {
     }
 
     /**
