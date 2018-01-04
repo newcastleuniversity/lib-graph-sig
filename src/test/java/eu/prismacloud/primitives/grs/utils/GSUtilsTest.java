@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -177,7 +178,7 @@ class GSUtilsTest {
     void computeCommitmentGroupModulus() {
         log.info("@Test: computeCommitmentGroupModulus");
         BigInteger gamma, res;
-        BigInteger rho = BigInteger.probablePrime(KeyGenParameters.l_rho.getValue(), new SecureRandom());
+        BigInteger rho = BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
 //        BigInteger rho = BigInteger.probablePrime(16,new SecureRandom());
 
         gamma = classUnderTest.computeCommitmentGroupModulus(rho);
@@ -217,7 +218,6 @@ class GSUtilsTest {
             assertTrue(rnd.compareTo(BigInteger.valueOf(0)) >= 0 && rnd.compareTo(BigInteger.TEN) <= 0);
         }
 
-
     }
 
     @Test
@@ -233,25 +233,67 @@ class GSUtilsTest {
     void generateRandomNumberWithFactors() {
 
         log.info("@Test: generateRandomNumberWithFactors");
+        BigInteger m;
 
         BigInteger factor;
-        BigInteger m = BigInteger.ONE;
+        m = BigInteger.ONE;
 
         ArrayList<BigInteger> factors;
-        factors = classUnderTest.generateRandomNumberWithFactors(BigInteger.valueOf(101));
 
-        log.info("rnd length: " + factors.size());
+//        factors = classUnderTest.generateRandomNumberWithFactors(BigInteger.valueOf(10109));
+        factors = classUnderTest.generateRandomPrimeWithFactors(new BigInteger(KeyGenParameters.l_gamma.getValue(), KeyGenParameters.l_pt.getValue(), new SecureRandom()));
+        log.info("@Test: rnd length: " + factors.size());
 
         for (int i = 0; i < factors.size(); i++) {
             factor = factors.get(i);
-            log.info("factor " + i + " : " + factor);
+            log.info("@Test: factor " + i + " : " + factor);
             assertTrue(GSUtils.isPrime(factor));
             m = m.multiply(factor);
         }
+
+        log.info("@Test: m: " + m);
         
-        log.info("m: " + m);
-//        assertEquals(factors.getRandomNumber(), m);
+        log.info("@Test: m+1: " + m.add(BigInteger.ONE));
+        log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
     }
 
+    @Test
+    @DisplayName("generate Prime number with factors")
+    void generateRandomPrimeWithFactors() {
 
+        BigInteger m;
+        BigInteger factor;
+        m = BigInteger.ONE;
+
+        ArrayList<BigInteger> factors;
+
+        factors = classUnderTest.generateRandomPrimeWithFactors(new BigInteger(KeyGenParameters.l_gamma.getValue(), KeyGenParameters.l_pt.getValue(), new SecureRandom()));
+
+        log.info("@Test: rnd length: " + factors.size());
+
+        for (int i = 0; i < factors.size(); i++) {
+            factor = factors.get(i);
+            log.info("@Test: factor " + i + " : " + factor);
+            assertTrue(GSUtils.isPrime(factor));
+            m = m.multiply(factor);
+        }
+
+        log.info("@Test: m: " + m);
+
+        log.info("@Test: m+1: " + m.add(BigInteger.ONE));
+        log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
+        assertTrue(GSUtils.isPrime(m.add(BigInteger.ONE)));
+
+    }
+
+    @Test
+    @DisplayName("get max number from a list")
+    void getMaxNumber() {
+
+        log.info("@Test: getMaxNumber" );
+        ArrayList<BigInteger> list = new ArrayList<BigInteger>(Arrays.asList(BigInteger.valueOf(20), BigInteger.valueOf(23), BigInteger.valueOf(19), BigInteger.valueOf(3)));
+
+        assertEquals(BigInteger.valueOf(23), classUnderTest.getMaxNumber(list));
+
+    }
 }
