@@ -185,16 +185,9 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Generate random prime number  along with its factorization.
-     * Wrapper function for generateRandomNumberWithFactors
-     * 
-     * Following Shoup's book section 11.1.
-     * 
-     * Generate a random factored number n in range,
-     * test n + 1 for primality,
-     * and then repeat until we get a factored number n such that  p = n+1 is prime.
-     * We  generate a random prime p in a given range along with the factorization of p − 1
-     * 
+     * Algorithm <tt>alg:gen_prime_numb_fact</tt> - topocert-doc
+     * Generate random prime number along with its factorization.
+     *
      * @param m integer number m >= 2
      * @return prime number factorization \(p_1, \ldots, p_r \) of a prime number
      */
