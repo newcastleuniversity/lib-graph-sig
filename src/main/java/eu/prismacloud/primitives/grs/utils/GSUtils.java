@@ -5,7 +5,11 @@ import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Crypto Utilities class for graph signature library
@@ -99,28 +103,26 @@ public class GSUtils implements INumberUtils {
     /**
      * Compute group modulus for the commitment group.
      *
-     * @param rho prime number
+     * @param m prime number
      * @return gamma commitment group modulus
      */
-    public BigInteger computeCommitmentGroupModulus(final BigInteger rho) {
+    public BigInteger computeCommitmentGroupModulus(final BigInteger m) {
 
-        int l_b = KeyGenParameters.l_gamma.getValue() - rho.bitLength();
-        BigInteger b;
+        ArrayList<BigInteger> primeFactors;
         BigInteger[] res;
+        BigInteger gamma = BigInteger.ONE;
 
         do {
 
-            do {
+            primeFactors = generateRandomPrimeWithFactors(m);
 
-                b = new BigInteger(l_b, new SecureRandom());
-                // TODO refactor to computeRandomNumber for b > 0
-                if (b.equals(BigInteger.ZERO)) break;
+            for (int i = 0; i < primeFactors.size(); i++) {
+                BigInteger factor =  primeFactors.get(i);
+                gamma = gamma.multiply(factor);
+                
+            }
 
-                gamma = rho.multiply(b).add(BigInteger.ONE);
-//                log.info("gamma: " + gamma);
-
-            } while (!gamma.isProbablePrime(KeyGenParameters.l_pt.getValue()));
-
+            rho = getMaxNumber(primeFactors);
             // rho divides gamma - 1
             res = gamma.subtract(BigInteger.ONE).divideAndRemainder(rho);
             log.info("remainder 1: " + res[1]);
@@ -149,7 +151,7 @@ public class GSUtils implements INumberUtils {
         BigInteger n = m;
         ArrayList<BigInteger> primeSeq = new ArrayList<BigInteger>();
         BigInteger y, x;
-
+        
         do {
 
             primeSeq.clear();
@@ -171,11 +173,68 @@ public class GSUtils implements INumberUtils {
 
             x = createRandomNumber(BigInteger.ONE, m);
 
+            log.info("y prime :  " + y);
+            log.info("isPrime:  " + isPrime(y));
+            
         } while (y.compareTo(m) <= 0 && x.compareTo(y) <= 0);
 
         log.info("y: " + y);
 
         return primeSeq;
+    }
+
+
+    /**
+     * Generate random prime number  along with its factorization.
+     * Wrapper function for generateRandomNumberWithFactors
+     * 
+     * Following Shoup's book section 11.1.
+     * 
+     * Generate a random factored number n in range,
+     * test n + 1 for primality,
+     * and then repeat until we get a factored number n such that  p = n+1 is prime.
+     * We  generate a random prime p in a given range along with the factorization of p − 1
+     * 
+     * @param m integer number m >= 2
+     * @return prime number factorization \(p_1, \ldots, p_r \) of a prime number
+     */
+    public ArrayList<BigInteger> generateRandomPrimeWithFactors(BigInteger m) {
+
+        ArrayList<BigInteger> factors;
+        BigInteger factor, p;
+
+        do {
+
+            p = BigInteger.ONE;
+
+            factors = generateRandomNumberWithFactors(m);
+
+            log.info("rnd length: " + factors.size());
+
+            for (int i = 0; i < factors.size(); i++) {
+                factor = factors.get(i);
+                log.info("factor " + i + " : " + factor);
+                p = p.multiply(factor);
+            }
+
+            log.info("p: " + p.add(BigInteger.ONE));
+            log.info("p: bitlength " + p.add(BigInteger.ONE).bitLength());
+        } while (!GSUtils.isPrime(p.add(BigInteger.ONE)));
+
+        return factors;
+
+    }
+
+
+    /**
+     * Gets max number.
+     *
+     * @param numbers list of BigIntegers
+     * @return the max BigInteger
+     */
+    public BigInteger getMaxNumber(ArrayList<BigInteger> numbers) {
+        
+        return Collections.max(numbers);
     }
 
     /**
