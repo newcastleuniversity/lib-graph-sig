@@ -71,7 +71,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
     }
 
     @Override
-    public Boolean elementOfQR(BigInteger value, BigInteger modulus) {
+    public Boolean elementOfQRN(BigInteger value, BigInteger modulus) {
         throw new RuntimeException("not implemented in idemix library");
     }
 
