@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  * Crypto Utilities class for graph signature library
  */
 public class GSUtils implements INumberUtils {
+
     private static final Logger log = Logger.getLogger(GSUtils.class.getName());
     private BigInteger n;
     private SafePrime p;
@@ -41,9 +42,29 @@ public class GSUtils implements INumberUtils {
 
 
     // @Override
-    public BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
-        // TODO refactor for creating a random number in range min, max
-        return new BigInteger(upperBound.bitLength(), new SecureRandom());
+    public BigInteger createRandomNumber(BigInteger min, BigInteger max) {
+
+        BigInteger randomNumber, result, range, temp;
+
+        if (max.compareTo(min) < 0) {
+            temp = min;
+            min = max;
+            max = temp;
+        } else if (max.compareTo(min) == 0) {
+            return min;
+        }
+
+        //range =  max - min + 1
+        range = max.subtract(min).add(BigInteger.ONE);
+        log.info("range: " + range);
+
+        do {
+            randomNumber = new BigInteger(range.bitLength(), new SecureRandom());
+        } while (randomNumber.compareTo(range) >= 0);
+
+        log.info("random: " + randomNumber);
+        result = randomNumber.add(min);
+        return result;
     }
 
     @Override
@@ -59,7 +80,7 @@ public class GSUtils implements INumberUtils {
 
 
     @Override
-    public BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
+    public BigInteger createCommitmentGroupGenerator(final BigInteger rho, final BigInteger gamma) {
         BigInteger exp, g, h;
         exp = gamma.subtract(BigInteger.ONE).divide(rho);
 
@@ -73,6 +94,7 @@ public class GSUtils implements INumberUtils {
 
         return g;
     }
+
 
     /**
      * Compute group modulus for the commitment group.
@@ -111,6 +133,50 @@ public class GSUtils implements INumberUtils {
 
     }
 
+    /**
+     * Algorithm <tt>alg:gen_numb_fact</tt> - topocert-doc
+     * Generate random number in factored form.
+     *
+     * @param m integer number m >= 2
+     * @return prime number factorization \(p_1, \ldots, p_r \)
+     */
+    public ArrayList<BigInteger> generateRandomNumberWithFactors(BigInteger m) {
+
+        if (m.compareTo(NumberConstants.TWO.getValue()) < 0) {
+            throw new IllegalArgumentException("integer number m must be >= 2");
+        }
+
+        BigInteger n = m;
+        ArrayList<BigInteger> primeSeq = new ArrayList<BigInteger>();
+        BigInteger y, x;
+
+        do {
+
+            primeSeq.clear();
+            y = BigInteger.ONE;
+
+            BigInteger min = BigInteger.valueOf(2);
+
+            do {
+                n = createRandomNumber(min, n);
+
+                log.info("n " + n);
+
+                if (n.isProbablePrime(KeyGenParameters.l_pt.getValue())) {
+                    primeSeq.add(n);
+                    y = y.multiply(n);
+                }
+
+            } while (n.compareTo(min) > 0);
+
+            x = createRandomNumber(BigInteger.ONE, m);
+
+        } while (y.compareTo(m) <= 0 && x.compareTo(y) <= 0);
+
+        log.info("y: " + y);
+
+        return primeSeq;
+    }
 
     /**
      * Algorithm <tt>alg:jacobi_shoup</tt> - topocert-doc
@@ -124,7 +190,7 @@ public class GSUtils implements INumberUtils {
      * @param N     the n
      * @return the int
      */
-    public static int computeJacobiSymbol(BigInteger alpha, BigInteger N) {
+    public static int computeJacobiSymbol(final BigInteger alpha, final BigInteger N) {
         return JacobiSymbol.computeJacobiSymbol(alpha, N);
     }
 
@@ -132,41 +198,40 @@ public class GSUtils implements INumberUtils {
     /**
      * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc
      * Determines if an integer  a is an element of QRN
-     * 
+     *
      * @param alpha candidate integer a
-     * @param N positive odd integer (prime factors \( N: q_1, \ldots , q_r \) )
+     * @param N     positive odd integer (prime factors \( N: q_1, \ldots , q_r \) )
      * @return true if a in QRN, false if a not in QRN
      * Dependencies: jacobiSymbol()
      */
 
-    public Boolean elementOfQR(BigInteger alpha, BigInteger N) {
+    public Boolean elementOfQRN(final BigInteger alpha, final BigInteger N) {
         return alpha.compareTo(BigInteger.ZERO) > 0 && alpha.compareTo(N.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
                 && JacobiSymbol.computeJacobiSymbol(alpha, N) == 1;
     }
 
     /**
-     * Algorithm <tt>alg:createElementOfQRN</tt> - topocert-doc
+     * Algorithm <tt>alg:createElementOfZNS</tt> - topocert-doc
      * Generate S' number
-     * Input: Special RSA modulus N
-     * Output: random number S' of QRN
+     * <p>
      * Dependencies: isElementOfZNS()
      *
-     * @param n the n
-     * @return the big integer
+     * @param N the special RSA modulus
+     * @return s_prime random number S' of QRN
      */
-    public BigInteger createElementOfQRN(BigInteger n) {
+    public BigInteger createElementOfZNS(final BigInteger N) {
 
         BigInteger s_prime;
         do {
 
             s_prime = createRandomNumber(NumberConstants.TWO.getValue(), n.subtract(BigInteger.ONE));
 
-        } while (!isElementOfZNS(s_prime));
+        } while (!isElementOfZNS(s_prime, N));
 
         return s_prime;
     }
 
-    private boolean isElementOfZNS(BigInteger s_prime) {
+    private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger N) {
         // check gcd(S', N) = 1
         return (s_prime.gcd(this.n).equals(BigInteger.ONE));
     }
@@ -181,7 +246,7 @@ public class GSUtils implements INumberUtils {
      * @param s the s
      * @return the boolean
      */
-    public static Boolean verifySGeneratorOfQRN(BigInteger s) {
+    public static Boolean verifySGeneratorOfQRN(final BigInteger s) {
         return true;
     }
 
@@ -190,16 +255,16 @@ public class GSUtils implements INumberUtils {
      * Create generator of QRN
      * Input: Special RSA modulus N, p', q'
      * Output: generator S of QRN
-     * Dependencies: createElementOfQRN(), verifySGenerator()
+     * Dependencies: createElementOfZNS(), verifySGenerator()
      */
-    public BigInteger createQRNGenerator(BigInteger n) {
+    public BigInteger createQRNGenerator(final BigInteger n) {
 
         BigInteger s;
         BigInteger s_prime;
 
         do {
 
-            s_prime = createElementOfQRN(n);
+            s_prime = createElementOfZNS(n);
             s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
 
         } while (!verifySGeneratorOfQRN(s));
