@@ -37,6 +37,6 @@ public class CryptoUtilsFacade {
     }
 
     public static Boolean isElementOfQR(BigInteger value, BigInteger modulus) {
-        return CryptoUtilsFactory.getInstance("GS").elementOfQR(value, modulus);
+        return CryptoUtilsFactory.getInstance("GS").elementOfQRN(value, modulus);
     }
 }
