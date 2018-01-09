@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -159,17 +162,17 @@ class GSUtilsTest {
     void createCommitmentGroupGenerator() {
         log.info("@Test: createCommitmentGroupGenerator");
         BigInteger gamma, g;
-        BigInteger rho = BigInteger.probablePrime(KeyGenParameters.l_rho.getValue(), new SecureRandom());
-        gamma = classUnderTest.computeCommitmentGroupModulus(rho);
+        BigInteger m = BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
+        gamma = classUnderTest.computeCommitmentGroupModulus(m);
         log.info("gamma: " + gamma);
         log.info("gamma bitlength: " + gamma.bitLength());
         assertNotNull(gamma);
 
-        g = classUnderTest.createCommitmentGroupGenerator(rho, gamma);
+        g = classUnderTest.createCommitmentGroupGenerator(classUnderTest.getRho(), gamma);
 
         assertNotNull(g);
         // g^rho mod gamma = 1 mod gamma
-        assertEquals(g.modPow(rho, gamma), BigInteger.ONE.mod(gamma));
+        assertEquals(g.modPow(classUnderTest.getRho(), gamma.add(BigInteger.ONE)), BigInteger.ONE.mod(gamma.add(BigInteger.ONE)));
 
     }
 
@@ -177,17 +180,16 @@ class GSUtilsTest {
     @DisplayName("compute commitment group modulus")
     void computeCommitmentGroupModulus() {
         log.info("@Test: computeCommitmentGroupModulus");
-        BigInteger gamma, res;
-        BigInteger rho = BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
+        BigInteger mingamma, res;
+        BigInteger m = BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
 //        BigInteger rho = BigInteger.probablePrime(16,new SecureRandom());
 
-        gamma = classUnderTest.computeCommitmentGroupModulus(rho);
-        log.info("gamma: " + gamma);
-        log.info("gamma bitlength: " + gamma.bitLength());
-        assertNotNull(gamma);
-        //check rho divides gamma - 1
-        BigInteger ga = gamma.subtract(BigInteger.ONE);
-        res = ga.divideAndRemainder(rho)[1];
+        mingamma = classUnderTest.computeCommitmentGroupModulus(m);
+        log.info("gamma: " + mingamma);
+        log.info("gamma bitlength: " + mingamma.bitLength());
+        assertNotNull(mingamma);
+        //check rho divides gamma - 1 = mingamma
+        res = mingamma.divideAndRemainder(classUnderTest.getRho())[1];
         log.info("divides: " + res);
         assertEquals(BigInteger.ZERO, res);
 
@@ -252,7 +254,7 @@ class GSUtilsTest {
         }
 
         log.info("@Test: m: " + m);
-        
+
         log.info("@Test: m+1: " + m.add(BigInteger.ONE));
         log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
     }
@@ -290,10 +292,52 @@ class GSUtilsTest {
     @DisplayName("get max number from a list")
     void getMaxNumber() {
 
-        log.info("@Test: getMaxNumber" );
+        log.info("@Test: getMaxNumber");
         ArrayList<BigInteger> list = new ArrayList<BigInteger>(Arrays.asList(BigInteger.valueOf(20), BigInteger.valueOf(23), BigInteger.valueOf(19), BigInteger.valueOf(3)));
 
         assertEquals(BigInteger.valueOf(23), classUnderTest.getMaxNumber(list));
 
+    }
+
+    @Test
+    @DisplayName("createZPSGenerator")
+    void createZPSGenerator() {
+        log.info("@Test: createZPSGenerator");
+        //1150 = 2x5x5x23
+
+//        ArrayList<BigInteger> primeFactors = new ArrayList<BigInteger>(Arrays.asList(BigInteger.valueOf(2), BigInteger.valueOf(5), BigInteger.valueOf(23), BigInteger.valueOf(5)));
+        
+        //10 = 2x5  (generators {2,6,7,8})
+
+        for (int i = 0; i < 1000; i++) {
+
+            ArrayList<BigInteger> primeFactors = new ArrayList<BigInteger>(Arrays.asList(BigInteger.valueOf(2), BigInteger.valueOf(5)));
+
+            BigInteger gamma, g;
+
+//        BigInteger rho = BigInteger.valueOf(383);
+            BigInteger rho = BigInteger.valueOf(5);
+
+            BigInteger m = BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
+
+            gamma = BigInteger.valueOf(11); //classUnderTest.computeCommitmentGroupModulus(m);
+
+            log.info("gamma: " + gamma);
+            log.info("gamma bitlength: " + gamma.bitLength());
+            assertNotNull(gamma);
+
+            g = classUnderTest.createZPSGenerator(gamma, primeFactors);
+
+            log.info("generator: " + g);
+
+            assertNotNull(g);
+            // g^rho mod gamma = 1 mod gamma
+//        assertEquals(g.modPow(classUnderTest.getRho(), gamma.add(BigInteger.ONE)), BigInteger.ONE.mod(gamma.add(BigInteger.ONE)));
+            assertThat(g, anyOf(is(BigInteger.valueOf(2)), is(BigInteger.valueOf(6)), is(BigInteger.valueOf(7)), is(BigInteger.valueOf(8))));
+        }
+    }
+
+    @Test
+    void getRho() {
     }
 }
