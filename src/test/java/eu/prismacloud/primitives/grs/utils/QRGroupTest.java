@@ -7,15 +7,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Test QRGroup
  * 
  */
 class QRGroupTest {
     private static final Logger log = Logger.getLogger(QRGroupTest.class.getName());
-    private QRGroup classUnderTest;
+    private QRGroupPQ classUnderTest;
     @BeforeEach
     void setUp() {
 //        classUnderTest = new QRGroup();
