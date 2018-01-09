@@ -3,11 +3,10 @@ package eu.prismacloud.primitives.grs.utils;
 import java.math.BigInteger;
 
 /**
- * element of Quadratic Residue
+ * element of Quadratic Residue Group
  */
-public class QRElement extends GroupElement{
-    private QRGroup group;
-
+public abstract class QRElement extends GroupElement {
+    private Group group;
 
     private final BigInteger value;
 
@@ -15,12 +14,13 @@ public class QRElement extends GroupElement{
         this.value = value;
     }
 
-    public QRElement(final QRGroup group, final BigInteger value) {
+    public QRElement(final Group group, final BigInteger value) {
 
         this.group = group;
         this.value = value;
-        
+
     }
+
 
     public BigInteger getValue() {
         return value;
@@ -130,9 +130,9 @@ public class QRElement extends GroupElement{
         return value.toByteArray();
     }
 
-    public QRGroup getGroup() {
+    public Group getGroup() {
         return group;
     }
 
-   
+
 }
