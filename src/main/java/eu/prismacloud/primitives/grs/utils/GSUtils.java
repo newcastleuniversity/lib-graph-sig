@@ -5,11 +5,8 @@ import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Crypto Utilities class for graph signature library
@@ -25,6 +22,7 @@ public class GSUtils implements INumberUtils {
     private BigInteger g;
     private BigInteger r;
     private BigInteger h;
+    private ArrayList<BigInteger> primeFactors;
 
     protected GSUtils() {
     }
@@ -60,13 +58,13 @@ public class GSUtils implements INumberUtils {
 
         //range =  max - min + 1
         range = max.subtract(min).add(BigInteger.ONE);
-        log.info("range: " + range);
+        //   log.info("range: " + range);
 
         do {
             randomNumber = new BigInteger(range.bitLength(), new SecureRandom());
         } while (randomNumber.compareTo(range) >= 0);
 
-        log.info("random: " + randomNumber);
+        //   log.info("random: " + randomNumber);
         result = randomNumber.add(min);
         return result;
     }
@@ -83,6 +81,12 @@ public class GSUtils implements INumberUtils {
     }
 
 
+    /**
+     * Create generator for commitment group
+     * @param rho
+     * @param gamma
+     * @return
+     */
     @Override
     public BigInteger createCommitmentGroupGenerator(final BigInteger rho, final BigInteger gamma) {
         BigInteger exp, g, h;
@@ -95,6 +99,45 @@ public class GSUtils implements INumberUtils {
             log.info("g: " + g);
 
         } while (h.equals(BigInteger.ONE));
+
+        return g;
+    }
+
+    /**
+     * Algorithm <tt>alg:zps_gen</tt> - topocert-doc
+     * 
+     * Create generator for \( Z^*_\Gamma \).
+     *
+     * @param gamma        the gamma modulus
+     * @param primeFactors the prime factors
+     * @return generator for \( Z^*_\Gamma \)
+     */
+    public BigInteger createZPSGenerator(BigInteger gamma, ArrayList<BigInteger> primeFactors) {
+        // TODO check if current algorithm is correct
+        BigInteger alpha, beta, g = BigInteger.ONE;
+        
+        ArrayList<BigInteger> genFactors = new ArrayList<BigInteger>();
+
+        for (BigInteger factor : primeFactors) {
+            log.info("factor: " + factor);
+            do {
+
+//              alpha = generatePrime(KeyGenParameters.l_gamma.getValue());
+                alpha = createRandomNumber(BigInteger.ONE, gamma.subtract(BigInteger.ONE));
+//                log.info("alpha: " + alpha);
+                
+                beta = alpha.modPow(factor, gamma);
+                log.info("beta: " + beta);
+
+            } while (beta.equals(BigInteger.ONE));// || !beta.equals(BigInteger.valueOf(0)));
+            log.info("alpha: " + alpha);
+            genFactors.add(alpha.modPow(factor,gamma));
+
+        }
+
+        for (BigInteger genFactor : genFactors) {
+            g = g.multiply(genFactor).mod(gamma);
+        }
 
         return g;
     }
@@ -116,23 +159,30 @@ public class GSUtils implements INumberUtils {
 
             primeFactors = generateRandomPrimeWithFactors(m);
 
-            for (int i = 0; i < primeFactors.size(); i++) {
-                BigInteger factor =  primeFactors.get(i);
+            for (BigInteger factor : primeFactors) {
                 gamma = gamma.multiply(factor);
-                
+
             }
 
-            rho = getMaxNumber(primeFactors);
+            this.rho = getMaxNumber(primeFactors);
             // rho divides gamma - 1
-            res = gamma.subtract(BigInteger.ONE).divideAndRemainder(rho);
+            res = gamma.divideAndRemainder(rho);
             log.info("remainder 1: " + res[1]);
 
         }
-        while (!res[1].equals(BigInteger.ZERO) || gamma.bitLength() != KeyGenParameters.l_gamma.getValue());
-
+        while (!res[1].equals(BigInteger.ZERO));// || gamma.bitLength() != KeyGenParameters.l_gamma.getValue());
+        this.primeFactors = primeFactors;
         log.info("gamma: " + gamma);
         return gamma;
 
+    }
+
+    public BigInteger getRho() {
+        return this.rho;
+    }
+
+    public ArrayList<BigInteger> getPrimeFactors(){
+        return this.primeFactors;
     }
 
     /**
@@ -151,7 +201,7 @@ public class GSUtils implements INumberUtils {
         BigInteger n = m;
         ArrayList<BigInteger> primeSeq = new ArrayList<BigInteger>();
         BigInteger y, x;
-        
+
         do {
 
             primeSeq.clear();
@@ -162,7 +212,7 @@ public class GSUtils implements INumberUtils {
             do {
                 n = createRandomNumber(min, n);
 
-                log.info("n " + n);
+                //  log.info("n " + n);
 
                 if (n.isProbablePrime(KeyGenParameters.l_pt.getValue())) {
                     primeSeq.add(n);
@@ -173,12 +223,12 @@ public class GSUtils implements INumberUtils {
 
             x = createRandomNumber(BigInteger.ONE, m);
 
-            log.info("y prime :  " + y);
-            log.info("isPrime:  " + isPrime(y));
-            
+            //  log.info("y prime :  " + y);
+            //   log.info("isPrime:  " + isPrime(y));
+
         } while (y.compareTo(m) <= 0 && x.compareTo(y) <= 0);
 
-        log.info("y: " + y);
+        //  log.info("y: " + y);
 
         return primeSeq;
     }
@@ -194,39 +244,36 @@ public class GSUtils implements INumberUtils {
     public ArrayList<BigInteger> generateRandomPrimeWithFactors(BigInteger m) {
 
         ArrayList<BigInteger> factors;
-        BigInteger factor, p;
+        BigInteger p;
 
         do {
 
             p = BigInteger.ONE;
-
             factors = generateRandomNumberWithFactors(m);
 
-            log.info("rnd length: " + factors.size());
+            //  log.info("rnd length: " + factors.size());
 
-            for (int i = 0; i < factors.size(); i++) {
-                factor = factors.get(i);
-                log.info("factor " + i + " : " + factor);
+            for (BigInteger factor : factors) {
+                //        log.info("factor " + i + " : " + factor);
                 p = p.multiply(factor);
             }
-
-            log.info("p: " + p.add(BigInteger.ONE));
-            log.info("p: bitlength " + p.add(BigInteger.ONE).bitLength());
+            //    log.info("p: " + p.add(BigInteger.ONE));
+            //    log.info("p: bitlength " + p.add(BigInteger.ONE).bitLength());
         } while (!GSUtils.isPrime(p.add(BigInteger.ONE)));
-
+        // TODO check if correct bit length for gamma modulus
         return factors;
 
     }
 
 
     /**
-     * Gets max number.
+     * Gets max number from a list of BigIntegers.
      *
      * @param numbers list of BigIntegers
      * @return the max BigInteger
      */
     public BigInteger getMaxNumber(ArrayList<BigInteger> numbers) {
-        
+
         return Collections.max(numbers);
     }
 
