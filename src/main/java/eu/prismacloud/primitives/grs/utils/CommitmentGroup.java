@@ -50,8 +50,8 @@ public final class CommitmentGroup extends Group {
     }
 
     @Override
-    public BigInteger getGenerator() {
-        return g.getValue();
+    public GroupElement getGenerator() {
+        return this.g;
     }
 
     @Override
@@ -60,12 +60,13 @@ public final class CommitmentGroup extends Group {
     }
 
     public GroupElement createGenerator(BigInteger rho, BigInteger gamma) {
-        return new CommitmentGroupElement(this, CryptoUtilsFacade.commitmentGroupGenerator(rho, gamma));
+        return this.g = new CommitmentGroupElement(this, CryptoUtilsFacade.commitmentGroupGenerator(rho, gamma));
     }
 
 
     @Override
-    public boolean isElement(BigInteger value) {
+    public boolean isElement(BigInteger value)
+    {   // TODO check if it a commitment group element
         return false;
     }
 }

@@ -9,7 +9,7 @@ public abstract class Group {
 
     public abstract BigInteger getOrder();
     //public int getModulusLength();
-    public abstract BigInteger getGenerator();
+    public abstract GroupElement getGenerator();
     public abstract BigInteger getModulus();
 //    public abstract GroupElement createGenerator(BigInteger rho, BigInteger gamma);
     public abstract boolean  isElement(BigInteger value);

@@ -3,23 +3,23 @@ package eu.prismacloud.primitives.grs.utils;
 import java.math.BigInteger;
 
 /**
- * Quadratic Group
+ * Quadratic Residues Group when the modulus factorization is known
  */
-public final class QRGroup extends Group {
+public final class QRGroupPQ extends Group {
 
     private final BigInteger modulus;
     private final BigInteger pPrime;
     private final BigInteger qPrime;
     private final BigInteger order;
-    private final BigInteger generator = BigInteger.ONE;
+    private GroupElement generator;// = BigInteger.ONE;
 
     /**
-     * Instantiates a new QR group.
+     * Instantiates a new QR group where we know the modulus factorization.
      *
      * @param pPrime the p prime
      * @param qPrime the q prime
      */
-    public QRGroup(final BigInteger pPrime, final BigInteger qPrime) {
+    public QRGroupPQ(final BigInteger pPrime, final BigInteger qPrime) {
 
         this.modulus = pPrime.multiply(qPrime);
         this.pPrime = pPrime;
@@ -27,6 +27,7 @@ public final class QRGroup extends Group {
         this.order = getOrder();
 
     }
+
 
     @Override
     public BigInteger getOrder() {
@@ -40,17 +41,18 @@ public final class QRGroup extends Group {
 
 
     @Override
-    public BigInteger getGenerator() {
+    public GroupElement getGenerator() {
         return this.generator;
     }
 
     /**
      * Create generator group element for QRN.
+     * when the modulus factorization is known.
      *
      * @return the group element
      */
     public GroupElement createGenerator() {
-        return new QRElement(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus));
+        return this.generator = new QRElementPQ(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus), pPrime, qPrime);
     }
 
     /**
@@ -67,6 +69,25 @@ public final class QRGroup extends Group {
     public boolean isElement(BigInteger alpha) {
         // TODO check if computations are correct
         return CryptoUtilsFacade.isElementOfQR(alpha, pPrime) && CryptoUtilsFacade.isElementOfQR(alpha, qPrime);
+
+    }
+
+    /**
+     * Algorithm <tt>alg:verifySGeneratorOfQRN</tt> - topocert-doc
+     * Verify s generator boolean.
+     *
+     * @param S      the generator S
+     * @param pPrime the p prime
+     * @param qPrime the q prime
+     * @return true if S is a generator of QRN or false if it is not
+     */
+    public boolean verifySGenerator(BigInteger S, BigInteger pPrime, BigInteger qPrime) {
+        if (!S.equals(BigInteger.ONE.mod(modulus))) {
+            if (!S.modPow(pPrime, modulus).equals(BigInteger.ONE.mod(modulus)))
+                return !S.modPow(qPrime, modulus).equals(BigInteger.ONE.mod(modulus));
+        } else return false;
+
+        return false;
 
     }
 }

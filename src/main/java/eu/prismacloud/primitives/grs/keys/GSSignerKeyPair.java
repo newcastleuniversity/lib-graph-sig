@@ -54,7 +54,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
         specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
 
-        QRGroup qrGroup = new QRGroup(specialRSAMod.getP_prime(), specialRSAMod.getQ_prime());
+        QRGroupPQ qrGroup = new QRGroupPQ(specialRSAMod.getP_prime(), specialRSAMod.getQ_prime());
         S = qrGroup.createGenerator().getValue();
 
         BigInteger upperBound = specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
