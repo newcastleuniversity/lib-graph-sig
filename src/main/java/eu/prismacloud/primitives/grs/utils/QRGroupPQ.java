@@ -31,7 +31,8 @@ public final class QRGroupPQ extends Group {
 
     @Override
     public BigInteger getOrder() {
-        return this.pPrime.subtract(BigInteger.ONE).multiply(this.qPrime.subtract(BigInteger.ONE));
+        // (p-1)(q-1)/4
+        return this.pPrime.subtract(BigInteger.ONE).multiply(this.qPrime.subtract(BigInteger.ONE)).divide(NumberConstants.FOUR.getValue());
     }
 
     @Override
