@@ -10,19 +10,19 @@ public class QRElementN extends QRElement {
     private QRGroupN qrGroup;
     private BigInteger number;
 
-    public QRElementN(QRGroupN qrGroup, BigInteger number) {
-        
+    public QRElementN(final QRGroupN qrGroup, final BigInteger number) {
+
         super(qrGroup, number);
         this.qrGroup = qrGroup;
         this.number = number;
 
     }
 
-    public QRElementN(BigInteger value) {
+    public QRElementN(final BigInteger value) {
         super(value);
     }
 
-    public QRElementN(Group group, BigInteger value) {
+    public QRElementN(final Group group, final BigInteger value) {
         super(group, value);
     }
 

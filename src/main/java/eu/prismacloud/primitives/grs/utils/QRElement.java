@@ -10,17 +10,15 @@ public abstract class QRElement extends GroupElement {
 
     private final BigInteger value;
 
-    public QRElement(BigInteger value) {
+    public QRElement(final BigInteger value) {
         this.value = value;
     }
 
     public QRElement(final Group group, final BigInteger value) {
-
         this.group = group;
         this.value = value;
 
     }
-
 
     public BigInteger getValue() {
         return value;
@@ -133,6 +131,5 @@ public abstract class QRElement extends GroupElement {
     public Group getGroup() {
         return group;
     }
-
 
 }

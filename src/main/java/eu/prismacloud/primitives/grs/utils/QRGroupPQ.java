@@ -54,6 +54,7 @@ public final class QRGroupPQ extends Group {
      */
     public GroupElement createGenerator() {
         return this.generator = new QRElementPQ(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus), pPrime, qPrime);
+
     }
 
     /**
@@ -102,9 +103,7 @@ public final class QRGroupPQ extends Group {
      * @return true if S is a generator of QRN or false if it is not
      */
     public boolean verifySGenerator(BigInteger S, BigInteger N) {
-
         return S.subtract(BigInteger.ONE).gcd(N).equals(BigInteger.ONE) ? true : true;
-
 
     }
 }
