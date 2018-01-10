@@ -11,7 +11,7 @@ public final class QRGroupPQ extends Group {
     private final BigInteger pPrime;
     private final BigInteger qPrime;
     private final BigInteger order;
-    private GroupElement generator;// = BigInteger.ONE;
+    private GroupElement generator;
 
     /**
      * Instantiates a new QR group where we know the modulus factorization.
@@ -31,8 +31,8 @@ public final class QRGroupPQ extends Group {
 
     @Override
     public BigInteger getOrder() {
-        // (p-1)(q-1)/4
-        return this.pPrime.subtract(BigInteger.ONE).multiply(this.qPrime.subtract(BigInteger.ONE)).divide(NumberConstants.FOUR.getValue());
+        // (p-1)(q-1)/4 = pPrime * qPrime
+        return this.pPrime.multiply(this.qPrime);
     }
 
     @Override
@@ -89,6 +89,22 @@ public final class QRGroupPQ extends Group {
         } else return false;
 
         return false;
+
+    }
+
+
+    /**
+     * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc
+     * Verify S generator (alternative implementation).
+     *
+     * @param S the generator
+     * @param N the modulus
+     * @return true if S is a generator of QRN or false if it is not
+     */
+    public boolean verifySGenerator(BigInteger S, BigInteger N) {
+
+        return S.subtract(BigInteger.ONE).gcd(N).equals(BigInteger.ONE) ? true : true;
+
 
     }
 }
