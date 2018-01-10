@@ -8,6 +8,7 @@ import java.math.BigInteger;
 public final class QRGroupN extends Group {
 
     private final BigInteger modulus;
+    private QRElementN generator;
 
 
     public QRGroupN(final BigInteger modulus) {
@@ -22,11 +23,11 @@ public final class QRGroupN extends Group {
 
     @Override
     public GroupElement getGenerator() {
-        return null;
+        return this.generator;
     }
 
     public QRElementN createGenerator() {
-        return new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus));
+        return this.generator = new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus));
     }
 
     @Override
