@@ -26,7 +26,7 @@ class CRTTest {
 
     @BeforeEach
     void setUp() {
-        /*
+        /**
          * (\ x \equiv 2 mod 3 \)
          * (\ x \equiv 3 mod 5 \)
          *
@@ -80,13 +80,13 @@ class CRTTest {
         log.info("crt s: " + EEAlgorithm.getS());
         log.info("crt t: " + EEAlgorithm.getT());
         log.info("crt modInverse: " + p.modInverse(q));
+        QRElementPQ qr = new QRElementPQ(new BigInteger("2"));
+        CRT.convertToPQ(qr, x, p, q);
+        log.info("representation 0: " + qr.getXp());
+        log.info("representation 1: " + qr.getXq());
 
-        CRT.PQRepresentation crt = CRT.convertToPQ(x, p, q);
-        log.info("representation 0: " + crt.getXp());
-        log.info("representation 1: " + crt.getXq());
-
-        assertEquals(a, crt.getXp());
-        assertEquals(b, crt.getXq());
+        assertEquals(a, qr.getXp());
+        assertEquals(b, qr.getXq());
 
     }
 }
