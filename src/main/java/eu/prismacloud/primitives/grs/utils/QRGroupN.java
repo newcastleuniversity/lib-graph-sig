@@ -17,8 +17,7 @@ public final class QRGroupN extends Group {
 
     @Override
     public BigInteger getOrder() {
-        // (modulus - 1) / 2
-        return modulus.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue());
+        throw new RuntimeException("Order must not be known");
     }
 
     @Override
