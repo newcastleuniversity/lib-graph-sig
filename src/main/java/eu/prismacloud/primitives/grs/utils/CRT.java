@@ -13,30 +13,11 @@ public class CRT {
     private static BigInteger x;
     private static BigInteger c2;
 
-    /**
-     * Nested Class for holding pq representation.
-     */
-    public static class PQRepresentation {
-        private final BigInteger xp;
-        private final BigInteger xq;
-
-        public BigInteger getXp() {
-            return xp;
-        }
-
-        public BigInteger getXq() {
-            return xq;
-        }
-
-        private PQRepresentation(final BigInteger xp, final BigInteger xq) {
-
-            this.xp = xp;
-            this.xq = xq;
-        }
-    }
 
     /**
-     * Compute Chinese Remainder Theorem to solve congruencies
+     * Compute the Chinese Remainder Theorem
+     * based on <tt>alg:crt_men</tt> in topocert-doc
+     * <p>
      * (\ x \equiv a mod p \)
      * (\ x \equiv b mod q \)
      *
@@ -100,10 +81,9 @@ public class CRT {
      * @param q prime factor of N
      * @return modulo p and modulo q representation (\ (x mod p) , (x mod q) \)
      */
-    public static PQRepresentation convertToPQ(BigInteger x, BigInteger p, BigInteger q) {
-
-
-        return new PQRepresentation(x.mod(p), x.mod(q));
+    public static void convertToPQ(QRElementPQ qr, BigInteger x, BigInteger p, BigInteger q) {
+        // TODO check if this method should be in CRT class or in QRElementPQ
+        qr.setPQRepresentation(x.mod(p), x.mod(q));
     }
 
 
