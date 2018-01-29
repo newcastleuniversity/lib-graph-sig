@@ -18,12 +18,12 @@ public class CRT {
      * Compute the Chinese Remainder Theorem
      * based on <tt>alg:crt_men</tt> in topocert-doc
      * <p>
-     * (\ x \equiv a mod p \)
-     * (\ x \equiv b mod q \)
+     * \( x \equiv a \bmod p \),
+     * \( x \equiv b \bmod q \)
      *
-     * @param a positive integer number > 0
+     * @param a positive integer number \( a \gt 0 \)
      * @param p prime factor of N
-     * @param b positive integer number > 0
+     * @param b positive integer number \( b \gt 0 \)
      * @param q prime factor of N
      * @return x solution of congruences
      */
@@ -79,7 +79,7 @@ public class CRT {
      * @param x element x in modulo N representation
      * @param p prime factor of N
      * @param q prime factor of N
-     * @return modulo p and modulo q representation (\ (x mod p) , (x mod q) \)
+     *  modulo p and modulo q representation \( (x \bmod p) , (x \bmod q) \)
      */
     public static void convertToPQ(QRElementPQ qr, BigInteger x, BigInteger p, BigInteger q) {
         // TODO check if this method should be in CRT class or in QRElementPQ

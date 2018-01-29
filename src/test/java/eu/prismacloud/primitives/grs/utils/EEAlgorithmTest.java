@@ -45,7 +45,7 @@ class EEAlgorithmTest {
         assertEquals(a.gcd(b), EEAlgorithm.getD());
 //        assertEquals(BigInteger.ONE, EEAlgorithm.getS());
 //        assertEquals(BigInteger.valueOf(-2), EEAlgorithm.getT());
-        // check Bezout's Identity to test EEA algorithm (\ ax + by = gcd(a,b) \)
+        // check Bezout's Identity to test EEA algorithm \( ax + by = gcd(a,b) \)
         assertEquals(a.gcd(b), a.multiply(EEAlgorithm.getS()).add(b.multiply(EEAlgorithm.getT())));
 
 
@@ -65,7 +65,7 @@ class EEAlgorithmTest {
         assertEquals(a.gcd(b), EEAlgorithm.getD());
         //        assertEquals(BigInteger.ONE, EEAlgorithm.getS());
         //        assertEquals(BigInteger.valueOf(-2), EEAlgorithm.getT());
-        // check Bezout's Identity to test EEA algorithm (\ ax + by = gcd(a,b) \)
+        // check Bezout's Identity to test EEA algorithm \( ax + by = gcd(a,b) \)
         assertEquals(a.gcd(b), a.multiply(EEAlgorithm.getS()).add(b.multiply(EEAlgorithm.getT())));
 
 

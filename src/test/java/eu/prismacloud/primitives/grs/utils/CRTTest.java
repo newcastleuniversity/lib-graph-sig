@@ -27,9 +27,8 @@ class CRTTest {
     @BeforeEach
     void setUp() {
         /**
-         * (\ x \equiv 2 mod 3 \)
-         * (\ x \equiv 3 mod 5 \)
-         *
+         * \( x \equiv 2 \bmod 3 \)
+         * \( x \equiv 3 \bmod 5 \)
          */
         a = BigInteger.valueOf(2);
         p = BigInteger.valueOf(3);

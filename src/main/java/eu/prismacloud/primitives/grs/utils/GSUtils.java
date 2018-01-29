@@ -189,7 +189,7 @@ public class GSUtils implements INumberUtils {
      * Algorithm <tt>alg:gen_numb_fact</tt> - topocert-doc
      * Generate random number in factored form.
      *
-     * @param m integer number m >= 2
+     * @param m integer number \(m \geq 2 \)
      * @return prime number factorization \(p_1, \ldots, p_r \)
      */
     public ArrayList<BigInteger> generateRandomNumberWithFactors(BigInteger m) {
@@ -238,7 +238,7 @@ public class GSUtils implements INumberUtils {
      * Algorithm <tt>alg:gen_prime_numb_fact</tt> - topocert-doc
      * Generate random prime number along with its factorization.
      *
-     * @param m integer number m >= 2
+     * @param m integer number \( m \geq 2 \)
      * @return prime number factorization \(p_1, \ldots, p_r \) of a prime number
      */
     public ArrayList<BigInteger> generateRandomPrimeWithFactors(BigInteger m) {

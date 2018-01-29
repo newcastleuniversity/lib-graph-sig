@@ -45,8 +45,8 @@ public class EEAlgorithm {
      * Compute the Extended Euclidean Algorithm
      * based on <tt>alg:eea_schoup</tt> in topocert-doc
      *
-     * @param a positive BigInteger > 0
-     * @param b positive BigInteger > 0
+     * @param a positive BigInteger \( \geq 0 \)
+     * @param b positive BigInteger \( \geq  0 \)
      * @return d, s, t
      */
     public static EEAlgorithm computeEEAlgorithm(final BigInteger a, final BigInteger b) {
