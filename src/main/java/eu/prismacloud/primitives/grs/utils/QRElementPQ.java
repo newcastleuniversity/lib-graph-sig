@@ -10,6 +10,8 @@ public class QRElementPQ extends QRElement {
     private QRGroupPQ qrGroupPQ;
     private BigInteger number;
     private BigInteger order;
+    private BigInteger xp;
+    private BigInteger xq;
 
     public QRElementPQ(final BigInteger value) {
         super(value);
@@ -27,6 +29,26 @@ public class QRElementPQ extends QRElement {
         this.qrGroupPQ = qrGroupPQ;
         this.number = number;
         this.order = pPrime.multiply(qPrime);
+    }
+
+    public BigInteger getXp() {
+        return xp;
+    }
+
+    public BigInteger getXq() {
+        return xq;
+    }
+
+    /**
+     * CRT representation
+     *
+     * @param xp
+     * @param xq
+     */
+    public void setPQRepresentation(BigInteger xp, BigInteger xq) {
+
+        this.xp = xp;
+        this.xq = xq;
     }
 
 
