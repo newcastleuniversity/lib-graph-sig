@@ -6,9 +6,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public interface IGraph {
   void  addVertices(ArrayList<IVertex> vertices);
   void  addVertex(IVertex vertex);

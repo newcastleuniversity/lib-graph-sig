@@ -14,9 +14,7 @@ import org.jgrapht.graph.DefaultEdge;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis  on 05/07/2017.
- */
+
 public class GSRecipient implements IRecipient {
 
     public IGraphSignature hiddenSign(ICommitment cmt, GSVertex gsGraph, GSVertex gsGraph1, ExtendedPublicKey extendedPublicKey, GSGraph gsGraph2, BigInteger rnd) {

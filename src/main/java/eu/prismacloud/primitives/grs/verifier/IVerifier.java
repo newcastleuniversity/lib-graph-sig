@@ -4,9 +4,7 @@ import eu.prismacloud.primitives.grs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.grs.signature.GSGraphSignature;
 import eu.prismacloud.primitives.grs.commitment.ICommitment;
 
-import java.math.BigInteger; /**
- * Created by Ioannis Sfyrakis  on 05/07/2017.
- */
+import java.math.BigInteger;
 public interface IVerifier {
     Boolean verify(ExtendedPublicKey extendedPublicKey, ICommitment recCommitment, BigInteger rndVerifier, GSGraphSignature graphSignature);
     /*

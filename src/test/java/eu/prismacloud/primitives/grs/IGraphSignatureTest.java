@@ -4,9 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/**
- * Created by Ioannis Sfyrakis on 21/07/2017
- */
+
 public class IGraphSignatureTest extends TestCase {
     /**
          * Create the test case

@@ -2,9 +2,7 @@ package eu.prismacloud.primitives.grs.keys;
 
 import eu.prismacloud.primitives.grs.signature.EncodingSignature;
 
-/**
- * Created by Ioannis Sfyrakis on 29/07/2017
- */
+
 
 
 public class GSExtendedKeyPair implements

@@ -4,9 +4,7 @@ import eu.prismacloud.primitives.grs.keys.SignerPublicKey;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis on 27/07/2017
- */
+
 public class GSCommitment implements ICommitment {
     private BigInteger capR;
     private BigInteger capS;

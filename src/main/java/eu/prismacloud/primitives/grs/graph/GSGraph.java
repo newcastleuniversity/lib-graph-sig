@@ -4,9 +4,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public class GSGraph { // implements IGraph {
 
     private SimpleGraph<GSVertex, DefaultEdge> g = new SimpleGraph<GSVertex, DefaultEdge>(DefaultEdge.class);

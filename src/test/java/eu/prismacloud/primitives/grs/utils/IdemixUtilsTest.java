@@ -11,9 +11,7 @@ import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Created by Ioannis Sfyrakis on 06/12/2017
- */
+
 class IdemixUtilsTest {
     private static final Logger log = Logger.getLogger(GSUtilsTest.class.getName());
     private IdemixUtils classUnderTest;

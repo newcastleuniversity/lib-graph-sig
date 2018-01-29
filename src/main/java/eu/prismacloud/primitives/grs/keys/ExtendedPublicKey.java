@@ -3,9 +3,7 @@ package eu.prismacloud.primitives.grs.keys;
 import java.math.BigInteger;
 import java.util.Vector;
 
-/**
- * Created by Ioannis Sfyrakis on 26/07/2017
- */
+
 public class ExtendedPublicKey {
     ExtendedPublicKey publicKey;
     Vector<BigInteger> vertexBases;

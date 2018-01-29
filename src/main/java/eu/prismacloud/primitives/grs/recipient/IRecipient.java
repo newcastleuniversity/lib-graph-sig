@@ -11,9 +11,7 @@ import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.grs.signature.GSGraphSignature;
 import eu.prismacloud.primitives.grs.signature.IGraphSignature;
 
-/**
- * Created by Ioannis Sfyrakis  on 05/07/2017.
- */
+
 public interface IRecipient {
     /*
      * The recipient initialized the HiddenSign protocol by creating a graph commitment and retaining randomness R,

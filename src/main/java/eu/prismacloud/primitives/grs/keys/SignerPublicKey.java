@@ -4,9 +4,7 @@ import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public class SignerPublicKey {
 
     private  SignerPrivateKey privateKey;

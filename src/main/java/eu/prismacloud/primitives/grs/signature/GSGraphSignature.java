@@ -10,9 +10,7 @@ import eu.prismacloud.primitives.topocert.IGraph;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public class GSGraphSignature implements IGraphSignature {
 
     public IGSKeyPair keyGen(int securityParam, KeyGenParameters params) {

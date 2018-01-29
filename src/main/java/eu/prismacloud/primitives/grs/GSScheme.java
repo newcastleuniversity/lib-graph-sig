@@ -18,9 +18,7 @@ import org.jgrapht.graph.DefaultEdge;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public class GSScheme {
     public static void main() {
 

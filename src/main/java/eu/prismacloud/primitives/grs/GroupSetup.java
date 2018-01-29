@@ -2,9 +2,7 @@ package eu.prismacloud.primitives.grs;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis on 26/07/2017
- */
+
 public class GroupSetup {
     /**
      * Commitment group order.

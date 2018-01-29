@@ -1,8 +1,6 @@
 package eu.prismacloud.primitives.grs.parameters;
 
-/**
- * Created by Ioannis Sfyrakis on 23/11/2017
- */
+
 public enum GraphEncodingParameters {
     /** Maximal number of vertices to be encoded */
     l_V(1000),

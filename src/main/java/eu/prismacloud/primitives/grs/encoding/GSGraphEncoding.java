@@ -15,9 +15,7 @@ import eu.prismacloud.primitives.grs.signature.KeyGenSignature;
 import java.math.BigInteger;
 import java.util.Vector;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public class GSGraphEncoding {
 
     private EncodingSignature encodingSignature;

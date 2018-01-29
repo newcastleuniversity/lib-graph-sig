@@ -6,9 +6,7 @@ import eu.prismacloud.primitives.grs.signature.GSGraphSignature;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis on 20/07/2017
- */
+
 public  class GSVerifier implements IVerifier{
 
     public Boolean verify(ExtendedPublicKey extendedPublicKey, ICommitment recCommitment, BigInteger rndVerifier, GSGraphSignature graphSignature) {

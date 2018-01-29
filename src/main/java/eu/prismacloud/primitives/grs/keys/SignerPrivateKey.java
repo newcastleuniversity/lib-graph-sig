@@ -2,9 +2,7 @@ package eu.prismacloud.primitives.grs.keys;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public class SignerPrivateKey {
     private  BigInteger p;
     /**

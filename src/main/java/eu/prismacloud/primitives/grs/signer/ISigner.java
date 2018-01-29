@@ -8,9 +8,7 @@ import eu.prismacloud.primitives.grs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.grs.keys.IGSKeyPair;
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 
-import java.math.BigInteger; /**
- * Created by Ioannis Sfyrakis  on 05/07/2017.
- */
+import java.math.BigInteger;
 public interface ISigner {
     IGSKeyPair keyGen(KeyGenParameters gs_params);
 

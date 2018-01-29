@@ -3,9 +3,7 @@ package eu.prismacloud.primitives.topocert;
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
 //import eu.prismacloud.primitives.grs.KeyGenParams;
 
-/**
- * Created by Ioannis Sfyrakis on 25/07/2017
- */
+
 public abstract class Topocert {
 
     public abstract void graphEncodingSetup(IGraph graph, KeyGenParameters params);
