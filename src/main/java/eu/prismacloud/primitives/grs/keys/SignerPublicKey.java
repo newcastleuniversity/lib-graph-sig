@@ -7,7 +7,7 @@ import java.math.BigInteger;
 
 public class SignerPublicKey {
 
-    private  SignerPrivateKey privateKey;
+    private SignerPrivateKey privateKey;
     private BigInteger N;
     private BigInteger R_0;
     private BigInteger S;
@@ -23,10 +23,6 @@ public class SignerPublicKey {
 
     }
 
-    public SignerPublicKey() {
-
-        privateKey = null;
-    }
 
     public SignerPublicKey(final BigInteger N, final BigInteger R_0, final BigInteger S, final BigInteger Z) {
         this.N = N;
@@ -35,8 +31,20 @@ public class SignerPublicKey {
         this.Z = Z;
     }
 
+    public BigInteger getN() {
+        return N;
+    }
 
-//	public AbstractParams getGs_params() {
-//        return gs_params;
- //   }
+    public BigInteger getR_0() {
+        return R_0;
+    }
+
+    public BigInteger getS() {
+        return S;
+    }
+
+    public BigInteger getZ() {
+        return Z;
+    }
+
 }
