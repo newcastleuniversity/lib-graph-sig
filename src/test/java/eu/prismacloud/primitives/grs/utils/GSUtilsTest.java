@@ -39,7 +39,40 @@ class GSUtilsTest {
     }
 
     @Test
+    @DisplayName("Test generate Special RSA modulus")
     void generateSpecialRSAModulus() {
+        log.info("@Test: generateSpecialRSAModulus");
+        SpecialRSAMod srm = classUnderTest.generateSpecialRSAModulus();
+        assertNotNull(srm);
+        assertEquals(srm.getN(), srm.getP().multiply(srm.getQ()));
+    }
+
+    @Test
+    @DisplayName("Test generate Special RSA modulus for uniqueness")
+    void generateUniqueSpecialRSAModulus() {
+        log.info("@Test: generateSpecialRSAModulus");
+        int arraySize = 10;
+        SpecialRSAMod[] srmArray = new SpecialRSAMod[arraySize];
+
+        for (int i = 0; i < arraySize; i++) {
+            SpecialRSAMod srm = classUnderTest.generateSpecialRSAModulus();
+            assertNotNull(srm);
+            assertEquals(srm.getN(), srm.getP().multiply(srm.getQ()));
+            srmArray[i] = srm;
+        }
+
+        for (int i = 0; i < arraySize; i++) {
+            SpecialRSAMod isrm = srmArray[i];
+            for (int j = 0; j < arraySize; j++) {
+                if (i != j) {
+                    SpecialRSAMod jSrm = srmArray[j];
+                    if (isrm.equals(jSrm)) {
+                        fail("Duplicate modulus N generated");
+                    }
+                }
+            }
+        }
+
     }
 
     @Test
@@ -210,8 +243,65 @@ class GSUtilsTest {
     }
 
     @Test
+    @DisplayName("Test generate random number in range uniqueness")
+    void createRandomNumberUnique() {
+        log.info("@Test: createRandomNumber ");
+        int arraySize = 1000;
+        BigInteger[] rndArray = new BigInteger[arraySize];
+
+        for (int i = 0; i < arraySize; i++) {
+            BigInteger rnd = classUnderTest.createRandomNumber(BigInteger.valueOf(1), BigInteger.TEN);
+            rndArray[i] = rnd;
+            log.info("random number " + i + ":  " + rnd);
+            assertTrue(rnd.compareTo(BigInteger.valueOf(1)) >= 0 && rnd.compareTo(BigInteger.TEN) <= 0);
+        }
+
+        for (int i = 0; i < arraySize; i++) {
+            BigInteger irnd = rndArray[i];
+            for (int j = 0; j < arraySize; j++) {
+                if (i != j) {
+                    BigInteger jrnd = rndArray[j];
+                    if (irnd.equals(jrnd)) {
+                        fail("Duplicate random number generated");
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    @Test
     @DisplayName("generate random number in range with max,min")
     void createRandomNumberWithMaxMin() {
+        log.info("@Test: createRandomNumber ");
+        int arraySize = 1000;
+        BigInteger[] rndArray = new BigInteger[arraySize];
+
+        for (int i = 0; i < arraySize; i++) {
+            BigInteger rnd = classUnderTest.createRandomNumber(BigInteger.TEN, BigInteger.ZERO);
+            rndArray[i] = rnd;
+            log.info("random number " + i + ":  " + rnd);
+            assertTrue(rnd.compareTo(BigInteger.valueOf(0)) >= 0 && rnd.compareTo(BigInteger.TEN) <= 0);
+        }
+
+        for (int i = 0; i < arraySize; i++) {
+            BigInteger irnd = rndArray[i];
+            for (int j = 0; j < arraySize; j++) {
+                if (i != j) {
+                    BigInteger jrnd = rndArray[j];
+                    if (irnd.equals(jrnd)) {
+                        fail("Duplicate random number in range generated");
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Test
+    @DisplayName("Test generate random number in range with max,min uniqueness")
+    void createRandomNumberWithMaxMinUnique() {
         log.info("@Test: createRandomNumber ");
 
         for (int i = 0; i < 1000; i++) {
@@ -306,7 +396,7 @@ class GSUtilsTest {
         //1150 = 2x5x5x23
 
 //        ArrayList<BigInteger> primeFactors = new ArrayList<BigInteger>(Arrays.asList(BigInteger.valueOf(2), BigInteger.valueOf(5), BigInteger.valueOf(23), BigInteger.valueOf(5)));
-        
+
         //10 = 2x5  (generators {2,6,7,8})
 
         for (int i = 0; i < 1000; i++) {
