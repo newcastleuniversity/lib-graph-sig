@@ -9,25 +9,22 @@ import java.util.logging.Logger;
 public class CRT {
 
     private static final Logger log = Logger.getLogger(CRT.class.getName());
-    private static BigInteger v;
-    private static BigInteger x;
-    private static BigInteger c2;
 
 
     /**
      * Compute the Chinese Remainder Theorem
      * based on <tt>alg:crt_men</tt> in topocert-doc
      * <p>
-     * \( x \equiv a \bmod p \),
-     * \( x \equiv b \bmod q \)
+     * \( x \equiv x_p \bmod p \),
+     * \( x \equiv x_q \bmod q \)
      *
-     * @param a positive integer number \( a \gt 0 \)
-     * @param p prime factor of N
-     * @param b positive integer number \( b \gt 0 \)
-     * @param q prime factor of N
-     * @return x solution of congruences
+     * @param xp positive integer number \( xp \gt 0 \)
+     * @param p  prime factor of N
+     * @param xq positive integer number \( xq \gt 0 \)
+     * @param q  prime factor of N
+     * @return x solution for representation \( \bmod N \)
      */
-    public static BigInteger computeCRT(final BigInteger a, final BigInteger p, final BigInteger b, final BigInteger q) {
+    public static BigInteger computeCRT(final BigInteger xp, final BigInteger p, final BigInteger xq, final BigInteger q) {
 
         if (p.equals(q))
             throw new IllegalArgumentException("factors must be different");
@@ -35,51 +32,74 @@ public class CRT {
         if (p.gcd(q).compareTo(BigInteger.ONE) != 0)
             throw new IllegalArgumentException("factors are not coprime");
 
+        BigInteger N = p.multiply(q);
+
         EEAlgorithm.computeEEAlgorithm(p, q);
+        BigInteger X = EEAlgorithm.getS();
+        log.info("X: " + X);
+        BigInteger Y = EEAlgorithm.getT();
+        log.info("Y: " + Y);
 
-        c2 = EEAlgorithm.getS();
+        log.info("res: " + X.multiply(p).add(Y.multiply(q)));
+        BigInteger one_q = X.multiply(p).mod(N);
+        log.info("1q: " + one_q);
+        BigInteger one_p = Y.multiply(q).mod(N);
+        log.info("1p: " + one_p);
 
-        v = c2;
-
-        v = (b.subtract(a).multiply(c2.mod(q)));
-        x = a.add(v.multiply(p));
-
-        return x;
+        return xp.multiply(one_p).add(xq.multiply(one_q)).mod(N);
 
     }
 
     /**
-     * Convert an element represented as (xp, xq) to its representation modulo N
-     * knowing the factors p an q
+     * Compute the CRT algorithm when 1p and 1q are pre-computed.
      *
-     * @param xp element in modulo p representation
-     * @param p  prime factor
-     * @param xq element in modulo q representation
-     * @param q  prime factor
-     * @return element in modulo N representation
+     * @param xp   the representation \( \bmod p \)
+     * @param oneP the 1p element
+     * @param xq   the representation \( \bmod q \)
+     * @param oneQ the 1q element
+     * @param N    the  modulus N
+     * @return the big integer
      */
-    public static BigInteger convertToModuloN(BigInteger xp, BigInteger p, BigInteger xq, BigInteger q) {
+    public static BigInteger computeCRT(final BigInteger xp, final BigInteger oneP, final BigInteger xq, final BigInteger oneQ, final BigInteger N) {
 
-        BigInteger N = p.multiply(q);
-        EEAlgorithm.computeEEAlgorithm(p, q);
-        BigInteger x = EEAlgorithm.getS();
-        BigInteger y = EEAlgorithm.getT();
-
-        BigInteger onep = y.multiply(q).mod(N);
-        BigInteger oneq = x.multiply(p).mod(N);
-
-        return xp.multiply(onep).add(xq.multiply(oneq)).mod(N);
-
+        return xp.multiply(oneP).add(xq.multiply(oneQ)).mod(N);
     }
+
+    /**
+     * Compute 1p for CRT algorithm.
+     *
+     * @param Y the y
+     * @param q the q
+     * @param p the p
+     * @return the big integer
+     */
+    public static BigInteger compute1p(final BigInteger Y, final BigInteger p, final BigInteger q) {
+        BigInteger N = p.multiply(q);
+        return Y.multiply(q).mod(N);
+    }
+
+    /**
+     * Compute 1q for CRT algorithm.
+     *
+     * @param X the x
+     * @param p the p
+     * @param q the q
+     * @return the big integer
+     */
+    public static BigInteger compute1q(final BigInteger X, final BigInteger p, final BigInteger q) {
+        BigInteger N = p.multiply(q);
+        return X.multiply(p).mod(N);
+    }
+
 
     /**
      * Convert an element x modulo N to its corresponding representation
      * modulo p and modulo q.
      *
-     * @param x element x in modulo N representation
-     * @param p prime factor of N
-     * @param q prime factor of N
-     *  modulo p and modulo q representation \( (x \bmod p) , (x \bmod q) \)
+     * @param qr the qr
+     * @param x  element x in modulo N representation
+     * @param p  prime factor of N
+     * @param q  prime factor of N          modulo p and modulo q representation \( (x \bmod p) , (x \bmod q) \)
      */
     public static void convertToPQ(QRElementPQ qr, BigInteger x, BigInteger p, BigInteger q) {
         // TODO check if this method should be in CRT class or in QRElementPQ
