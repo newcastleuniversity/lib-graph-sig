@@ -72,6 +72,69 @@ class CRTTest {
     }
 
     @Test
+    @DisplayName("Test multiplication")
+    void computeCRTmult() {
+        log.info("@Test: computeCRTmult");
+
+        BigInteger xp1, xq1, xp2, xq2, res;
+
+        a = BigInteger.valueOf(14);
+        p = BigInteger.valueOf(5);
+        b = BigInteger.valueOf(13);
+        q = BigInteger.valueOf(3);
+        x = BigInteger.valueOf(2);
+
+        // compute 14 * 13 modulo 15 = 2 <-> (2,2)
+
+        res = BigInteger.valueOf(14).multiply(BigInteger.valueOf(13)).mod(BigInteger.valueOf(15));
+        log.info("result multiplication: " + res);
+        assertEquals(x, res);
+
+        xp1 = a.mod(p);
+        log.info("xp1: " + xp1);
+        xq1 = a.mod(q);
+        log.info("xq1: " + xq1);
+
+        xp2 = b.mod(p);
+        log.info("xp2: " + xp2);
+        xq2 = b.mod(q);
+        log.info("xq2: " + xq2);
+
+        res = CRT.computeCRT(xp1.multiply(xp2), p, xq1.multiply(xq2), q);
+        log.info("result: " + res);
+
+        assertEquals(x, res);
+    }
+
+    @Test
+    @DisplayName("Test exponentiation")
+    void computeCRTexp() {
+        log.info("@Test: computeCRTexp");
+        BigInteger base, res, exp, n;
+
+        a = BigInteger.valueOf(14);
+        p = BigInteger.valueOf(5);
+        b = BigInteger.valueOf(13);
+        q = BigInteger.valueOf(3);
+        x = BigInteger.valueOf(2);
+        base = BigInteger.valueOf(11);
+        exp = BigInteger.valueOf(53);
+        n = BigInteger.valueOf(15);
+
+        // compute 11^53 mod 15
+        res = base.modPow(exp,n);
+        log.info("result exponentiation: " + res);
+        assertEquals(BigInteger.valueOf(11), res);
+
+        BigInteger xp = base.modPow(exp.mod(p.subtract(BigInteger.ONE)), p);
+        BigInteger xq = base.modPow(exp.mod(q.subtract(BigInteger.ONE)), q);
+        res = CRT.computeCRT(xp, p, xq, q);
+        log.info("result pq: " + res);
+        assertEquals(BigInteger.valueOf(11), res);
+
+    }
+
+    @Test
     @DisplayName("Test Chinese Remainder Theorem in Z star 15")
     void testCRTZStar15() {
         log.info("@Test: testCRTZStar15");
