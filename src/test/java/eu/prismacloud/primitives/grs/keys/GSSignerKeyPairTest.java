@@ -1,6 +1,5 @@
 package eu.prismacloud.primitives.grs.keys;
 
-import eu.prismacloud.primitives.grs.signer.GSSigner;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test Signer Key Pair
@@ -19,13 +18,13 @@ class GSSignerKeyPairTest {
 
     @BeforeEach
     void setUp() {
-       // classUnderTest = new GSSignerKeyPair();
-         gsk = GSSignerKeyPair.KeyGen();
+        // classUnderTest = new GSSignerKeyPair();
+        //  gsk = GSSignerKeyPair.KeyGen();
     }
 
     @AfterEach
     void tearDown() {
-        
+
     }
 
     @Test
@@ -35,8 +34,11 @@ class GSSignerKeyPairTest {
     @Test
     @DisplayName("Test key generation")
     void keyGen() {
-       log.info("@Test: key generation");
-       assertNotNull(gsk);
+        log.info("@Test: key generation");
+        gsk = GSSignerKeyPair.KeyGen();
+        assertNotNull(gsk);
+        assertNotNull(gsk.getPrivateKey());
+        assertNotNull(gsk.getPublicKey());
 
     }
 
@@ -44,11 +46,11 @@ class GSSignerKeyPairTest {
     @DisplayName("Test key generation 10 times")
     void keyGen10times() {
         log.info("@Test: keyGen10times ");
-        for (int i = 0; i < 10 ; i++) {
+        for (int i = 0; i < 10; i++) {
 
             gsk = GSSignerKeyPair.KeyGen();
             assertNotNull(gsk);
-            
+
         }
     }
 
@@ -59,19 +61,22 @@ class GSSignerKeyPairTest {
     @Test
     void getPrivateKey() {
         log.info("@Test: getPrivateKey");
+        gsk = GSSignerKeyPair.KeyGen();
         assertNotNull(gsk.getPrivateKey());
-        
+
     }
 
     @Test
     void getPublicKey() {
         log.info("@Test: getPublickKey");
+        gsk = GSSignerKeyPair.KeyGen();
         assertNotNull(gsk.getPublicKey());
     }
 
     @Test
     void getSignature() {
+        log.info("@Test: getSignature");
     }
 
-  
+
 }
