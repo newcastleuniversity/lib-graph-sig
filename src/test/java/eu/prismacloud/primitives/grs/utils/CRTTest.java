@@ -122,7 +122,7 @@ class CRTTest {
         n = BigInteger.valueOf(15);
 
         // compute 11^53 mod 15
-        res = base.modPow(exp,n);
+        res = base.modPow(exp, n);
         log.info("result exponentiation: " + res);
         assertEquals(BigInteger.valueOf(11), res);
 
@@ -150,10 +150,8 @@ class CRTTest {
 
         result = CRT.computeCRT(a, p, b, q);
 
-
         log.info("result 1 <-> (1,1) " + result);
         assertEquals(x, result);
-
 
         // test 2 <-> (2,2)
         a = BigInteger.valueOf(2);
@@ -167,7 +165,6 @@ class CRTTest {
         log.info("result 2 <-> (2,2) " + result);
         assertEquals(x, result);
 
-
         // test 4 <-> (4,1)
         a = BigInteger.valueOf(4);
         p = BigInteger.valueOf(5);
@@ -179,7 +176,6 @@ class CRTTest {
 
         log.info("result 4 <-> (4,1) " + result);
         assertEquals(x, result);
-
 
         // test 7 <-> (2,1)
         a = BigInteger.valueOf(2);
@@ -217,7 +213,6 @@ class CRTTest {
         log.info("result 11 <-> (1,2) " + result);
         assertEquals(x, result);
 
-
         // test 13 <-> (3,1)
         a = BigInteger.valueOf(3);
         p = BigInteger.valueOf(5);
@@ -241,6 +236,115 @@ class CRTTest {
 
         log.info("result 14 <-> (4,2) " + result);
         assertEquals(x, result);
+
+    }
+
+    @Test
+    @DisplayName("Test random modulo exponentiations using CRT")
+    void computeCRTRandomExp() {
+        log.info("@Test: computeCRTRandom");
+        SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
+
+        Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
+
+        Group qrGroupN = new QRGroupN(specialRSAMod.getN());
+
+        BigInteger upperBound = specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
+
+        for (int i = 0; i < 100; i++) {
+
+            GroupElement S = qrGroupPQ.createGenerator();
+            GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
+            BigInteger x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+
+            // compute using BigIntegers modPow
+            BigInteger Z, Z_pq, Z_n;
+            Z = S.getValue().modPow(x_Z, specialRSAMod.getN());
+
+            // compute using QRElementN modPow
+            Z_n = S_n.modPow(x_Z, specialRSAMod.getN());
+
+            // compute using QRElementPQ modPow
+            Z_pq = S.modPow(x_Z, specialRSAMod.getN());
+
+            assertEquals(Z, Z_pq);
+            assertEquals(Z, Z_n);
+
+            for (int j = 0; j < 100; j++) {
+
+                x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+
+                // compute using BigIntegers
+                BigInteger Ri = S.getValue().modPow(x_Z, specialRSAMod.getN());
+
+                // compute using QRElementN modPow
+                BigInteger Ri_n = S_n.modPow(x_Z, specialRSAMod.getN());
+
+                // compute using QRElementPQ modPow
+                BigInteger Ri_pq = S.modPow(x_Z, specialRSAMod.getN());
+
+                assertEquals(Ri, Ri_pq);
+                assertEquals(Ri, Ri_n);
+
+            }
+        }
+
+    }
+
+
+    @Test
+    @DisplayName("Test random multiplications using CRT")
+    void computeCRTRandomMult() {
+        log.info("@Test: computeCRTRandom");
+        SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
+
+        Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
+        Group qrGroupN = new QRGroupN(specialRSAMod.getN());
+
+        BigInteger upperBound = specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
+
+        for (int i = 0; i < 100; i++) {
+
+            GroupElement S = qrGroupPQ.createGenerator();
+            GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
+
+            BigInteger x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+
+            // compute using BigIntegers
+            BigInteger Z, Z_n, Z_pq;
+            Z = S.getValue().multiply(x_Z).mod(specialRSAMod.getN());
+
+            // compute using QRElementN multiply
+            Z_n = S_n.multiply(x_Z).mod(specialRSAMod.getN());
+
+            // compute using QRElementPQ multiply
+            Z_pq = S.multiply(x_Z).mod(specialRSAMod.getN());
+
+            assertEquals(Z, Z_pq);
+            assertEquals(Z, Z_n);
+
+            for (int j = 0; j < 100; j++) {
+
+//                log.info("j: " + j);
+                x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+
+                // compute using BigIntegers multiply
+                BigInteger Ri = S.getValue().multiply(x_Z).mod(specialRSAMod.getN());
+
+                // compute using QRElementN multiply
+                BigInteger Ri_n = S_n.multiply(x_Z).mod(specialRSAMod.getN());
+
+                // compute using QRElementPQ multiply
+                BigInteger Ri_pq = S.multiply(x_Z).mod(specialRSAMod.getN());
+
+                assertEquals(Ri, Ri_pq);
+
+                assertEquals(Ri, Ri_n);
+
+            }
+
+
+        }
 
     }
 
