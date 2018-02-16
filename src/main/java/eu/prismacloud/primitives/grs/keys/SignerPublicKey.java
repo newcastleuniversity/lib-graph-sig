@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.grs.keys;
 
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.grs.utils.GroupElement;
 
 import java.math.BigInteger;
 
@@ -10,7 +11,7 @@ public class SignerPublicKey {
     private SignerPrivateKey privateKey;
     private BigInteger N;
     private BigInteger R_0;
-    private BigInteger S;
+    private GroupElement S;
     private BigInteger Z;
 
     public SignerPublicKey(final SignerPrivateKey privateKey, final KeyGenParameters gs_params){
@@ -24,7 +25,7 @@ public class SignerPublicKey {
     }
 
 
-    public SignerPublicKey(final BigInteger N, final BigInteger R_0, final BigInteger S, final BigInteger Z) {
+    public SignerPublicKey(final BigInteger N, final BigInteger R_0, final GroupElement S, final BigInteger Z) {
         this.N = N;
         this.R_0 = R_0;
         this.S = S;
@@ -39,7 +40,7 @@ public class SignerPublicKey {
         return R_0;
     }
 
-    public BigInteger getS() {
+    public GroupElement getS() {
         return S;
     }
 
