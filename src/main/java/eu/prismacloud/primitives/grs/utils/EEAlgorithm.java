@@ -12,7 +12,7 @@ public class EEAlgorithm {
 
     static private BigInteger r;
     static private BigInteger r_prime;
-    static private BigInteger s = null;
+    static private BigInteger s;
     static private BigInteger s_prime;
     static private BigInteger t;
     static private BigInteger t_prime;
