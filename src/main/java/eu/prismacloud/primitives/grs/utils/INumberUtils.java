@@ -20,4 +20,6 @@ public interface INumberUtils {
     BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma);
 
     Boolean elementOfQRN(BigInteger value, BigInteger modulus);
+
+    BigInteger createQRNElement(BigInteger n);
 }
