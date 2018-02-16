@@ -1,6 +1,8 @@
 package eu.prismacloud.primitives.grs.utils;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+
 
 /**
  * Quadratic Residues Group when the modulus factorization is known
@@ -11,7 +13,10 @@ public final class QRGroupPQ extends Group {
     private final BigInteger pPrime;
     private final BigInteger qPrime;
     private final BigInteger order;
+    private final BigInteger oneP;
+    private final BigInteger oneQ;
     private GroupElement generator;
+    private ArrayList<GroupElement> groupElements = new ArrayList<>();
 
     /**
      * Instantiates a new QR group where we know the modulus factorization.
@@ -25,7 +30,13 @@ public final class QRGroupPQ extends Group {
         this.pPrime = pPrime;
         this.qPrime = qPrime;
         this.order = getOrder();
+        computeEEA(pPrime, qPrime);
+        this.oneP = CRT.compute1p(EEAlgorithm.getT(), pPrime, qPrime);
+        this.oneQ = CRT.compute1q(EEAlgorithm.getS(), pPrime, qPrime);
+    }
 
+    private static void computeEEA(BigInteger p, BigInteger q) {
+        EEAlgorithm.computeEEAlgorithm(p, q);
     }
 
 
@@ -56,6 +67,30 @@ public final class QRGroupPQ extends Group {
         return this.generator = new QRElementPQ(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus), pPrime, qPrime);
 
     }
+
+    @Override
+    public GroupElement createElement() {
+
+        return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus), pPrime, qPrime);
+    }
+
+    @Override
+    public GroupElement createElement(GroupElement s) {
+        QRElementPQ qrElementPQ;
+               BigInteger upperBound = this.pPrime.multiply(this.qPrime).subtract(BigInteger.ONE);
+
+               do {
+                   BigInteger exponent = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+                   qrElementPQ = new QRElementPQ(this, s.modPow(exponent, this.modulus));
+
+               } while (!isElement(qrElementPQ.getValue()));
+
+               this.groupElements.add(qrElementPQ);
+
+               return qrElementPQ;
+    }
+
+   
 
     /**
      * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc
@@ -105,5 +140,13 @@ public final class QRGroupPQ extends Group {
     public boolean verifySGenerator(BigInteger S, BigInteger N) {
         return S.subtract(BigInteger.ONE).gcd(N).equals(BigInteger.ONE);
 
+    }
+
+    public BigInteger getOneP() {
+        return oneP;
+    }
+
+    public BigInteger getOneQ() {
+        return oneQ;
     }
 }
