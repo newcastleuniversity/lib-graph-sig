@@ -27,24 +27,24 @@ public class CRT {
     public static BigInteger computeCRT(final BigInteger xp, final BigInteger p, final BigInteger xq, final BigInteger q) {
 
         if (p.equals(q))
-            throw new IllegalArgumentException("factors must be different");
+            throw new IllegalArgumentException("prime factors must be different");
 
         if (p.gcd(q).compareTo(BigInteger.ONE) != 0)
-            throw new IllegalArgumentException("factors are not coprime");
+            throw new IllegalArgumentException("prime factors are not coprime");
 
         BigInteger N = p.multiply(q);
 
         EEAlgorithm.computeEEAlgorithm(p, q);
         BigInteger X = EEAlgorithm.getS();
-        log.info("X: " + X);
+//        log.info("X: " + X);
         BigInteger Y = EEAlgorithm.getT();
-        log.info("Y: " + Y);
+//        log.info("Y: " + Y);
 
-        log.info("res: " + X.multiply(p).add(Y.multiply(q)));
+//        log.info("res: " + X.multiply(p).add(Y.multiply(q)));
         BigInteger one_q = X.multiply(p).mod(N);
-        log.info("1q: " + one_q);
+//        log.info("1q: " + one_q);
         BigInteger one_p = Y.multiply(q).mod(N);
-        log.info("1p: " + one_p);
+//        log.info("1p: " + one_p);
 
         return xp.multiply(one_p).add(xq.multiply(one_q)).mod(N);
 
@@ -88,6 +88,7 @@ public class CRT {
      */
     public static BigInteger compute1q(final BigInteger X, final BigInteger p, final BigInteger q) {
         BigInteger N = p.multiply(q);
+        
         return X.multiply(p).mod(N);
     }
 
