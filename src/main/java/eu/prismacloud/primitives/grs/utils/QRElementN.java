@@ -35,4 +35,12 @@ public class QRElementN extends QRElement {
     public BigInteger getValue() {
         return number;
     }
+
+    @Override
+    public BigInteger multiply(BigInteger val) {
+        return super.multiply(val);
+    }
+
+
+    
 }
