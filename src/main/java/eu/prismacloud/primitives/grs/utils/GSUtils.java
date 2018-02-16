@@ -83,6 +83,7 @@ public class GSUtils implements INumberUtils {
 
     /**
      * Create generator for commitment group
+     *
      * @param rho
      * @param gamma
      * @return
@@ -105,7 +106,7 @@ public class GSUtils implements INumberUtils {
 
     /**
      * Algorithm <tt>alg:zps_gen</tt> - topocert-doc
-     * 
+     * <p>
      * Create generator for \( Z^*_\Gamma \).
      *
      * @param gamma        the gamma modulus
@@ -115,7 +116,7 @@ public class GSUtils implements INumberUtils {
     public BigInteger createZPSGenerator(BigInteger gamma, ArrayList<BigInteger> primeFactors) {
         // TODO check if current algorithm is correct
         BigInteger alpha, beta, g = BigInteger.ONE;
-        
+
         ArrayList<BigInteger> genFactors = new ArrayList<BigInteger>();
 
         for (BigInteger factor : primeFactors) {
@@ -125,13 +126,13 @@ public class GSUtils implements INumberUtils {
 //              alpha = generatePrime(KeyGenParameters.l_gamma.getValue());
                 alpha = createRandomNumber(BigInteger.ONE, gamma.subtract(BigInteger.ONE));
 //                log.info("alpha: " + alpha);
-                
+
                 beta = alpha.modPow(factor, gamma);
                 log.info("beta: " + beta);
 
             } while (beta.equals(BigInteger.ONE));// || !beta.equals(BigInteger.valueOf(0)));
             log.info("alpha: " + alpha);
-            genFactors.add(alpha.modPow(factor,gamma));
+            genFactors.add(alpha.modPow(factor, gamma));
 
         }
 
@@ -181,7 +182,7 @@ public class GSUtils implements INumberUtils {
         return this.rho;
     }
 
-    public ArrayList<BigInteger> getPrimeFactors(){
+    public ArrayList<BigInteger> getPrimeFactors() {
         return this.primeFactors;
     }
 
@@ -295,21 +296,6 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc
-     * Determines if an integer  a is an element of QRN
-     *
-     * @param alpha candidate integer a
-     * @param N     positive odd integer (prime factors \( N: q_1, \ldots , q_r \) )
-     * @return true if a in QRN, false if a not in QRN
-     * Dependencies: jacobiSymbol()
-     */
-
-    public Boolean elementOfQRN(final BigInteger alpha, final BigInteger N) {
-        return alpha.compareTo(BigInteger.ZERO) > 0 && alpha.compareTo(N.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
-                && JacobiSymbol.computeJacobiSymbol(alpha, N) == 1;
-    }
-
-    /**
      * Algorithm <tt>alg:createElementOfZNS</tt> - topocert-doc
      * Generate S' number
      * <p>
@@ -337,16 +323,31 @@ public class GSUtils implements INumberUtils {
 
 
     /**
-     * Algorithm <tt>alg:verifySGeneratorOfQRN</tt> - topocert-doc
+     * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc
+     * Determines if an integer  a is an element of QRN
+     *
+     * @param alpha candidate integer a
+     * @param N     positive odd integer (prime factors \( N: q_1, \ldots , q_r \) )
+     * @return true if a in QRN, false if a not in QRN
+     * Dependencies: jacobiSymbol()
+     */
+
+    public Boolean elementOfQRN(final BigInteger alpha, final BigInteger N) {
+        return alpha.compareTo(BigInteger.ZERO) > 0 && alpha.compareTo(N.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
+                && JacobiSymbol.computeJacobiSymbol(alpha, N) == 1;
+    }
+
+    /**
+     * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc
      * Evaluate generator S properties
-     * Input: generator S, p', q'
+     * Input: generator S, modulus n
      * Output: true or false
      *
-     * @param s the s
-     * @return the boolean
+     * @param s the s generator
+     * @return true if s is a generator of QRN or else return false
      */
-    public static Boolean verifySGeneratorOfQRN(final BigInteger s) {
-        return true;
+    public Boolean verifySGeneratorOfQRN(final BigInteger s) {
+        return s.subtract(BigInteger.ONE).gcd(n).compareTo(BigInteger.ONE) == 0;
     }
 
     /**
@@ -367,9 +368,23 @@ public class GSUtils implements INumberUtils {
             s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
 
         } while (!verifySGeneratorOfQRN(s));
-        return new BigInteger("1");
+        return s;
     }
 
+    public BigInteger createQRNElement(final BigInteger n) {
+
+
+        BigInteger s;
+        BigInteger s_prime;
+
+        do {
+
+            s_prime = createElementOfZNS(n);
+            s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
+
+        } while (!elementOfQRN(s, n));
+        return s;
+    }
 
     /**
      * Algorithm <tt>alg:power_split</tt> - topocert-doc
