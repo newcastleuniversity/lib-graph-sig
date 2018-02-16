@@ -75,6 +75,11 @@ public class IdemixUtils extends Utils implements INumberUtils {
         throw new RuntimeException("not implemented in idemix library");
     }
 
+    @Override
+    public BigInteger createQRNElement(BigInteger n) {
+        throw new RuntimeException("not implemented in idemix library");
+    }
+
     private SystemParameters getIdemixSystemParameters() {
 
         if (sp == null) {
