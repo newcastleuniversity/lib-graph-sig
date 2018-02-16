@@ -69,4 +69,19 @@ public final class CommitmentGroup extends Group {
     {   // TODO check if it a commitment group element
         return false;
     }
+
+    @Override
+    public GroupElement createGenerator() {
+        return null;
+    }
+
+    @Override
+    public GroupElement createElement() {
+        return null;
+    }
+
+    @Override
+    public GroupElement createElement(GroupElement s) {
+        return null;
+    }
 }

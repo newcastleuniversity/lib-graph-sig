@@ -27,4 +27,14 @@ public final class CommitmentGroupElement extends GroupElement {
     public BigInteger getValue() {
         return value;
     }
+
+    @Override
+    public BigInteger modPow(BigInteger x_z, BigInteger n) {
+        return null;
+    }
+
+    @Override
+    public BigInteger multiply(BigInteger val) {
+        return null;
+    }
 }
