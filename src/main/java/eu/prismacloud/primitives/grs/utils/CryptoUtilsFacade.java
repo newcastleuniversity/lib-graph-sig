@@ -24,12 +24,16 @@ public class CryptoUtilsFacade {
         return CryptoUtilsFactory.getInstance("GS").createQRNGenerator(n);
     }
 
+    public static BigInteger computeQRNElement(BigInteger n) {
+           return CryptoUtilsFactory.getInstance("GS").createQRNElement(n);
+       }
+
     public static BigInteger computeRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
         return CryptoUtilsFactory.getInstance("GS").createRandomNumber(lowerBound, upperBound);
     }
 
     public static CommitmentGroup commitmentGroupSetup() {
-        return CryptoUtilsFactory.getInstance("GS").generateCommitmentGroup();
+        return CryptoUtilsFactory.getInstance("IDEMIX").generateCommitmentGroup();
     }
 
     public static BigInteger commitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
