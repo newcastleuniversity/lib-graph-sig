@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.grs.utils;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 
 /**
  * Quadratic Residue Group where we don't know the modulus factorization in \(Z^*_p \)
@@ -9,11 +10,12 @@ public final class QRGroupN extends Group {
 
     private final BigInteger modulus;
     private QRElementN generator;
-
+    private ArrayList<GroupElement> groupElements;
 
     public QRGroupN(final BigInteger modulus) {
         this.modulus = modulus;
     }
+
 
     @Override
     public BigInteger getOrder() {
@@ -30,12 +32,26 @@ public final class QRGroupN extends Group {
     }
 
     @Override
+    public GroupElement createElement() {
+        QRElement qrElement = new QRElementN(this, CryptoUtilsFacade.computeQRNElement(this.modulus));
+
+        this.groupElements.add(qrElement);
+
+        return qrElement;
+    }
+
+    @Override
+    public GroupElement createElement(GroupElement s) {
+        return null;
+    }
+
+    @Override
     public BigInteger getModulus() {
         return this.modulus;
     }
 
     @Override
-    public boolean isElement(BigInteger value) {
+    public boolean isElement(final BigInteger value) {
         return false;
     }
 
@@ -45,7 +61,7 @@ public final class QRGroupN extends Group {
      * @param x the number to check for quadratic residuosity
      * @return the boolean
      */
-    public boolean isQR(BigInteger x) {
+    public boolean isQR(final BigInteger x) {
 
         return JacobiSymbol.computeJacobiSymbol(x, this.modulus) == 1;
     }
