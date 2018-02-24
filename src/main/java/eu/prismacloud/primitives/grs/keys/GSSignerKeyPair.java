@@ -4,6 +4,9 @@ import eu.prismacloud.primitives.grs.signature.KeyGenSignature;
 import eu.prismacloud.primitives.grs.utils.*;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
 /**
@@ -74,7 +77,57 @@ public class GSSignerKeyPair implements IGSKeyPair {
      * Generate key signature.
      */
     public void generateKeySignature() {
-        /* TODO generate key signature */
+        byte[] digest = new byte[0];
+        String hex;
+        MessageDigest md;
+        BigInteger r_a0, r_aZ, T_R0, T_Z, s_a0, s_aZ, c = null;
+        BigInteger upperBound = specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
+        r_a0 = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
+        r_aZ = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
+        T_R0 = S.modPow(r_a0, specialRSAMod.getN());
+        T_Z = S.modPow(r_aZ, specialRSAMod.getN());
+
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+            String contents;
+            contents = specialRSAMod.getN().toString() + R_0.toString() + Z.toString() + S.toString() + T_R0.toString() + T_Z.toString();
+            md.update(contents.getBytes(StandardCharsets.UTF_8));
+            digest = md.digest();
+
+            hex = String.format("%064x", new BigInteger(1, digest));
+            System.out.println(hex);
+
+            c = new BigInteger(1, digest);
+
+            s_a0 = r_a0.add(c.multiply(x_R_0));
+            s_aZ = r_aZ.add(c.multiply(x_Z));
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public Boolean verifyKeySignature(final BigInteger c, final BigInteger s_a0, BigInteger s_aZ) {
+        byte[] digest = new byte[0];
+
+        String contents, hex;
+        MessageDigest md = null;
+        BigInteger T_R0_hat, T_Z_hat, c_verification;
+
+        T_R0_hat = R_0.modPow(c, specialRSAMod.getN()).multiply(S.modPow(s_a0, specialRSAMod.getN()));
+        T_Z_hat = Z.modPow(c, specialRSAMod.getN()).multiply(S.modPow(s_aZ, specialRSAMod.getN()));
+        contents = specialRSAMod.getN().toString() + R_0.toString() + Z.toString() + S.toString() + T_R0_hat.toString() + T_Z_hat.toString();
+        md.update(contents.getBytes(StandardCharsets.UTF_8));
+        digest = md.digest();
+
+        hex = String.format("%064x", new BigInteger(1, digest));
+        System.out.println(hex);
+
+        c_verification = new BigInteger(1, digest);
+        return c.equals(c_verification);
+
     }
 
 
