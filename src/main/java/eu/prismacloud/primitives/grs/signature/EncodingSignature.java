@@ -1,5 +1,3 @@
 package eu.prismacloud.primitives.grs.signature;
 
-
-public class EncodingSignature {
-}
+public class EncodingSignature {}
