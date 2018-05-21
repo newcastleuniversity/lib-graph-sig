@@ -1,5 +1,3 @@
 package eu.prismacloud.primitives.grs.prover;
 
-
-public class GRSPossessionProver {
-}
+public class GRSPossessionProver {}
