@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.grs.utils.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.grs.utils.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
