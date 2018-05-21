@@ -2,24 +2,22 @@ package eu.prismacloud.primitives.grs.utils;
 
 import java.math.BigInteger;
 
-/**
- * Interface for Number Theoretic utilities
- */
+/** Interface for Number Theoretic utilities */
 public interface INumberUtils {
 
-    SafePrime generateRandomSafePrime();
+  SafePrime generateRandomSafePrime();
 
-    SpecialRSAMod generateSpecialRSAModulus();
+  SpecialRSAMod generateSpecialRSAModulus();
 
-    BigInteger createQRNGenerator(BigInteger n);
+  BigInteger createQRNGenerator(BigInteger n);
 
-    BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound);
+  BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound);
 
-    CommitmentGroup generateCommitmentGroup();
+  CommitmentGroup generateCommitmentGroup();
 
-    BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma);
+  BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma);
 
-    Boolean elementOfQRN(BigInteger value, BigInteger modulus);
+  Boolean elementOfQRN(BigInteger value, BigInteger modulus);
 
-    BigInteger createQRNElement(BigInteger n);
+  BigInteger createQRNElement(BigInteger n);
 }

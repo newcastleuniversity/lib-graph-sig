@@ -7,40 +7,37 @@ import java.math.BigInteger;
  */
 public class CryptoUtilsFacade {
 
+  protected CryptoUtilsFacade() {}
 
-    protected CryptoUtilsFacade() {
-    }
+  public SafePrime computeRandomSafePrime() {
+    return CryptoUtilsFactory.getInstance("GS").generateRandomSafePrime();
+  }
 
-    public SafePrime computeRandomSafePrime() {
-        return CryptoUtilsFactory.getInstance("GS").generateRandomSafePrime();
-    }
+  public static SpecialRSAMod computeSpecialRSAModulus() {
+    return CryptoUtilsFactory.getInstance("GS").generateSpecialRSAModulus();
+  }
 
+  public static BigInteger computeQRNGenerator(BigInteger n) {
+    return CryptoUtilsFactory.getInstance("GS").createQRNGenerator(n);
+  }
 
-    public static SpecialRSAMod computeSpecialRSAModulus() {
-        return CryptoUtilsFactory.getInstance("GS").generateSpecialRSAModulus();
-    }
+  public static BigInteger computeQRNElement(BigInteger n) {
+    return CryptoUtilsFactory.getInstance("GS").createQRNElement(n);
+  }
 
-    public static BigInteger computeQRNGenerator(BigInteger n) {
-        return CryptoUtilsFactory.getInstance("GS").createQRNGenerator(n);
-    }
+  public static BigInteger computeRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
+    return CryptoUtilsFactory.getInstance("GS").createRandomNumber(lowerBound, upperBound);
+  }
 
-    public static BigInteger computeQRNElement(BigInteger n) {
-           return CryptoUtilsFactory.getInstance("GS").createQRNElement(n);
-       }
+  public static CommitmentGroup commitmentGroupSetup() {
+    return CryptoUtilsFactory.getInstance("IDEMIX").generateCommitmentGroup();
+  }
 
-    public static BigInteger computeRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
-        return CryptoUtilsFactory.getInstance("GS").createRandomNumber(lowerBound, upperBound);
-    }
+  public static BigInteger commitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
+    return CryptoUtilsFactory.getInstance("GS").createCommitmentGroupGenerator(rho, gamma);
+  }
 
-    public static CommitmentGroup commitmentGroupSetup() {
-        return CryptoUtilsFactory.getInstance("IDEMIX").generateCommitmentGroup();
-    }
-
-    public static BigInteger commitmentGroupGenerator(BigInteger rho, BigInteger gamma) {
-        return CryptoUtilsFactory.getInstance("GS").createCommitmentGroupGenerator(rho, gamma);
-    }
-
-    public static Boolean isElementOfQR(BigInteger value, BigInteger modulus) {
-        return CryptoUtilsFactory.getInstance("GS").elementOfQRN(value, modulus);
-    }
+  public static Boolean isElementOfQR(BigInteger value, BigInteger modulus) {
+    return CryptoUtilsFactory.getInstance("GS").elementOfQRN(value, modulus);
+  }
 }

@@ -5,28 +5,25 @@ import java.io.InputStream;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-/**
- * Configure Java logger 
- */
+/** Configure Java logger */
 public class GSLoggerConfiguration {
 
-    private static Logger gslog = null;
+  private static Logger gslog = null;
 
-    static {
-        InputStream stream = GSLoggerConfiguration.class.getClassLoader().
-                getResourceAsStream("logging.properties");
-        try {
-            
-            LogManager.getLogManager().readConfiguration(stream);
-            gslog = Logger.getLogger(GSLoggerConfiguration.class.getName());
+  static {
+    InputStream stream =
+        GSLoggerConfiguration.class.getClassLoader().getResourceAsStream("logging.properties");
+    try {
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+      LogManager.getLogManager().readConfiguration(stream);
+      gslog = Logger.getLogger(GSLoggerConfiguration.class.getName());
+
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+  }
 
-
-    public static Logger getGSlog() {
-        return gslog;
-    }
+  public static Logger getGSlog() {
+    return gslog;
+  }
 }
