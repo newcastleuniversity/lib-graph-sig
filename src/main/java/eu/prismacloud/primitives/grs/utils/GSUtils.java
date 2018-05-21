@@ -1,6 +1,13 @@
 package eu.prismacloud.primitives.grs.utils;
 
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.grs.utils.crypto.CLMessage;
+import eu.prismacloud.primitives.grs.utils.crypto.CLSignature;
+import eu.prismacloud.primitives.grs.utils.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.grs.utils.crypto.JacobiSymbol;
+import eu.prismacloud.primitives.grs.utils.crypto.SPoK;
+import eu.prismacloud.primitives.grs.utils.crypto.SafePrime;
+import eu.prismacloud.primitives.grs.utils.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -21,7 +28,7 @@ public class GSUtils implements INumberUtils {
   private BigInteger h;
   private ArrayList<BigInteger> primeFactors;
 
-  protected GSUtils() {}
+  public GSUtils() {}
 
   /**
    * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc Generate Special RSA Modulus N

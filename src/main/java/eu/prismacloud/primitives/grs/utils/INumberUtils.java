@@ -1,5 +1,8 @@
 package eu.prismacloud.primitives.grs.utils;
 
+import eu.prismacloud.primitives.grs.utils.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.grs.utils.crypto.SafePrime;
+import eu.prismacloud.primitives.grs.utils.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 
 /** Interface for Number Theoretic utilities */

@@ -1,7 +1,7 @@
 package eu.prismacloud.primitives.grs.keys;
 
 import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.grs.utils.GroupElement;
+import eu.prismacloud.primitives.grs.utils.crypto.GroupElement;
 import java.math.BigInteger;
 
 public class SignerPublicKey {

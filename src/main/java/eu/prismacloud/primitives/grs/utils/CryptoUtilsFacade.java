@@ -1,5 +1,8 @@
 package eu.prismacloud.primitives.grs.utils;
 
+import eu.prismacloud.primitives.grs.utils.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.grs.utils.crypto.SafePrime;
+import eu.prismacloud.primitives.grs.utils.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 
 /**
@@ -7,7 +10,7 @@ import java.math.BigInteger;
  */
 public class CryptoUtilsFacade {
 
-  protected CryptoUtilsFacade() {}
+  public CryptoUtilsFacade() {}
 
   public SafePrime computeRandomSafePrime() {
     return CryptoUtilsFactory.getInstance("GS").generateRandomSafePrime();
