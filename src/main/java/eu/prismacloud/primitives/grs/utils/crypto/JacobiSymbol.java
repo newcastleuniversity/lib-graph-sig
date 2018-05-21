@@ -1,5 +1,7 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.utils.crypto;
 
+import eu.prismacloud.primitives.grs.utils.GSUtils;
+import eu.prismacloud.primitives.grs.utils.NumberConstants;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 

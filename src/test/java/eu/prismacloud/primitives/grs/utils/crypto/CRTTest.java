@@ -1,7 +1,9 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.utils.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.prismacloud.primitives.grs.utils.CryptoUtilsFacade;
+import eu.prismacloud.primitives.grs.utils.NumberConstants;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;

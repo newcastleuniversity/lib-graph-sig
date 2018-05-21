@@ -1,5 +1,6 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.utils.crypto;
 
+import eu.prismacloud.primitives.grs.utils.CryptoUtilsFacade;
 import java.math.BigInteger;
 import java.util.ArrayList;
 

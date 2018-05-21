@@ -1,5 +1,6 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.utils.crypto;
 
+import eu.prismacloud.primitives.grs.utils.CryptoUtilsFacade;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
@@ -24,7 +25,7 @@ public class SafePrime {
     this.a_prime = sophieGermain;
   }
 
-  protected SafePrime() {}
+  public SafePrime() {}
 
   public BigInteger getSafePrime() {
     return a;
