@@ -5,21 +5,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Base service class for the iterator. */
-public class BaseService {
+public class BaseService implements BaseAggregate {
   private List<Base> bases;
 
-  public BaseIterator getIterator(String baseId) {
-    return new BaseIteratorImpl(bases, baseId);
+  @Override
+  public BaseIterator createIterator() {
+    return new BaseIteratorImpl(this.bases);
+  }
+
+  @Override
+  public boolean add(Base element) {
+    return bases.add(element);
+  }
+
+  @Override
+  public boolean remove(Base element) {
+    return bases.remove(element);
   }
 
   private class BaseIteratorImpl implements BaseIterator {
-    private String baseCheck;
     private List<Base> listOfBases;
     private int index;
 
-    public BaseIteratorImpl(List<Base> bases, String baseCheck) {
+    public BaseIteratorImpl(List<Base> bases) {
       this.listOfBases = bases;
-      this.baseCheck = baseCheck;
     }
 
     @Override
