@@ -1,14 +1,14 @@
 package eu.prismacloud.primitives.grs.keys;
 
 import eu.prismacloud.primitives.grs.signature.KeyGenSignature;
-import eu.prismacloud.primitives.grs.utils.CommitmentGroup;
+import eu.prismacloud.primitives.grs.utils.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.grs.utils.CryptoUtilsFacade;
 import eu.prismacloud.primitives.grs.utils.GSLoggerConfiguration;
-import eu.prismacloud.primitives.grs.utils.Group;
-import eu.prismacloud.primitives.grs.utils.GroupElement;
+import eu.prismacloud.primitives.grs.utils.crypto.Group;
+import eu.prismacloud.primitives.grs.utils.crypto.GroupElement;
 import eu.prismacloud.primitives.grs.utils.NumberConstants;
-import eu.prismacloud.primitives.grs.utils.QRGroupPQ;
-import eu.prismacloud.primitives.grs.utils.SpecialRSAMod;
+import eu.prismacloud.primitives.grs.utils.crypto.QRGroupPQ;
+import eu.prismacloud.primitives.grs.utils.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
