@@ -1,5 +1,3 @@
 package eu.prismacloud.primitives.grs.signer;
 
-
-public class GSGraphSignature {
-}
+public class GSGraphSignature {}
