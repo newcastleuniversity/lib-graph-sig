@@ -1,5 +1,3 @@
 package eu.prismacloud.primitives.topocert;
 
-
-public class IEdge {
-}
+public class IEdge {}
