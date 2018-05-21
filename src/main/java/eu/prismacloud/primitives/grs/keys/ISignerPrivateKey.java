@@ -1,5 +1,3 @@
 package eu.prismacloud.primitives.grs.keys;
 
-
-public interface ISignerPrivateKey {
-}
+public interface ISignerPrivateKey {}

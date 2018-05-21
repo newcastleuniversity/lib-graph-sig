@@ -3,25 +3,24 @@ package eu.prismacloud.primitives.grs.keys;
 import java.math.BigInteger;
 import java.util.Vector;
 
-
 public class ExtendedPublicKey {
-    ExtendedPublicKey publicKey;
-    Vector<BigInteger> vertexBases;
-    Vector<BigInteger> edgeBases;
+  ExtendedPublicKey publicKey;
+  Vector<BigInteger> vertexBases;
+  Vector<BigInteger> edgeBases;
 
-    public ExtendedPublicKey getPublicKey() {
-        return publicKey;
-    }
+  public ExtendedPublicKey getPublicKey() {
+    return publicKey;
+  }
 
-    public ExtendedPrivateKey getPrivateKey() {
-        return null;
-    }
+  public ExtendedPrivateKey getPrivateKey() {
+    return null;
+  }
 
-    public Vector<BigInteger> getVertexBases() {
-        return vertexBases;
-    }
+  public Vector<BigInteger> getVertexBases() {
+    return vertexBases;
+  }
 
-    public Vector<BigInteger> getEdgeBases() {
-        return edgeBases;
-    }
+  public Vector<BigInteger> getEdgeBases() {
+    return edgeBases;
+  }
 }

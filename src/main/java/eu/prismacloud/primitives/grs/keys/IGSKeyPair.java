@@ -3,9 +3,9 @@ package eu.prismacloud.primitives.grs.keys;
 import eu.prismacloud.primitives.grs.signature.KeyGenSignature;
 
 public interface IGSKeyPair {
-    SignerPublicKey getPublicKey();
+  SignerPublicKey getPublicKey();
 
-    SignerPrivateKey getPrivateKey();
+  SignerPrivateKey getPrivateKey();
 
-    KeyGenSignature getSignature();
+  KeyGenSignature getSignature();
 }
