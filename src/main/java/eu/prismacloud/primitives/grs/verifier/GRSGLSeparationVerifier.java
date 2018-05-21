@@ -1,5 +1,3 @@
 package eu.prismacloud.primitives.grs.verifier;
 
-
-public class GRSGLSeparationVerifier {
-}
+public class GRSGLSeparationVerifier {}
