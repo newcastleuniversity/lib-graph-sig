@@ -2,15 +2,13 @@ package eu.prismacloud.primitives.grs.utils;
 
 import java.math.BigInteger;
 
-/**
- * Abstract class for groups
- */
+/** Abstract class for groups */
 public abstract class AbstractGroup {
-    protected abstract BigInteger computeGroupOrder(BigInteger pPrime, BigInteger qPrime);
+  protected abstract BigInteger computeGroupOrder(BigInteger pPrime, BigInteger qPrime);
 
-    public abstract BigInteger getOrder();
+  public abstract BigInteger getOrder();
 
-    public abstract BigInteger getModulus();
+  public abstract BigInteger getModulus();
 
-    public abstract QRElement createGenerator();
+  public abstract QRElement createGenerator();
 }
