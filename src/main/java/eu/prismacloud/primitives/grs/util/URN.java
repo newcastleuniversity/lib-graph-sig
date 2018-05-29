@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.grs.util;
 
-import java.net.URI;
+import eu.prismacloud.primitives.grs.util.NamespaceComponent.Type;
 
 /**
  * Class represents a Uniform Resource Name (URN)
@@ -13,56 +13,55 @@ public final class URN {
 
   private static final String URN_SCHEME = "urn";
   private static final String COLON = ":";
-  private final String namespaceIdentifier;
-  private final String namespaceSpecific;
+  private final NamespaceComponent namespaceIdentifier;
+  private final NamespaceComponent namespaceSpecific;
 
-  private URN(String namespaceIdentifier, String namespaceSpecific) {
+  private URN(
+      final NamespaceComponent namespaceIdentifier, final NamespaceComponent namespaceSpecific) {
 
     this.namespaceIdentifier = namespaceIdentifier;
     this.namespaceSpecific = namespaceSpecific;
   }
 
   /**
-   * Create urn from namespaceIdentifier and namespaceSpecific string.
+   * Create urn from namespaceIdentifier and namespaceSpecific from NamespaceComponent objects.
    *
    * @param namespaceIdentifier the namespace identifier
    * @param namespaceSpecific the namespace specific
+   * @pre namespaceIdentifier != null && namespaceSpecific != null
+   * @post
    * @return the urn
-   * @throws Exception the exception
    */
-  public static URN createURN(String namespaceIdentifier, String namespaceSpecific)
-      throws Exception {
+  public static URN createURN(
+      final NamespaceComponent namespaceIdentifier, final NamespaceComponent namespaceSpecific) {
 
-    try {
-      return new URN(namespaceIdentifier, namespaceSpecific);
-    } catch (IllegalArgumentException e) {
-      throw new Exception(" Error creating URN", e);
-    }
+    Assert.notNull(namespaceIdentifier, "Namespace Identifier is required for URN");
+    Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
+
+    return new URN(namespaceIdentifier, namespaceSpecific);
   }
 
   /**
-   * Create a urn from a uri.
+   * Create urn from namespaceIdentifier and namespaceSpecific strings.
    *
-   * @param uri the uri
+   * @param namespaceIdentifier the namespace identifier
+   * @param namespaceSpecific the namespace specific
+   * @pre namespaceIdentifier != null && namespaceIdentifier != "" && namespaceSpecific != null &&
+   *     namespaceSpecific != ""
+   * @post
    * @return the urn
-   * @throws Exception the exception
    */
-  public static URN fromURI(URI uri) throws Exception {
-    final String uriScheme = uri.getScheme();
+  public static URN createURN(final String namespaceIdentifier, final String namespaceSpecific) {
 
-    if (!URN_SCHEME.equalsIgnoreCase(uriScheme)) {
-      throw new IllegalArgumentException("Invalid scheme ");
-    }
+    Assert.notNull(namespaceIdentifier, "Namespace Identifier is required for URN");
+    Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
+    Assert.notEmpty(namespaceIdentifier, "Namespace Identifier must not be empty in a urn");
+    Assert.notEmpty(namespaceSpecific, "Namespace Specific String must not be empty in a urn");
 
-    final String specificPart = uri.getSchemeSpecificPart();
-    int colonPosition = specificPart.indexOf(COLON);
+    NamespaceComponent nic = NamespaceComponent.fromString(namespaceIdentifier, Type.IDENTIFIER);
+    NamespaceComponent nssc =
+        NamespaceComponent.fromString(namespaceSpecific, Type.SPECIFIC_STRING);
 
-    if (colonPosition > -1) {
-      return new URN(
-          specificPart.substring(0, colonPosition), specificPart.substring(colonPosition + 1));
-
-    } else {
-      throw new IllegalArgumentException("invalid format for a URN part");
-    }
+    return new URN(nic, nssc);
   }
 }
