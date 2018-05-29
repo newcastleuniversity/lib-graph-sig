@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.grs.utils.crypto;
 
-import eu.prismacloud.primitives.grs.util.crypto.QRGroupPQ;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

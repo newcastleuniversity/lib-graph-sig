@@ -1,9 +1,9 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.util;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.prismacloud.primitives.grs.util.IdemixUtils;
-import eu.prismacloud.primitives.grs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.IdemixUtils;
+import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.util;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNull;
@@ -6,10 +6,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.prismacloud.primitives.grs.util.CryptoUtilsFactory;
-import eu.prismacloud.primitives.grs.util.GSUtils;
-import eu.prismacloud.primitives.grs.util.INumberUtils;
-import eu.prismacloud.primitives.grs.util.IdemixUtils;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFactory;
+import eu.prismacloud.primitives.zkpgs.util.GSUtils;
+import eu.prismacloud.primitives.zkpgs.util.INumberUtils;
+import eu.prismacloud.primitives.zkpgs.util.IdemixUtils;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +28,7 @@ class CryptoUtilsFactoryTest {
   private CryptoUtilsFactory classUnderTest;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     log.info("@BeforeEach: setUp()");
     classUnderTest = new CryptoUtilsFactory();
   }
@@ -45,20 +45,20 @@ class CryptoUtilsFactoryTest {
         () -> {
 
           // Test if factory returns the correct class
-          INumberUtils idemix = classUnderTest.getInstance("IDEMIX");
+          INumberUtils idemix = CryptoUtilsFactory.getInstance("IDEMIX");
           INumberUtils id = new IdemixUtils();
           assertThat(id, instanceOf(idemix.getClass()));
         },
         () -> {
 
           // Test if factory returns the correct class
-          INumberUtils gs = classUnderTest.getInstance("GS");
+          INumberUtils gs = CryptoUtilsFactory.getInstance("GS");
           GSUtils id = new GSUtils();
           assertThat(id, instanceOf(gs.getClass()));
         },
         () -> {
           // Test factory when name is not correct
-          INumberUtils nu = classUnderTest.getInstance("demo");
+          INumberUtils nu = CryptoUtilsFactory.getInstance("demo");
           assertNull(nu);
         });
   }

@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 

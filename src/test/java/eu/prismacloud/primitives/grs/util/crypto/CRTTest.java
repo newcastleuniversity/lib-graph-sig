@@ -1,18 +1,18 @@
-package eu.prismacloud.primitives.grs.utils.crypto;
+package eu.prismacloud.primitives.grs.util.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.prismacloud.primitives.grs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.grs.util.NumberConstants;
-import eu.prismacloud.primitives.grs.util.crypto.CRT;
-import eu.prismacloud.primitives.grs.util.crypto.EEAlgorithm;
-import eu.prismacloud.primitives.grs.util.crypto.Group;
-import eu.prismacloud.primitives.grs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.grs.util.crypto.QRElementN;
-import eu.prismacloud.primitives.grs.util.crypto.QRElementPQ;
-import eu.prismacloud.primitives.grs.util.crypto.QRGroupN;
-import eu.prismacloud.primitives.grs.util.crypto.QRGroupPQ;
-import eu.prismacloud.primitives.grs.util.crypto.SpecialRSAMod;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.crypto.CRT;
+import eu.prismacloud.primitives.zkpgs.util.crypto.EEAlgorithm;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
+import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;

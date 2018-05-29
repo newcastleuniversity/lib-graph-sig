@@ -1,10 +1,10 @@
-package eu.prismacloud.primitives.grs.utils.crypto;
+package eu.prismacloud.primitives.grs.util.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.grs.util.crypto.SafePrime;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 class SafePrimeTest {
   private static final Logger log = Logger.getLogger(SafePrimeTest.class.getName());
 
+  private KeyGenParameters keyGenParameters;
   private SafePrime classUnderTest;
 
   @BeforeAll
@@ -95,8 +96,8 @@ class SafePrimeTest {
     assertNotNull(classUnderTest);
     SafePrime sf = classUnderTest.generateRandomSafePrime();
     assertNotNull(sf);
-    assertTrue(sf.getSafePrime().isProbablePrime(KeyGenParameters.l_pt.getValue()));
-    assertTrue(sf.getSophieGermain().isProbablePrime(KeyGenParameters.l_pt.getValue()));
+    assertTrue(sf.getSafePrime().isProbablePrime(keyGenParameters.getL_pt()));
+    assertTrue(sf.getSophieGermain().isProbablePrime(keyGenParameters.getL_pt()));
     //        assertEquals(sf.a,new BigInteger("2").multiply(sf.a_prime).add(new BigInteger("1")));
 
   }

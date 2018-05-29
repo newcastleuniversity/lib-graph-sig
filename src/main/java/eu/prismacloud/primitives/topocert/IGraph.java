@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.topocert;
 
-import eu.prismacloud.primitives.grs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import java.util.ArrayList;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;

@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.grs;
 
-import eu.prismacloud.primitives.grs.signature.IGraphSignature;
+import eu.prismacloud.primitives.zkpgs.signature.IGraphSignature;
 
 public class IGraphSignatureMockBuilder {
   private IGraphSignature mock;

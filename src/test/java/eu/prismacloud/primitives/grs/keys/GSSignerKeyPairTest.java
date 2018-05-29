@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.grs.keys;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.keys.GSSignerKeyPair;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

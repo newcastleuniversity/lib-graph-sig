@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.topocert;
 
-import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 // import eu.prismacloud.primitives.grs.KeyGenParams;
 
 public abstract class Topocert {

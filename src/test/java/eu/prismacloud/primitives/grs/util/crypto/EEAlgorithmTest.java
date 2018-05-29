@@ -2,7 +2,7 @@ package eu.prismacloud.primitives.grs.utils.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.prismacloud.primitives.grs.util.crypto.EEAlgorithm;
+import eu.prismacloud.primitives.zkpgs.util.crypto.EEAlgorithm;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;

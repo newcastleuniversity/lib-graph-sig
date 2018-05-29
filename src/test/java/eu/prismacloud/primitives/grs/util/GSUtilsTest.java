@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.utils;
+package eu.prismacloud.primitives.grs.util;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import eu.prismacloud.primitives.grs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.grs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.grs.util.GSUtils;
-import eu.prismacloud.primitives.grs.util.crypto.CommitmentGroup;
-import eu.prismacloud.primitives.grs.util.crypto.SpecialRSAMod;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.GSUtils;
+import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class GSUtilsTest {
 
   private static final Logger log = GSLoggerConfiguration.getGSlog();
-
+  private KeyGenParameters keyGenParameters;
   private GSUtils classUnderTest;
 
   @BeforeEach
@@ -124,7 +124,7 @@ class GSUtilsTest {
   @DisplayName("Test generate Prime")
   void generatePrime() {
     log.info("@Test: generatePrime ");
-    BigInteger bg = GSUtils.generatePrime(KeyGenParameters.l_n.getValue() / 2);
+    BigInteger bg = GSUtils.generatePrime(keyGenParameters.getL_n() / 2);
     log.info("bg: " + bg);
     assertNotNull(bg);
     assertTrue(bg.isProbablePrime(80));
@@ -172,7 +172,7 @@ class GSUtilsTest {
     log.info("@Test: createCommitmentGroupGenerator");
     BigInteger gamma, g;
     BigInteger m =
-        BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
+        BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
     gamma = classUnderTest.computeCommitmentGroupModulus(m);
     log.info("gamma: " + gamma);
     log.info("gamma bitlength: " + gamma.bitLength());
@@ -193,7 +193,7 @@ class GSUtilsTest {
     log.info("@Test: computeCommitmentGroupModulus");
     BigInteger mingamma, res;
     BigInteger m =
-        BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
+        BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
     //        BigInteger rho = BigInteger.probablePrime(16,new SecureRandom());
 
     mingamma = classUnderTest.computeCommitmentGroupModulus(m);
@@ -306,8 +306,8 @@ class GSUtilsTest {
     factors =
         classUnderTest.generateRandomPrimeWithFactors(
             new BigInteger(
-                KeyGenParameters.l_gamma.getValue(),
-                KeyGenParameters.l_pt.getValue(),
+                keyGenParameters.getL_gamma(),
+                keyGenParameters.getL_pt(),
                 new SecureRandom()));
     log.info("@Test: rnd length: " + factors.size());
 
@@ -337,8 +337,8 @@ class GSUtilsTest {
     factors =
         classUnderTest.generateRandomPrimeWithFactors(
             new BigInteger(
-                KeyGenParameters.l_gamma.getValue(),
-                KeyGenParameters.l_pt.getValue(),
+                keyGenParameters.getL_gamma(),
+                keyGenParameters.getL_pt(),
                 new SecureRandom()));
 
     log.info("@Test: rnd length: " + factors.size());
@@ -396,7 +396,7 @@ class GSUtilsTest {
       BigInteger rho = BigInteger.valueOf(5);
 
       BigInteger m =
-          BigInteger.probablePrime(KeyGenParameters.l_gamma.getValue(), new SecureRandom());
+          BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
 
       gamma = BigInteger.valueOf(11); // classUnderTest.computeCommitmentGroupModulus(m);
 

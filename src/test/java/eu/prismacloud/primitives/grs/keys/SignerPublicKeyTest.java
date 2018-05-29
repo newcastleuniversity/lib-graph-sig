@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.grs.keys;
 
+import eu.prismacloud.primitives.zkpgs.keys.GSSignerKeyPair;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
