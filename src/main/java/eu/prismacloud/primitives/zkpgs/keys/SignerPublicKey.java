@@ -8,9 +8,10 @@ public class SignerPublicKey {
 
   private SignerPrivateKey privateKey;
   private BigInteger N;
-  private BigInteger R_0;
+  private GroupElement R;
+  private GroupElement R_0;
   private GroupElement S;
-  private BigInteger Z;
+  private GroupElement Z;
 
   public SignerPublicKey(final SignerPrivateKey privateKey, final KeyGenParameters gs_params) {
 
@@ -23,8 +24,13 @@ public class SignerPublicKey {
   }
 
   public SignerPublicKey(
-      final BigInteger N, final BigInteger R_0, final GroupElement S, final BigInteger Z) {
+      final BigInteger N,
+      final GroupElement R,
+      final GroupElement R_0,
+      final GroupElement S,
+      final GroupElement Z) {
     this.N = N;
+    this.R = R;
     this.R_0 = R_0;
     this.S = S;
     this.Z = Z;
@@ -34,7 +40,7 @@ public class SignerPublicKey {
     return N;
   }
 
-  public BigInteger getR_0() {
+  public GroupElement getR_0() {
     return R_0;
   }
 
@@ -42,7 +48,11 @@ public class SignerPublicKey {
     return S;
   }
 
-  public BigInteger getZ() {
+  public GroupElement getZ() {
     return Z;
+  }
+
+  public GroupElement getR() {
+    return this.R;
   }
 }

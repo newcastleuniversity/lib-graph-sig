@@ -15,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
 /** Generates key pair for the Signer */
-public class GSSignerKeyPair implements IGSKeyPair {
+public class SignerKeyPair {
 
   private static SignerPrivateKey privateKey;
   private static SignerPublicKey publicKey;
@@ -25,9 +25,9 @@ public class GSSignerKeyPair implements IGSKeyPair {
   private static BigInteger x_Z;
   private static BigInteger x_R;
   private static BigInteger x_R0;
-  private static BigInteger R;
-  private static BigInteger R_0;
-  private static BigInteger Z;
+  private static GroupElement R;
+  private static GroupElement R_0;
+  private static GroupElement Z;
   private static Group cg;
   private static final Logger log = GSLoggerConfiguration.getGSlog();
   private static Group qrGroup;
@@ -38,7 +38,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
    * @param privateKey the private key
    * @param publicKey the public key
    */
-  public GSSignerKeyPair(final SignerPrivateKey privateKey, final SignerPublicKey publicKey) {
+  public SignerKeyPair(final SignerPrivateKey privateKey, final SignerPublicKey publicKey) {
     this.privateKey = privateKey;
     this.publicKey = publicKey;
   }
@@ -57,7 +57,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
    *
    * @return GSSignerKeyPair gs signer key pair
    */
-  public static GSSignerKeyPair KeyGen() {
+  public static SignerKeyPair KeyGen() {
 
     specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
 
@@ -66,6 +66,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
     // ** TODO check if the computations with the group elements are correct
     x_Z = qrGroup.createElement().getValue();
+
     Z = S.modPow(x_Z, specialRSAMod.getN());
 
     x_R = qrGroup.createElement().getValue();
@@ -86,7 +87,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
             x_Z);
     publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z);
 
-    return new GSSignerKeyPair(privateKey, publicKey);
+    return new SignerKeyPair(privateKey, publicKey);
   }
 
   /** TODO refactor generateKeySignature method */
@@ -107,8 +108,8 @@ public class GSSignerKeyPair implements IGSKeyPair {
         specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
     r_a0 = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
     r_aZ = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
-    T_R0 = S.modPow(r_a0, specialRSAMod.getN());
-    T_Z = S.modPow(r_aZ, specialRSAMod.getN());
+    T_R0 = S.modPow(r_a0, specialRSAMod.getN()).getValue();
+    T_Z = S.modPow(r_aZ, specialRSAMod.getN()).getValue();
 
     try {
       md = MessageDigest.getInstance("SHA-256");
@@ -153,8 +154,11 @@ public class GSSignerKeyPair implements IGSKeyPair {
     MessageDigest md = null;
     BigInteger T_R0_hat, T_Z_hat, c_verification;
 
-    T_R0_hat = R_0.modPow(c, specialRSAMod.getN()).multiply(S.modPow(s_a0, specialRSAMod.getN()));
-    T_Z_hat = Z.modPow(c, specialRSAMod.getN()).multiply(S.modPow(s_aZ, specialRSAMod.getN()));
+    T_R0_hat =
+        R_0.modPow(c, specialRSAMod.getN())
+            .multiply(S.modPow(s_a0, specialRSAMod.getN()).getValue());
+    T_Z_hat =
+        Z.modPow(c, specialRSAMod.getN()).multiply(S.modPow(s_aZ, specialRSAMod.getN()).getValue());
     contents =
         specialRSAMod.getN().toString()
             + R_0.toString()
@@ -163,6 +167,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
             + T_R0_hat.toString()
             + T_Z_hat.toString();
     md.update(contents.getBytes(StandardCharsets.UTF_8));
+
     Assert.notNull(md, "Message digest must not be null");
     digest = md.digest();
 
@@ -173,22 +178,24 @@ public class GSSignerKeyPair implements IGSKeyPair {
     return c.equals(c_verification);
   }
 
-  @Override
   public SignerPrivateKey getPrivateKey() {
     return privateKey;
   }
 
-  @Override
   public SignerPublicKey getPublicKey() {
     return publicKey;
   }
 
-  @Override
   public KeyGenSignature getSignature() {
     // TODO implement getSignature
     throw new RuntimeException("getSignature not implemented");
   }
 
+  /**
+   * Gets qr group.
+   *
+   * @return the qr group
+   */
   public Group getQRGroup() {
     return qrGroup;
   }
