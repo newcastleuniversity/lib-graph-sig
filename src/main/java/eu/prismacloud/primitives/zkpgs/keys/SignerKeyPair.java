@@ -1,12 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.signature.KeyGenSignature;
-import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
@@ -24,11 +23,14 @@ public class GSSignerKeyPair implements IGSKeyPair {
   private static SpecialRSAMod specialRSAMod = null;
   private static GroupElement S;
   private static BigInteger x_Z;
-  private static BigInteger x_R_0;
+  private static BigInteger x_R;
+  private static BigInteger x_R0;
+  private static BigInteger R;
   private static BigInteger R_0;
   private static BigInteger Z;
-  private static CommitmentGroup cg;
+  private static Group cg;
   private static final Logger log = GSLoggerConfiguration.getGSlog();
+  private static Group qrGroup;
 
   /**
    * Instantiates a new Gs signer key pair.
@@ -37,8 +39,8 @@ public class GSSignerKeyPair implements IGSKeyPair {
    * @param publicKey the public key
    */
   public GSSignerKeyPair(final SignerPrivateKey privateKey, final SignerPublicKey publicKey) {
-    GSSignerKeyPair.privateKey = privateKey;
-    GSSignerKeyPair.publicKey = publicKey;
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
   }
 
   /**
@@ -59,37 +61,50 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
     specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
 
-    Group qrGroup = new QRGroupPQ(specialRSAMod.getP_prime(), specialRSAMod.getQ_prime());
+    qrGroup = new QRGroupPQ(specialRSAMod.getpPrime(), specialRSAMod.getqPrime());
     S = qrGroup.createGenerator();
 
-    BigInteger upperBound =
-        specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
-    x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+    // ** TODO check if the computations with the group elements are correct
+    x_Z = qrGroup.createElement().getValue();
     Z = S.modPow(x_Z, specialRSAMod.getN());
-    x_R_0 = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
-    R_0 = S.modPow(x_R_0, specialRSAMod.getN());
+
+    x_R = qrGroup.createElement().getValue();
+    R = S.modPow(x_R, specialRSAMod.getN());
+
+    x_R0 = qrGroup.createElement().getValue();
+    R_0 = S.modPow(x_R0, specialRSAMod.getN());
+
     cg = CryptoUtilsFacade.commitmentGroupSetup();
     privateKey =
         new SignerPrivateKey(
             specialRSAMod.getP(),
-            specialRSAMod.getP_prime(),
+            specialRSAMod.getpPrime(),
             specialRSAMod.getQ(),
-            specialRSAMod.getQ_prime(),
-            x_R_0,
+            specialRSAMod.getqPrime(),
+            x_R,
+            x_R0,
             x_Z);
-    publicKey = new SignerPublicKey(specialRSAMod.getN(), R_0, S, Z);
+    publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z);
 
     return new GSSignerKeyPair(privateKey, publicKey);
   }
 
+  /** TODO refactor generateKeySignature method */
   /** Generate key signature. */
   public void generateKeySignature() {
     byte[] digest = new byte[0];
     String hex;
     MessageDigest md;
-    BigInteger r_a0, r_aZ, T_R0, T_Z, s_a0, s_aZ, c = null;
+    BigInteger r_a0;
+    BigInteger r_aZ;
+    BigInteger T_R0;
+    BigInteger T_Z;
+    BigInteger s_a0;
+    BigInteger s_aZ;
+    BigInteger c;
+
     BigInteger upperBound =
-        specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
+        specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
     r_a0 = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
     r_aZ = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
     T_R0 = S.modPow(r_a0, specialRSAMod.getN());
@@ -113,18 +128,28 @@ public class GSSignerKeyPair implements IGSKeyPair {
 
       c = new BigInteger(1, digest);
 
-      s_a0 = r_a0.add(c.multiply(x_R_0));
+      s_a0 = r_a0.add(c.multiply(x_R0));
       s_aZ = r_aZ.add(c.multiply(x_Z));
 
     } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
+      System.err.println("Algorithm for hash is not correct " + e.getMessage());
     }
   }
 
-  public Boolean verifyKeySignature(final BigInteger c, final BigInteger s_a0, BigInteger s_aZ) {
+  /**
+   * Verify key signature boolean.
+   *
+   * @param c the c
+   * @param s_a0 the s a 0
+   * @param s_aZ the s a z
+   * @return the boolean
+   */
+  public Boolean verifyKeySignature(
+      final BigInteger c, final BigInteger s_a0, final BigInteger s_aZ) {
     byte[] digest = new byte[0];
 
-    String contents, hex;
+    String contents;
+    String hex;
     MessageDigest md = null;
     BigInteger T_R0_hat, T_Z_hat, c_verification;
 
@@ -138,6 +163,7 @@ public class GSSignerKeyPair implements IGSKeyPair {
             + T_R0_hat.toString()
             + T_Z_hat.toString();
     md.update(contents.getBytes(StandardCharsets.UTF_8));
+    Assert.notNull(md, "Message digest must not be null");
     digest = md.digest();
 
     hex = String.format("%064x", new BigInteger(1, digest));
@@ -147,16 +173,23 @@ public class GSSignerKeyPair implements IGSKeyPair {
     return c.equals(c_verification);
   }
 
+  @Override
   public SignerPrivateKey getPrivateKey() {
     return privateKey;
   }
 
+  @Override
   public SignerPublicKey getPublicKey() {
     return publicKey;
   }
 
+  @Override
   public KeyGenSignature getSignature() {
     // TODO implement getSignature
     throw new RuntimeException("getSignature not implemented");
+  }
+
+  public Group getQRGroup() {
+    return qrGroup;
   }
 }

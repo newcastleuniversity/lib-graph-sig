@@ -13,7 +13,7 @@ import eu.prismacloud.primitives.zkpgs.signature.KeyGenSignature;
 import java.math.BigInteger;
 import java.util.Vector;
 
-public class GSGraphEncoding {
+public class GraphEncoding {
 
   private EncodingSignature encodingSignature;
 
@@ -27,7 +27,7 @@ public class GSGraphEncoding {
   private ExtendedPublicKey extendedPublicKey;
   private Vector<BigInteger> discreteLogBases;
 
-  public GSGraphEncoding() {}
+  public GraphEncoding() {}
 
   public EncodingSignature getEncodingSignature() {
     return encodingSignature;
