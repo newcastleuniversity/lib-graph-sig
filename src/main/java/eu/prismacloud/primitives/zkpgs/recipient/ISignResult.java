@@ -1,8 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
-import eu.prismacloud.primitives.zkpgs.signature.GSGraphSignature;
+import eu.prismacloud.primitives.zkpgs.GraphSignature;
 
 public interface ISignResult {
 
-  GSGraphSignature getGraphSignature();
+  GraphSignature getGraphSignature();
 }

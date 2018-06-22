@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.zkpgs;
+package eu.prismacloud.primitives.zkpgs.encoding;
 
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.signature.EncodingSignature;

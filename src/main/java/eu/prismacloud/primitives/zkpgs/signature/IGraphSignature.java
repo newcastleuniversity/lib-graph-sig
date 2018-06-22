@@ -1,10 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
+import eu.prismacloud.primitives.topocert.IGraph;
+import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
-import eu.prismacloud.primitives.zkpgs.keys.IGSKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.topocert.IGraph;
 import java.math.BigInteger;
 
 public interface IGraphSignature {
@@ -16,7 +17,7 @@ public interface IGraphSignature {
    * @param params the params
    * @return the key gen pair
    */
-  public IGSKeyPair keyGen(int securityParam, KeyGenParameters params);
+  public SignerKeyPair keyGen(int securityParam, KeyGenParameters params);
 
   /**
    * Commit commitment.
@@ -49,5 +50,5 @@ public interface IGraphSignature {
   public Boolean verify(
       SignerPublicKey pk_s, ICommitment cmt, BigInteger rTilde, IGraphSignature gsig);
 
-  GSGraphSignature getGraphSignature();
+  GraphSignature getGraphSignature();
 }

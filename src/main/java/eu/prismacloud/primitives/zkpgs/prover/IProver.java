@@ -6,8 +6,10 @@ public interface IProver {
    * signatures. Theses proofs can either be interactive or non-interactive.
    */
   void createWitnessRandomness();
+
   void computeWitness();
+
   void computeChallenge();
+
   void computeResponses();
-  
 }

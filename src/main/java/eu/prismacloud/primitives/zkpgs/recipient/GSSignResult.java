@@ -1,11 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
-import eu.prismacloud.primitives.zkpgs.signature.GSGraphSignature;
+import eu.prismacloud.primitives.zkpgs.GraphSignature;
 
 public class GSSignResult implements ISignResult {
-  public GSGraphSignature graphSignature;
+  public GraphSignature graphSignature;
 
-  public GSGraphSignature getGraphSignature() {
+  @Override
+  public GraphSignature getGraphSignature() {
     // TODO Auto-generated method stub
     return null;
   }

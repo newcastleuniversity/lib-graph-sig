@@ -14,9 +14,8 @@ public class MesageGatewayProxy implements IMessageGateway {
   }
 
   @Override
-  public void sendMessage(IMessage message) {
-
+  public void sendMessage(IMessage message, Object target) {
     gslog.log(Level.INFO, "send proxy message" + message);
-    messageGateway.sendMessage(message);
+    messageGateway.sendMessage(message, target);
   }
 }

@@ -9,7 +9,7 @@ public class MessageGatewayImpl implements IMessageGateway {
   Logger gslog = GSLoggerConfiguration.getGSlog();
 
   @Override
-  public void sendMessage(IMessage message) {
+  public void sendMessage(IMessage message, T target) {
 
     gslog.log(Level.INFO, "send message: " + message);
   }

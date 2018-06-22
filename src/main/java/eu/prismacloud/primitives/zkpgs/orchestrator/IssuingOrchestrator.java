@@ -7,6 +7,8 @@ import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
+import eu.prismacloud.primitives.zkpgs.message.MesageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.IssuingCommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
@@ -30,6 +32,7 @@ public class IssuingOrchestrator {
   private GSGraph<GSVertex, GSEdge> recipientGraph; // = new GSGraph();
   private ProofSignature P_1;
   private ICommitment U;
+  IMessageGateway messageGateway;
 
   public IssuingOrchestrator(ExtendedKeyPair extendedKeyPair, KeyGenParameters keyGenParameters) {
     this.extendedKeyPair = extendedKeyPair;
@@ -41,9 +44,10 @@ public class IssuingOrchestrator {
   }
 
   public void round0() {
+   messageGateway  = new MesageGatewayProxy();
 
     n_1 = signer.computeNonce();
-    signer.sendMessage(new GSMessage(n_1));
+    signer.sendMessage(new GSMessage(n_1), recipient);
 
     /** TODO send message to recipient for the n_1 */
     /** TODO signer send n_1 to recipient */

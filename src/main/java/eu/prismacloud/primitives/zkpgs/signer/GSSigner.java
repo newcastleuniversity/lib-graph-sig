@@ -7,8 +7,8 @@ import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
-import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
 import eu.prismacloud.primitives.zkpgs.orchestrator.IssuingOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
@@ -49,6 +49,7 @@ public class GSSigner { // implements ISigner {
   private Map<URN, BaseRepresentation> encodedEdges;
   private Map<URN, BaseRepresentation> encodedVertices;
   private GSSignature gsSignature;
+  private IMessageGateway messageGateway;
 
   public GSSigner(
       final IssuingOrchestrator issuingOrchestrator, final KeyGenParameters keyGenParameters) {
@@ -83,14 +84,15 @@ public class GSSigner { // implements ISigner {
    * @param signerMessageToRecipient the signer message to recipient
    * @return the gs message
    */
-  public GSMessage sendMessage(GSMessage signerMessageToRecipient) {
-    return null;
+  public void sendMessage(GSMessage signerMessageToRecipient, GSRecipient target) {
+             messageGateway.sendMessage(signerMessageToRecipient, target);
+
   }
 
-  public void receiveMessage(GSMessage recMessageToSigner) {
-
-    messageElements = recMessageToSigner.getMessageElements();
-  }
+//  public GSMessage receiveMessage() {
+//
+//      return memessageElements = recMessageToSigner.getMessageElements();
+//    }
 
   public CommitmentVerifier createCommitmentVerifier(
       ProofSignature P_1,

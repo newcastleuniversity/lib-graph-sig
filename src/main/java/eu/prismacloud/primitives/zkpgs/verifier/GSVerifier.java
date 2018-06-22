@@ -22,6 +22,8 @@ public class GSVerifier implements IProver, Storable {
     this.keyGenParameters = keyGenParameters;
   }
 
+
+
   public Map<URN, BigInteger> getBarV() {
     return barV;
   }

@@ -3,5 +3,5 @@ package eu.prismacloud.primitives.zkpgs.message;
 /** */
 public interface IMessageGateway {
 
-  void sendMessage(IMessage message);
+  void sendMessage(IMessage message, Object target);
 }
