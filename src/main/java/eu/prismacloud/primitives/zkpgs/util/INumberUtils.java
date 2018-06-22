@@ -4,7 +4,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
-import java.util.Vector;
+import java.util.List;
 
 /** Interface for Number Theoretic utilities */
 public interface INumberUtils {
@@ -13,9 +13,9 @@ public interface INumberUtils {
 
   SpecialRSAMod generateSpecialRSAModulus();
 
-  BigInteger createQRNGenerator(BigInteger n);
+  BigInteger createQRNGenerator(BigInteger N);
 
-  BigInteger createRandomNumber(BigInteger lowerBound, BigInteger upperBound);
+  BigInteger createRandomNumber(BigInteger min, BigInteger max);
 
   BigInteger createRandomNumber(int bitLength);
 
@@ -25,7 +25,15 @@ public interface INumberUtils {
 
   Boolean elementOfQRN(BigInteger value, BigInteger modulus);
 
-  BigInteger createQRNElement(BigInteger n);
+  BigInteger createQRNElement(BigInteger N);
 
-  BigInteger calculateHash(Vector<BigInteger> list, int hashLength);
+  BigInteger calculateHash(List<BigInteger> list, int hashLength);
+
+  BigInteger computeA();
+
+  BigInteger generateRandomPrime(int bitLength);
+
+  BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger N);
+
+  BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength);
 }
