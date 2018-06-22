@@ -22,14 +22,13 @@ class ProofStoreTest {
 
   @BeforeEach
   void setUp() {
-    proverStore = new ProofStore<>(10);
+    proverStore = new ProofStore<Object>(10);
   }
 
   @Test
   void put() throws Exception {
 
-    proverStore.store(
-        URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "biginteger.2"), BigInteger.valueOf(1));
+    proverStore.store("biginteger.2", BigInteger.valueOf(1));
     List<GSCommitment> commitments = new ArrayList<GSCommitment>();
     commitments.add(
         new GSCommitment(
@@ -38,8 +37,7 @@ class ProofStoreTest {
             BigInteger.TEN,
             new QRElementN(BigInteger.ONE).getValue(),
             BigInteger.ONE));
-    proverStore.store(
-        URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "commitments.ci"), commitments);
+    proverStore.store("commitments.ci", commitments);
 
     assertEquals(2, proverStore.size());
   }
@@ -47,8 +45,7 @@ class ProofStoreTest {
   @Test
   void storeSameElement() throws Exception {
 
-    proverStore.store(
-        URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "biginteger.2"), BigInteger.valueOf(1));
+    proverStore.store("biginteger.2", BigInteger.valueOf(1));
     List<GSCommitment> commitments = new ArrayList<GSCommitment>();
     commitments.add(
         new GSCommitment(
@@ -57,16 +54,13 @@ class ProofStoreTest {
             BigInteger.TEN,
             new QRElementN(BigInteger.ONE).getValue(),
             BigInteger.ONE));
-    proverStore.store(
-        URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "commitments.ci"), commitments);
+    proverStore.store("commitments.ci", commitments);
 
     Throwable exception =
         assertThrows(
             Exception.class,
             () -> {
-              proverStore.store(
-                  URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "biginteger.2"),
-                  BigInteger.valueOf(2));
+              proverStore.store("biginteger.2", BigInteger.valueOf(2));
             });
 
     assertThat(
@@ -78,8 +72,7 @@ class ProofStoreTest {
   @Test
   void retrieve() throws Exception {
 
-    proverStore.store(
-        URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "biginteger.2"), BigInteger.valueOf(1));
+    proverStore.store("biginteger.2", BigInteger.valueOf(1));
     List<GSCommitment> commitments = new ArrayList<GSCommitment>();
     commitments.add(
         new GSCommitment(
@@ -88,8 +81,7 @@ class ProofStoreTest {
             BigInteger.TEN,
             new QRElementN(BigInteger.ONE).getValue(),
             BigInteger.ONE));
-    proverStore.store(
-        URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "commitments.ci"), commitments);
+    proverStore.store("commitments.ci", commitments);
 
     //       proverStore.store(URN.createURN(URN.getZkpgsNameSpaceIdentifier(),"biginteger.2" ),
     // BigInteger.valueOf(2));
@@ -98,7 +90,7 @@ class ProofStoreTest {
 
     BigInteger el =
         (BigInteger)
-            proverStore.retrieve(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "biginteger.2"));
+            proverStore.retrieve("biginteger.2");
     assertNotNull(el);
   }
 
