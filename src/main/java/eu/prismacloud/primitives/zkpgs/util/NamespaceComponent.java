@@ -71,4 +71,32 @@ public class NamespaceComponent {
           "Characters not allowed found in Namespace Specific String");
     }
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb =
+        new StringBuilder("eu.prismacloud.primitives.zkpgs.util.NamespaceComponent{");
+    sb.append("content='").append(content).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || this.getClass() != o.getClass()) {
+      return false;
+    }
+
+    NamespaceComponent that = (NamespaceComponent) o;
+
+    return this.content.equals(that.content);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.content.hashCode();
+  }
 }
