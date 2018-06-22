@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /** Group Element class */
 public abstract class GroupElement {
@@ -9,7 +10,9 @@ public abstract class GroupElement {
   //    abstract BigInteger getOrder();
   public abstract BigInteger getValue();
 
-  public abstract BigInteger modPow(BigInteger val, BigInteger n);
+  public abstract GroupElement modPow(BigInteger exponent, BigInteger modulus);
 
-  public abstract BigInteger multiply(BigInteger val);
+  public abstract BigInteger multiply(BigInteger value);
+
+  public abstract BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents);
 }
