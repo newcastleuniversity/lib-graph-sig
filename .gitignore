@@ -8,3 +8,8 @@
 *.lof
 *.synctex.gz
 .Rproj.user
+/.idea
+/infer-out
+/target
+/lib-graph-sig.iml
+/.settings
