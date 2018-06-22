@@ -11,6 +11,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -32,8 +33,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
   @Override
   public SafePrime generateRandomSafePrime() {
     BigInteger p =
-        Utils.computeSafePrime(
-            keyGenParameters.getL_n() / 2, keyGenParameters.getL_pt());
+        Utils.computeSafePrime(keyGenParameters.getL_n() / 2, keyGenParameters.getL_pt());
     BigInteger p_prime = p.subtract(BigInteger.ONE).shiftRight(1);
 
     return new SafePrime(p, p_prime);
@@ -89,9 +89,31 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public BigInteger calculateHash(final Vector<BigInteger> list, final int hashLength) {
+  public BigInteger calculateHash(final List<BigInteger> list, final int hashLength) {
 
-    return Utils.hashOf(hashLength, list);
+    Vector<BigInteger> vlist = new Vector<BigInteger>(list);
+
+    return Utils.hashOf(hashLength, vlist);
+  }
+
+  @Override
+  public BigInteger computeA() {
+    throw new RuntimeException("not implemented in idemix library");
+  }
+
+  @Override
+  public BigInteger generateRandomPrime(int bitLength) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
+
+  @Override
+  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger N) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
+
+  @Override
+  public BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength) {
+    throw new RuntimeException("not currently used from idemix library");
   }
 
   private SystemParameters getIdemixSystemParameters() {
