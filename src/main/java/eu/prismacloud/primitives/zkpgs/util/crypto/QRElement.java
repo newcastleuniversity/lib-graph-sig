@@ -1,9 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import java.math.BigInteger;
+import java.util.List;
 
-/** element of Quadratic Residue Group */
-public abstract class QRElement extends GroupElement {
+/** Element of Quadratic Residue Group. */
+public class QRElement extends GroupElement {
   private Group group;
 
   private final BigInteger value;
@@ -17,6 +19,7 @@ public abstract class QRElement extends GroupElement {
     this.value = value;
   }
 
+  @Override
   public BigInteger getValue() {
     return value;
   }
@@ -35,6 +38,11 @@ public abstract class QRElement extends GroupElement {
 
   public BigInteger multiply(BigInteger val) {
     return value.multiply(val);
+  }
+
+  @Override
+  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
+    return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
   }
 
   public BigInteger divide(BigInteger val) {
@@ -69,8 +77,9 @@ public abstract class QRElement extends GroupElement {
     return value.mod(m);
   }
 
-  public BigInteger modPow(BigInteger exponent, BigInteger m) {
-    return value.modPow(exponent, m);
+  @Override
+  public GroupElement modPow(BigInteger exponent, BigInteger modN) {
+    return (GroupElement) new QRElement(value.modPow(exponent, modN));
   }
 
   public BigInteger modInverse(BigInteger m) {
@@ -97,6 +106,7 @@ public abstract class QRElement extends GroupElement {
     return value.compareTo(val);
   }
 
+  @Override
   public boolean equals(Object x) {
     return value.equals(x);
   }
@@ -109,6 +119,7 @@ public abstract class QRElement extends GroupElement {
     return value.max(val);
   }
 
+  @Override
   public int hashCode() {
     return value.hashCode();
   }
@@ -117,6 +128,7 @@ public abstract class QRElement extends GroupElement {
     return value.toString(radix);
   }
 
+  @Override
   public String toString() {
     return value.toString();
   }
@@ -125,6 +137,7 @@ public abstract class QRElement extends GroupElement {
     return value.toByteArray();
   }
 
+  @Override
   public Group getGroup() {
     return group;
   }
