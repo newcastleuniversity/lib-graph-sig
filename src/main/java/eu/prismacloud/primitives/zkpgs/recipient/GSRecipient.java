@@ -1,89 +1,82 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
-import eu.prismacloud.primitives.zkpgs.GSMessage;
-import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
+import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.keys.IGSKeyPair;
+import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.orchestrator.IssuingOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.signature.GSGraphSignature;
-import eu.prismacloud.primitives.zkpgs.signature.IGraphSignature;
+import eu.prismacloud.primitives.zkpgs.prover.IssuingCommitmentProver;
+import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.verifier.CorrectnessVerifier;
 import java.math.BigInteger;
-import org.jgrapht.graph.DefaultEdge;
 
-public class GSRecipient implements IRecipient {
+public class GSRecipient { // implements IRecipient {
 
-  public IGraphSignature hiddenSign(
-      ICommitment cmt,
-      GSVertex gsGraph,
-      GSVertex gsGraph1,
-      ExtendedPublicKey extendedPublicKey,
-      GSGraph gsGraph2,
-      BigInteger rnd) {
+  private final IssuingOrchestrator issuingOrchestrator;
+  private final KeyGenParameters keyGenParameters;
+  private BigInteger n_1;
+  private BigInteger vPrime;
+  private BigInteger R_0;
+  private BigInteger m_0;
+  private GSGraph<GSVertex, GSEdge> recipientGraph; // = new GSGraph();
+  private BigInteger n_2;
 
-    /* TODO compute graph signature */
+  public GSRecipient(
+      final IssuingOrchestrator issuingOrchestrator, final KeyGenParameters keyGenParameters) {
+    this.issuingOrchestrator = issuingOrchestrator;
+    this.keyGenParameters = keyGenParameters;
+  }
+
+  public void setN_1(BigInteger n_1) {
+    this.n_1 = n_1;
+  }
+
+  public void round0() {}
+
+  public BigInteger generatevPrime() {
+    vPrime =
+        CryptoUtilsFacade.computeRandomNumber(
+            keyGenParameters.getL_n() + keyGenParameters.getL_statzk());
+
+    return vPrime;
+  }
+
+  public IssuingCommitmentProver createCommitmentProver(
+      ICommitment U, ExtendedPublicKey extendedPublicKey) {
+
+    IssuingCommitmentProver commitmentProver =
+        new IssuingCommitmentProver(U, vPrime, R_0, m_0, n_1, keyGenParameters, extendedPublicKey);
+    return commitmentProver;
+  }
+
+  public CorrectnessVerifier createCorrectnessVerifier() {
     return null;
   }
 
-  private GSGraph recipientGraph; // = new GSGraph();
-
-  public IGSKeyPair keyGen(KeyGenParameters gs_params) {
+  public ICommitment commit(GSGraph<GSVertex, GSEdge> gsGraph, BigInteger rnd) {
     return null;
   }
 
-  public ICommitment commit(GSGraph gsGraph, BigInteger rnd) {
-    return null;
-  }
-
-  public void hiddenSign(
-      GSCommitment cmt,
-      GSVertex gsGraph,
-      GSVertex graph,
-      ExtendedPublicKey extendedPublicKey,
-      GSGraph gsGraph1,
-      BigInteger extendedPrivateKey) {}
-
-  public GSGraph getRecipientGraph() {
+  public GSGraph<GSVertex, GSEdge> getRecipientGraph() {
     return recipientGraph;
   }
 
-  public void createGraph() {
-
-    GSVertex v1 = new GSVertex();
-    v1.setLabel("vertex_1");
-    GSVertex v2 = new GSVertex();
-    v2.setLabel("vertex_2");
-
-    recipientGraph.addVertex(v1);
-    recipientGraph.addVertex(v2);
-
-    DefaultEdge edge = recipientGraph.addEdge(v1, v2);
-
-    GSVertex signerConnectingVertex = new GSVertex();
-    signerConnectingVertex.setLabel("conn_vertex_3");
-
-    recipientGraph.addVertex(signerConnectingVertex);
+  public void sendMessage(GSMessage recMessageToSigner, GSSigner signer) {
+    signer.receiveMessage(recMessageToSigner);
   }
 
-  public GSGraph initGraph() {
-    return new GSGraph();
-  }
-
-  public GSMessage sendMessage(GSMessage recMessageToSigner) {
-    return null;
-  }
-
-  public void setGraph(GSGraph recipientGraph) {
+  //  @Override
+  public void setGraph(GSGraph<GSVertex, GSEdge> recipientGraph) {
     this.recipientGraph = recipientGraph;
   }
 
-  public Boolean verify(
-      ExtendedPublicKey extendedPublicKey,
-      ICommitment recipientCommitment,
-      BigInteger rndRecipient,
-      GSGraphSignature graphSignature) {
-    return true;
+  public BigInteger generateN_2() {
+    n_2 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+
+    return n_2;
   }
 }
