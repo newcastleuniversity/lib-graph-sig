@@ -70,7 +70,7 @@ class GSUtilsTest {
         if (i != j) {
           SpecialRSAMod jSrm = srmArray[j];
           if (isrm.equals(jSrm)) {
-            fail("Duplicate modulus N generated");
+            fail("Duplicate modulus modN generated");
           }
         }
       }
@@ -123,8 +123,9 @@ class GSUtilsTest {
   @Test
   @DisplayName("Test generate Prime")
   void generatePrime() {
-    log.info("@Test: generatePrime ");
-    BigInteger bg = GSUtils.generatePrime(keyGenParameters.getL_n() / 2);
+    log.info("@Test: generateRandomPrime ");
+    GSUtils gs = new GSUtils();
+    BigInteger bg = gs.generateRandomPrime(keyGenParameters.getL_n() / 2);
     log.info("bg: " + bg);
     assertNotNull(bg);
     assertTrue(bg.isProbablePrime(80));
@@ -171,8 +172,7 @@ class GSUtilsTest {
   void createCommitmentGroupGenerator() {
     log.info("@Test: createCommitmentGroupGenerator");
     BigInteger gamma, g;
-    BigInteger m =
-        BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
+    BigInteger m = BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
     gamma = classUnderTest.computeCommitmentGroupModulus(m);
     log.info("gamma: " + gamma);
     log.info("gamma bitlength: " + gamma.bitLength());
@@ -192,8 +192,7 @@ class GSUtilsTest {
   void computeCommitmentGroupModulus() {
     log.info("@Test: computeCommitmentGroupModulus");
     BigInteger mingamma, res;
-    BigInteger m =
-        BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
+    BigInteger m = BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
     //        BigInteger rho = BigInteger.probablePrime(16,new SecureRandom());
 
     mingamma = classUnderTest.computeCommitmentGroupModulus(m);
@@ -306,9 +305,7 @@ class GSUtilsTest {
     factors =
         classUnderTest.generateRandomPrimeWithFactors(
             new BigInteger(
-                keyGenParameters.getL_gamma(),
-                keyGenParameters.getL_pt(),
-                new SecureRandom()));
+                keyGenParameters.getL_gamma(), keyGenParameters.getL_pt(), new SecureRandom()));
     log.info("@Test: rnd length: " + factors.size());
 
     for (int i = 0; i < factors.size(); i++) {
@@ -337,9 +334,7 @@ class GSUtilsTest {
     factors =
         classUnderTest.generateRandomPrimeWithFactors(
             new BigInteger(
-                keyGenParameters.getL_gamma(),
-                keyGenParameters.getL_pt(),
-                new SecureRandom()));
+                keyGenParameters.getL_gamma(), keyGenParameters.getL_pt(), new SecureRandom()));
 
     log.info("@Test: rnd length: " + factors.size());
 
@@ -395,8 +390,7 @@ class GSUtilsTest {
       //        BigInteger rho = BigInteger.valueOf(383);
       BigInteger rho = BigInteger.valueOf(5);
 
-      BigInteger m =
-          BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
+      BigInteger m = BigInteger.probablePrime(keyGenParameters.getL_gamma(), new SecureRandom());
 
       gamma = BigInteger.valueOf(11); // classUnderTest.computeCommitmentGroupModulus(m);
 

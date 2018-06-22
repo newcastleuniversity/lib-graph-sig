@@ -61,7 +61,7 @@ class SafePrimeTest {
   //    @Test
   //    @DisplayName("Generate Prime number")
   //    public void testGeneratePrime() {
-  //        log.info("@Test: generatePrime()");
+  //        log.info("@Test: generateRandomPrime()");
   //        assertNotNull(classUnderTest);
   //        assertAll(
   //                () -> {
@@ -77,13 +77,13 @@ class SafePrimeTest {
   //                ,
   //                () -> {
   //                    // Test #2 check if return value is probable prime
-  //                    BigInteger actualSum = classUnderTest.generatePrime();
+  //                    BigInteger actualSum = classUnderTest.generateRandomPrime();
   //                    System.out.println("actualSum 2 = " + actualSum);
   //                    assertTrue(actualSum.isProbablePrime(KeyGenParameters.l_pt.getValue()));
   //                },
   //                () -> {
   //                    // Test #3 check if return value is probable prime
-  //                    BigInteger actualSum = classUnderTest.generatePrime();
+  //                    BigInteger actualSum = classUnderTest.generateRandomPrime();
   //                    System.out.println("actualSum 3 = " + actualSum);
   //                    assertTrue(actualSum.isProbablePrime(KeyGenParameters.l_pt.getValue()));
   //                });

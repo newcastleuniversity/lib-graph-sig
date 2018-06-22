@@ -8,7 +8,7 @@ import javax.json.JsonReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** */
+/** Test parsing the json parameters file */
 class JSONParametersTest {
   private JSONParameters jsonParameters;
   private JsonReader reader;

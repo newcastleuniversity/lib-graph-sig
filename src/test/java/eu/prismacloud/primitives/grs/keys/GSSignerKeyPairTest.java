@@ -2,7 +2,7 @@ package eu.prismacloud.primitives.grs.keys;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.prismacloud.primitives.zkpgs.keys.GSSignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /** Test Signer Key Pair */
 class GSSignerKeyPairTest {
   private static final Logger log = Logger.getLogger(GSSignerKeyPairTest.class.getName());
-  private GSSignerKeyPair gsk;
+  private SignerKeyPair gsk;
 
   @BeforeEach
   void setUp() {
@@ -30,7 +30,7 @@ class GSSignerKeyPairTest {
   @DisplayName("Test key generation")
   void keyGen() {
     log.info("@Test: key generation");
-    gsk = GSSignerKeyPair.KeyGen();
+    gsk = SignerKeyPair.KeyGen();
     assertNotNull(gsk);
     assertNotNull(gsk.getPrivateKey());
     assertNotNull(gsk.getPublicKey());
@@ -42,7 +42,7 @@ class GSSignerKeyPairTest {
     log.info("@Test: keyGen10times ");
     for (int i = 0; i < 10; i++) {
 
-      gsk = GSSignerKeyPair.KeyGen();
+      gsk = SignerKeyPair.KeyGen();
       assertNotNull(gsk);
     }
   }
@@ -53,14 +53,14 @@ class GSSignerKeyPairTest {
   @Test
   void getPrivateKey() {
     log.info("@Test: getPrivateKey");
-    gsk = GSSignerKeyPair.KeyGen();
+    gsk = SignerKeyPair.KeyGen();
     assertNotNull(gsk.getPrivateKey());
   }
 
   @Test
   void getPublicKey() {
     log.info("@Test: getPublickKey");
-    gsk = GSSignerKeyPair.KeyGen();
+    gsk = SignerKeyPair.KeyGen();
     assertNotNull(gsk.getPublicKey());
   }
 

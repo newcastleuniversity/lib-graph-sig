@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.utils.crypto;
+package eu.prismacloud.primitives.grs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
 import java.util.logging.Logger;
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class QRElementPQTest {
-  private static final Logger log = Logger.getLogger(QRElementNTest.class.getName());
+  private static final Logger log = Logger.getLogger(QRElementPQTest.class.getName());
   private QRElementPQ classUnderTest;
 
   @BeforeEach

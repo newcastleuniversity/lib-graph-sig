@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.grs.keys;
 
-import eu.prismacloud.primitives.zkpgs.keys.GSSignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 class SignerPublicKeyTest {
   private static final Logger log = Logger.getLogger(SignerPublicKeyTest.class.getName());
-  private GSSignerKeyPair gsk;
+  private SignerKeyPair gsk;
 
   @BeforeEach
   void setUp() {
     // classUnderTest = new GSSignerKeyPair();
-    gsk = GSSignerKeyPair.KeyGen();
+    gsk = SignerKeyPair.KeyGen();
   }
 
   @AfterEach

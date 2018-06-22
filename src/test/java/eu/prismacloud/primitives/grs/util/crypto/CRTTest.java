@@ -252,7 +252,7 @@ class CRTTest {
     Group qrGroupN = new QRGroupN(specialRSAMod.getN());
 
     BigInteger upperBound =
-        specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
+        specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
 
     for (int i = 0; i < 100; i++) {
 
@@ -303,7 +303,7 @@ class CRTTest {
     Group qrGroupN = new QRGroupN(specialRSAMod.getN());
 
     BigInteger upperBound =
-        specialRSAMod.getP_prime().multiply(specialRSAMod.getQ_prime()).subtract(BigInteger.ONE);
+        specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
 
     for (int i = 0; i < 100; i++) {
 
