@@ -1,5 +1,10 @@
-/target
-/lib-graph-sig.iml
-/.idea
-/.settings
-/infer-out
+*.bbl
+*.blg
+*.aux
+*.out
+*.log
+*.toc
+*.lot
+*.lof
+*.synctex.gz
+.Rproj.user
