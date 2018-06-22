@@ -266,10 +266,10 @@ class CRTTest {
       Z = S.getValue().modPow(x_Z, specialRSAMod.getN());
 
       // compute using QRElementN modPow
-      Z_n = S_n.modPow(x_Z, specialRSAMod.getN());
+      Z_n = S_n.modPow(x_Z, specialRSAMod.getN()).getValue();
 
       // compute using QRElementPQ modPow
-      Z_pq = S.modPow(x_Z, specialRSAMod.getN());
+      Z_pq = S.modPow(x_Z, specialRSAMod.getN()).getValue();
 
       assertEquals(Z, Z_pq);
       assertEquals(Z, Z_n);
@@ -282,10 +282,10 @@ class CRTTest {
         BigInteger Ri = S.getValue().modPow(x_Z, specialRSAMod.getN());
 
         // compute using QRElementN modPow
-        BigInteger Ri_n = S_n.modPow(x_Z, specialRSAMod.getN());
+        BigInteger Ri_n = S_n.modPow(x_Z, specialRSAMod.getN()).getValue();
 
         // compute using QRElementPQ modPow
-        BigInteger Ri_pq = S.modPow(x_Z, specialRSAMod.getN());
+        BigInteger Ri_pq = S.modPow(x_Z, specialRSAMod.getN()).getValue();
 
         assertEquals(Ri, Ri_pq);
         assertEquals(Ri, Ri_n);
