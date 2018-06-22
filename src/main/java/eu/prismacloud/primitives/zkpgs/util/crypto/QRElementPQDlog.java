@@ -6,7 +6,7 @@ import java.math.BigInteger;
  * Class that represents an element in the Quadratic Residues group that the modulus factorization
  * is known and the discrete logarithms of the exponents.
  */
-public class QRElementPQDlog extends QRElement {
+public abstract class QRElementPQDlog extends QRElement {
   private QRGroupPQ qrGroupPQ;
   private BigInteger number;
 
