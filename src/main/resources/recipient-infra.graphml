@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+<key attr.name="label" attr.type="string" for="node" id="label"/>
+<key attr.name="EdgeLabel" attr.type="string" for="edge" id="edgelabel"/>
+<key attr.name="weight" attr.type="double" for="edge" id="weight"/>
+<key attr.name="r" attr.type="int" for="node" id="r"/>
+<key attr.name="g" attr.type="int" for="node" id="g"/>
+<key attr.name="b" attr.type="int" for="node" id="b"/>
+<key attr.name="x" attr.type="float" for="node" id="x"/>
+<key attr.name="y" attr.type="float" for="node" id="y"/>
+<key attr.name="size" attr.type="float" for="node" id="size"/>
+<key attr.name="Country" attr.type="string" for="node" id="country"/>
+<graph edgedefault="undirected">
+<node id="0">
+<data key="label">VM 3</data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-1159.4075</data>
+<data key="y">773.6336</data>
+</node>
+<node id="1">
+<data key="label">physical server </data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-486.73682</data>
+<data key="y">677.03235</data>
+</node>
+<node id="2">
+<data key="label">VM 1</data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-987.6259</data>
+<data key="y">1138.4683</data>
+</node>
+<node id="3">
+<data key="label">VM 2</data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-1168.8672</data>
+<data key="y">1002.4739</data>
+</node>
+<node id="4">
+<data key="label">Storage Node</data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-477.2514</data>
+<data key="y">896.61523</data>
+</node>
+<node id="5">
+<data key="label">vSwitch 1</data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-901.435</data>
+<data key="y">872.8417</data>
+</node>
+<node id="6">
+<data key="label">Switch</data>
+<data key="country">GB</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">-76.05034</data>
+<data key="y">419.31937</data>
+</node>
+<node id="7">
+<data key="label">Internet</data>
+<data key="country"/>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">340.84717</data>
+<data key="y">155.0365</data>
+</node>
+<node id="8">
+<data key="label">VM 1</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">1915.0641</data>
+<data key="y">830.19336</data>
+</node>
+<node id="9">
+<data key="label">VM 2</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">1868.2026</data>
+<data key="y">603.5807</data>
+</node>
+<node id="10">
+<data key="label">VM 3</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">1745.7434</data>
+<data key="y">984.38983</data>
+</node>
+<node id="11">
+<data key="label">vSwitch</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">1632.6215</data>
+<data key="y">732.4024</data>
+</node>
+<node id="12">
+<data key="label">Physical server</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">1204.0775</data>
+<data key="y">583.66394</data>
+</node>
+<node id="13">
+<data key="label">Storage Node</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">1216.5609</data>
+<data key="y">805.49774</data>
+</node>
+<node id="14">
+<data key="label">Switch</data>
+<data key="country">DE</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">774.8586</data>
+<data key="y">369.33182</data>
+</node>
+<node id="15">
+<data key="label">VM 1</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">377.42093</data>
+<data key="y">-1567.3756</data>
+</node>
+<node id="16">
+<data key="label">VM 2</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">570.1924</data>
+<data key="y">-1441.183</data>
+</node>
+<node id="17">
+<data key="label">VM 3</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">168.2647</data>
+<data key="y">-1478.1395</data>
+</node>
+<node id="18">
+<data key="label">vSwitch</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">355.99628</data>
+<data key="y">-1270.4142</data>
+</node>
+<node id="19">
+<data key="label">Physical server</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">321.68176</data>
+<data key="y">-812.70795</data>
+</node>
+<node id="20">
+<data key="label">Storage Server</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">126.30849</data>
+<data key="y">-904.7145</data>
+</node>
+<node id="21">
+<data key="label">Switch</data>
+<data key="country">IT</data>
+<data key="size">10.0</data>
+<data key="r">153</data>
+<data key="g">153</data>
+<data key="b">153</data>
+<data key="x">334.53308</data>
+<data key="y">-330.3492</data>
+</node>
+<edge id="0" source="2" target="5">
+<data key="weight">1.0</data>
+</edge>
+<edge id="1" source="3" target="5">
+<data key="weight">1.0</data>
+</edge>
+<edge id="2" source="0" target="5">
+<data key="weight">1.0</data>
+</edge>
+<edge id="3" source="5" target="1">
+<data key="weight">1.0</data>
+</edge>
+<edge id="4" source="1" target="4">
+<data key="weight">1.0</data>
+</edge>
+<edge id="5" source="1" target="6">
+<data key="weight">1.0</data>
+</edge>
+<edge id="6" source="6" target="7">
+<data key="weight">1.0</data>
+</edge>
+<edge id="7" source="8" target="11">
+<data key="weight">1.0</data>
+</edge>
+<edge id="8" source="9" target="11">
+<data key="weight">1.0</data>
+</edge>
+<edge id="9" source="10" target="11">
+<data key="weight">1.0</data>
+</edge>
+<edge id="10" source="11" target="12">
+<data key="weight">1.0</data>
+</edge>
+<edge id="11" source="12" target="13">
+<data key="weight">1.0</data>
+</edge>
+<edge id="12" source="12" target="14">
+<data key="weight">1.0</data>
+</edge>
+<edge id="13" source="14" target="7">
+<data key="weight">1.0</data>
+</edge>
+<edge id="14" source="15" target="18">
+<data key="weight">1.0</data>
+</edge>
+<edge id="15" source="16" target="18">
+<data key="weight">1.0</data>
+</edge>
+<edge id="16" source="17" target="18">
+<data key="weight">1.0</data>
+</edge>
+<edge id="17" source="18" target="19">
+<data key="weight">1.0</data>
+</edge>
+<edge id="18" source="19" target="20">
+<data key="weight">1.0</data>
+</edge>
+<edge id="19" source="19" target="21">
+<data key="weight">1.0</data>
+</edge>
+<edge id="20" source="21" target="7">
+<data key="weight">1.0</data>
+</edge>
+</graph>
+</graphml>
