@@ -24,22 +24,22 @@ public class JacobiSymbol {
    * @pre alpha != null && modN != null
    * @return jacobi symbol (a|N)
    */
-  public static int computeJacobiSymbol(BigInteger alpha, BigInteger N) {
+  public static int computeJacobiSymbol(BigInteger alpha, BigInteger modN) {
     Assert.notNull(alpha, "A value for alpha is needed");
-    Assert.notNull(N, "A value for modN is needed");
+    Assert.notNull(modN, "A value for modN is needed");
 
-    if (N.mod(NumberConstants.TWO.getValue()).equals(BigInteger.ZERO)) {
+    if (modN.mod(NumberConstants.TWO.getValue()).equals(BigInteger.ZERO)) {
       throw new IllegalArgumentException("Use an odd integer.");
     }
 
     int sigma = 1;
 
     do {
-      alpha = alpha.mod(N);
+      alpha = alpha.mod(modN);
 
       if (alpha.equals(BigInteger.ZERO)) {
 
-        if (N.equals(BigInteger.ONE)) return sigma;
+        if (modN.equals(BigInteger.ONE)) return sigma;
         else return 0;
       }
 
@@ -54,14 +54,14 @@ public class JacobiSymbol {
       //            log.info("alpha_prime: " + alpha_prime);
 
       if (!isCongruent(h, BigInteger.ZERO, NumberConstants.TWO.getValue())
-          && !isCongruent(N, BigInteger.ONE, NumberConstants.EIGHT.getValue())
-          && !isCongruent(N, NumberConstants.SEVEN.getValue(), NumberConstants.EIGHT.getValue()))
+          && !isCongruent(modN, BigInteger.ONE, NumberConstants.EIGHT.getValue())
+          && !isCongruent(modN, NumberConstants.SEVEN.getValue(), NumberConstants.EIGHT.getValue()))
         sigma = -sigma;
 
       if (!isCongruent(alpha_prime, BigInteger.ONE, NumberConstants.FOUR.getValue())
-          && !isCongruent(N, BigInteger.ONE, NumberConstants.FOUR.getValue())) sigma = -sigma;
+          && !isCongruent(modN, BigInteger.ONE, NumberConstants.FOUR.getValue())) sigma = -sigma;
 
-      alpha = N;
+      alpha = modN;
       modN = alpha_prime;
       // log.info("N: " + N);
 

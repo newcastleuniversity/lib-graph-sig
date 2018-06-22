@@ -44,12 +44,12 @@ public class CRT {
     //        log.info("Y: " + Y);
 
     //        log.info("res: " + X.multiply(p).add(Y.multiply(q)));
-    BigInteger one_q = X.multiply(p).mod(N);
+    BigInteger one_q = X.multiply(p).mod(modN);
     //        log.info("1q: " + one_q);
-    BigInteger one_p = Y.multiply(q).mod(N);
+    BigInteger one_p = Y.multiply(q).mod(modN);
     //        log.info("1p: " + one_p);
 
-    return xp.multiply(one_p).add(xq.multiply(one_q)).mod(N);
+    return xp.multiply(one_p).add(xq.multiply(one_q)).mod(modN);
   }
 
   /**
@@ -67,9 +67,9 @@ public class CRT {
       final BigInteger oneP,
       final BigInteger xq,
       final BigInteger oneQ,
-      final BigInteger N) {
+      final BigInteger modN) {
 
-    return xp.multiply(oneP).add(xq.multiply(oneQ)).mod(N);
+    return xp.multiply(oneP).add(xq.multiply(oneQ)).mod(modN);
   }
 
   /**
@@ -82,7 +82,7 @@ public class CRT {
    */
   public static BigInteger compute1p(final BigInteger Y, final BigInteger p, final BigInteger q) {
     BigInteger modN = p.multiply(q);
-    return Y.multiply(q).mod(N);
+    return Y.multiply(q).mod(modN);
   }
 
   /**
@@ -95,7 +95,7 @@ public class CRT {
    */
   public static BigInteger compute1q(final BigInteger X, final BigInteger p, final BigInteger q) {
     BigInteger modN = p.multiply(q);
-    return X.multiply(p).mod(N);
+    return X.multiply(p).mod(modN);
   }
 
   /**
