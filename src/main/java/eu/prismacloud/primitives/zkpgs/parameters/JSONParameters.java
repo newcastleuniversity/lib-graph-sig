@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.parameters;
 
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.InputStream;
 import java.util.logging.Logger;
 import javax.json.Json;
@@ -11,13 +12,13 @@ public class JSONParameters {
 
   private static final String GS_PARAM_FILE = "zkgs_params.json";
   private InputStream paramStream;
-  private static Logger gslog = null;
+  private static Logger gslog = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
   private JsonReader reader;
 
   /** Json parameters. */
-  public void JSONParameters() {
+  public JSONParameters() {
     reader = parseParamFile();
     build();
   }
@@ -25,9 +26,9 @@ public class JSONParameters {
   /** Parse param file. */
   public JsonReader parseParamFile() {
 
-    paramStream = JSONParameters.class.getClassLoader().getResourceAsStream(GS_PARAM_FILE);
+    paramStream = JsonIsoCountries.class.getClassLoader().getResourceAsStream(GS_PARAM_FILE);
 
-    return  Json.createReader(paramStream);
+    return Json.createReader(paramStream);
   }
 
   /** Build Keygen and graph encoding parameters objects from json file. */
@@ -56,6 +57,6 @@ public class JSONParameters {
     int l_E = jsonObject.getInt("l_E");
     int l_L = jsonObject.getInt("l_L");
     int l_prime_L = jsonObject.getInt("l_prime_L");
-    graphEncodingParameters = new GraphEncodingParameters(l_V,l_prime_V,l_E,l_L,l_prime_L);
+    graphEncodingParameters = new GraphEncodingParameters(l_V, l_prime_V, l_E, l_L, l_prime_L);
   }
 }
