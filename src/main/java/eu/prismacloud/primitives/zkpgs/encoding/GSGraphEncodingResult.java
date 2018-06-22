@@ -1,16 +1,16 @@
 package eu.prismacloud.primitives.zkpgs;
 
-import eu.prismacloud.primitives.zkpgs.keys.IGSExtendedKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.signature.EncodingSignature;
 
 public class GSGraphEncodingResult {
 
-  private IGSExtendedKeyPair extendedKeyGenPair;
+  private ExtendedKeyPair extendedKeyGenPair;
   private EncodingSignature signature;
 
   public GSGraphEncodingResult() {}
 
-  public IGSExtendedKeyPair getExtendedKeyGenPair() {
+  public ExtendedKeyPair getExtendedKeyGenPair() {
     return extendedKeyGenPair;
   }
 

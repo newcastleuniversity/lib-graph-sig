@@ -4,35 +4,47 @@ import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import java.math.BigInteger;
 import java.util.Iterator;
 
-/** The graph signature includes the methods for randomization, vertex and edge iterators. */
+/**
+ * The graph signature includes the methods for blinding a given graph signature, vertex and edge
+ * iterators.
+ */
 public class GraphSignature {
 
   private ExtendedPublicKey extendedPublicKey;
   private ExtendedPrivateKey extendedPrivateKey;
+  private BigInteger A;
+  private BigInteger e;
+  private BigInteger v;
 
   public void GraphSignature() {}
 
   public BigInteger getA() {
-    return null;
+    return this.A;
   }
 
   public BigInteger getE() {
-    return null;
+    return this.e;
   }
 
   public BigInteger getV() {
-    return null;
+    return this.v;
   }
 
-  public GraphSignature randomize() {
+  public GraphSignature blindGS(GraphSignature gs) {
     return new GraphSignature();
   }
 
   public BigInteger getBasesPermutation() {
     return null;
+  }
+
+  public BigInteger computeA() {
+    CryptoUtilsFacade.computeA();
+    return BigInteger.valueOf(2);
   }
 
   public Iterator<GSVertex> getVerticesIterator() {
