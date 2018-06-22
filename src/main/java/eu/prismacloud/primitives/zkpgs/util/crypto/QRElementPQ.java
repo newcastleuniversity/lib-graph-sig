@@ -1,6 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Class that represents an element in the Quadratic Residues group when the modulus factorization
@@ -15,11 +17,22 @@ public class QRElementPQ extends QRElement {
   private BigInteger xp;
   private BigInteger xq;
 
+  /**
+   * Instantiates a new Qr element pq.
+   *
+   * @param value the value
+   */
   public QRElementPQ(final BigInteger value) {
     super(value);
     this.value = value;
   }
 
+  /**
+   * Instantiates a new Qr element pq.
+   *
+   * @param qrGroupPQ the qr group pq
+   * @param value the value
+   */
   public QRElementPQ(final QRGroupPQ qrGroupPQ, final BigInteger value) {
     super(qrGroupPQ, value);
 
@@ -27,6 +40,14 @@ public class QRElementPQ extends QRElement {
     this.value = value;
   }
 
+  /**
+   * Instantiates a new Qr element pq.
+   *
+   * @param qrGroupPQ the qr group pq
+   * @param value the value
+   * @param pPrime the p prime
+   * @param qPrime the q prime
+   */
   public QRElementPQ(
       final QRGroupPQ qrGroupPQ,
       final BigInteger value,
@@ -40,10 +61,20 @@ public class QRElementPQ extends QRElement {
     this.qPrime = qPrime;
   }
 
+  /**
+   * Gets xp.
+   *
+   * @return the xp
+   */
   public BigInteger getXp() {
     return xp;
   }
 
+  /**
+   * Gets xq.
+   *
+   * @return the xq
+   */
   public BigInteger getXq() {
     return xq;
   }
@@ -51,8 +82,8 @@ public class QRElementPQ extends QRElement {
   /**
    * CRT representation
    *
-   * @param xp
-   * @param xq
+   * @param xp the xp
+   * @param xq the xq
    */
   public void setPQRepresentation(BigInteger xp, BigInteger xq) {
     this.xp = xp;
@@ -69,26 +100,32 @@ public class QRElementPQ extends QRElement {
     return this.value;
   }
 
+  /**
+   * Gets order.
+   *
+   * @return the order
+   */
   public BigInteger getOrder() {
     return this.order;
   }
 
   @Override
-  public BigInteger modPow(BigInteger exponent, BigInteger m) {
+  public GroupElement modPow(BigInteger exponent, BigInteger m) {
     //      compute exponentiation using CRT for modulo p and q representation
     BigInteger exp_p = exponent.mod(this.pPrime.subtract(BigInteger.ONE));
     BigInteger exp_q = exponent.mod(this.qPrime.subtract(BigInteger.ONE));
-    BigInteger xp = super.modPow(exp_p, pPrime);
+    BigInteger xp = modPow(exp_p, pPrime).getValue();
 
-    BigInteger xq = super.modPow(exp_q, qPrime);
-
+    BigInteger xq = modPow(exp_q, qPrime).getValue();
     // uses precomputation for 1p and 1q
-    return CRT.computeCRT(
-        xp,
-        this.qrGroupPQ.getOneP(),
-        xq,
-        this.qrGroupPQ.getOneQ(),
-        this.pPrime.multiply(this.qPrime));
+    BigInteger crt =
+        CRT.computeCRT(
+            xp,
+            this.qrGroupPQ.getOneP(),
+            xq,
+            this.qrGroupPQ.getOneQ(),
+            this.pPrime.multiply(this.qPrime));
+    return new QRElementPQ(crt);
   }
 
   @Override
@@ -106,5 +143,25 @@ public class QRElementPQ extends QRElement {
         xq1.multiply(xq2),
         this.qrGroupPQ.getOneQ(),
         this.pPrime.multiply(this.qPrime));
+  }
+
+  /**
+   * Multi base exp big integer.
+   *
+   * @param bases the bases
+   * @param exponents the exponents
+   * @return the big integer
+   */
+  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
+    Assert.notNull(bases, "bases must not be null");
+    Assert.notNull(exponents, "exponents must not be null");
+    Assert.checkSize(bases.size(), exponents.size(), "bases and exponents must have the same size");
+
+    BigInteger modN = this.pPrime.multiply(this.qPrime);
+    BigInteger result = BigInteger.ONE;
+    for (int i = 0; i < bases.size(); i++) {
+      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN)).mod(modN);
+    }
+    return result;
   }
 }
