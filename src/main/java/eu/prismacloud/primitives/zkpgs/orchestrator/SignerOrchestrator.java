@@ -7,7 +7,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
-import eu.prismacloud.primitives.zkpgs.message.MesageGatewayProxy;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.IssuingCommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
@@ -41,7 +41,7 @@ public class SignerOrchestrator {
   }
 
   public void round0() {
-   messageGateway  = new MesageGatewayProxy();
+   messageGateway  = new MessageGatewayProxy();
 
     n_1 = signer.computeNonce();
     signer.sendMessage(new GSMessage(n_1), null);
