@@ -71,6 +71,7 @@ public class GSSignature {
     return this.v;
   }
 
+  // TODO Lift computations to GSSigner; GSSignature should not have knowledge of the sk.
   public BigInteger computeQ() {
     int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
     e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
@@ -106,6 +107,7 @@ public class GSSignature {
     /** TODO check if the EEAlgorithm calculates the modInverse correctly */
     gslog.log(Level.INFO, "d eea: " + d);
     gslog.log(Level.INFO, "d modInverse: " + e.modInverse(order));
+    // TODO Remove logging of values that can break security (secret key or modInverse mod order; allows for factorization of N)
     A = Q.modPow(d, modN);
     return A;
   }
