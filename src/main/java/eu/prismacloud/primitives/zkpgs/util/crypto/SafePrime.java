@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 public class SafePrime {
 
   private BigInteger a;
-  private SafePrime sf;
-  private BigInteger a_prime;
+  private SafePrime safePrime;
+  private BigInteger aPrime;
 
   private static final Logger log = Logger.getLogger(SafePrime.class.getName());
 
@@ -22,7 +22,7 @@ public class SafePrime {
    */
   public SafePrime(final BigInteger safePrime, final BigInteger sophieGermain) {
     this.a = safePrime;
-    this.a_prime = sophieGermain;
+    this.aPrime = sophieGermain;
   }
 
   public SafePrime() {}
@@ -32,7 +32,7 @@ public class SafePrime {
   }
 
   public BigInteger getSophieGermain() {
-    return a_prime;
+    return aPrime;
   }
 
   /**
@@ -42,7 +42,7 @@ public class SafePrime {
    */
   public SafePrime generateRandomSafePrime() {
     CryptoUtilsFacade cuf = new CryptoUtilsFacade();
-    sf = cuf.computeRandomSafePrime();
-    return new SafePrime(sf.a, sf.a_prime);
+    safePrime = cuf.computeRandomSafePrime();
+    return new SafePrime(safePrime.a, safePrime.aPrime);
   }
 }
