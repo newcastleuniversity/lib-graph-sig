@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /** Commitment Group Element class */
 public final class CommitmentGroupElement extends GroupElement {
@@ -13,6 +14,7 @@ public final class CommitmentGroupElement extends GroupElement {
     this.value = value;
   }
 
+  @Override
   public Group getGroup() {
     return this.group;
   }
@@ -22,17 +24,26 @@ public final class CommitmentGroupElement extends GroupElement {
     throw new RuntimeException("not implemented");
   }
 
+  @Override
   public BigInteger getValue() {
     return value;
   }
 
   @Override
-  public BigInteger modPow(BigInteger x_z, BigInteger n) {
-    return null;
+  public GroupElement modPow(BigInteger x_z, BigInteger n)
+  {
+    /** TODO implement modpow  */
+    return throw new RuntimeException("not implemented");
   }
 
   @Override
   public BigInteger multiply(BigInteger val) {
     return null;
+  }
+
+  @Override
+  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
+    // TODO implement multibase exponentiations
+       throw new RuntimeException("not implemented");
   }
 }
