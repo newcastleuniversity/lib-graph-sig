@@ -53,6 +53,8 @@ public class SignerOrchestrator {
 
 
   public void round2() {
+	  // TODO needs to receive input message (U, P_1, n_2)
+	  // TODO value store needs to be populated (note this is on a different computer...)
     Map<URN, Object> proofSignatureElements = P_1.getProofSignatureElements();
     BigInteger hatvPrime =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatvPrime"));

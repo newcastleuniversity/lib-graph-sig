@@ -40,15 +40,17 @@ public class RecipientOrchestrator {
   }
 
   public void round1() {
-
+    // TODO needs to receive message n_1
+	  
     BigInteger vPrime = recipient.generatevPrime();
     U = recipient.commit(recipientGraph, vPrime);
-
+     
     /** TODO generalize commit prover */
     /** TODO add commitment factory */
-    IssuingCommitmentProver commitmentProver = recipient.createCommitmentProver(U, pk);
+    // TODO needs to get access to commitment secrets (recipientGraph)
+    IssuingCommitmentProver commitmentProver = recipient.createCommitmentProver(U, pk); // TODO Needs access to secrets
 
-    P_1 = commitmentProver.createProofSignature();
+    P_1 = commitmentProver.createProofSignature(); // TODO Needs to sign n_1
 
     n_2 = recipient.generateN_2();
 
