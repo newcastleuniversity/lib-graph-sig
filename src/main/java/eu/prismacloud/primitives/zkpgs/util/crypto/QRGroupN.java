@@ -25,6 +25,7 @@ public final class QRGroupN extends Group {
     return this.generator;
   }
 
+  @Override
   public QRElementN createGenerator() {
     return this.generator =
         new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus));
