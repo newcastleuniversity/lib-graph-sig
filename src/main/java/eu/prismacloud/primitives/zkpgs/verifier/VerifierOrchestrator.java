@@ -22,7 +22,7 @@ public class VerifierOrchestrator {
       ProofSignature P_3, ExtendedPublicKey extendedPublicKey, KeyGenParameters keyGenParameters) {
 
     this.P_3 = P_3;
-    this.verifier = new GSVerifier(verifierStore);
+    this.verifier = new GSVerifier(verifierStore, keyGenParameters);
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
   }
