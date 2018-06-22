@@ -1,25 +1,23 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.crypto.CLMessage;
-import eu.prismacloud.primitives.zkpgs.util.crypto.CLSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
-import eu.prismacloud.primitives.zkpgs.util.crypto.SPoK;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Vector;
+import java.util.List;
 import java.util.logging.Logger;
 
 /** Crypto Utilities class for graph signature library */
 public class GSUtils implements INumberUtils {
 
   private static final Logger log = Logger.getLogger(GSUtils.class.getName());
-  private BigInteger n;
+
+  private BigInteger modN;
   private SafePrime p;
   private SafePrime q;
   private BigInteger rho;
@@ -30,24 +28,58 @@ public class GSUtils implements INumberUtils {
   private ArrayList<BigInteger> primeFactors;
   private static KeyGenParameters keyGenParameters;
 
+  /** Instantiates a new Gs utils. */
   public GSUtils() {}
 
+  @Override
+  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
+
+    Assert.notNull(bases, "bases must not be null");
+    Assert.notNull(exponents, "exponents must not be null");
+    Assert.notNull(modN, "modulus N must not be null");
+    Assert.checkSize(bases.size(), exponents.size(), "bases and exponents must have the same size");
+
+    BigInteger result = BigInteger.ONE;
+    for (int i = 0; i < bases.size(); i++) {
+      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN)).mod(modN);
+    }
+    return result;
+  }
+
+  @Override
+  public BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength) {
+    /** TODO check if the implementation is correct for [2^l_e, 2^l_e + 2^lPrime_e] */
+    SecureRandom secureRandom = new SecureRandom();
+    BigInteger min = NumberConstants.TWO.getValue().pow(minBitLength);
+    BigInteger max = min.add(NumberConstants.TWO.getValue().pow(maxBitLength));
+    BigInteger prime = max;
+
+    while (prime.compareTo(max) >= 0) {
+      BigInteger offset = new BigInteger(maxBitLength, secureRandom);
+      prime = min.add(offset).nextProbablePrime();
+    }
+
+    return prime;
+  }
   /**
-   * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc Generate Special RSA Modulus N
-   * Input: candidate integer a, prime factors of positive, odd integer N: q_1, ..., q_r Output:
-   * N,p,q,p',q' \(N = p * q \)
+   * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc Generate Special RSA Modulus modN
+   * Input: candidate integer a, prime factors of positive, odd integer modN: q_1, ..., q_r Output:
+   * modN,p,q,p',q' \(modN = p * q \)
    */
+  @Override
   public SpecialRSAMod generateSpecialRSAModulus() {
     p = this.generateRandomSafePrime();
     q = this.generateRandomSafePrime();
-    n = p.getSafePrime().multiply(q.getSafePrime());
-    return new SpecialRSAMod(n, p, q);
+    modN = p.getSafePrime().multiply(q.getSafePrime());
+    return new SpecialRSAMod(modN, p, q);
   }
 
-  // @Override
+  @Override
   public BigInteger createRandomNumber(BigInteger min, BigInteger max) {
-
-    BigInteger randomNumber, result, range, temp;
+    BigInteger randomNumber;
+    //    final BigInteger result;
+    BigInteger range;
+    BigInteger temp;
 
     if (max.compareTo(min) < 0) {
       temp = min;
@@ -66,8 +98,8 @@ public class GSUtils implements INumberUtils {
     } while (randomNumber.compareTo(range) >= 0);
 
     //   log.info("random: " + randomNumber);
-    result = randomNumber.add(min);
-    return result;
+    //    result = randomNumber.add(min);
+    return randomNumber.add(min);
   }
 
   @Override
@@ -78,7 +110,7 @@ public class GSUtils implements INumberUtils {
   @Override
   public CommitmentGroup generateCommitmentGroup() {
     // TODO check if the computations are correct
-    rho = generatePrime(keyGenParameters.getL_rho());
+    rho = generateRandomPrime(keyGenParameters.getL_rho());
     gamma = computeCommitmentGroupModulus(rho);
     g = createCommitmentGroupGenerator(rho, gamma);
     r = createRandomNumber(BigInteger.ZERO, rho);
@@ -95,7 +127,10 @@ public class GSUtils implements INumberUtils {
    */
   @Override
   public BigInteger createCommitmentGroupGenerator(final BigInteger rho, final BigInteger gamma) {
-    BigInteger exp, g, h;
+    BigInteger exp;
+    BigInteger g;
+    BigInteger h;
+
     exp = gamma.subtract(BigInteger.ONE).divide(rho);
 
     do {
@@ -118,17 +153,18 @@ public class GSUtils implements INumberUtils {
    * @param primeFactors the prime factors
    * @return generator for \( Z^*_\Gamma \)
    */
-  public BigInteger createZPSGenerator(final BigInteger gamma, final ArrayList<BigInteger> primeFactors) {
+  public BigInteger createZPSGenerator(
+      final BigInteger gamma, final Iterable<BigInteger> primeFactors) {
     // TODO check if current algorithm is correct
     BigInteger alpha, beta, g = BigInteger.ONE;
 
-    ArrayList<BigInteger> genFactors = new ArrayList<BigInteger>();
+    List<BigInteger> genFactors = new ArrayList<BigInteger>();
 
     for (BigInteger factor : primeFactors) {
       log.info("factor: " + factor);
       do {
 
-        //              alpha = generatePrime(KeyGenParameters.l_gamma.getValue());
+        //              alpha = generateRandomPrime(KeyGenParameters.l_gamma.getValue());
         alpha = createRandomNumber(BigInteger.ONE, gamma.subtract(BigInteger.ONE));
         //                log.info("alpha: " + alpha);
 
@@ -179,10 +215,20 @@ public class GSUtils implements INumberUtils {
     return gamma;
   }
 
+  /**
+   * Gets rho.
+   *
+   * @return the rho
+   */
   public BigInteger getRho() {
     return this.rho;
   }
 
+  /**
+   * Gets prime factors.
+   *
+   * @return the prime factors
+   */
   public ArrayList<BigInteger> getPrimeFactors() {
     return this.primeFactors;
   }
@@ -213,7 +259,7 @@ public class GSUtils implements INumberUtils {
       do {
         n = createRandomNumber(min, n);
 
-        //  log.info("n " + n);
+        //  log.info("modN " + modN);
 
         if (n.isProbablePrime(keyGenParameters.getL_pt())) {
           primeSeq.add(n);
@@ -276,16 +322,16 @@ public class GSUtils implements INumberUtils {
   }
 
   /**
-   * Algorithm <tt>alg:jacobi_shoup</tt> - topocert-doc Compute the Jacobi symbol (A | N) Input:
-   * candidate integer a, positive odd integer N Output: Jacobi symbol (a | N) Invariant: N is odd
-   * and positive Dependencies: splitPowerRemainder()
+   * Algorithm <tt>alg:jacobi_shoup</tt> - topocert-doc Compute the Jacobi symbol (A | modN) Input:
+   * candidate integer a, positive odd integer modN Output: Jacobi symbol (a | modN) Invariant: modN is
+   * odd and positive Dependencies: splitPowerRemainder()
    *
    * @param alpha the alpha
-   * @param N the n
+   * @param modN the modN
    * @return the int
    */
-  public static int computeJacobiSymbol(final BigInteger alpha, final BigInteger N) {
-    return JacobiSymbol.computeJacobiSymbol(alpha, N);
+  public static int computeJacobiSymbol(final BigInteger alpha, final BigInteger modN) {
+    return JacobiSymbol.computeJacobiSymbol(alpha, modN);
   }
 
   /**
@@ -293,24 +339,24 @@ public class GSUtils implements INumberUtils {
    *
    * <p>Dependencies: isElementOfZNS()
    *
-   * @param N the special RSA modulus
+   * @param modN the special RSA modulus
    * @return s_prime random number S' of QRN
    */
-  public BigInteger createElementOfZNS(final BigInteger N) {
+  public BigInteger createElementOfZNS(final BigInteger modN) {
 
     BigInteger s_prime;
     do {
 
-      s_prime = createRandomNumber(NumberConstants.TWO.getValue(), n.subtract(BigInteger.ONE));
+      s_prime = createRandomNumber(NumberConstants.TWO.getValue(), this.modN.subtract(BigInteger.ONE));
 
-    } while (!isElementOfZNS(s_prime, N));
+    } while (!isElementOfZNS(s_prime, modN));
 
     return s_prime;
   }
 
-  private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger N) {
-    // check gcd(S', N) = 1
-    return (s_prime.gcd(this.n).equals(BigInteger.ONE));
+  private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger modN) {
+    // check gcd(S', modN) = 1
+    return (s_prime.gcd(this.modN).equals(BigInteger.ONE));
   }
 
   /**
@@ -318,62 +364,72 @@ public class GSUtils implements INumberUtils {
    * of QRN
    *
    * @param alpha candidate integer a
-   * @param N positive odd integer (prime factors \( N: q_1, \ldots , q_r \) )
+   * @param modN positive odd integer (prime factors \( modN: q_1, \ldots , q_r \) )
    * @return true if a in QRN, false if a not in QRN Dependencies: jacobiSymbol()
    */
-  public Boolean elementOfQRN(final BigInteger alpha, final BigInteger N) {
+  @Override
+  public Boolean elementOfQRN(final BigInteger alpha, final BigInteger modN) {
     return alpha.compareTo(BigInteger.ZERO) > 0
-        && alpha.compareTo(N.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
-        && JacobiSymbol.computeJacobiSymbol(alpha, N) == 1;
+        && alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
+        && JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1;
   }
 
   /**
    * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc Evaluate generator S properties
-   * Input: generator S, modulus n Output: true or false
+   * Input: generator S, modulus modN Output: true or false
    *
    * @param s the s generator
    * @return true if s is a generator of QRN or else return false
    */
   public Boolean verifySGeneratorOfQRN(final BigInteger s) {
-    return s.subtract(BigInteger.ONE).gcd(n).compareTo(BigInteger.ONE) == 0;
+    return s.subtract(BigInteger.ONE).gcd(modN).compareTo(BigInteger.ONE) == 0;
   }
 
   /**
    * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc Create generator of QRN Input: Special RSA
-   * modulus N, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
+   * modulus modN, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
    * verifySGenerator()
    */
-  public BigInteger createQRNGenerator(final BigInteger n) {
+  @Override
+  public BigInteger createQRNGenerator(final BigInteger modN) {
 
     BigInteger s;
     BigInteger s_prime;
 
     do {
 
-      s_prime = createElementOfZNS(n);
-      s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
+      s_prime = createElementOfZNS(modN);
+      s = s_prime.modPow(NumberConstants.TWO.getValue(), modN);
 
     } while (!verifySGeneratorOfQRN(s));
     return s;
   }
 
-  public BigInteger createQRNElement(final BigInteger n) {
+  @Override
+  public BigInteger createQRNElement(final BigInteger modN) {
 
     BigInteger s;
     BigInteger s_prime;
 
     do {
 
-      s_prime = createElementOfZNS(n);
-      s = s_prime.modPow(NumberConstants.TWO.getValue(), n);
+      s_prime = createElementOfZNS(modN);
+      s = s_prime.modPow(NumberConstants.TWO.getValue(), modN);
 
-    } while (!elementOfQRN(s, n));
+    } while (!elementOfQRN(s, modN));
     return s;
   }
 
   @Override
-  public BigInteger calculateHash(final Vector<BigInteger> list, final int hashLength) {
+  public BigInteger calculateHash(final List<BigInteger> list, final int hashLength) {
     return null;
+  }
+
+  @Override
+  public BigInteger computeA() {
+
+    /** TODO finish implementation for computing A for the graph signature * */
+    return BigInteger.valueOf(1);
   }
 
   /**
@@ -394,31 +450,32 @@ public class GSUtils implements INumberUtils {
    * @param m the m
    * @return the cl signature
    */
-  public static CLSignature generateCLSignature(final CLMessage m) {
-    return new CLSignature();
-  }
+  //    public static CLSignature generateCLSignature(final CLMessage m) {
+  //      return new CLSignature();
+  //    }
 
   /**
    * Algorithm <tt>alg:generateSigProof</tt> - topocert-doc Generate Signature Proof of Knowledge
-   * Input: R_0,S, Z, N Output: signature proof of knowledge SPK
+   * Input: R_0,S, Z, modN Output: signature proof of knowledge SPK
    *
    * @return the s po k
    */
-  public static SPoK generateSignatureProofOfKnowledge() {
-    return new SPoK();
-  }
+  //  public static SPoK generateSignatureProofOfKnowledge() {
+  //    return new SPoK();
+  //  }
 
   /**
    * Algorithm <tt>alg:generateRandomSafePrime</tt> - topocert-doc Generate Random Safe Prime Input:
    * l_n bit-length, l_pt Output: safe prime p, Sophie Germain p'
    */
+  @Override
   public SafePrime generateRandomSafePrime() {
     BigInteger a;
     BigInteger a_prime;
 
     do {
 
-      a_prime = generatePrime(keyGenParameters.getL_n() / 2);
+      a_prime = generateRandomPrime(keyGenParameters.getL_n() / 2);
       log.info("a_prime: " + a_prime);
       a = NumberConstants.TWO.getValue().multiply(a_prime).add(BigInteger.ONE);
       log.info("a: " + a);
@@ -444,7 +501,7 @@ public class GSUtils implements INumberUtils {
    * @param bitLength length of prime number
    * @return the big integer
    */
-  public static BigInteger generatePrime(final int bitLength) {
+  public BigInteger generateRandomPrime(final int bitLength) {
     return BigInteger.probablePrime(bitLength, new SecureRandom());
   }
 }
