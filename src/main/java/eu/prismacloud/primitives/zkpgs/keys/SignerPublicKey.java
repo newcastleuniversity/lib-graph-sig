@@ -4,14 +4,14 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 
-public class SignerPublicKey {
+public class SignerPublicKey  {
 
   private SignerPrivateKey privateKey;
-  private BigInteger N;
-  private GroupElement R;
-  private GroupElement R_0;
-  private GroupElement S;
-  private GroupElement Z;
+  private BigInteger modN;
+  private GroupElement baseR;
+  private GroupElement baseR_0;
+  private GroupElement baseS;
+  private GroupElement baseZ;
 
   public SignerPublicKey(final SignerPrivateKey privateKey, final KeyGenParameters gs_params) {
 
@@ -24,35 +24,35 @@ public class SignerPublicKey {
   }
 
   public SignerPublicKey(
-      final BigInteger N,
-      final GroupElement R,
-      final GroupElement R_0,
-      final GroupElement S,
-      final GroupElement Z) {
-    this.N = N;
-    this.R = R;
-    this.R_0 = R_0;
-    this.S = S;
-    this.Z = Z;
+      final BigInteger modN,
+      final GroupElement baseR,
+      final GroupElement baseR_0,
+      final GroupElement baseS,
+      final GroupElement baseZ) {
+    this.modN = modN;
+    this.baseR = baseR;
+    this.baseR_0 = baseR_0;
+    this.baseS = baseS;
+    this.baseZ = baseZ;
   }
 
-  public BigInteger getN() {
-    return N;
+  public BigInteger getModN() {
+    return modN;
   }
 
-  public GroupElement getR_0() {
-    return R_0;
+  public GroupElement getBaseR_0() {
+    return baseR_0;
   }
 
-  public GroupElement getS() {
-    return S;
+  public GroupElement getBaseS() {
+    return baseS;
   }
 
-  public GroupElement getZ() {
-    return Z;
+  public GroupElement getBaseZ() {
+    return baseZ;
   }
 
-  public GroupElement getR() {
-    return this.R;
+  public GroupElement getBaseR() {
+    return this.baseR;
   }
 }

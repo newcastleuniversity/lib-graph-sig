@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -14,14 +16,15 @@ public class ExtendedPublicKey {
   private final SignerKeyPair signerKeyPair;
   private ExtendedPublicKey ePublicKey;
   private ExtendedPrivateKey ePrivateKey;
-  private Map<URN, GroupElement> vertexBases;
-  private Map<URN, GroupElement> edgeBases;
+  private Map<URN, BaseRepresentation> bases;
   private Map<URN, BigInteger> discLogOfVertexBases;
   private Map<URN, BigInteger> discLogOfEdgeBases;
   private final KeyGenParameters keygenParams;
   private final GraphEncodingParameters graphEncodingParameters;
   private JsonIsoCountries jsonIsoCountries;
   private Map<URN, BigInteger> countryLabels;
+  private BaseRepresentation base;
+  private int index = 0;
 
   /**
    * Instantiates a new Extended public key.
@@ -50,21 +53,12 @@ public class ExtendedPublicKey {
   }
 
   /**
-   * Gets vertex bases.
+   * Gets bases.
    *
    * @return the vertex bases
    */
-  public Map<URN, GroupElement> getVertexBases() {
-    return this.vertexBases;
-  }
-
-  /**
-   * Gets edge bases.
-   *
-   * @return the edge bases
-   */
-  public Map<URN, GroupElement> getEdgeBases() {
-    return this.edgeBases;
+  public Map<URN, BaseRepresentation> getBases() {
+    return this.bases;
   }
 
   /** Graph encoding setup. */
@@ -73,7 +67,7 @@ public class ExtendedPublicKey {
     BigInteger modN;
 
     Group qrGroup = signerKeyPair.getQRGroup();
-    S = signerKeyPair.getPublicKey().getS();
+    S = signerKeyPair.getPublicKey().getBaseS();
     modN = qrGroup.getModulus();
 
     generateVertexBases(S, modN, qrGroup);
@@ -95,15 +89,18 @@ public class ExtendedPublicKey {
    * @param qrGroup the quadratic residue group
    */
   public void generateEdgeBases(final GroupElement S, final BigInteger modN, final Group qrGroup) {
-    BigInteger x_Rj;
-    GroupElement R_j;
+    BigInteger x_R_ij;
+    GroupElement R_ij;
 
     for (int j = 0; j < graphEncodingParameters.getL_E(); j++) {
-      x_Rj = qrGroup.createElement().getValue();
-      R_j = S.modPow(x_Rj, modN);
+      index++;
+      x_R_ij = qrGroup.createElement().getValue();
+      R_ij = S.modPow(x_R_ij, modN);
 
-      edgeBases.put(URN.createZkpgsURN("bases.edge.R_" + j), R_j);
-      discLogOfEdgeBases.put(URN.createZkpgsURN("exponents.edge.R_" + j), x_Rj);
+      base = new BaseRepresentation(R_ij, x_R_ij, index, BASE.EDGE);
+
+      bases.put(URN.createZkpgsURN("bases.edge.R_" + index), base);
+      discLogOfEdgeBases.put(URN.createZkpgsURN("exponents.edge.R_" + index), x_R_ij);
     }
   }
 
@@ -119,11 +116,12 @@ public class ExtendedPublicKey {
     BigInteger x_Ri;
     GroupElement R_i;
     for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
+      index++;
       x_Ri = qrGroup.createElement().getValue();
       R_i = S.modPow(x_Ri, modN);
-
-      vertexBases.put(URN.createZkpgsURN("bases.vertex.R_" + i), R_i);
-      discLogOfVertexBases.put(URN.createZkpgsURN("exponents.vertex.R_" + i), x_Ri);
+      base = new BaseRepresentation(R_i, x_Ri, index, BASE.VERTEX);
+      bases.put(URN.createZkpgsURN("bases.vertex.R_" + index), base);
+      discLogOfVertexBases.put(URN.createZkpgsURN("exponents.vertex.R_" + index), x_Ri);
     }
   }
 
