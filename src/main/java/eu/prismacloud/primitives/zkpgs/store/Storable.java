@@ -7,4 +7,3 @@ public interface Storable {
 
   ProofObject retrieve(URN urn);
 }
-    

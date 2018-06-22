@@ -4,20 +4,19 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.util.HashMap;
 import java.util.Map;
 /** Storage class for storing objects that pertain a particular proof */
-public class ProofStore implements Storable {
-  /** storage for objects required for SPKs*/
+public class ProofStoreObject implements Storable {
+  /** storage for objects required for SPKs */
   private static Map<URN, ProofObject> store;
 
-  private ProofStore() {}
+  private ProofStoreObject() {}
 
   public static void createProofStore() {
     store = new HashMap<URN, ProofObject>();
   }
 
-
   @Override
   public void store(URN urn, ProofObject proofObject) {
-        store.put(urn, proofObject);
+    store.put(urn, proofObject);
   }
 
   @Override
