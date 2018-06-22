@@ -1,68 +1,67 @@
 package eu.prismacloud.primitives.zkpgs.encoding;
 
-import eu.prismacloud.primitives.zkpgs.GSGraphEncodingResult;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
-import eu.prismacloud.primitives.zkpgs.IGraphRepresentation;
-import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.keys.IGSKeyPair;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
-import eu.prismacloud.primitives.zkpgs.signature.EncodingSignature;
-import eu.prismacloud.primitives.zkpgs.signature.KeyGenSignature;
+import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
+import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
-import java.util.Vector;
+import java.util.Map;
 
+/** The type Graph encoding. */
 public class GraphEncoding {
 
-  private EncodingSignature encodingSignature;
+  private ExtendedPublicKey ePublicKey;
+  private ExtendedPrivateKey ePrivateKey;
+  private static Map<URN, BaseRepresentation> bases;
+  private static Map<URN, BigInteger> discLogOfVertexBases;
+  private static Map<URN, BigInteger> discLogOfEdgeBases;
+  private KeyGenParameters keygenParams;
+  private static GraphEncodingParameters graphEncodingParameters;
+  private static Map<URN, BigInteger> countryLabels;
+  private static JsonIsoCountries jsonIsoCountries;
 
-  /* TODO public output: add number of bases to hold vertex and edge encodings */
+  public GraphEncoding(
+      final Map<URN, BaseRepresentation> bases,
+      Map<URN, BigInteger> countryLabels,
+      Map<URN, BigInteger> discLogOfVertexBases,
+      Map<URN, BigInteger> discLogOfEdgeBases) {
 
-  /* TODO public output: digitally sign the generators proving knowledge of their representation and binding them to public key pk_S -> outputs signature sigma_S,es. */
-
-  /* TODO private output: the algorithm returns the discrete logarithms of all produced bases with respect to generator S, logS(Rk). The discrete logarithms stored securely persistently and retained for the graph signing process. */
-
-  private ExtendedPrivateKey extendedPrivateKey;
-  private ExtendedPublicKey extendedPublicKey;
-  private Vector<BigInteger> discreteLogBases;
-
-  public GraphEncoding() {}
-
-  public EncodingSignature getEncodingSignature() {
-    return encodingSignature;
+    this.bases = bases;
+    this.countryLabels = countryLabels;
+    this.discLogOfVertexBases = discLogOfVertexBases;
+    this.discLogOfEdgeBases = discLogOfEdgeBases;
   }
 
-  public EncodingSignature signEncoding() {
-    /* TODO generate encoding signature */
-    return encodingSignature;
+
+  /**
+   * Graph encoding setup gs graph encoding result.
+   *
+   * @param keyGenPair the key generation pair (public and secrete key)
+   * @param graphEncodingParameters the graph encoding parameters
+   * @return the gs graph encoding result
+   */
+  public static GraphEncoding graphEncodingSetup(
+      SignerKeyPair keyGenPair, GraphEncodingParameters graphEncodingParameters) {
+
+    BigInteger pPrime = keyGenPair.getPrivateKey().getpPrime();
+    BigInteger qPrime = keyGenPair.getPrivateKey().getqPrime();
+    BigInteger upperBound = pPrime.multiply(qPrime).subtract(BigInteger.ONE);
+    BigInteger baseS = keyGenPair.getPublicKey().getBaseS().getValue();
+    BigInteger modN = keyGenPair.getPublicKey().getModN();
+
+    bases = GraphRepresentation.getEncodedBases();
+
+    jsonIsoCountries = new JsonIsoCountries();
+
+    countryLabels = jsonIsoCountries.getCountryMap();
+
+    return new GraphEncoding(
+        bases,  countryLabels, discLogOfVertexBases, discLogOfEdgeBases);
   }
 
-  public ExtendedPrivateKey getExtendedPrivateKey() {
-    return extendedPrivateKey;
-  }
-
-  public void setExtendedPrivateKey(ExtendedPrivateKey extendedPrivateKey) {
-    this.extendedPrivateKey = extendedPrivateKey;
-  }
-
-  public ExtendedPublicKey getExtendedPublicKey() {
-    return extendedPublicKey;
-  }
-
-  public void setExtendedPublicKey(ExtendedPublicKey extendedPublicKey) {
-    this.extendedPublicKey = extendedPublicKey;
-  }
-
-  public IGraphRepresentation encode(GSGraph graph) {
-    return new GraphRepresentation();
-  }
-
-  public GSGraphEncodingResult setup(
-      SignerPrivateKey privateKey,
-      SignerPrivateKey privateKey1,
-      IGSKeyPair keyGenPair,
-      KeyGenSignature signature) {
-    return null;
-  }
 }
