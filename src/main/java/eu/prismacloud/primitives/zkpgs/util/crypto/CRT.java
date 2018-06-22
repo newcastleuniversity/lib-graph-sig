@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
@@ -17,10 +18,14 @@ public class CRT {
    * @param p prime factor of N
    * @param xq positive integer number \( xq \gt 0 \)
    * @param q prime factor of N
-   * @return x solution for representation \( \bmod N \)
+   * @pre xp != null && p != null && xq != null && q != null && p != q & p.gcd(q) != 1
+   * @return x solution for representation \( \bmod modN \)
    */
   public static BigInteger computeCRT(
       final BigInteger xp, final BigInteger p, final BigInteger xq, final BigInteger q) {
+    Assert.notNull(p, "p must not be null");
+    Assert.notNull(xq, "xq must not be null");
+    Assert.notNull(q, "q must not be null");
 
     if (p.equals(q)) {
       throw new IllegalArgumentException("prime factors must be different");
@@ -30,7 +35,7 @@ public class CRT {
       throw new IllegalArgumentException("prime factors are not coprime");
     }
 
-    BigInteger N = p.multiply(q);
+    BigInteger modN = p.multiply(q);
 
     EEAlgorithm.computeEEAlgorithm(p, q);
     BigInteger X = EEAlgorithm.getS();
@@ -54,7 +59,7 @@ public class CRT {
    * @param oneP the 1p element
    * @param xq the representation \( \bmod q \)
    * @param oneQ the 1q element
-   * @param N the modulus N
+   * @param modN the modulus N
    * @return the big integer
    */
   public static BigInteger computeCRT(
@@ -76,7 +81,7 @@ public class CRT {
    * @return the big integer
    */
   public static BigInteger compute1p(final BigInteger Y, final BigInteger p, final BigInteger q) {
-    BigInteger N = p.multiply(q);
+    BigInteger modN = p.multiply(q);
     return Y.multiply(q).mod(N);
   }
 
@@ -89,18 +94,18 @@ public class CRT {
    * @return the big integer
    */
   public static BigInteger compute1q(final BigInteger X, final BigInteger p, final BigInteger q) {
-    BigInteger N = p.multiply(q);
-
+    BigInteger modN = p.multiply(q);
     return X.multiply(p).mod(N);
   }
 
   /**
-   * Convert an element x modulo N to its corresponding representation modulo p and modulo q.
+   * Convert an element x modulo modN to its corresponding representation modulo p and modulo q.
    *
    * @param qr the qr
-   * @param x element x in modulo N representation
+   * @param x element x in modulo modN representation
    * @param p prime factor of N
-   * @param q prime factor of N modulo p and modulo q representation \( (x \bmod p) , (x \bmod q) \)
+   * @param q prime factor of modN modulo p and modulo q representation \( (x \bmod p) , (x \bmod q)
+   *     \)
    */
   public static void convertToPQ(
       final QRElementPQ qr, final BigInteger x, final BigInteger p, final BigInteger q) {
