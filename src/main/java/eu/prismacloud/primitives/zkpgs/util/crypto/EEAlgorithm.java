@@ -17,18 +17,6 @@ public class EEAlgorithm {
   private static BigInteger r_prime_prime;
   private static BigInteger q;
 
-  public static BigInteger getS() {
-    return s;
-  }
-
-  public static BigInteger getT() {
-    return t;
-  }
-
-  public static BigInteger getD() {
-    return d;
-  }
-
   private static BigInteger d;
 
   private EEAlgorithm(final BigInteger d, final BigInteger s, final BigInteger t) {
@@ -87,5 +75,17 @@ public class EEAlgorithm {
     d = r;
 
     return new EEAlgorithm(d, s, t);
+  }
+
+  public static BigInteger getS() {
+    return s;
+  }
+
+  public static BigInteger getT() {
+    return t;
+  }
+
+  public static BigInteger getD() {
+    return d;
   }
 }
