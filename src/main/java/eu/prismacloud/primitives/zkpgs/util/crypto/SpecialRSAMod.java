@@ -5,54 +5,88 @@ import java.math.BigInteger;
 /** Special RSA Modulus class */
 public class SpecialRSAMod {
 
-  private final BigInteger n;
+  private final BigInteger modN;
   private BigInteger p;
   private BigInteger q;
-  private BigInteger p_prime;
-  private BigInteger q_prime;
+  private BigInteger pPrime;
+  private BigInteger qPrime;
   private SafePrime sp;
   private SafePrime sq;
 
+  /**
+   * Instantiates a new Special rsa mod.
+   *
+   * @param modN the mod n
+   * @param p the p
+   * @param q the q
+   * @param pPrime the p prime
+   * @param qPrime the q prime
+   */
   public SpecialRSAMod(
-      BigInteger N, BigInteger p, BigInteger q, BigInteger p_prime, BigInteger q_prime) {
+      BigInteger modN, BigInteger p, BigInteger q, BigInteger pPrime, BigInteger qPrime) {
 
-    n = N;
+    this.modN = modN;
     this.p = p;
     this.q = q;
-    this.p_prime = p_prime;
-    this.q_prime = q_prime;
+    this.pPrime = pPrime;
+    this.qPrime = qPrime;
   }
 
-  public SpecialRSAMod(BigInteger n, SafePrime sp, SafePrime sq) {
-    this.n = n;
+  /**
+   * Instantiates a new Special rsa mod.
+   *
+   * @param modN the mod n
+   * @param sp the sp
+   * @param sq the sq
+   */
+  public SpecialRSAMod(BigInteger modN, SafePrime sp, SafePrime sq) {
+    this.modN = modN;
     this.sp = sp;
     this.sq = sq;
   }
 
+  /**
+   * Gets modulus n.
+   *
+   * @return the n
+   */
   public BigInteger getN() {
-    return n;
+    return modN;
   }
 
+  /**
+   * Gets p.
+   *
+   * @return the p
+   */
   public BigInteger getP() {
     return sp.getSafePrime();
   }
 
+  /**
+   * Gets q.
+   *
+   * @return the q
+   */
   public BigInteger getQ() {
     return sq.getSafePrime();
   }
 
-  public BigInteger getP_prime() {
+  /**
+   * Gets prime.
+   *
+   * @return the prime
+   */
+  public BigInteger getpPrime() {
     return sp.getSophieGermain();
   }
 
-  public BigInteger getQ_prime() {
+  /**
+   * Gets prime.
+   *
+   * @return the prime
+   */
+  public BigInteger getqPrime() {
     return sq.getSophieGermain();
   }
-
-  //    public SpecialRSAMod generateSpecialRSAModulus(){
-  //        CryptoUtilsFacade cf = new CryptoUtilsFacade();
-  //        cf
-  //        return new SpecialRSAMod(new BigInteger("1"), new BigInteger("2"), new BigInteger("2"),
-  // new BigInteger("3"),new BigInteger("5") );
-  //    }
 }
