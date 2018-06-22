@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.GSUtils;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.math.BigInteger;
@@ -19,16 +20,14 @@ public class JacobiSymbol {
    * Compute the jacobiSymbol based on <tt>alg:jacobi_shoup</tt> in topocert-doc
    *
    * @param alpha candidate integer
-   * @param N positive odd integer
+   * @param modN positive odd integer
+   * @pre alpha != null && modN != null
    * @return jacobi symbol (a|N)
    */
   public static int computeJacobiSymbol(BigInteger alpha, BigInteger N) {
-    if (alpha == null) {
-      throw new IllegalArgumentException("A value for alpha is needed.");
-    }
-    if (N == null) {
-      throw new IllegalArgumentException("A value for N is needed.");
-    }
+    Assert.notNull(alpha, "A value for alpha is needed");
+    Assert.notNull(N, "A value for modN is needed");
+
     if (N.mod(NumberConstants.TWO.getValue()).equals(BigInteger.ZERO)) {
       throw new IllegalArgumentException("Use an odd integer.");
     }
@@ -63,7 +62,7 @@ public class JacobiSymbol {
           && !isCongruent(N, BigInteger.ONE, NumberConstants.FOUR.getValue())) sigma = -sigma;
 
       alpha = N;
-      N = alpha_prime;
+      modN = alpha_prime;
       // log.info("N: " + N);
 
     } while (true);
@@ -99,7 +98,7 @@ public class JacobiSymbol {
     return a.mod(mod).compareTo(b) == 0;
   }
 
-  static int j;
+  private static int j;
 
   /**
    * Compute Jacobi symbol based on Algorithm 1.4 in "Cryptography made simple" book
