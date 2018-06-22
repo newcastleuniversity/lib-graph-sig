@@ -33,7 +33,7 @@ public final class CommitmentGroupElement extends GroupElement {
   public GroupElement modPow(BigInteger x_z, BigInteger n)
   {
     /** TODO implement modpow  */
-    return throw new RuntimeException("not implemented");
+    throw new RuntimeException("not implemented");
   }
 
   @Override
