@@ -1,47 +1,72 @@
 package eu.prismacloud.primitives.zkpgs.graph;
 
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
+import eu.prismacloud.primitives.zkpgs.GraphMLProvider;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
+import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import java.io.File;
+import java.math.BigInteger;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.io.GraphMLImporter;
+import org.jgrapht.io.ImportException;
 
-public class GSGraph { // implements IGraph {
+public class GSGraph<
+    GSVertex extends eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+    GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
+  private static Logger gslog = GSLoggerConfiguration.getGSlog();
+  private static GraphMLProvider graphMLProvider;
+  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
+  private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
+  Graph<
+          eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+          eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+      graph;
+  private SimpleGraph<GSVertex, GSEdge> g;
+  private GraphMLImporter<GSVertex, GSEdge> importer;
 
-  private SimpleGraph<GSVertex, DefaultEdge> g =
-      new SimpleGraph<GSVertex, DefaultEdge>(DefaultEdge.class);
-  static final double DEFAULT_EDGE_WEIGHT = 19;
-  //        DefaultWeightedEdge (DefaultWeightedEdge.class);
-  private DefaultWeightedEdge e1;
+  public GSGraph(Graph<GSVertex, GSEdge> graph) {}
 
-  public void addVertex(GSVertex name) {
-    g.addVertex(name);
+  public Graph<GSVertex, GSEdge> createGraph(String graphFile) throws ImportException {
+    graph = new DefaultUndirectedGraph<>(eu.prismacloud.primitives.zkpgs.graph.GSEdge.class);
+
+    importer = (GraphMLImporter<GSVertex, GSEdge>) GraphMLProvider.createImporter();
+    File file = GraphMLProvider.getGraphMLFile(graphFile);
+    importer.importGraph((Graph<GSVertex, GSEdge>) graph, file);
+
+    return (Graph<GSVertex, GSEdge>) graph;
   }
 
-  public DefaultEdge addEdge(GSVertex v1, GSVertex v2) {
+  public void encodeGraph(
+      Graph<GSVertex, GSEdge> graph, GraphEncodingParameters graphEncodingParameters) {
+    JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
 
-    return g.addEdge(v1, v2);
+    Set<GSVertex> vertexSet = graph.vertexSet();
+
+    for (GSVertex vertex : vertexSet) {
+      //      gslog.log(Level.INFO, "vertex Id: " + vertex.getId());
+      //      gslog.log(Level.INFO, "country: " + vertex.getCountry());
+      vertex.setLabelPrimeRepresentative(
+          BigInteger.valueOf(jsonIsoCountries.getIndex(vertex.getCountry())));
+      //      gslog.log(Level.INFO, "label representative: " +
+      // vertex.getLabelPrimeRepresentative());
+      BigInteger vertexPrimeRepresentative =
+          CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_L());
+      vertex.setVertexPrimeRepresentative(vertexPrimeRepresentative);
+      gslog.log(
+          Level.INFO, "vertex prime representative: " + vertex.getVertexPrimeRepresentative());
+    }
   }
 
-  public GSGraph() {}
-
-  public SimpleGraph<GSVertex, DefaultEdge> createGraph() {
-    SimpleGraph<GSVertex, DefaultEdge> g =
-        new SimpleGraph<GSVertex, DefaultEdge>(DefaultEdge.class);
-    GSVertex v1 = new GSVertex();
-    GSVertex v2 = new GSVertex();
-
-    g.addVertex(v1);
-    g.addVertex(v2);
-
-    DefaultEdge edge = g.addEdge(v1, v2);
-
-    // traverse graph
-    // Graphs.getOppositeVertex(g, edge, v1).colour = "red";
-    return g;
-  }
-
-  public void addConnectingVertex(GSVertex vertex, String label) {
-
-    GSVertex signerConnectingVertex = new GSVertex();
-    signerConnectingVertex.setLabel(label);
+  public Graph<
+          eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+          eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+      getGraph() {
+    return graph;
   }
 }
