@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.store;
 
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -42,9 +43,9 @@ public class ProofStore<T> {
    *
    * @param key the key
    * @param element the element
-   * @throws Exception the exception
+   * @throws eu.prismacloud.primitives.zkpgs.exception.ProofStoreException the exception
    */
-  public void save(URN key, T element) throws Exception {
+  public void save(URN key, T element) throws ProofStoreException {
     Assert.notNull(key, "Store key cannot be null");
     Assert.notNull(element, "Store element cannot be null");
 
@@ -52,7 +53,7 @@ public class ProofStore<T> {
     gslog.log(Level.INFO, "element:  " + element);
 
     if (elements.containsKey(key)) {
-      throw new Exception(
+      throw new ProofStoreException(
           String.format(
               "The key %s with type %s was already added", key, key.getClass().getSimpleName()));
     }
@@ -65,9 +66,9 @@ public class ProofStore<T> {
    *
    * @param urnkey the urnkey
    * @param element the element
-   * @throws Exception the exception
+   * @throws ProofStoreException the exception
    */
-  public void store(String urnkey, T element) throws Exception {
+  public void store(String urnkey, T element) throws ProofStoreException {
     save(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), urnkey), element);
   }
 
@@ -101,9 +102,9 @@ public class ProofStore<T> {
    *
    * @param key the key
    * @param element the element
-   * @throws Exception the exception
+   * @throws ProofStoreException the exception
    */
-  public void add(URN key, T element) throws Exception {
+  public void add(URN key, T element) throws ProofStoreException {
     Assert.notNull(key, "key cannot be null");
     Assert.notNull(element, "Store element cannot be null");
 
@@ -114,7 +115,7 @@ public class ProofStore<T> {
       elements.put(key, el);
     }
     // Repeated instances are not allowed.
-    if (!el.add(element)) throw new Exception("Store element instance already present");
+    if (!el.add(element)) throw new ProofStoreException("Store element instance already present");
   }
 
   /**
