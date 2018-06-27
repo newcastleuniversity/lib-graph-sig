@@ -1,72 +1,94 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
-import eu.prismacloud.primitives.zkpgs.orchestrator.IssuingOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.IssuingCommitmentProver;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
+import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CorrectnessVerifier;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GSRecipient { // implements IRecipient {
 
-  private final IssuingOrchestrator issuingOrchestrator;
+  private final ExtendedPublicKey extendedPublicKey;
   private final KeyGenParameters keyGenParameters;
+  private final BigInteger modN;
+  private final GroupElement baseS;
+  private final ProofStore<Object> recipientStore;
   private BigInteger n_1;
   private BigInteger vPrime;
-  private BigInteger R_0;
+  private GroupElement R_0;
   private BigInteger m_0;
   private GSGraph<GSVertex, GSEdge> recipientGraph; // = new GSGraph();
   private BigInteger n_2;
 
   public GSRecipient(
-      final IssuingOrchestrator issuingOrchestrator, final KeyGenParameters keyGenParameters) {
-    this.issuingOrchestrator = issuingOrchestrator;
+      ExtendedPublicKey extendedPublicKey, KeyGenParameters keyGenParameters) {
+    this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
+    modN = extendedPublicKey.getPublicKey().getModN();
+    baseS = extendedPublicKey.getPublicKey().getBaseS();
+    recipientStore = new ProofStore<Object>();
   }
-
-  public void setN_1(BigInteger n_1) {
-    this.n_1 = n_1;
-  }
-
-  public void round0() {}
 
   public BigInteger generatevPrime() {
-    vPrime =
-        CryptoUtilsFacade.computeRandomNumber(
-            keyGenParameters.getL_n() + keyGenParameters.getL_statzk());
+    this.vPrime =
+        CryptoUtilsFacade.computeRandomNumberMinusPlus(
+            this.keyGenParameters.getL_n() + this.keyGenParameters.getL_statzk());
 
-    return vPrime;
+    return this.vPrime;
   }
 
-  public IssuingCommitmentProver createCommitmentProver(
-      ICommitment U, ExtendedPublicKey extendedPublicKey) {
-
-    IssuingCommitmentProver commitmentProver =
-        new IssuingCommitmentProver(U, vPrime, R_0, m_0, n_1, keyGenParameters, extendedPublicKey);
-    return commitmentProver;
-  }
+//  public CommitmentProver createCommitmentProver(
+//      GSCommitment U, ExtendedPublicKey extendedPublicKey) {
+//
+//    Map<URN, GroupElement> bases = new HashMap<URN, GroupElement>();
+//    bases.put(URN.createZkpgsURN("recipient.base.R_0"), this.R_0);
+//
+//    Map<URN, BigInteger> messages = new HashMap<>();
+//    messages.put(URN.createZkpgsURN("recipient.message.m_0"), this.m_0);
+//
+//    CommitmentProver commitmentProver =
+//        new CommitmentProver(this.vPrime, bases, messages, this.n_1, this.recipientStore, this.keyGenParameters, extendedPublicKey);
+//    return commitmentProver;
+//  }
 
   public CorrectnessVerifier createCorrectnessVerifier() {
     return null;
   }
 
-  public ICommitment commit(GSGraph<GSVertex, GSEdge> gsGraph, BigInteger rnd) {
-    return null;
+  public GSCommitment commit(Map<URN, BaseRepresentation> encodedBases, BigInteger rnd) {
+    BigInteger commitment = this.R_0
+        .modPow(this.m_0, this.modN).multiply(this.baseS.modPow(rnd, this.modN)).getValue();
+    Map<URN, GroupElement> bases = new HashMap<>();
+    bases.put(URN.createZkpgsURN("recipient.bases.R_0"), this.R_0);
+    Map<URN, BigInteger> messages = new HashMap<>();
+    messages.put(URN.createZkpgsURN("recipient.bases.m_0"), this.m_0);
+
+    GSCommitment gsCommitment = new GSCommitment(bases, messages, rnd, this.baseS, this.modN);
+
+    return gsCommitment;
   }
 
   public GSGraph<GSVertex, GSEdge> getRecipientGraph() {
-    return recipientGraph;
+    return this.recipientGraph;
   }
 
   public void sendMessage(GSMessage recMessageToSigner, GSSigner signer) {
-    signer.receiveMessage(recMessageToSigner);
+    //    signer.receiveMessage(recMessageToSigner);
   }
 
   //  @Override
@@ -75,8 +97,12 @@ public class GSRecipient { // implements IRecipient {
   }
 
   public BigInteger generateN_2() {
-    n_2 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+    this.n_2 = CryptoUtilsFacade.computeRandomNumber(this.keyGenParameters.getL_H());
 
-    return n_2;
+    return this.n_2;
+  }
+
+  public GSMessage receiveMessage() {
+    return null;
   }
 }
