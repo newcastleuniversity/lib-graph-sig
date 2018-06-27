@@ -418,4 +418,40 @@ class GSUtilsTest {
 
   @Test
   void getRho() {}
+
+  @Test
+  void randomMinusPlusNumber() {
+
+    for (int i = 0; i < 100; i++) {
+      BigInteger numb = classUnderTest.randomMinusPlusNumber(4);
+      log.info("number: " +   numb);
+      log.info("number bitlength: " + numb.bitLength());
+
+      assertNotNull(numb);
+      assertTrue(numb.bitLength() <= 4 );
+    }
+
+
+  }
+
+  @Test
+  void multiBaseExp() {}
+
+  @Test
+  void generatePrimeWithLength() {}
+
+  @Test
+  void getPrimeFactors() {}
+
+  @Test
+  void createQRNElement() {}
+
+  @Test
+  void calculateHash() {}
+
+  @Test
+  void computeA() {}
+
+  @Test
+  void generateRandomPrime() {}
 }

@@ -53,7 +53,7 @@ class CRTTest {
     log.info("crt modInverse: " + p.modInverse(q));
 
     BigInteger res =
-        CRT.computeCRT(a, BigInteger.valueOf(6), b, BigInteger.valueOf(10), p.multiply(q));
+        CRT.computeCRT(a, BigInteger.valueOf(6), b, BigInteger.valueOf(10), p.multiply(q)).getValue();
     log.info("result: " + res);
 
     assertEquals(BigInteger.valueOf(11), res);

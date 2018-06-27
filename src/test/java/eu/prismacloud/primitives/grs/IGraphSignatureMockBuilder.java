@@ -27,9 +27,9 @@ public class IGraphSignatureMockBuilder {
   //        return this;
   //    }
   //
-  //    public IGraphSignatureMockBuilder verify(ISignerPublicKey pk_s, ICommitment cmt, BigInteger
+  //    public IGraphSignatureMockBuilder preChallengePhase(ISignerPublicKey pk_s, ICommitment cmt, BigInteger
   // rTilde, IGraphSignature gsig, final Boolean expected) {
-  //        EasyMock.expect(mock.verify(pk_s, cmt, rTilde, gsig)).andReturn(expected).once();
+  //        EasyMock.expect(mock.preChallengePhase(pk_s, cmt, rTilde, gsig)).andReturn(expected).once();
   //        return this;
   //    }
   //
