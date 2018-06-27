@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import java.math.BigInteger;
+
 public interface IProver {
   /**
    * The prover role computes zero-knowledge proofs of knowledge with a policy predicate P on graph
@@ -9,7 +11,7 @@ public interface IProver {
 
   void computeWitness();
 
-  void computeChallenge();
+  BigInteger computeChallenge();
 
   void computeResponses();
 }

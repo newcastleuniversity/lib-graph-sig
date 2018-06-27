@@ -12,24 +12,23 @@ import eu.prismacloud.primitives.zkpgs.store.Storable;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GSPossessionProver implements IProver, Storable {
+public class GSPossessionProver { //implements IProver, Storable {
 
-  private final GSSignature blindedSignature;
-  private final ExtendedPublicKey extendedPublicKey;
-  private final BigInteger R_0;
-  private final BigInteger tildem_0;
-  private final BigInteger tildevPrime;
-  private final GraphRepresentation graphRepresentation;
-  private final ProofStore<Object> proverStore;
-  private final KeyGenParameters keyGenParameters;
+  private GSSignature blindedSignature;
+  private ExtendedPublicKey extendedPublicKey;
+  private BigInteger R_0;
+  private BigInteger tildem_0;
+  private BigInteger tildevPrime;
+  private GraphRepresentation graphRepresentation;
+  private ProofStore<Object> proverStore;
+  private KeyGenParameters keyGenParameters;
   private Map<URN, BaseRepresentation> bases;
   private Map<URN, BaseRepresentation> edges;
   private BigInteger tildeZ;
@@ -63,11 +62,13 @@ public class GSPossessionProver implements IProver, Storable {
     this.keyGenParameters = keyGenParameters;
   }
 
+  public GSPossessionProver() {}
+
   public BigInteger getTildeZ() {
     return this.tildeZ;
   }
 
-  @Override
+//  @Override
   public void createWitnessRandomness() {
 
     int tildeeLength =
@@ -141,59 +142,70 @@ public class GSPossessionProver implements IProver, Storable {
     return this.edgeWitnesses;
   }
 
-  private List<BigInteger> populateExponents(BigInteger tildee, BigInteger tildem_0) {
-    List<BigInteger> exponents = new ArrayList<>();
+  private Map<URN, BigInteger> populateExponents(BigInteger tildee, BigInteger tildem_0) {
+    Map<URN, BigInteger> exponents = new LinkedHashMap<URN, BigInteger>();
 
-    exponents.add(tildee);
-    exponents.add(tildem_0);
+    exponents.put(URN.createZkpgsURN("message.tildee"), tildee);
+    exponents.put(URN.createZkpgsURN("message.tildem_0"), tildem_0);
 
     for (BaseRepresentation base : bases.values()) {
-      exponents.add(base.getBase().getValue());
+
+      if (base.getBaseType() == BASE.VERTEX) {
+
+        exponents.put(URN.createZkpgsURN("message.m_i_" + base.getBaseIndex()), base.getExponent());
+      } else if (base.getBaseType() == BASE.EDGE) {
+
+        exponents.put(
+            URN.createZkpgsURN("message.m_i_j_" + base.getBaseIndex()), base.getExponent());
+      }
     }
 
-//    for (BaseRepresentation edge : edges.values()) {
-//      exponents.add(edge.getExponent());
-//    }
-    exponents.add(tildevPrime);
+    //    for (BaseRepresentation edge : edges.values()) {
+    //      exponents.add(edge.getExponents());
+    //    }
+    exponents.put(URN.createZkpgsURN("message.tildevPrime"), tildevPrime);
     return exponents;
   }
 
-  private List<BigInteger> populateBases() {
-    List<BigInteger> bases = new ArrayList<>();
+  private Map<URN, GroupElement> populateBases() {
+    Map<URN, GroupElement> bases = new LinkedHashMap<URN, GroupElement>();
+    /** TODO fix populating bases */
+    //    bases.put(URN.createZkpgsURN("blindedSignature.A"), blindedSignature.getA());
+    //    bases.put(URN.createZkpgsURN("base.R_0"), R_0);
 
-    bases.add(blindedSignature.getA());
-    bases.add(R_0);
+    for (BaseRepresentation base : this.bases.values()) {
+      if (base.getBaseType() == BASE.VERTEX) {
 
-    for (BaseRepresentation vertex : this.bases.values()) {
-      bases.add(vertex.getBase().getValue());
+        bases.put(URN.createZkpgsURN("bases.R_i_" + base.getBaseIndex()), base.getBase());
+      } else if (base.getBaseType() == BASE.EDGE) {
+
+        bases.put(URN.createZkpgsURN("bases.R_i_j_" + base.getBaseIndex()), base.getBase());
+      }
     }
-    for (BaseRepresentation edge : edges.values()) {
-      bases.add(edge.getBase().getValue());
-    }
-    bases.add(extendedPublicKey.getPublicKey().getBaseS().getValue());
+    bases.put(URN.createZkpgsURN("base.S"), extendedPublicKey.getPublicKey().getBaseS());
     return bases;
   }
 
-  @Override
+//  @Override
   public void computeWitness() {
 
-    List<BigInteger> bases = populateBases();
+    Map<URN, GroupElement> bases = populateBases();
 
-    List<BigInteger> exponents = populateExponents(tildee, tildem_0);
+    Map<URN, BigInteger> exponents = populateExponents(tildee, tildem_0);
 
     tildeZ =
         CryptoUtilsFacade.computeMultiBaseEx(
             bases, exponents, extendedPublicKey.getPublicKey().getModN());
   }
 
-  @Override
-  public void computeChallenge() {}
+//  @Override
+//  public BigInteger computeChallenge() {}
 
   public void setChallenge(BigInteger challenge) {
     this.c = challenge;
   }
 
-  @Override
+//  @Override
   public void computeResponses() {
     /** TODO retrieve witnesses from the proofstore */
     String ePrimeURN = "prover.blindedgs.ePrime";
@@ -281,11 +293,4 @@ public class GSPossessionProver implements IProver, Storable {
     /** TODO output list of responses */
   }
 
-  @Override
-  public void store(URN urn, ProofObject proofObject) {}
-
-  @Override
-  public ProofObject retrieve(URN urn) {
-    return null;
-  }
 }

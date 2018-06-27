@@ -72,9 +72,9 @@ public class PairWiseDifferenceProver implements IProver, Storable {
 
     Assert.notNull(C_i, "commitment i must not be null");
     Assert.notNull(C_j, "commitment j must not be null");
-    Assert.notNull(C_i.getExponent(), "commitment  message must not be null");
+    Assert.notNull(C_i.getExponents(), "commitment  message must not be null");
     Assert.notNull(C_i.getRandomness(), "commitment randomness must not be null");
-    Assert.notNull(C_j.getExponent(), "commitment message must not be null");
+    Assert.notNull(C_j.getExponents(), "commitment message must not be null");
     Assert.notNull(C_j.getRandomness(), "commitment randomness must not be null");
     Assert.notNull(index, "component prover index must not be null");
     Assert.notNull(proverStore, "Prover store must not be null");
@@ -84,13 +84,17 @@ public class PairWiseDifferenceProver implements IProver, Storable {
     this.C_j = C_j;
     this.S = S;
     this.N = N;
-    this.m_Bari = C_i.getExponent();
+    this.m_Bari = C_i.getExponents();
     this.r_Bari = C_i.getRandomness();
-    this.m_Barj = C_j.getExponent();
+    this.m_Barj = C_j.getExponents();
     this.r_Barj = C_i.getRandomness();
     this.index = index;
     this.proverStore = proverStore;
     this.keyGenParameters = keyGenParameters;
+  }
+
+  public PairWiseDifferenceProver() {
+
   }
 
   /** Precomputation. @throws Exception the exception */
@@ -281,7 +285,7 @@ public class PairWiseDifferenceProver implements IProver, Storable {
   }
 
   @Override
-  public void computeChallenge() {}
+  public BigInteger computeChallenge() {}
 
   /**
    * Sets challenge.

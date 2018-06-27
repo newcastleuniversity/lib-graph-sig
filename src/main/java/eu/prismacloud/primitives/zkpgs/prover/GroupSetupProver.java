@@ -79,22 +79,26 @@ public class GroupSetupProver implements IProver, Storable {
     this.graphEncodingParameters = graphEncodingParameters;
   }
 
+  public GroupSetupProver() {
+
+  }
+
   @Override
   public void createWitnessRandomness() {
     bitLength = computeBitlength();
-    tilder_Z = CryptoUtilsFacade.computeRandomNumber(bitLength);
-    tilder = CryptoUtilsFacade.computeRandomNumber(bitLength);
-    tilder_0 = CryptoUtilsFacade.computeRandomNumber(bitLength);
+    tilder_Z = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
+    tilder = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
+    tilder_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
     BigInteger vWitnessRandomness;
     BigInteger eWitnessRandomness;
 
     for (int i = 1; i <= graphEncodingParameters.getL_V(); i++) {
-      vWitnessRandomness = CryptoUtilsFacade.computeRandomNumber(bitLength);
+      vWitnessRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
       vertexWitnessRandomNumbers.put("tilder_" + i, vWitnessRandomness);
     }
 
     for (int j = 1; j <= graphEncodingParameters.getL_E(); j++) {
-      eWitnessRandomness = CryptoUtilsFacade.computeRandomNumber(bitLength);
+      eWitnessRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
       edgeWitnessRandomNumbers.put("tilder_" + j, eWitnessRandomness);
     }
   }
@@ -123,7 +127,7 @@ public class GroupSetupProver implements IProver, Storable {
   }
 
   @Override
-  public void computeChallenge() {
+  public BigInteger computeChallenge() {
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
@@ -149,7 +153,7 @@ public class GroupSetupProver implements IProver, Storable {
     for (int i = 1; i <= graphEncodingParameters.getL_V(); i++) {
       r_i =
           extendedKeyPair
-              .getExtendedPublicKey()
+              .getPublicKey()
               .getBases()
               .get(URN.createZkpgsURN("r_" + i))
               .getExponent();
@@ -161,7 +165,7 @@ public class GroupSetupProver implements IProver, Storable {
     for (int j = 1; j <= graphEncodingParameters.getL_E(); j++) {
       r_j =
           extendedKeyPair
-              .getExtendedPublicKey()
+              .getPublicKey()
               .getBases()
               .get(URN.createZkpgsURN("r_" + j))
               .getExponent();
@@ -179,7 +183,7 @@ public class GroupSetupProver implements IProver, Storable {
     /** TODO add context to list of elements in challenge */
     baseR = extendedKeyPair.getPublicKey().getBaseR();
     baseR_0 = extendedKeyPair.getPublicKey().getBaseR_0();
-    bases = extendedKeyPair.getExtendedPublicKey().getBases();
+    bases = extendedKeyPair.getPublicKey().getBases();
 
     challengeList.add(modN);
     challengeList.add(baseS.getValue());

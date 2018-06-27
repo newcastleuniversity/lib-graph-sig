@@ -1,64 +1,64 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.store.ProofObject;
-import eu.prismacloud.primitives.zkpgs.store.Storable;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.List;
 
 /** */
-public class CorrectnessProver implements IProver, Storable {
+public class CorrectnessProver { //implements IProver {
 
-  private final BigInteger A;
-  private final BigInteger Q;
-  private final BigInteger d;
-  private final BigInteger N;
-  private final BigInteger n_2;
-  private final BigInteger order;
-  private final KeyGenParameters keyGenParameters;
+  private BigInteger n_2;
+  private ProofStore<Object> proofStore;
+  private ExtendedPublicKey extendedPublicKey;
+  private BigInteger order;
+  private KeyGenParameters keyGenParameters;
   private BigInteger tilded;
   private BigInteger tildeA;
   private List<BigInteger> challengeList;
   private BigInteger cPrime;
   private BigInteger hatd;
+  private GSSignature gsSignature;
+  private BigInteger modN;
+  private BigInteger d;
+  private BigInteger Q;
+  private BigInteger A;
 
-  public CorrectnessProver(
-      BigInteger A,
-      BigInteger Q,
-      BigInteger d,
-      BigInteger N,
-      BigInteger n_2,
-      BigInteger order,
-      KeyGenParameters keyGenParameters) {
+  public BigInteger preChallengePhase(
+      final GSSignature gsSignature,
+      final BigInteger order,
+      final BigInteger n_2,
+      final ProofStore<Object> proofStore,
+      final ExtendedPublicKey extendedPublicKey,
+      final KeyGenParameters keyGenParameters)
+      throws Exception {
 
-    this.A = A;
-    this.Q = Q;
-    this.d = d;
-    this.N = N;
+    this.gsSignature = gsSignature;
     this.n_2 = n_2;
     this.order = order;
+    this.proofStore = proofStore;
+    this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
-  }
+    this.modN = extendedPublicKey.getPublicKey().getModN();
 
-  @Override
-  public void createWitnessRandomness() {
     tilded =
         CryptoUtilsFacade.computeRandomNumber(
             NumberConstants.TWO.getValue(), order.subtract(BigInteger.ONE));
+
+    proofStore.store("correctnessprover.randomness.tilded", tilded);
+    tildeA = Q.modPow(tilded, modN);
+
+    return tildeA;
   }
 
-  @Override
-  public void computeWitness() {
-    tildeA = Q.modPow(tilded, N);
-  }
-
-  @Override
-  public void computeChallenge() {
+  public BigInteger computeChallenge() {
     challengeList = populateChallengeList();
     cPrime = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    return cPrime;
   }
 
   private List<BigInteger> populateChallengeList() {
@@ -70,16 +70,13 @@ public class CorrectnessProver implements IProver, Storable {
     return challengeList;
   }
 
-  @Override
+//  @Override
   public void computeResponses() {
     hatd = tilded.subtract(cPrime.multiply(d).mod(order));
   }
 
-  @Override
-  public void store(URN urn, ProofObject proofObject) {}
-
-  @Override
-  public ProofObject retrieve(URN urn) {
-    return null;
+  public BigInteger postChallengePhase() {
+    hatd = tilded.subtract(cPrime.multiply(d).mod(order));
+    return hatd;
   }
 }

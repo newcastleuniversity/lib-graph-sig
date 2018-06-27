@@ -1,75 +1,179 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.store.ProofObject;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.store.Storable;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** The type Commitment prover. */
-public class CommitmentProver implements IProver, Storable {
+public class CommitmentProver implements IProver {
 
-  private final ProofStore<Object> proverStore;
+  private GSCommitment u;
+  private Map<URN, BaseRepresentation> baseRepresentationMap;
+  private ProofStore<Object> proofStore;
+  private GSCommitment commmitmentU;
+  private BigInteger vPrime;
+  private GroupElement R_0;
+  private BigInteger m_0;
+  private BigInteger n_1;
   private Map<URN, BaseRepresentation> vertices;
-  private final BaseRepresentation vertex;
-  //  private final BigInteger tildem_i;
-  private final ExtendedPublicKey extendedPublicKey;
-  private final KeyGenParameters keyGenParameters;
-  private final Map<URN, BigInteger> witnessRandomness = new HashMap<>();
-  private Map<URN, BigInteger> messagesRandomness = new HashMap<>();
+  private BaseRepresentation vertex;
+  private ExtendedPublicKey extendedPublicKey;
+  private KeyGenParameters keyGenParameters;
   private final Map<URN, BigInteger> witnesses = new HashMap<>();
-  private final BigInteger N;
-  private final BigInteger S;
+  private BigInteger modN;
+  private GroupElement baseS;
   private BigInteger tildeC_i;
   private BigInteger tilder_i;
-  private BigInteger R_i;
+  private GroupElement R_i;
   private GSCommitment witness;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private String tilder_iURN;
-  private BigInteger c;
+  private BigInteger cChallenge;
   private BigInteger hatr_i;
+  private STAGE proofStage;
+  private BigInteger tildevPrime;
+  private BigInteger tildem_0;
+  private BigInteger tildem_i;
+  private BigInteger tildem_i_j;
+  private BigInteger tildeU;
+  private BigInteger hatvPrime;
+  private BigInteger hatm_0;
+  private BigInteger hatm_i;
+  private BigInteger hatm_i_j;
+  private final Map<URN, BigInteger> responses = new LinkedHashMap<URN, BigInteger>();
 
-  /**
-   * Instantiates a new Commitment prover.
-   *
-   * @param vertex the vertex
-   * @param proverStore the prover store
-   * @param extendedPublicKey the extended public key
-   * @param keyGenParameters the key gen parameters
-   */
-  public CommitmentProver(
-      BaseRepresentation vertex,
-      ProofStore<Object> proverStore,
-      ExtendedPublicKey extendedPublicKey,
-      KeyGenParameters keyGenParameters) {
+  public enum STAGE {
+    ISSUING,
+    PROVING
+  };
 
-    Assert.notNull(vertex, "vertex must not be null");
-    Assert.notNull(proverStore, "store must not be null");
+  //  /**
+  //   * Instantiates a new Commitment prover.
+  //   *
+  //   * @param baseRepresentationMap the base representation map
+  //   * @param proofStore the proof store
+  //   * @param extendedPublicKey the extended public key
+  //   * @param keyGenParameters the key gen parameters
+  //   */
+  //  public CommitmentProver(
+  //      final Map<URN, BaseRepresentation> baseRepresentationMap,
+  //      final ProofStore<Object> proofStore,
+  //      final ExtendedPublicKey extendedPublicKey,
+  //      final KeyGenParameters keyGenParameters) {
+  //
+  //    Assert.notNull(baseRepresentationMap, "baseRepresentationMap must not be null");
+  //    Assert.notNull(proofStore, "store must not be null");
+  //    Assert.notNull(extendedPublicKey, "extended public key must not be null");
+  //    Assert.notNull(keyGenParameters, "keygen parameters must not be null");
+  //
+  //    this.baseRepresentationMap = baseRepresentationMap;
+  //    this.proofStore = proofStore;
+  //    this.extendedPublicKey = extendedPublicKey;
+  //    this.keyGenParameters = keyGenParameters;
+  //    this.modN = extendedPublicKey.getPublicKey().getModN();
+  //    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+  //  }
+
+  public GSCommitment preChallengePhase(
+      final Map<URN, BaseRepresentation> baseRepresentationMap,
+      final ProofStore<Object> proofStore,
+      final ExtendedPublicKey extendedPublicKey,
+      final KeyGenParameters keyGenParameters,
+      final STAGE proofStage) {
+
+    Assert.notNull(baseRepresentationMap, "baseRepresentationMap must not be null");
+    Assert.notNull(proofStore, "store must not be null");
     Assert.notNull(extendedPublicKey, "extended public key must not be null");
     Assert.notNull(keyGenParameters, "keygen parameters must not be null");
 
-    this.vertex = vertex;
-    this.proverStore = proverStore;
+    this.baseRepresentationMap = baseRepresentationMap;
+    this.proofStore = proofStore;
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
-    this.N = extendedPublicKey.getPublicKey().getModN();
-    this.S = extendedPublicKey.getPublicKey().getBaseS().getValue();
+    this.modN = extendedPublicKey.getPublicKey().getModN();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.proofStage = proofStage;
+
+    createWitnessRandomness();
+    computeWitness();
+    return witness;
   }
 
   @Override
   public void createWitnessRandomness() {
+    if (proofStage == STAGE.ISSUING) {
 
+      try {
+        witnessRandomnessIssuing();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+    } else {
+      witnessRandomnessProving();
+    }
+  }
+
+  private void witnessRandomnessIssuing() throws Exception {
+
+    URN urnVertex;
+    URN urnEdge;
+    int tildevPrimeBitLength =
+        keyGenParameters.getL_n() + 2 * keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
+
+    tildevPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(tildevPrimeBitLength);
+
+    int mBitLength =
+        keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+
+    tildem_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
+    proofStore.store("issuing.commitmentprover.witnesses.randomness.vertex.tildem_0", tildem_i);
+
+    Map<URN, BigInteger> vertexWitnessRandomness = new HashMap<>();
+
+    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
+      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+        urnVertex =
+            URN.createZkpgsURN(
+                "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_"
+                    + baseRepresentation.getBaseIndex());
+        tildem_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
+        vertexWitnessRandomness.put(urnVertex, tildem_i);
+        proofStore.store(
+            "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_"
+                + baseRepresentation.getBaseIndex(),
+            tildem_i);
+      } else if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+
+        urnEdge =
+            URN.createZkpgsURN(
+                "issuing.commitmentprover.witnesses.randomness.edge.tildem_i_j_"
+                    + baseRepresentation.getBaseIndex());
+        tildem_i_j = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
+        vertexWitnessRandomness.put(urnEdge, tildem_i_j);
+        proofStore.store(
+            "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_j_"
+                + baseRepresentation.getBaseIndex(),
+            tildem_i_j);
+      }
+    }
+  }
+
+  private void witnessRandomnessProving() {
     int tilder_iLength =
         keyGenParameters.getL_n()
             + keyGenParameters.getL_statzk()
@@ -83,31 +187,53 @@ public class CommitmentProver implements IProver, Storable {
     tilder_iURN = "commitmentprover.witnesses.randomness.vertex.tilder_" + vertex.getBaseIndex();
 
     try {
-      proverStore.store(tilder_iURN, tilder_i);
+      proofStore.store(tilder_iURN, tilder_i);
     } catch (Exception e) {
       gslog.log(Level.SEVERE, e.getMessage());
     }
   }
 
-  /**
-   * Sets challenge.
-   *
-   * @param challenge the challenge
-   */
-  public void setChallenge(BigInteger challenge) {
-    this.c = challenge;
-  }
-
   @Override
   public void computeWitness() {
+    BigInteger R_0tildem_0;
+    Map<URN, GroupElement> baseMap = new HashMap<>();
+    Map<URN, BigInteger> exponentsMap = new HashMap<>();
 
-    /** TODO retrieve witness randomness of committed messages from the common store */
-    String tildem_i_iURN = "possessionprover.witnesses.randomness.tildem_" + vertex.getBaseIndex();
-    BigInteger tildem_i = (BigInteger) proverStore.retrieve(tildem_i_iURN);
+    if (proofStage == STAGE.ISSUING) {
 
-    R_i = vertex.getBase().getValue();
-    tildeC_i = R_i.modPow(tildem_i, N).multiply(S.modPow(tilder_i, N));
-    witness = new GSCommitment(R_i, tildem_i, tilder_i, S, N);
+      R_0tildem_0 = R_0.modPow(tildem_0, modN).getValue();
+      baseMap.put(URN.createZkpgsURN("commitment.R_0"), R_0);
+      exponentsMap.put(URN.createZkpgsURN("commitment.m_0"), tildem_0);
+      for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
+        baseMap.put(
+            URN.createZkpgsURN("commitment.R_i_" + baseRepresentation.getBaseIndex()),
+            baseRepresentation.getBase());
+        exponentsMap.put(
+            URN.createZkpgsURN("commitment.m_i_" + baseRepresentation.getBaseIndex()),
+            baseRepresentation.getExponent());
+      }
+      baseMap.put(URN.createZkpgsURN("commitment.S"), baseS);
+      exponentsMap.put(URN.createZkpgsURN("commitments.tildevPrime"), tildevPrime);
+
+      tildeU = CryptoUtilsFacade.computeMultiBaseEx(baseMap, exponentsMap, modN);
+      witness = new GSCommitment(baseMap, exponentsMap, tildevPrime, baseS, modN);
+
+    } else {
+
+      /** TODO retrieve witness randomness of committed messages from the common store */
+      String tildem_i_iURN =
+          "possessionprover.witnesses.randomness.tildem_" + vertex.getBaseIndex();
+      BigInteger tildem_i = (BigInteger) proofStore.retrieve(tildem_i_iURN);
+
+      R_i = vertex.getBase();
+      tildeC_i = R_i.modPow(tildem_i, modN).multiply(baseS.modPow(tilder_i, modN)).getValue();
+
+      baseMap.put(URN.createZkpgsURN("commitment.base.R_" + vertex.getBaseIndex()), R_i);
+      exponentsMap.put(
+          URN.createZkpgsURN("commitment.exponent.m_" + vertex.getBaseIndex()), tildem_i);
+
+      witness = new GSCommitment(baseMap, exponentsMap, tilder_i, baseS, modN);
+    }
   }
 
   /**
@@ -120,35 +246,81 @@ public class CommitmentProver implements IProver, Storable {
   }
 
   @Override
-  public void computeChallenge() {}
+  public BigInteger computeChallenge() {}
 
   @Override
-  public void computeResponses() {
-    BigInteger tilder_i = (BigInteger) proverStore.retrieve(tilder_iURN);
+  public void computeResponses() {}
+
+  public Map<URN, BigInteger> postChallengePhase(BigInteger cChallenge) {
+    this.cChallenge = cChallenge;
+
+    if (this.proofStage == STAGE.ISSUING) {
+      try {
+        computeResponsesIssuing();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+    } else if (this.proofStage == STAGE.PROVING) {
+      try {
+        computeResponsesProving();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    return responses;
+  }
+
+  private void computeResponsesIssuing() throws Exception {
+    BaseRepresentation baseRepresentation;
+
+    hatvPrime = tildevPrime.add(cChallenge.multiply(vPrime));
+    hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
+    String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
+    String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
+
+    responses.put(URN.createZkpgsURN(hatvPrimeURN), hatvPrime);
+    responses.put(URN.createZkpgsURN(hatm_0URN), hatm_0);
+    proofStore.store(hatvPrimeURN, hatvPrime);
+    proofStore.store(hatm_0URN, hatm_0);
+
+    for (BaseRepresentation base : baseRepresentationMap.values()) {
+
+      if (base.getBaseType() == BASE.VERTEX) {
+        hatm_i = tildem_i.add(cChallenge.multiply(base.getExponent()));
+        String hatm_iURN = "issuing.commitmentprover.responses.hatm_i_" + base.getBaseIndex();
+        responses.put(URN.createZkpgsURN(hatm_iURN), hatm_i);
+
+        proofStore.store(hatm_iURN, base);
+
+      } else if (base.getBaseType() == BASE.EDGE) {
+        hatm_i_j = tildem_i_j.add(cChallenge.multiply(base.getExponent()));
+        String hatm_i_jURN = "issuing.commitmentprover.responses.hatm_i_j_" + base.getBaseIndex();
+        responses.put(URN.createZkpgsURN(hatm_i_jURN), hatm_i_j);
+        proofStore.store(
+            "issuing.commitmentprover.responses.hatm_i_j_" + base.getBaseIndex(), base);
+      }
+    }
+  }
+
+  public void computeResponsesProving() throws Exception {
+    BigInteger tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
     String C_iURN = "prover.commitments.C_" + vertex.getBaseIndex();
-    GSCommitment C_i = (GSCommitment) proverStore.retrieve(C_iURN);
+    GSCommitment C_i = (GSCommitment) proofStore.retrieve(C_iURN);
     BigInteger r_i = C_i.getRandomness();
 
-    hatr_i = tilder_i.add(this.c.multiply(r_i));
+    hatr_i = tilder_i.add(this.cChallenge.multiply(r_i));
+
+    String hatr_iURN = "proving.commitmentprover.responses.hatm_i_" + vertex.getBaseIndex();
+
+    responses.put(URN.createZkpgsURN(hatr_iURN), hatr_i );
+    proofStore.store(hatr_iURN, hatr_i);
+
   }
 
-  /**
-   * Gets hatr i.
-   *
-   * @return the hatr i
-   */
-  public BigInteger getHatr_i() {
-    return this.hatr_i;
-  }
 
-  @Override
-  public void store(URN urn, ProofObject proofObject) {}
-
-  @Override
-  public ProofObject retrieve(URN urn) {
-    return null;
-  }
 
   /**
    * Gets witness.

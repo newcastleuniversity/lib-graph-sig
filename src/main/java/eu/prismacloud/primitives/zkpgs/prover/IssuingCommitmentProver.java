@@ -21,7 +21,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   private ICommitment commitment;
   private BigInteger vPrime;
   private Map<URN, BaseRepresentation> vertices;
-  private BigInteger R_0;
+  private GroupElement R_0;
   private BigInteger nonce;
   private KeyGenParameters keyGenParameters;
   private ExtendedPublicKey extendedPublicKey;
@@ -47,8 +47,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
 
   /**
    * Instantiates a new Commitment prover.
-   *
-   * @param commitment the commitment
+   *  @param commitment the commitment
    * @param vPrime the v prime
    * @param R_0 the r 0
    * @param m_0 the m 0
@@ -59,7 +58,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   public IssuingCommitmentProver(
       ICommitment commitment,
       BigInteger vPrime,
-      BigInteger R_0,
+      GroupElement R_0,
       BigInteger m_0,
       BigInteger nonce,
       KeyGenParameters keyGenParameters,
@@ -121,11 +120,11 @@ public class IssuingCommitmentProver implements IProver, Storable {
 
     GroupElement qrElementN = null; // = new QRElementN();
     BigInteger R_0tildem_0;
-    R_0tildem_0 = R_0.modPow(tildem_0, extendedPublicKey.getPublicKey().getModN());
+    R_0tildem_0 = R_0.modPow(tildem_0, extendedPublicKey.getPublicKey().getModN()).getValue();
 
     List<BigInteger> bases = new ArrayList<>();
     List<BigInteger> exponents = new ArrayList<>();
-    bases.add(R_0);
+    bases.add(R_0.getValue());
     exponents.add(tildem_0);
 
     for (Map.Entry<URN, BaseRepresentation> base : verticesPrime.entrySet()) {
@@ -144,14 +143,14 @@ public class IssuingCommitmentProver implements IProver, Storable {
   }
 
   @Override
-  public void computeChallenge() {
+  public BigInteger computeChallenge() {
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
 
   private List<BigInteger> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
-    //    R = extendedPublicKey.getPublicKey().getBaseR();
+    //    R = extendedPublicKey.getPublicKey().getBasesR();
     //    R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
     encodedBases = extendedPublicKey.getBases();
@@ -160,7 +159,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
     challengeList.add(extendedPublicKey.getPublicKey().getBaseS().getValue());
     challengeList.add(extendedPublicKey.getPublicKey().getBaseZ().getValue());
     //    challengeList.add(R);
-    challengeList.add(R_0);
+    challengeList.add(R_0.getValue());
 
     /** TODO check bases */
     for (int i = 1; i <= encodedBases.size(); i++) {
