@@ -30,14 +30,14 @@ public final class CommitmentGroupElement extends GroupElement {
   }
 
   @Override
-  public GroupElement modPow(BigInteger x_z, BigInteger n)
+  public QRElementPQ modPow(BigInteger x_z, BigInteger n)
   {
     /** TODO implement modpow  */
     throw new RuntimeException("not implemented");
   }
 
   @Override
-  public BigInteger multiply(BigInteger val) {
+  public QRElement multiply(QRElement val) {
     return null;
   }
 
@@ -45,5 +45,10 @@ public final class CommitmentGroupElement extends GroupElement {
   public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
     // TODO implement multibase exponentiations
        throw new RuntimeException("not implemented");
+  }
+
+  @Override
+  public QRElement multiply(BigInteger bigInteger) {
+    return null;
   }
 }
