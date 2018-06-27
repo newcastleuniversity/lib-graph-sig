@@ -1,7 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
@@ -10,6 +14,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /** Crypto Utilities class for graph signature library */
@@ -31,8 +36,24 @@ public class GSUtils implements INumberUtils {
   /** Instantiates a new Gs utils. */
   public GSUtils() {}
 
+  public BigInteger randomMinusPlusNumber(int bitlength) {
+    SecureRandom secureRandom = new SecureRandom();
+    /** TODO check if the computations for generating a +- number are correct */
+    BigInteger max = NumberConstants.TWO.getValue().pow(bitlength).subtract(BigInteger.ONE);
+
+    BigInteger maxWithoutSign = max.multiply(NumberConstants.TWO.getValue());
+
+    BigInteger number = maxWithoutSign.add(BigInteger.ONE);
+    while (number.compareTo(maxWithoutSign) > 0
+        || number.subtract(max).compareTo(BigInteger.ZERO) == 0) {
+      number = new BigInteger(bitlength + 1, secureRandom);
+    }
+    return number.subtract(max);
+  }
+
   @Override
-  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
+  public BigInteger multiBaseExp(
+      Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
 
     Assert.notNull(bases, "bases must not be null");
     Assert.notNull(exponents, "exponents must not be null");
@@ -41,7 +62,7 @@ public class GSUtils implements INumberUtils {
 
     BigInteger result = BigInteger.ONE;
     for (int i = 0; i < bases.size(); i++) {
-      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN)).mod(modN);
+      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN).getValue()).mod(modN);
     }
     return result;
   }
@@ -62,9 +83,9 @@ public class GSUtils implements INumberUtils {
     return prime;
   }
   /**
-   * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc Generate Special RSA Modulus modN
-   * Input: candidate integer a, prime factors of positive, odd integer modN: q_1, ..., q_r Output:
-   * modN,p,q,p',q' \(modN = p * q \)
+   * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc Generate Special RSA Modulus
+   * modN Input: candidate integer a, prime factors of positive, odd integer modN: q_1, ..., q_r
+   * Output: modN,p,q,p',q' \(modN = p * q \)
    */
   @Override
   public SpecialRSAMod generateSpecialRSAModulus() {
@@ -323,8 +344,8 @@ public class GSUtils implements INumberUtils {
 
   /**
    * Algorithm <tt>alg:jacobi_shoup</tt> - topocert-doc Compute the Jacobi symbol (A | modN) Input:
-   * candidate integer a, positive odd integer modN Output: Jacobi symbol (a | modN) Invariant: modN is
-   * odd and positive Dependencies: splitPowerRemainder()
+   * candidate integer a, positive odd integer modN Output: Jacobi symbol (a | modN) Invariant: modN
+   * is odd and positive Dependencies: splitPowerRemainder()
    *
    * @param alpha the alpha
    * @param modN the modN
@@ -347,7 +368,8 @@ public class GSUtils implements INumberUtils {
     BigInteger s_prime;
     do {
 
-      s_prime = createRandomNumber(NumberConstants.TWO.getValue(), this.modN.subtract(BigInteger.ONE));
+      s_prime =
+          createRandomNumber(NumberConstants.TWO.getValue(), this.modN.subtract(BigInteger.ONE));
 
     } while (!isElementOfZNS(s_prime, modN));
 
@@ -370,7 +392,8 @@ public class GSUtils implements INumberUtils {
   @Override
   public Boolean elementOfQRN(final BigInteger alpha, final BigInteger modN) {
     return alpha.compareTo(BigInteger.ZERO) > 0
-        && alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue())) <= 0
+        && alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue()))
+            <= 0
         && JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1;
   }
 
@@ -448,11 +471,35 @@ public class GSUtils implements INumberUtils {
    * signature Input: message m Output: signature sigma
    *
    * @param m the m
+   * @param base the base representation
+   * @param signerPublicKey the signer's public key
    * @return the cl signature
    */
-  //    public static CLSignature generateCLSignature(final CLMessage m) {
-  //      return new CLSignature();
-  //    }
+  public static GSSignature generateSignature(
+      final BigInteger m, final BaseRepresentation base, final SignerPublicKey signerPublicKey) {
+    BigInteger A;
+    BigInteger e;
+    BigInteger v;
+    BigInteger modN = signerPublicKey.getModN();
+    GroupElement baseS = signerPublicKey.getBaseS();
+    GroupElement baseZ = signerPublicKey.getBaseZ();
+    GroupElement baseR;
+    BigInteger Q;
+    BigInteger d;
+
+    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
+    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
+    v = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
+
+    baseR = base.getBase().modPow(m, modN);
+
+    /** TODO check if the computations for generating the cl-signature are correct */
+    BigInteger invertible = baseS.modPow(v, modN).multiply(baseR.getValue()).mod(modN);
+    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
+    A = Q.modPow(e.modInverse(modN), modN);
+
+    return new GSSignature(A, e, v);
+  }
 
   /**
    * Algorithm <tt>alg:generateSigProof</tt> - topocert-doc Generate Signature Proof of Knowledge

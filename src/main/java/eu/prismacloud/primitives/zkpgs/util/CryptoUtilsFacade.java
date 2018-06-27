@@ -1,10 +1,15 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper Class for low-level number theoretic computations. Choose which implementation to use.
@@ -18,11 +23,15 @@ public class CryptoUtilsFacade {
     IDEMIX
   };
 
+  public static BigInteger computeRandomNumberMinusPlus(int bitLength) {
+    return CryptoUtilsFactory.getInstance(GS).randomMinusPlusNumber(bitLength);
+  }
+
   public CryptoUtilsFacade() {}
 
   public static BigInteger computeMultiBaseEx(
-      List<BigInteger> bases, List<BigInteger> exponents, BigInteger N) {
-    return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, N);
+      Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
+    return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, modN);
   }
 
   public static BigInteger computePrimeWithLength(int minBitLength, int maxBitLength) {
@@ -36,6 +45,11 @@ public class CryptoUtilsFacade {
   public static BigInteger computeHash(List<BigInteger> list, int hashLength) {
 
     return CryptoUtilsFactory.getInstance(GS).calculateHash(list, hashLength);
+  }
+
+  public static GSSignature generateSignature(
+      final BigInteger m, final BaseRepresentation base, final SignerPublicKey signerPublicKey) {
+    return CryptoUtilsFactory.getInstance(GS).generateSignature(m, base, signerPublicKey);
   }
 
   public static BigInteger computeA() {

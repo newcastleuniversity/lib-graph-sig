@@ -6,12 +6,14 @@ import com.ibm.zurich.idmx.utils.SystemParameters;
 import com.ibm.zurich.idmx.utils.Utils;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -107,12 +109,17 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger N) {
+  public BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
     throw new RuntimeException("not currently used from idemix library");
   }
 
   @Override
   public BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
+
+  @Override
+  public BigInteger randomMinusPlusNumber(int bitLength) {
     throw new RuntimeException("not currently used from idemix library");
   }
 
