@@ -21,7 +21,7 @@ import org.jgrapht.Graph;
 /** The type Graph representation. */
 public class GraphRepresentation {
   private static Logger gslog = GSLoggerConfiguration.getGSlog();
-  private static ArrayList<Integer> crossoutBaseIndex;
+  private static List<Integer> crossoutBaseIndex;
   private static Map<URN, BaseRepresentation> bases;
   private ExtendedPublicKey extendedPublicKey;
   private static GraphEncodingParameters encodingParameters;

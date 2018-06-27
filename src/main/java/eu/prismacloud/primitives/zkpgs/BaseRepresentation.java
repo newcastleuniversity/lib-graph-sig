@@ -14,9 +14,9 @@ public class BaseRepresentation {
   private final int baseIndex;
   private final BASE baseType;
   private final GroupElement base;
-  private BigInteger exponent;
+  private  BigInteger exponent;
 
-  public BaseRepresentation(GroupElement base, BigInteger exponent, int baseIndex, BASE baseType) {
+  public BaseRepresentation(final GroupElement base, final BigInteger exponent, final int baseIndex, BASE baseType) {
 
     this.base = base;
     this.exponent = exponent;
