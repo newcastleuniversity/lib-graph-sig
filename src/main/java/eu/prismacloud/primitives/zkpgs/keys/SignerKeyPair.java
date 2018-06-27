@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.signature.KeyGenSignature;
-import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
@@ -9,9 +8,6 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
 /** Generates key pair for the Signer */
@@ -90,105 +86,12 @@ public class SignerKeyPair {
     return new SignerKeyPair(privateKey, publicKey);
   }
 
-  /** TODO refactor generateKeySignature method */
-  /** Generate key signature. */
-  public void generateKeySignature() {
-    byte[] digest = new byte[0];
-    String hex;
-    MessageDigest md;
-    BigInteger r_a0;
-    BigInteger r_aZ;
-    BigInteger T_R0;
-    BigInteger T_Z;
-    BigInteger s_a0;
-    BigInteger s_aZ;
-    BigInteger c;
-
-    BigInteger upperBound =
-        specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
-    r_a0 = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
-    r_aZ = CryptoUtilsFacade.computeRandomNumber(BigInteger.ZERO, upperBound);
-    T_R0 = S.modPow(r_a0, specialRSAMod.getN()).getValue();
-    T_Z = S.modPow(r_aZ, specialRSAMod.getN()).getValue();
-
-    try {
-      md = MessageDigest.getInstance("SHA-256");
-      String contents;
-      contents =
-          specialRSAMod.getN().toString()
-              + R_0.toString()
-              + Z.toString()
-              + S.toString()
-              + T_R0.toString()
-              + T_Z.toString();
-      md.update(contents.getBytes(StandardCharsets.UTF_8));
-      digest = md.digest();
-
-      hex = String.format("%064x", new BigInteger(1, digest));
-      System.out.println(hex);
-
-      c = new BigInteger(1, digest);
-
-      s_a0 = r_a0.add(c.multiply(x_R0));
-      s_aZ = r_aZ.add(c.multiply(x_Z));
-
-    } catch (NoSuchAlgorithmException e) {
-      System.err.println("Algorithm for hash is not correct " + e.getMessage());
-    }
-  }
-
-  /**
-   * Verify key signature boolean.
-   *
-   * @param c the c
-   * @param s_a0 the s a 0
-   * @param s_aZ the s a z
-   * @return the boolean
-   */
-  public Boolean verifyKeySignature(
-      final BigInteger c, final BigInteger s_a0, final BigInteger s_aZ) {
-    byte[] digest = new byte[0];
-
-    String contents;
-    String hex;
-    MessageDigest md = null;
-    BigInteger T_R0_hat, T_Z_hat, c_verification;
-
-    T_R0_hat =
-        R_0.modPow(c, specialRSAMod.getN())
-            .multiply(S.modPow(s_a0, specialRSAMod.getN()).getValue());
-    T_Z_hat =
-        Z.modPow(c, specialRSAMod.getN()).multiply(S.modPow(s_aZ, specialRSAMod.getN()).getValue());
-    contents =
-        specialRSAMod.getN().toString()
-            + R_0.toString()
-            + Z.toString()
-            + S.toString()
-            + T_R0_hat.toString()
-            + T_Z_hat.toString();
-    md.update(contents.getBytes(StandardCharsets.UTF_8));
-
-    Assert.notNull(md, "Message digest must not be null");
-    digest = md.digest();
-
-    hex = String.format("%064x", new BigInteger(1, digest));
-    System.out.println(hex);
-
-    c_verification = new BigInteger(1, digest);
-    return c.equals(c_verification);
-  }
-
   public SignerPrivateKey getPrivateKey() {
     return privateKey;
   }
 
   public SignerPublicKey getPublicKey() {
     return publicKey;
-  }
-
-  public KeyGenSignature getSignature() {
-    // TODO implement getSignature
-    throw new RuntimeException("getSignature not implemented");
   }
 
   /**
