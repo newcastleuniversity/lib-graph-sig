@@ -4,7 +4,10 @@ import com.ibm.zurich.idmx.utils.GroupParameters;
 import com.ibm.zurich.idmx.utils.StructureStore;
 import com.ibm.zurich.idmx.utils.SystemParameters;
 import com.ibm.zurich.idmx.utils.Utils;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
@@ -12,6 +15,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -91,12 +95,19 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public BigInteger calculateHash(final List<BigInteger> list, final int hashLength) {
+  public BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException {
+    Vector<BigInteger> hlist = new Vector<BigInteger>();
+    BigInteger value;
 
-    Vector<BigInteger> vlist = new Vector<BigInteger>(list);
+    for (String element : list) {
+      hlist.add(new BigInteger(element));
+    }
 
-    return Utils.hashOf(hashLength, vlist);
+    Vector<BigInteger> vlist = new Vector<BigInteger>(hlist);
+
+      return Utils.hashOf(hashLength, vlist);
   }
+
 
   @Override
   public BigInteger computeA() {
@@ -120,6 +131,12 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
   @Override
   public BigInteger randomMinusPlusNumber(int bitLength) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
+
+  @Override
+  public GSSignature generateSignature(BigInteger m, BaseRepresentation base,
+      SignerPublicKey signerPublicKey) {
     throw new RuntimeException("not currently used from idemix library");
   }
 

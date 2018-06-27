@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +43,9 @@ public class CryptoUtilsFacade {
     return CryptoUtilsFactory.getInstance(GS).createRandomNumber(bitLength);
   }
 
-  public static BigInteger computeHash(List<BigInteger> list, int hashLength) {
-
-    return CryptoUtilsFactory.getInstance(GS).calculateHash(list, hashLength);
+  public static BigInteger computeHash(List<String> list, int hashLength)
+      throws NoSuchAlgorithmException {
+    return CryptoUtilsFactory.getInstance(GS).computeHash(list, hashLength);
   }
 
   public static GSSignature generateSignature(

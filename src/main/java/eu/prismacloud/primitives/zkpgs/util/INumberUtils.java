@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public interface INumberUtils {
 
   BigInteger createQRNElement(BigInteger N);
 
-  BigInteger calculateHash(List<BigInteger> list, int hashLength);
+  BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException;
 
   BigInteger computeA();
 
@@ -44,6 +45,6 @@ public interface INumberUtils {
 
   BigInteger randomMinusPlusNumber(int bitLength);
 
-  static GSSignature generateSignature(BigInteger m, BaseRepresentation base,
+  GSSignature generateSignature(BigInteger m, BaseRepresentation base,
       SignerPublicKey signerPublicKey);
 }

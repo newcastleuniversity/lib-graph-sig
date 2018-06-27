@@ -10,6 +10,8 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -391,10 +393,10 @@ public class GSUtils implements INumberUtils {
    */
   @Override
   public Boolean elementOfQRN(final BigInteger alpha, final BigInteger modN) {
-    return alpha.compareTo(BigInteger.ZERO) > 0
-        && alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue()))
-            <= 0
-        && JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1;
+    return (alpha.compareTo(BigInteger.ZERO) > 0)
+        && (alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue()))
+            <= 0)
+        && (JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1);
   }
 
   /**
@@ -443,9 +445,20 @@ public class GSUtils implements INumberUtils {
     return s;
   }
 
-  @Override
-  public BigInteger calculateHash(final List<BigInteger> list, final int hashLength) {
-    return null;
+  public BigInteger computeHash(final List<String> list, final int hashLength)
+      throws NoSuchAlgorithmException {
+
+    MessageDigest messageDigest;
+    messageDigest = MessageDigest.getInstance("SHA-" + hashLength);
+    messageDigest.reset();
+    for (String element : list) {
+      messageDigest.update(element.getBytes());
+    }
+
+    //    String hashString = String.format("%040x", new BigInteger(1, messageDigest.digest()));
+    //    log.log(Level.INFO, "hash: " + hashString);
+
+    return new BigInteger(1, messageDigest.digest());
   }
 
   @Override
@@ -475,7 +488,7 @@ public class GSUtils implements INumberUtils {
    * @param signerPublicKey the signer's public key
    * @return the cl signature
    */
-  public static GSSignature generateSignature(
+  public GSSignature generateSignature(
       final BigInteger m, final BaseRepresentation base, final SignerPublicKey signerPublicKey) {
     BigInteger A;
     BigInteger e;
