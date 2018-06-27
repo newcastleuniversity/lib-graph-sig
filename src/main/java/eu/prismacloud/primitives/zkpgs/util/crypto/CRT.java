@@ -62,14 +62,14 @@ public class CRT {
    * @param modN the modulus N
    * @return the big integer
    */
-  public static BigInteger computeCRT(
+  public static QRElement computeCRT(
       final BigInteger xp,
       final BigInteger oneP,
       final BigInteger xq,
       final BigInteger oneQ,
       final BigInteger modN) {
 
-    return xp.multiply(oneP).add(xq.multiply(oneQ)).mod(modN);
+    return new QRElement(xp.multiply(oneP).add(xq.multiply(oneQ)).mod(modN));
   }
 
   /**

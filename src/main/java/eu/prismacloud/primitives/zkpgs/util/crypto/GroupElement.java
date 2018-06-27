@@ -10,9 +10,11 @@ public abstract class GroupElement {
   //    abstract BigInteger getOrder();
   public abstract BigInteger getValue();
 
-  public abstract GroupElement modPow(BigInteger exponent, BigInteger modulus);
+  public abstract QRElement modPow(BigInteger exponent, BigInteger modulus);
 
-  public abstract BigInteger multiply(BigInteger value);
+  public abstract QRElement multiply(QRElement value);
 
   public abstract BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents);
+
+  public abstract QRElement multiply(BigInteger bigInteger);
 }

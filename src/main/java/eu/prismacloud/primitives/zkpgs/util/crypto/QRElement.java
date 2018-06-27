@@ -36,13 +36,18 @@ public class QRElement extends GroupElement {
     return value.subtract(val);
   }
 
-  public BigInteger multiply(BigInteger val) {
-    return value.multiply(val);
+  public QRElement multiply(QRElement val) {
+    return new QRElement(value).multiply(val);
   }
 
   @Override
   public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
     return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
+  }
+
+  @Override
+  public QRElement multiply(BigInteger val) {
+    return new QRElement(value.multiply(val));
   }
 
   public BigInteger divide(BigInteger val) {
@@ -78,8 +83,8 @@ public class QRElement extends GroupElement {
   }
 
   @Override
-  public GroupElement modPow(BigInteger exponent, BigInteger modN) {
-    return (GroupElement) new QRElement(value.modPow(exponent, modN));
+  public QRElementPQ modPow(BigInteger exponent, BigInteger modN) {
+    return  new QRElementPQ(value.modPow(exponent, modN));
   }
 
   public BigInteger modInverse(BigInteger m) {

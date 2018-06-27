@@ -56,12 +56,12 @@ public class QRElementN extends QRElement {
   }
 
   @Override
-  public BigInteger multiply(BigInteger val) {
+  public QRElement multiply(QRElement val) {
     return super.multiply(val);
   }
 
   @Override
-  public GroupElement modPow(BigInteger exponent, BigInteger modN) {
+  public QRElementPQ modPow(BigInteger exponent, BigInteger modN) {
     return super.modPow(exponent, modN);
   }
 

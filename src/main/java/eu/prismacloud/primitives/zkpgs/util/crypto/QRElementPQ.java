@@ -61,6 +61,10 @@ public class QRElementPQ extends QRElement {
     this.qPrime = qPrime;
   }
 
+  public QRElementPQ(QRElement crt) {
+    super(crt.getValue());
+  }
+
   /**
    * Gets xp.
    *
@@ -110,7 +114,7 @@ public class QRElementPQ extends QRElement {
   }
 
   @Override
-  public GroupElement modPow(BigInteger exponent, BigInteger m) {
+  public QRElementPQ modPow(BigInteger exponent, BigInteger m) {
     //      compute exponentiation using CRT for modulo p and q representation
     BigInteger exp_p = exponent.mod(this.pPrime.subtract(BigInteger.ONE));
     BigInteger exp_q = exponent.mod(this.qPrime.subtract(BigInteger.ONE));
@@ -118,7 +122,7 @@ public class QRElementPQ extends QRElement {
 
     BigInteger xq = modPow(exp_q, qPrime).getValue();
     // uses precomputation for 1p and 1q
-    BigInteger crt =
+    QRElement crt =
         CRT.computeCRT(
             xp,
             this.qrGroupPQ.getOneP(),
@@ -129,7 +133,7 @@ public class QRElementPQ extends QRElement {
   }
 
   @Override
-  public BigInteger multiply(BigInteger val) {
+  public QRElement multiply(QRElement val) {
     BigInteger xp1 = this.value.mod(this.pPrime);
     BigInteger xq1 = this.value.mod(this.qPrime);
 
