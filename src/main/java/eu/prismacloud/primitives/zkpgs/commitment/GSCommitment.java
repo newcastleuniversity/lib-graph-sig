@@ -1,35 +1,39 @@
 package eu.prismacloud.primitives.zkpgs.commitment;
 
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
+import java.util.Map;
 
 public class GSCommitment { // implements ICommitment {
 
   private BigInteger commitmentValue;
-  private final BigInteger baseR;
-  private final BigInteger exponent;
+  private final Map<URN, GroupElement> basesR;
+  private final Map<URN, BigInteger> exponents;
   private final BigInteger randomness;
-  private final BigInteger baseS;
+  private final GroupElement baseS;
   private final BigInteger modN;
 
   public GSCommitment(
-      BigInteger baseR,
-      BigInteger exponent,
+      Map<URN, GroupElement> basesR,
+      Map<URN, BigInteger> exponents,
       BigInteger randomness,
-      BigInteger baseS,
+      GroupElement baseS,
       BigInteger modN) {
 
     /** TODO add baseS group element */
     /** TODO change name to baseS */
     /** TODO multiple bases for commitments */
-    Assert.notNull(baseR, "base R cannot be null");
-    Assert.notNull(exponent, "exponent cannot be null");
+    Assert.notNull(basesR, "base R cannot be null");
+    Assert.notNull(exponents, "exponents cannot be null");
     Assert.notNull(randomness, "randomness cannot be null");
     Assert.notNull(baseS, "base S cannot be null");
     Assert.notNull(modN, "modN cannot be null");
 
-    this.baseR = baseR;
-    this.exponent = exponent;
+    this.basesR = basesR;
+    this.exponents = exponents;
     this.randomness = randomness;
     this.baseS = baseS;
     this.modN = modN;
@@ -37,7 +41,10 @@ public class GSCommitment { // implements ICommitment {
 
   public BigInteger commit() {
 
-    commitmentValue = baseR.modPow(exponent, modN).multiply(baseS.modPow(randomness, modN));
+    BigInteger baseResult = CryptoUtilsFacade.computeMultiBaseEx(basesR,exponents , modN);
+
+
+    commitmentValue = baseResult.multiply(baseS.modPow(randomness, modN).getValue());
     return commitmentValue;
   }
 
@@ -45,12 +52,12 @@ public class GSCommitment { // implements ICommitment {
     return this.commitmentValue;
   }
 
-  public BigInteger getBaseR() {
-    return this.baseR;
+  public Map<URN, GroupElement> getBasesR() {
+    return this.basesR;
   }
 
-  public BigInteger getExponent() {
-    return this.exponent;
+  public Map<URN, BigInteger> getExponents() {
+    return this.exponents;
   }
 
   public BigInteger getRandomness() {
@@ -71,10 +78,10 @@ public class GSCommitment { // implements ICommitment {
     if (!this.getCommitmentValue().equals(that.getCommitmentValue())) {
       return false;
     }
-    if (!this.getBaseR().equals(that.getBaseR())) {
+    if (!this.getBasesR().equals(that.getBasesR())) {
       return false;
     }
-    if (!this.getExponent().equals(that.getExponent())) {
+    if (!this.getExponents().equals(that.getExponents())) {
       return false;
     }
     if (!this.getRandomness().equals(that.getRandomness())) {
@@ -89,8 +96,8 @@ public class GSCommitment { // implements ICommitment {
   @Override
   public int hashCode() {
     int result = this.getCommitmentValue().hashCode();
-    result = 31 * result + this.getBaseR().hashCode();
-    result = 31 * result + this.getExponent().hashCode();
+    result = 31 * result + this.getBasesR().hashCode();
+    result = 31 * result + this.getExponents().hashCode();
     result = 31 * result + this.getRandomness().hashCode();
     result = 31 * result + this.baseS.hashCode();
     result = 31 * result + this.modN.hashCode();
@@ -102,8 +109,8 @@ public class GSCommitment { // implements ICommitment {
     final StringBuilder sb =
         new StringBuilder("eu.prismacloud.primitives.zkpgs.commitment.GSCommitment{");
     sb.append("commitmentValue=").append(commitmentValue);
-    sb.append(", baseR=").append(baseR);
-    sb.append(", exponent=").append(exponent);
+    sb.append(", basesR=").append(basesR);
+    sb.append(", exponents=").append(exponents);
     sb.append(", randomness=").append(randomness);
     sb.append(", baseS=").append(baseS);
     sb.append(", modN=").append(modN);
