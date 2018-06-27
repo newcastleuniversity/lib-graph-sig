@@ -5,18 +5,23 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.GSPossessionProver;
 import eu.prismacloud.primitives.zkpgs.prover.GSProver;
 import eu.prismacloud.primitives.zkpgs.prover.PairWiseDifferenceProver;
+import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
+import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,7 @@ public class ProverOrchestrator implements ProofOperation {
   private BigInteger tildevPrime;
   private GraphRepresentation graphRepresentation;
   private KeyGenParameters keyGenParameters;
+  private GraphEncodingParameters graphEncodingParameters;
   private BigInteger tildeZ;
   private Map<URN, BaseRepresentation> vertices;
   private Map<URN, BaseRepresentation> edges;
@@ -53,7 +59,7 @@ public class ProverOrchestrator implements ProofOperation {
   private BigInteger tildem_i;
   private BigInteger tilder_i;
   private Map<URN, BigInteger> pairWiseWitnesses;
-  private List<BigInteger> challengeList;
+  private List<String> challengeList;
   private BigInteger tildeR_BariBarj;
   private BigInteger c;
   private ProofStore<Object> proverStore = new ProofStore<Object>();
@@ -65,10 +71,17 @@ public class ProverOrchestrator implements ProofOperation {
   private Map<URN, BaseRepresentation> encodedBases;
   private Map<URN, BaseRepresentation> encodedVertexBases;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private List<String> contextList;
 
-  public ProverOrchestrator(BigInteger n_3, GSProver prover) {
+  public ProverOrchestrator(
+      BigInteger n_3,
+      GSProver prover,
+      KeyGenParameters keyGenParameters,
+      GraphEncodingParameters graphEncodingParameters) {
     this.n_3 = n_3;
     this.prover = prover;
+    this.keyGenParameters = keyGenParameters;
+    this.graphEncodingParameters = graphEncodingParameters;
   }
 
   public ProverOrchestrator(BigInteger n_3) {
@@ -164,32 +177,36 @@ public class ProverOrchestrator implements ProofOperation {
     proverStore.store(blindedGSURN, this.randomizedGraphSignature.getV());
   }
 
-  public void computeChallenge() {
+  public void computeChallenge() throws NoSuchAlgorithmException {
     this.c = CryptoUtilsFacade.computeHash(populateChallengeList(), keyGenParameters.getL_H());
-    //            prover.computeChallenge(populateChallengeList());
   }
 
   public void computePostChallengePhase() {}
 
-  private List<BigInteger> populateChallengeList() {
+  private List<String> populateChallengeList() {
     /** TODO populate context list */
-    challengeList.add(randomizedGraphSignature.getA());
-    challengeList.add(extendedPublicKey.getPublicKey().getBaseZ().getValue());
+    contextList =
+        GSContext.computeChallengeContext(
+            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+
+    challengeList.addAll(contextList);
+    challengeList.add(String.valueOf(randomizedGraphSignature.getA()));
+    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
     for (GSCommitment gsCommitment : commitments.values()) {
-      challengeList.add(gsCommitment.getCommitmentValue());
+      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
     }
 
-    challengeList.add(tildeZ);
+    challengeList.add(String.valueOf(tildeZ));
 
     for (GSCommitment gsCommitment : tildeC_i.values()) {
-      challengeList.add(gsCommitment.getCommitmentValue());
+      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
     }
 
     for (BigInteger witness : pairWiseWitnesses.values()) {
-      challengeList.add(witness);
+      challengeList.add(String.valueOf(witness));
     }
 
-    challengeList.add(n_3);
+    challengeList.add(String.valueOf(n_3));
 
     return challengeList;
   }
@@ -224,8 +241,8 @@ public class ProverOrchestrator implements ProofOperation {
                   URN.getZkpgsNameSpaceIdentifier(),
                   "possessionprover.witnesses.tildem_" + vertex.getBaseIndex()));
 
-      commitmentProver =
-          new CommitmentProver(vertex, proverStore, extendedPublicKey, keyGenParameters);
+      commitmentProver = (CommitmentProver) ProverFactory.newProver(ProverType.CommitmentProver);
+      //          new CommitmentProver(vertex, proverStore, extendedPublicKey, keyGenParameters);
       commitmentProver.createWitnessRandomness();
       commitmentProver.computeWitness();
 
