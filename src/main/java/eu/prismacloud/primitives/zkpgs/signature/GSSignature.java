@@ -10,11 +10,9 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.EEAlgorithm;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GSSignature {
@@ -39,7 +37,7 @@ public class GSSignature {
   private BigInteger eInverse;
 
   public GSSignature(
-      final ExtendedKeyPair extendedKeyPair,
+      final ExtendedPublicKey extendedPublicKey,
       ICommitment U,
       Map<URN, BaseRepresentation> encodedBases,
       KeyGenParameters keyGenParameters) {
@@ -48,9 +46,9 @@ public class GSSignature {
     this.U = U;
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;
-    this.baseS = extendedKeyPair.getPublicKey().getBaseS();
-    this.baseZ = extendedKeyPair.getPublicKey().getBaseZ();
-    this.modN = extendedKeyPair.getPublicKey().getModN();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
+    this.modN = extendedPublicKey.getPublicKey().getModN();
   }
 
   public GSSignature(BigInteger A, BigInteger e, BigInteger v) {
@@ -72,45 +70,7 @@ public class GSSignature {
   }
 
   // TODO Lift computations to GSSigner; GSSignature should not have knowledge of the sk.
-  public BigInteger computeQ() {
-    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
-    vbar = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
-    vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
 
-    for (BaseRepresentation encodedBase : encodedBases.values()) {
-      if (encodedBase.getBaseType() == BASE.VERTEX) {
-        R_i =
-            R_i.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN).getValue());
-      } else if (encodedBase.getBaseType() == BASE.EDGE) {
-        R_i_j =
-            R_i_j.multiply(
-                encodedBase.getBase().modPow(encodedBase.getExponent(), modN).getValue());
-      }
-    }
-
-    BigInteger invertible = baseS.modPow(vPrimePrime, modN).multiply(R_i).multiply(R_i_j).mod(modN);
-    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
-
-    return Q;
-  }
-
-  public BigInteger computeA() {
-    BigInteger order =
-        extendedKeyPair
-            .getPrivateKey()
-            .getpPrime()
-            .multiply(extendedKeyPair.getPrivateKey().getqPrime());
-
-    EEAlgorithm.computeEEAlgorithm(e, order);
-    d = EEAlgorithm.getS();
-    /** TODO check if the EEAlgorithm calculates the modInverse correctly */
-    gslog.log(Level.INFO, "d eea: " + d);
-    gslog.log(Level.INFO, "d modInverse: " + e.modInverse(order));
-    // TODO Remove logging of values that can break security (secret key or modInverse mod order; allows for factorization of N)
-    A = Q.modPow(d, modN);
-    return A;
-  }
 
   public GSSignature blind(BigInteger A, BigInteger e, BigInteger v) {
 
