@@ -19,11 +19,11 @@ public class GSVertex {
   private BigInteger vertexPrimeRepresentative;
   private BigInteger labelPrimeRepresentative;
 
-  public GSVertex(String id) {
+  public GSVertex(final String id) {
     this(id, "");
   }
 
-  public GSVertex(String id, String country) {
+  public GSVertex(final String id, final  String country) {
     this.id = id;
     this.country = country;
   }
@@ -80,31 +80,24 @@ public class GSVertex {
 
   @Override
   public int hashCode() {
-
-    return Objects.hash(
-        this.getLabel(),
-        this.getId(),
-        this.getCountry(),
-        this.getVertexPrimeRepresentative(),
-        this.getLabelPrimeRepresentative());
+    int result = this.getLabel().hashCode();
+    result = 31 * result + this.getId().hashCode();
+    result = 31 * result + this.getCountry().hashCode();
+    result = 31 * result + this.getVertexPrimeRepresentative().hashCode();
+    result = 31 * result + this.getLabelPrimeRepresentative().hashCode();
+    return result;
   }
 
   @Override
   public String toString() {
-    return "eu.prismacloud.primitives.zkpgs.graph.GSVertex{"
-        + "label='"
-        + label
-        + '\''
-        + ", id='"
-        + id
-        + '\''
-        + ", country='"
-        + country
-        + '\''
-        + ", vertexPrimeRepresentative="
-        + vertexPrimeRepresentative
-        + ", labelPrimeRepresentative="
-        + labelPrimeRepresentative
-        + '}';
+    final StringBuilder sb = new StringBuilder(
+        "eu.prismacloud.primitives.zkpgs.graph.GSVertex{");
+    sb.append("label='").append(label).append('\'');
+    sb.append(", id='").append(id).append('\'');
+    sb.append(", country='").append(country).append('\'');
+    sb.append(", vertexPrimeRepresentative=").append(vertexPrimeRepresentative);
+    sb.append(", labelPrimeRepresentative=").append(labelPrimeRepresentative);
+    sb.append('}');
+    return sb.toString();
   }
 }
