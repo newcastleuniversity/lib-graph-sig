@@ -1,3 +1,3 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-public class PairWiseDifferenceVerifier {}
+public class PairWiseDifferenceVerifier implements IVerifier{}

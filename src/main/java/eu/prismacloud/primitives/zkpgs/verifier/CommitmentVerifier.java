@@ -1,227 +1,141 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /** The type Commitment verifier. */
-public class CommitmentVerifier {
+public class CommitmentVerifier implements IVerifier {
 
-  private final BigInteger hatvPrime;
-  private final BigInteger hatm_0;
-  private final ICommitment U;
-  private final Map<String, BigInteger> vertexResponses;
-  private final Map<String, BigInteger> edgeResponses;
-  private final BigInteger c;
+  private BigInteger hatvPrime;
+  private BigInteger hatm_0;
+  private ICommitment U;
+  private BigInteger c;
   private GroupElement baseS;
   private GroupElement baseZ;
   private GroupElement baseR_0;
   private BigInteger S;
   private BigInteger Z;
   private BigInteger R_0;
-  private final BigInteger n_1;
+  private BigInteger n_1;
   private BigInteger modN;
-  private Map<URN, BaseRepresentation> bases;
-  private BigInteger N;
-  private Map<String, BigInteger> vertexBases;
-  private Map<String, BigInteger> edgeBases;
-  private final KeyGenParameters keyGenParameters;
+  private STAGE proofStage;
+  private Map<URN, BaseRepresentation> baseRepresentationMap;
+  private KeyGenParameters keyGenParameters;
   private BigInteger hatU;
   private List<BigInteger> challengeList;
   private BigInteger hatc;
+  private BigInteger cChallenge;
+  private Map<URN, BigInteger> responses;
+  private ProofStore<Object> proofStore;
+  private GSCommitment gscommitment;
+  private BigInteger witnesss;
 
-  /**
-   * Instantiates a new Commitment verifier.
-   *
-   * @param hatvPrime the hatv prime
-   * @param hatm_0 the hatm 0
-   * @param U the U
-   * @param c the c
-   * @param baseS the s
-   * @param baseZ the z
-   * @param baseR_0 the r 0
-   * @param n_1 the n 1
-   * @param modN the n
-   * @param vertexBases the vertex bases
-   * @param edgeBases the edge bases
-   * @param vertexResponses the vertex responses
-   * @param edgeResponses the edge responses
-   * @param keyGenParameters the key gen parameters
-   */
-  public CommitmentVerifier(
-      BigInteger hatvPrime,
-      BigInteger hatm_0,
-      ICommitment U,
-      BigInteger c,
-      BigInteger baseS,
-      BigInteger baseZ,
-      BigInteger baseR_0,
-      BigInteger n_1,
-      BigInteger modN,
-      Map<String, BigInteger> vertexBases,
-      Map<String, BigInteger> edgeBases,
-      Map<String, BigInteger> vertexResponses,
-      Map<String, BigInteger> edgeResponses,
-      KeyGenParameters keyGenParameters) {
-    this.U = U;
-    this.c = c;
-    this.S = baseS;
-    this.Z = baseZ;
-    this.R_0 = baseR_0;
-    this.n_1 = n_1;
-    this.N = modN;
-    this.vertexBases = vertexBases;
-    this.edgeBases = edgeBases;
+  public enum STAGE {
+    ISSUING,
+    VERIFYING
+  };
+
+  public BigInteger computeWitness(
+      final BigInteger cChallenge,
+      final Map<URN, BigInteger> responses,
+      final ProofStore<Object> proofStore,
+      final ExtendedPublicKey extendedPublicKey,
+      final KeyGenParameters keyGenParameters,
+      final STAGE proofStage) {
+
+    /** TODO finish implementation for computeWitness in commmitment verifier */
+    this.cChallenge = cChallenge;
+    this.responses = responses;
+    this.proofStore = proofStore;
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.modN = extendedPublicKey.getPublicKey().getModN();
+    this.baseRepresentationMap = extendedPublicKey.getBases();
     this.keyGenParameters = keyGenParameters;
+    this.proofStage = proofStage;
 
-    checkLengths(hatvPrime, hatm_0, vertexResponses, edgeResponses, keyGenParameters);
+    if (STAGE.ISSUING == proofStage) {
 
-    this.hatvPrime = hatvPrime;
-    this.hatm_0 = hatm_0;
-    this.vertexResponses = vertexResponses;
-    this.edgeResponses = edgeResponses;
+      checkLengthsIssuing(responses, keyGenParameters);
+
+      witnesss = computehatUIssuing();
+
+    } else if (STAGE.VERIFYING == proofStage) {
+      /** TODO finish implementation for verifying stage */
+    }
+
+    return witnesss;
   }
 
-  public CommitmentVerifier(
-      BigInteger hatvPrime,
-      BigInteger hatm_0,
-      ICommitment U,
-      BigInteger c,
-      GroupElement baseS,
-      GroupElement baseZ,
-      GroupElement baseR_0,
-      BigInteger n_1,
-      BigInteger modN,
-      Map<URN, BaseRepresentation> bases,
-      Map<String, BigInteger> vertexResponses,
-      Map<String, BigInteger> edgeResponses,
-      KeyGenParameters keyGenParameters) {
-
-    this.hatvPrime = hatvPrime;
-    this.hatm_0 = hatm_0;
-    this.U = U;
-    this.c = c;
-    this.baseS = baseS;
-    this.baseZ = baseZ;
-    this.baseR_0 = baseR_0;
-    this.n_1 = n_1;
-    this.modN = modN;
-    this.bases = bases;
-    this.vertexResponses = vertexResponses;
-    this.edgeResponses = edgeResponses;
-    this.keyGenParameters = keyGenParameters;
-  }
-
-  private void checkLengths(
-      BigInteger hatvPrime,
-      BigInteger hatm_0,
-      Map<String, BigInteger> vertexResponses,
-      Map<String, BigInteger> edgeResponses,
-      KeyGenParameters keyGenParameters) {
-
+  private void checkLengthsIssuing(
+      Map<URN, BigInteger> responses, KeyGenParameters keyGenParameters) {
     int hatvPrimeLength =
         keyGenParameters.getL_n()
             + (2 * keyGenParameters.getL_statzk())
             + keyGenParameters.getL_H()
             + 1;
-    Assert.checkBitLength(hatvPrime, hatvPrimeLength, "length of hatvPrime is not correct ");
 
     int messageLength =
         keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 2;
+
+    hatvPrime = (BigInteger) proofStore.retrieve("proofsignature.P_1.hatvPrime");
+    hatm_0 = (BigInteger) proofStore.retrieve("proofsignature.P_1.hatm_0");
+
     Assert.checkBitLength(hatm_0, messageLength, "length of hatm_0 is not correct ");
+    Assert.checkBitLength(hatvPrime, hatvPrimeLength, "length of hatvPrime is not correct ");
 
-    for (BigInteger vertexResponse : vertexResponses.values()) {
-      Assert.checkBitLength(vertexResponse, messageLength, "vertex response length is not correct");
+    for (BigInteger response : responses.values()) {
+      Assert.checkBitLength(response, messageLength, " response length is not correct");
     }
+  }
 
-    for (BigInteger edgeResponse : edgeResponses.values()) {
-      Assert.checkBitLength(edgeResponse, messageLength, "edge response length is not correct");
-    }
+  private void checkLengthsVerifying() {
+    /** TODO finish implementation for checkLengths when in verifying stage */
   }
 
   /** Computehat U. */
-  public void computehatU() {
+  public BigInteger computehatUIssuing() {
 
-    List<BigInteger> exponents = new ArrayList<>();
-    List<BigInteger> bases = new ArrayList<>();
+    Map<URN, BigInteger> exponentsU = new HashMap<>();
+    Map<URN, GroupElement> basesU = new HashMap<>();
 
-    populateExponents(exponents);
+    populateExponents(exponentsU);
 
-    populateBases(bases);
+    populateBases(basesU);
 
-    hatU =                                         
+    hatU =
         U.getCommitment()
             .modInverse(c)
-            .multiply(CryptoUtilsFacade.computeMultiBaseEx(exponents, bases, N));
+            .multiply(CryptoUtilsFacade.computeMultiBaseEx(basesU, exponentsU, modN));
+    return hatU;
   }
 
-  /** Compute challenge. */
-  public void computeChallenge() {
-    challengeList = populateChallengeList();
-    hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-  }
+  private void populateBases(Map<URN, GroupElement> basesMap) {
+    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.S"), baseS);
+//    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.R_0"),R_0);
 
-  private List<BigInteger> populateChallengeList() {
-    /** TODO add context to list of elements in challenge */
-    challengeList.add(N);
-    challengeList.add(S);
-    challengeList.add(Z);
-    challengeList.add(R_0);
-
-    for (int i = 1; i <= vertexBases.size(); i++) {
-      challengeList.add(vertexBases.get("R_" + i));
-    }
-
-    for (int j = 1; j <= edgeBases.size(); j++) {
-      challengeList.add(edgeBases.get("R_" + j));
-    }
-
-    challengeList.add(U.getCommitment());
-    challengeList.add(hatU);
-    challengeList.add(n_1);
-
-    return challengeList;
-  }
-
-  /**
-   * Verify challenge boolean.
-   *
-   * @return the boolean
-   */
-  public Boolean verifyChallenge() {
-    return hatc.equals(c);
-  }
-
-  private void populateBases(List<BigInteger> bases) {
-    bases.add(S);
-    bases.add(R_0);
-
-    for (BigInteger vertexBase : vertexBases.values()) {
-      bases.add(vertexBase);
-    }
-
-    for (BigInteger edgeBase : edgeBases.values()) {
-      bases.add(edgeBase);
+    for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
+      basesMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getBase());
     }
   }
 
-  private void populateExponents(List<BigInteger> exponents) {
-    exponents.add(hatvPrime);
-    exponents.add(hatm_0);
-    for (BigInteger vertexResponse : vertexResponses.values()) {
-      exponents.add(vertexResponse);
-    }
+  private void populateExponents(Map<URN, BigInteger> exponentsMap) {
+    exponentsMap.put(URN.createZkpgsURN("exponents.hatvPrime"), hatvPrime);
+//    exponentsMap.put(URN.createZkpgsURN("exponents.hatm_0"), hatm_0);
 
-    for (BigInteger edgeResponse : edgeResponses.values()) {
-      exponents.add(edgeResponse);
+    for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
+      exponentsMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getExponent());
     }
   }
 }

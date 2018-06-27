@@ -1,4 +1,4 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 /** */
-public class GSPossessionVerifier {}
+public class GSPossessionVerifier implements IVerifier{}

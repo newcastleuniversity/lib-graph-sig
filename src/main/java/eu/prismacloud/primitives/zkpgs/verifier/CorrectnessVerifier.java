@@ -1,31 +1,40 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** */
-public class CorrectnessVerifier {
+public class CorrectnessVerifier implements IVerifier {
 
-  private final BigInteger e;
+  private BigInteger e;
   private final BigInteger hatd;
-  private final BigInteger n_2;
-  private final BigInteger v;
+  private BigInteger n_2;
+  private Map<URN, BaseRepresentation> encodedBases;
+  private BigInteger v;
+  private ProofSignature P_2;
+  private ExtendedPublicKey extendedPublicKey;
   private final BigInteger cPrime;
   private final BigInteger Z;
-  private final BigInteger A;
+  private BigInteger A;
   private final BigInteger S;
   private final BigInteger R_0;
   private final BigInteger m_0;
-  private final BigInteger N;
+  private final BigInteger modN;
   private final Map<URN, BaseRepresentation> encodedVertices;
   private final Map<URN, BaseRepresentation> encodedEdges;
-  private final KeyGenParameters keyGenParameters;
+  private KeyGenParameters keyGenParameters;
   private BigInteger Q;
   private BigInteger R_i;
   private BigInteger R_i_j;
@@ -33,6 +42,7 @@ public class CorrectnessVerifier {
   private BigInteger hatA;
   private BigInteger hatc;
   private List<BigInteger> challengeList;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public CorrectnessVerifier(
       BigInteger e,
@@ -44,7 +54,7 @@ public class CorrectnessVerifier {
       BigInteger S,
       BigInteger R_0,
       BigInteger m_0,
-      BigInteger N,
+      BigInteger modN,
       Map<URN, BaseRepresentation> encodedVertices,
       Map<URN, BaseRepresentation> encodedEdges,
       BigInteger n_2,
@@ -60,7 +70,7 @@ public class CorrectnessVerifier {
     this.S = S;
     this.R_0 = R_0;
     this.m_0 = m_0;
-    this.N = N;
+    this.modN = modN;
     this.encodedVertices = encodedVertices;
     this.encodedEdges = encodedEdges;
     this.n_2 = n_2;
@@ -82,28 +92,64 @@ public class CorrectnessVerifier {
 
   public void computeQ() {
     for (BaseRepresentation encodedVertex : encodedVertices.values()) {
-      R_i = R_i.multiply(encodedVertex.getBase().modPow(encodedVertex.getExponent(), N).getValue());
+      R_i =
+          R_i.multiply(
+              encodedVertex.getBase().modPow(encodedVertex.getExponent(), modN).getValue());
     }
 
     for (BaseRepresentation encodedEdge : encodedEdges.values()) {
-      R_i_j = R_i_j.multiply(encodedEdge.getBase().modPow(encodedEdge.getExponent(), N).getValue());
+      R_i_j =
+          R_i_j.multiply(encodedEdge.getBase().modPow(encodedEdge.getExponent(), modN).getValue());
     }
 
     BigInteger invertible =
-        S.modPow(v, N).multiply(R_0.modPow(m_0, N)).multiply(R_i).multiply(R_i_j).mod(N);
-    Q = Z.multiply(invertible.modInverse(N)).mod(N);
+        S.modPow(v, modN).multiply(R_0.modPow(m_0, modN)).multiply(R_i).multiply(R_i_j).mod(modN);
+    Q = Z.multiply(invertible.modInverse(modN)).mod(modN);
   }
 
-  public void computehatQ() {
-    hatQ = A.modPow(e, N);
+  public void computehatQ() throws VerificationException {
+    hatQ = A.modPow(e, modN);
 
     if (!hatQ.equals(Q)) {
-      throw new IllegalArgumentException("Q is not correct");
+      throw new VerificationException("Q is not correct");
     }
   }
 
+  public void preChallengePhase(
+      final BigInteger e,
+      final BigInteger v,
+      final ProofSignature P_2,
+      final BigInteger A,
+      final ExtendedPublicKey extendedPublicKey,
+      final BigInteger n_2,
+      final Map<URN, BaseRepresentation> encodedBases,
+      final KeyGenParameters keyGenParameters)
+      throws VerificationException {
+    this.e = e;
+    this.v = v;
+    this.P_2 = P_2;
+    this.A = A;
+    this.extendedPublicKey = extendedPublicKey;
+    this.n_2 = n_2;
+    this.encodedBases = encodedBases;
+    this.keyGenParameters = keyGenParameters;
+
+    checkE(this.e);
+    verifySignature();
+    verifyP2();
+  }
+
+  private void verifyP2() {
+    hatA = A.modPow(cPrime.add(hatd.multiply(e)), modN);
+  }
+
   public void verifySignature() {
-    hatA = A.modPow(cPrime.add(hatd.multiply(e)), N);
+    computeQ();
+    try {
+      computehatQ();
+    } catch (VerificationException ve) {
+      gslog.log(Level.SEVERE, ve.getMessage());
+    }
   }
 
   public void computeChallenge() {

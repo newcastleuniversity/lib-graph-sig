@@ -12,8 +12,8 @@ import java.util.Map;
 /** Class represents the verification stage for the group setup. */
 public class GroupSetupVerifier implements IVerifier {
 
-  private final ProofSignature proofSignature;
-  private final KeyGenParameters keyGenParameters;
+  private ProofSignature proofSignature;
+  private KeyGenParameters keyGenParameters;
   private int bitLength;
   private BigInteger hatZ;
   private BigInteger hatR;
@@ -25,35 +25,39 @@ public class GroupSetupVerifier implements IVerifier {
   private Map<String, BigInteger> vertexResponses;
   private Map<String, BigInteger> edgeResponses;
   private List<BigInteger> challengeList = new ArrayList<>();
-  private final BigInteger Z;
-  private final BigInteger c;
-  private final BigInteger S;
-  private final BigInteger hatr_z;
-  private final BigInteger N;
-  private final BigInteger R;
-  private final BigInteger hatr;
-  private final BigInteger R_0;
-  private final BigInteger hatr_0;
+  private BigInteger Z;
+  private BigInteger c;
+  private BigInteger S;
+  private BigInteger hatr_z;
+  private BigInteger N;
+  private BigInteger R;
+  private BigInteger hatr;
+  private BigInteger R_0;
+  private BigInteger hatr_0;
   private BigInteger hatc;
 
-  public GroupSetupVerifier(ProofSignature proofSignature, KeyGenParameters keyGenParameters) {
+//  public GroupSetupVerifier(ProofSignature proofSignature, KeyGenParameters keyGenParameters) {
+//
+//    this.proofSignature = proofSignature;
+//    this.keyGenParameters = keyGenParameters;
+//    this.Z = proofSignature.getZ();
+//    this.c = proofSignature.getC();
+//    this.S = proofSignature.getS();
+//    this.hatr_z = proofSignature.getHatr_Z();
+//    this.N = proofSignature.getN();
+//    this.R = proofSignature.getR();
+//    this.hatr = proofSignature.getHatr();
+//    this.R_0 = proofSignature.getR_0();
+//    this.hatr_0 = proofSignature.getHatr_0();
+//    this.vertexBases = proofSignature.getVertexBases();
+//    this.edgeBases = proofSignature.getEdgeBases();
+//  }
 
-    this.proofSignature = proofSignature;
-    this.keyGenParameters = keyGenParameters;
-    this.Z = proofSignature.getZ();
-    this.c = proofSignature.getC();
-    this.S = proofSignature.getS();
-    this.hatr_z = proofSignature.getHatr_Z();
-    this.N = proofSignature.getN();
-    this.R = proofSignature.getR();
-    this.hatr = proofSignature.getHatr();
-    this.R_0 = proofSignature.getR_0();
-    this.hatr_0 = proofSignature.getHatr_0();
-    this.vertexBases = proofSignature.getVertexBases();
-    this.edgeBases = proofSignature.getEdgeBases();
-  }
+//  public GroupSetupVerifier() {
+//
+//  }
 
-  @Override
+//  @Override
   public void checkLengths() {
     bitLength = computeBitLength();
     Assert.checkBitLength(
@@ -87,7 +91,7 @@ public class GroupSetupVerifier implements IVerifier {
         + 1;
   }
 
-  @Override
+//  @Override
   public void computeHatValues() {
     BigInteger vertexBase;
     BigInteger edgeBase;
@@ -121,7 +125,7 @@ public class GroupSetupVerifier implements IVerifier {
     }
   }
 
-  @Override
+//  @Override
   public void computeVerificationChallenge() {
     challengeList = populateChallengeList();
     hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
@@ -157,7 +161,7 @@ public class GroupSetupVerifier implements IVerifier {
     return challengeList;
   }
 
-  @Override
+//  @Override
   public void verifyChallenge() {
     if (!hatc.equals(c)) {
       throw new IllegalArgumentException("Challenge is rejected ");

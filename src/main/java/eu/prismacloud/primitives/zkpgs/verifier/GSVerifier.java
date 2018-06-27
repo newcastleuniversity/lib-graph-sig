@@ -35,7 +35,7 @@ public class GSVerifier implements IProver, Storable {
   public void computeWitness() {}
 
   @Override
-  public void computeChallenge() {}
+  public BigInteger computeChallenge() {}
 
   @Override
   public void computeResponses() {}
