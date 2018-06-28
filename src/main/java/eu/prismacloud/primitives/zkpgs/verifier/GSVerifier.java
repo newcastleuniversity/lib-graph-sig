@@ -22,8 +22,6 @@ public class GSVerifier implements IProver, Storable {
     this.keyGenParameters = keyGenParameters;
   }
 
-
-
   public Map<URN, BigInteger> getBarV() {
     return barV;
   }
@@ -35,7 +33,9 @@ public class GSVerifier implements IProver, Storable {
   public void computeWitness() {}
 
   @Override
-  public BigInteger computeChallenge() {}
+  public BigInteger computeChallenge() {
+    return BigInteger.ONE;
+  }
 
   @Override
   public void computeResponses() {}

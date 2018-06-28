@@ -42,7 +42,6 @@ public class GSSignature {
       Map<URN, BaseRepresentation> encodedBases,
       KeyGenParameters keyGenParameters) {
 
-    this.extendedKeyPair = extendedKeyPair;
     this.U = U;
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;

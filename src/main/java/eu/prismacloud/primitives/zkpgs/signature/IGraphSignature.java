@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.topocert.IGraph;
 import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import java.math.BigInteger;
 
