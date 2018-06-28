@@ -1,8 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 /** Element of Quadratic Residue Group. */
 public class QRElement extends GroupElement {
@@ -45,6 +47,10 @@ public class QRElement extends GroupElement {
     return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
   }
 
+  public BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents) {
+    return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
+  }
+
   @Override
   public QRElement multiply(BigInteger val) {
     return new QRElement(value.multiply(val));
@@ -84,7 +90,7 @@ public class QRElement extends GroupElement {
 
   @Override
   public QRElementPQ modPow(BigInteger exponent, BigInteger modN) {
-    return  new QRElementPQ(value.modPow(exponent, modN));
+    return new QRElementPQ(value.modPow(exponent, modN));
   }
 
   public BigInteger modInverse(BigInteger m) {
