@@ -39,6 +39,8 @@ public interface INumberUtils {
 
   BigInteger generateRandomPrime(int bitLength);
 
+  BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN);
+
   BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN);
 
   BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength);

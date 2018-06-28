@@ -120,6 +120,12 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
+  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents,
+      BigInteger modN) {
+    throw new RuntimeException("not implemented in idemix library");
+  }
+
+  @Override
   public BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
     throw new RuntimeException("not currently used from idemix library");
   }

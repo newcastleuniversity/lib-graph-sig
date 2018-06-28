@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -53,6 +55,21 @@ public class GSUtils implements INumberUtils {
     return number.subtract(max);
   }
 
+  public BigInteger multiBaseExp(
+      List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
+
+    Assert.notNull(bases, "bases must not be null");
+    Assert.notNull(exponents, "exponents must not be null");
+    Assert.notNull(modN, "modulus N must not be null");
+    Assert.checkSize(bases.size(), exponents.size(), "bases and exponents must have the same size");
+
+    BigInteger result = BigInteger.ONE;
+    for (int i = 0; i < bases.size(); i++) {
+      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN)).mod(modN);
+    }
+    return result;
+  }
+
   @Override
   public BigInteger multiBaseExp(
       Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
@@ -62,9 +79,14 @@ public class GSUtils implements INumberUtils {
     Assert.notNull(modN, "modulus N must not be null");
     Assert.checkSize(bases.size(), exponents.size(), "bases and exponents must have the same size");
 
+    List<GroupElement> basesList = (List<GroupElement>) bases.values();
+    List<BigInteger> exponentList = (List<BigInteger>) exponents.values();
+
     BigInteger result = BigInteger.ONE;
+
     for (int i = 0; i < bases.size(); i++) {
-      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN).getValue()).mod(modN);
+      result =
+          result.multiply(basesList.get(i).modPow(exponentList.get(i), modN).getValue()).mod(modN);
     }
     return result;
   }
@@ -452,7 +474,7 @@ public class GSUtils implements INumberUtils {
     messageDigest = MessageDigest.getInstance("SHA-" + hashLength);
     messageDigest.reset();
     for (String element : list) {
-      messageDigest.update(element.getBytes());
+      messageDigest.update(element.getBytes(UTF_8));
     }
 
     //    String hashString = String.format("%040x", new BigInteger(1, messageDigest.digest()));

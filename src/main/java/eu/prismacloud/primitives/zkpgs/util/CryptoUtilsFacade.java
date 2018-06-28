@@ -31,6 +31,11 @@ public class CryptoUtilsFacade {
   public CryptoUtilsFacade() {}
 
   public static BigInteger computeMultiBaseEx(
+      List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
+    return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, modN);
+  }
+
+  public static BigInteger computeMultiBaseEx(
       Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
     return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, modN);
   }
