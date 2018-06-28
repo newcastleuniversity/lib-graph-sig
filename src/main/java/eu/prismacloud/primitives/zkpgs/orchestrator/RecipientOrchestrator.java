@@ -30,6 +30,7 @@ import eu.prismacloud.primitives.zkpgs.verifier.CorrectnessVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,11 @@ public class RecipientOrchestrator {
 
     tildeU = commitmentProver.getWitness();
 
-    computeChallenge();
+    try {
+      computeChallenge();
+    } catch (NoSuchAlgorithmException ns) {
+      ns.getMessage();
+    }
 
     responses = commitmentProver.postChallengePhase(cChallenge);
 
@@ -141,7 +146,7 @@ public class RecipientOrchestrator {
     /** TODO store context and randomness vPrime */
   }
 
-  public void computeChallenge() {
+  public void computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
@@ -235,9 +240,14 @@ public class RecipientOrchestrator {
           extendedPublicKey,
           n_2,
           encodedBases,
-          keyGenParameters);
+          keyGenParameters,
+        graphEncodingParameters);
 
-    correctnessVerifier.computeChallenge();
+    try {
+      correctnessVerifier.computeChallenge();
+    } catch (NoSuchAlgorithmException ns) {
+      ns.getMessage();
+    }
 
     if (!correctnessVerifier.verifyChallenge()) {
       throw new VerificationException("challenge cannot be verified");

@@ -218,7 +218,7 @@ public class ProverOrchestrator implements ProofOperation {
 
       differenceProver.createWitnessRandomness();
       differenceProver.computeWitness();
-      tildeR_BariBarj = differenceProver.getTildeR_BariBarj();
+      tildeR_BariBarj = differenceProver.getBasetildeR_BariBarj();
 
       /** TODO store witness randomness tildea_BariBarj, tilbeb_BariBarj, tilder_BariBarj */
       pairWiseWitnesses.put(
