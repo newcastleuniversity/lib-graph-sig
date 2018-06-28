@@ -7,10 +7,11 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /** */
-public class CorrectnessProver { //implements IProver {
+public class CorrectnessProver implements IProver {
 
   private BigInteger n_2;
   private ProofStore<Object> proofStore;
@@ -19,7 +20,7 @@ public class CorrectnessProver { //implements IProver {
   private KeyGenParameters keyGenParameters;
   private BigInteger tilded;
   private BigInteger tildeA;
-  private List<BigInteger> challengeList;
+  private List<String> challengeList;
   private BigInteger cPrime;
   private BigInteger hatd;
   private GSSignature gsSignature;
@@ -55,18 +56,30 @@ public class CorrectnessProver { //implements IProver {
     return tildeA;
   }
 
-  public BigInteger computeChallenge() {
+  @Override
+  public void createWitnessRandomness() {
+    
+  }
+
+  @Override
+  public void computeWitness() {
+
+  }
+
+  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     cPrime = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
     return cPrime;
   }
 
-  private List<BigInteger> populateChallengeList() {
+  private List<String> populateChallengeList() {
+
+
     // TODO add context list
-    challengeList.add(Q);
-    challengeList.add(A);
-    challengeList.add(tildeA);
-    challengeList.add(n_2);
+    challengeList.add(String.valueOf(Q));
+    challengeList.add(String.valueOf(A));
+    challengeList.add(String.valueOf(tildeA));
+    challengeList.add(String.valueOf(n_2));
     return challengeList;
   }
 

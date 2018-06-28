@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -13,6 +14,7 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,8 +33,8 @@ public class GroupSetupProver implements IProver, Storable {
   private BigInteger tilder;
   private BigInteger tilder_0;
   private BigInteger tildeZ;
-  private BigInteger tildeR;
-  private BigInteger tildeR_0;
+  private BigInteger basetildeR;
+  private BigInteger basetildeR_0;
   private BigInteger hatr_Z;
   private BigInteger hatr;
   private BigInteger hatr_0;
@@ -47,7 +49,7 @@ public class GroupSetupProver implements IProver, Storable {
   private BigInteger cChallenge;
   private GroupElement baseR;
   private GroupElement baseR_0;
-  private List<BigInteger> challengeList = new ArrayList<BigInteger>();
+  private List<String> challengeList = new ArrayList<String>();
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
   private Map<String, BigInteger> vertexWitnessRandomNumbers;
@@ -56,8 +58,9 @@ public class GroupSetupProver implements IProver, Storable {
   private Map<String, BigInteger> edgeWitnessBases;
   private Map<String, BigInteger> vertexResponses;
   private Map<String, BigInteger> edgeResponses;
-  private Map<URN, BaseRepresentation> bases;
+  private Map<URN, BaseRepresentation> baseRepresentationMap;
   private Map<String, BigInteger> edgeBases;
+  private List<String> contextList;
 
   public GroupSetupProver(
       final GroupElement baseS,
@@ -106,8 +109,8 @@ public class GroupSetupProver implements IProver, Storable {
   @Override
   public void computeWitness() {
     tildeZ = baseS.modPow(tilder_Z, modN).getValue();
-    tildeR = baseS.modPow(tilder, modN).getValue();
-    tildeR_0 = baseS.modPow(tildeR_0, modN).getValue();
+    basetildeR = baseS.modPow(tilder, modN).getValue();
+    basetildeR_0 = baseS.modPow(basetildeR_0, modN).getValue();
     BigInteger vWitnessBase;
     BigInteger eWitnessBase;
     BigInteger vWitnessRandomNumber;
@@ -127,9 +130,10 @@ public class GroupSetupProver implements IProver, Storable {
   }
 
   @Override
-  public BigInteger computeChallenge() {
+  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    return cChallenge;
   }
 
   @Override
@@ -153,7 +157,7 @@ public class GroupSetupProver implements IProver, Storable {
     for (int i = 1; i <= graphEncodingParameters.getL_V(); i++) {
       r_i =
           extendedKeyPair
-              .getPublicKey()
+              .getExtendedPublicKey()
               .getBases()
               .get(URN.createZkpgsURN("r_" + i))
               .getExponent();
@@ -165,7 +169,7 @@ public class GroupSetupProver implements IProver, Storable {
     for (int j = 1; j <= graphEncodingParameters.getL_E(); j++) {
       r_j =
           extendedKeyPair
-              .getPublicKey()
+              .getExtendedPublicKey()
               .getBases()
               .get(URN.createZkpgsURN("r_" + j))
               .getExponent();
@@ -179,33 +183,35 @@ public class GroupSetupProver implements IProver, Storable {
     return keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
   }
 
-  private List<BigInteger> populateChallengeList() {
+  private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
+    contextList = GSContext.computeChallengeContext(extendedKeyPair.getExtendedPublicKey(), keyGenParameters , graphEncodingParameters );
+
     baseR = extendedKeyPair.getPublicKey().getBaseR();
     baseR_0 = extendedKeyPair.getPublicKey().getBaseR_0();
-    bases = extendedKeyPair.getPublicKey().getBases();
+    baseRepresentationMap = extendedKeyPair.getExtendedPublicKey().getBases();
 
-    challengeList.add(modN);
-    challengeList.add(baseS.getValue());
-    challengeList.add(baseZ.getValue());
-    challengeList.add(baseR.getValue());
-    challengeList.add(baseR_0.getValue());
+    challengeList.add(String.valueOf(modN));
+    challengeList.add(String.valueOf(baseS.getValue()));
+    challengeList.add(String.valueOf(baseZ.getValue()));
+    challengeList.add(String.valueOf(baseR.getValue()));
+    challengeList.add(String.valueOf(baseR_0.getValue()));
 
-    for (BaseRepresentation baseRepresentation : bases.values()) {
-      challengeList.add(baseRepresentation.getBase().getValue());
+    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
+      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
     }
 
-    challengeList.add(tildeZ);
-    challengeList.add(tildeR);
-    challengeList.add(tildeR_0);
+    challengeList.add(String.valueOf(tildeZ));
+    challengeList.add(String.valueOf(basetildeR));
+    challengeList.add(String.valueOf(basetildeR_0));
 
-    /** TODO use URNs for keys in witnesses bases */
+    /** TODO use URNs for keys in witnesses baseRepresentationMap */
     for (int i = 1; i <= vertexWitnessBases.size(); i++) {
-      challengeList.add(vertexWitnessBases.get("tildeR_" + i));
+      challengeList.add(String.valueOf(vertexWitnessBases.get("tildeR_" + i)));
     }
 
     for (int j = 1; j <= edgeWitnessBases.size(); j++) {
-      challengeList.add(edgeWitnessBases.get("tildeR_" + j));
+      challengeList.add(String.valueOf(edgeWitnessBases.get("tildeR_" + j)));
     }
     return challengeList;
   }
@@ -219,7 +225,7 @@ public class GroupSetupProver implements IProver, Storable {
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.baseZ"), this.baseZ);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.baseR"), this.baseR);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.baseR_0"), this.baseR_0);
-    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.R_i"), this.bases);
+    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.R_i"), this.baseRepresentationMap);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.R_i_j"), this.edgeBases);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr_Z"), this.hatr_Z);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr"), this.hatr);

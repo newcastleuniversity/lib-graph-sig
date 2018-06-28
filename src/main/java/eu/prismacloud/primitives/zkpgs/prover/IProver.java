@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 
 public interface IProver {
   /**
@@ -11,7 +12,7 @@ public interface IProver {
 
   void computeWitness();
 
-  BigInteger computeChallenge();
+  BigInteger computeChallenge() throws NoSuchAlgorithmException;
 
   void computeResponses();
 }

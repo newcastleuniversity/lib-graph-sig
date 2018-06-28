@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GSPossessionProver { //implements IProver, Storable {
+public class GSPossessionProver implements IProver {
 
   private GSSignature blindedSignature;
   private ExtendedPublicKey extendedPublicKey;
@@ -196,6 +196,11 @@ public class GSPossessionProver { //implements IProver, Storable {
     tildeZ =
         CryptoUtilsFacade.computeMultiBaseEx(
             bases, exponents, extendedPublicKey.getPublicKey().getModN());
+  }
+
+  @Override
+  public BigInteger computeChallenge() {
+    return null;
   }
 
 //  @Override

@@ -15,19 +15,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** The type Pair wise difference prover. */
-public class PairWiseDifferenceProver implements IProver, Storable {
+public class PairWiseDifferenceProver implements IProver {
 
-  private final BigInteger m_Bari;
-  private final BigInteger m_Barj;
-  private final BigInteger r_Bari;
-  private final BigInteger r_Barj;
-  private final KeyGenParameters keyGenParameters;
-  private final GSCommitment C_j;
-  private final GSCommitment C_i;
-  private final BigInteger S;
-  private final BigInteger N;
-  private final ProofStore<Object> proverStore;
-  private final int index;
+  private BigInteger m_Bari;
+  private BigInteger m_Barj;
+  private BigInteger r_Bari;
+  private BigInteger r_Barj;
+  private KeyGenParameters keyGenParameters;
+  private GSCommitment C_j;
+  private GSCommitment C_i;
+  private BigInteger S;
+  private BigInteger modN;
+  private ProofStore<Object> proverStore;
+  private int index;
   private BigInteger a_BariBarj;
   private BigInteger b_BariBarj;
   private BigInteger d_BariBarj;
@@ -38,7 +38,7 @@ public class PairWiseDifferenceProver implements IProver, Storable {
   private BigInteger hata_BariBarj;
   private BigInteger hatb_BariBarj;
   private BigInteger hatr_BariBarj;
-  private BigInteger tildeR_BariBarj;
+  private BigInteger basetildeR_BariBarj;
   private BigInteger c;
   private String a_BariBarjURN;
   private String b_BariBarjURN;
@@ -48,7 +48,7 @@ public class PairWiseDifferenceProver implements IProver, Storable {
   private String tilder_BariBarjURN;
 
   Logger gslog = GSLoggerConfiguration.getGSlog();
-  private String tildeR_BariBarjURN;
+  private String basetildeR_BariBarjURN;
 
   /**
    * Instantiates a new Pair wise difference prover.
@@ -65,7 +65,7 @@ public class PairWiseDifferenceProver implements IProver, Storable {
       GSCommitment C_i,
       GSCommitment C_j,
       BigInteger S,
-      BigInteger N,
+      BigInteger modN,
       int index,
       ProofStore<Object> proverStore,
       KeyGenParameters keyGenParameters) {
@@ -83,19 +83,17 @@ public class PairWiseDifferenceProver implements IProver, Storable {
     this.C_i = C_i;
     this.C_j = C_j;
     this.S = S;
-    this.N = N;
-    this.m_Bari = C_i.getExponents();
+    this.modN = modN;
+    this.m_Bari = C_i.getExponents().get(URN.createZkpgsURN("commitment.C_i"));
     this.r_Bari = C_i.getRandomness();
-    this.m_Barj = C_j.getExponents();
+    this.m_Barj = C_j.getExponents().get(URN.createZkpgsURN("commitment.C_j"));
     this.r_Barj = C_i.getRandomness();
     this.index = index;
     this.proverStore = proverStore;
     this.keyGenParameters = keyGenParameters;
   }
 
-  public PairWiseDifferenceProver() {
-
-  }
+  public PairWiseDifferenceProver() {}
 
   /** Precomputation. @throws Exception the exception */
   public void precomputation() throws Exception {
@@ -172,27 +170,9 @@ public class PairWiseDifferenceProver implements IProver, Storable {
    *
    * @return the tilder bari barj
    */
-  public BigInteger getTilder_BariBarj() {
-    return this.tilder_BariBarj;
-  }
-
-  /**
-   * Gets m bari.
-   *
-   * @return the m bari
-   */
-  public BigInteger getM_Bari() {
-    return this.m_Bari;
-  }
-
-  /**
-   * Gets m barj.
-   *
-   * @return the m barj
-   */
-  public BigInteger getM_Barj() {
-    return this.m_Barj;
-  }
+//  public BigInteger getTilder_BariBarj() {
+//    return this.tilder_BariBarj;
+//  }
 
   /** Compute eea. */
   public void computeEEA() {
@@ -268,24 +248,27 @@ public class PairWiseDifferenceProver implements IProver, Storable {
   public void computeWitness() {
     BigInteger C_Bari = C_i.getCommitmentValue();
     BigInteger C_Barj = C_j.getCommitmentValue();
-    tildeR_BariBarj =
-        C_Bari.modPow(tildea_BariBarj, N)
-            .multiply(C_Bari.modPow(tildeb_BariBarj, N).multiply(S.modPow(tilder_BariBarj, N)));
+    basetildeR_BariBarj =
+        C_Bari.modPow(tildea_BariBarj, modN)
+            .multiply(
+                C_Bari.modPow(tildeb_BariBarj, modN).multiply(S.modPow(tilder_BariBarj, modN)));
 
     storeWitness();
   }
 
   private void storeWitness() {
-    tildeR_BariBarjURN = "pairwiseprover.tildeR_BariBarj" + index;
+    basetildeR_BariBarjURN = "pairwiseprover.basetildeR_BariBarj" + index;
     try {
-      proverStore.store(tildea_BariBarjURN, tildeR_BariBarj);
+      proverStore.store(tildea_BariBarjURN, basetildeR_BariBarj);
     } catch (Exception e) {
       gslog.log(Level.SEVERE, e.getMessage());
     }
   }
 
   @Override
-  public BigInteger computeChallenge() {}
+  public BigInteger computeChallenge() {
+    return BigInteger.ONE;
+  }
 
   /**
    * Sets challenge.
@@ -347,20 +330,12 @@ public class PairWiseDifferenceProver implements IProver, Storable {
     return this.hatr_BariBarj;
   }
 
-  @Override
-  public void store(URN urn, ProofObject proofObject) {}
-
-  @Override
-  public ProofObject retrieve(URN urn) {
-    return null;
-  }
-
   /**
    * Gets tilde r bari barj.
    *
    * @return the tilde r bari barj
    */
-  public BigInteger getTildeR_BariBarj() {
-    return tildeR_BariBarj;
+  public BigInteger getBasetildeR_BariBarj() {
+    return basetildeR_BariBarj;
   }
 }

@@ -2,7 +2,9 @@ package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
+import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofObject;
 import eu.prismacloud.primitives.zkpgs.store.Storable;
@@ -10,6 +12,7 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +27,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   private GroupElement R_0;
   private BigInteger nonce;
   private KeyGenParameters keyGenParameters;
+  private final GraphEncodingParameters graphEncodingParameters;
   private ExtendedPublicKey extendedPublicKey;
   private BigInteger tildevPrime;
   private BigInteger tildem_0;
@@ -31,7 +35,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   private BigInteger tildem_i_j;
   private Map<URN, BaseRepresentation> edgesPrime;
   private Map<URN, BaseRepresentation> verticesPrime;
-  private List<BigInteger> challengeList = new ArrayList<BigInteger>();
+  private List<String> challengeList = new ArrayList<String>();
   private Map<URN, BaseRepresentation> encodedBases;
   private Map<String, BigInteger> edgeBases;
   private BigInteger tildeU;
@@ -44,6 +48,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   private BigInteger hatm_0;
   private BigInteger hatm_i;
   private BigInteger hatm_i_j;
+  private List<String> contextList;
 
   /**
    * Instantiates a new Commitment prover.
@@ -62,6 +67,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
       BigInteger m_0,
       BigInteger nonce,
       KeyGenParameters keyGenParameters,
+      GraphEncodingParameters graphEncodingParameters,
       ExtendedPublicKey extendedPublicKey) {
 
     this.commitment = commitment;
@@ -70,6 +76,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
     this.m_0 = m_0;
     this.nonce = nonce;
     this.keyGenParameters = keyGenParameters;
+    this.graphEncodingParameters = graphEncodingParameters;
     this.extendedPublicKey = extendedPublicKey;
   }
 
@@ -143,36 +150,38 @@ public class IssuingCommitmentProver implements IProver, Storable {
   }
 
   @Override
-  public BigInteger computeChallenge() {
+  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    return cChallenge;
   }
 
-  private List<BigInteger> populateChallengeList() {
+  private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
     //    R = extendedPublicKey.getPublicKey().getBasesR();
     //    R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
-
+    contextList = GSContext.computeChallengeContext(extendedPublicKey,keyGenParameters ,graphEncodingParameters );
     encodedBases = extendedPublicKey.getBases();
 
-    challengeList.add(extendedPublicKey.getPublicKey().getModN());
-    challengeList.add(extendedPublicKey.getPublicKey().getBaseS().getValue());
-    challengeList.add(extendedPublicKey.getPublicKey().getBaseZ().getValue());
+    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getModN()));
+    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseS().getValue()));
+    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
     //    challengeList.add(R);
-    challengeList.add(R_0.getValue());
+    challengeList.add(String.valueOf(R_0.getValue()));
 
     /** TODO check bases */
     for (int i = 1; i <= encodedBases.size(); i++) {
-      challengeList.add(encodedBases.get(URN.createZkpgsURN("R_" + i)).getBase().getValue());
+      challengeList.add(
+          String.valueOf(encodedBases.get(URN.createZkpgsURN("R_" + i)).getBase().getValue()));
     }
     /** TODO fix edge bases. use the bases map for edge bases */
     for (int j = 1; j <= edgeBases.size(); j++) {
-      challengeList.add(edgeBases.get("R_" + j));
+      challengeList.add(String.valueOf(edgeBases.get("R_" + j)));
     }
 
-    challengeList.add(commitment.getCommitment());
-    challengeList.add(tildeU);
-    challengeList.add(nonce);
+    challengeList.add(String.valueOf(commitment.getCommitment()));
+    challengeList.add(String.valueOf(tildeU));
+    challengeList.add(String.valueOf(nonce));
 
     return challengeList;
   }

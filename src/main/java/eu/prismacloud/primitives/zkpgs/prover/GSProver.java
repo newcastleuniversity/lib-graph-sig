@@ -51,7 +51,9 @@ public class GSProver implements IProver, Storable {
   public void computeWitness() {}
 
   @Override
-  public BigInteger computeChallenge() {}
+  public BigInteger computeChallenge() {
+    return BigInteger.ONE;
+  }
 
   @Override
   public void computeResponses() {}

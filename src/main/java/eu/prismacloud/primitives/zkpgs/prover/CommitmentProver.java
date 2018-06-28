@@ -246,7 +246,10 @@ public class CommitmentProver implements IProver {
   }
 
   @Override
-  public BigInteger computeChallenge() {}
+  public BigInteger computeChallenge() {
+
+    return BigInteger.ZERO;
+  }
 
   @Override
   public void computeResponses() {}
