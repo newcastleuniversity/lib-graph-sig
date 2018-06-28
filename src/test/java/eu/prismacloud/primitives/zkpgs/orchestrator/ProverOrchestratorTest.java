@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.orchestrator;
+package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

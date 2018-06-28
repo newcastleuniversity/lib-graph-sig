@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.store;
+package eu.prismacloud.primitives.zkpgs.store;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs;
+package eu.prismacloud.primitives.zkpgs;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

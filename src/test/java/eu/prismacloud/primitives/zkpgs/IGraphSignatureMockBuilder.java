@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs;
+package eu.prismacloud.primitives.zkpgs;
 
 import eu.prismacloud.primitives.zkpgs.signature.IGraphSignature;
 

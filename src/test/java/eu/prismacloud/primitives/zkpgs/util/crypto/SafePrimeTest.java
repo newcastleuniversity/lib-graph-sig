@@ -1,10 +1,9 @@
-package eu.prismacloud.primitives.grs.util.crypto;
+package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
