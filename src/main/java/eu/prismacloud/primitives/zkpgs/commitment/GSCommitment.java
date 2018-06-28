@@ -7,14 +7,19 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.Map;
 
-public class GSCommitment { // implements ICommitment {
+public class GSCommitment {
+
+  private BigInteger m_i;
+  private BigInteger r_i1;
+  private BigInteger s;
+  private BigInteger R_i;
 
   private BigInteger commitmentValue;
-  private final Map<URN, GroupElement> basesR;
-  private final Map<URN, BigInteger> exponents;
-  private final BigInteger randomness;
-  private final GroupElement baseS;
-  private final BigInteger modN;
+  private Map<URN, GroupElement> basesR;
+  private Map<URN, BigInteger> exponents;
+  private BigInteger randomness;
+  private GroupElement baseS;
+  private BigInteger modN;
 
   public GSCommitment(
       Map<URN, GroupElement> basesR,
@@ -36,6 +41,15 @@ public class GSCommitment { // implements ICommitment {
     this.exponents = exponents;
     this.randomness = randomness;
     this.baseS = baseS;
+    this.modN = modN;
+  }
+
+  public GSCommitment(BigInteger R_i, BigInteger m_i, BigInteger r_i1, BigInteger S, BigInteger modN) {
+
+    this.R_i = R_i;
+    this.m_i = m_i;
+    this.r_i1 = r_i1;
+    s = S;
     this.modN = modN;
   }
 
@@ -96,11 +110,11 @@ public class GSCommitment { // implements ICommitment {
   @Override
   public int hashCode() {
     int result = this.getCommitmentValue().hashCode();
-    result = 31 * result + this.getBasesR().hashCode();
-    result = 31 * result + this.getExponents().hashCode();
-    result = 31 * result + this.getRandomness().hashCode();
-    result = 31 * result + this.baseS.hashCode();
-    result = 31 * result + this.modN.hashCode();
+    result = (31 * result) + this.getBasesR().hashCode();
+    result = (31 * result) + this.getExponents().hashCode();
+    result = (31 * result) + this.getRandomness().hashCode();
+    result = (31 * result) + this.baseS.hashCode();
+    result = (31 * result) + this.modN.hashCode();
     return result;
   }
 
