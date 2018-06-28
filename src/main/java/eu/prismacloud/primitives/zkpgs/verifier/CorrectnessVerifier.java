@@ -1,8 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -10,6 +12,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -19,63 +22,65 @@ import java.util.logging.Logger;
 public class CorrectnessVerifier implements IVerifier {
 
   private BigInteger e;
-  private final BigInteger hatd;
+  private BigInteger hatd;
   private BigInteger n_2;
   private Map<URN, BaseRepresentation> encodedBases;
   private BigInteger v;
   private ProofSignature P_2;
   private ExtendedPublicKey extendedPublicKey;
-  private final BigInteger cPrime;
-  private final BigInteger Z;
+  private BigInteger cPrime;
+  private BigInteger Z;
   private BigInteger A;
-  private final BigInteger S;
-  private final BigInteger R_0;
-  private final BigInteger m_0;
-  private final BigInteger modN;
-  private final Map<URN, BaseRepresentation> encodedVertices;
-  private final Map<URN, BaseRepresentation> encodedEdges;
+  private BigInteger S;
+  private BigInteger R_0;
+  private BigInteger m_0;
+  private BigInteger modN;
+  private Map<URN, BaseRepresentation> encodedVertices;
+  private Map<URN, BaseRepresentation> encodedEdges;
   private KeyGenParameters keyGenParameters;
+  private GraphEncodingParameters graphEncodingParameters;
   private BigInteger Q;
   private BigInteger R_i;
   private BigInteger R_i_j;
   private BigInteger hatQ;
   private BigInteger hatA;
   private BigInteger hatc;
-  private List<BigInteger> challengeList;
+  private List<String> challengeList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private List<String> contextList;
 
-  public CorrectnessVerifier(
-      BigInteger e,
-      BigInteger v,
-      BigInteger cPrime,
-      BigInteger hatd,
-      BigInteger Z,
-      BigInteger A,
-      BigInteger S,
-      BigInteger R_0,
-      BigInteger m_0,
-      BigInteger modN,
-      Map<URN, BaseRepresentation> encodedVertices,
-      Map<URN, BaseRepresentation> encodedEdges,
-      BigInteger n_2,
-      KeyGenParameters keyGenParameters) {
-
-    checkE(e);
-    this.e = e;
-    this.v = v;
-    this.cPrime = cPrime;
-    this.hatd = hatd;
-    this.Z = Z;
-    this.A = A;
-    this.S = S;
-    this.R_0 = R_0;
-    this.m_0 = m_0;
-    this.modN = modN;
-    this.encodedVertices = encodedVertices;
-    this.encodedEdges = encodedEdges;
-    this.n_2 = n_2;
-    this.keyGenParameters = keyGenParameters;
-  }
+//  public CorrectnessVerifier(
+//      BigInteger e,
+//      BigInteger v,
+//      BigInteger cPrime,
+//      BigInteger hatd,
+//      BigInteger Z,
+//      BigInteger A,
+//      BigInteger S,
+//      BigInteger R_0,
+//      BigInteger m_0,
+//      BigInteger modN,
+//      Map<URN, BaseRepresentation> encodedVertices,
+//      Map<URN, BaseRepresentation> encodedEdges,
+//      BigInteger n_2,
+//      KeyGenParameters keyGenParameters) {
+//
+//    checkE(e);
+//    this.e = e;
+//    this.v = v;
+//    this.cPrime = cPrime;
+//    this.hatd = hatd;
+//    this.Z = Z;
+//    this.A = A;
+//    this.S = S;
+//    this.R_0 = R_0;
+//    this.m_0 = m_0;
+//    this.modN = modN;
+//    this.encodedVertices = encodedVertices;
+//    this.encodedEdges = encodedEdges;
+//    this.n_2 = n_2;
+//    this.keyGenParameters = keyGenParameters;
+//  }
 
   private void checkE(BigInteger e) {
     if (!e.isProbablePrime(80)) {
@@ -123,7 +128,8 @@ public class CorrectnessVerifier implements IVerifier {
       final ExtendedPublicKey extendedPublicKey,
       final BigInteger n_2,
       final Map<URN, BaseRepresentation> encodedBases,
-      final KeyGenParameters keyGenParameters)
+      final KeyGenParameters keyGenParameters,
+      final GraphEncodingParameters graphEncodingParameters)
       throws VerificationException {
     this.e = e;
     this.v = v;
@@ -133,6 +139,7 @@ public class CorrectnessVerifier implements IVerifier {
     this.n_2 = n_2;
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;
+    this.graphEncodingParameters = graphEncodingParameters;
 
     checkE(this.e);
     verifySignature();
@@ -152,7 +159,7 @@ public class CorrectnessVerifier implements IVerifier {
     }
   }
 
-  public void computeChallenge() {
+  public void computeChallenge() throws NoSuchAlgorithmException {
 
     challengeList = populateChallengeList();
     hatc = CryptoUtilsFacade.computeHash(populateChallengeList(), keyGenParameters.getL_H());
@@ -162,12 +169,13 @@ public class CorrectnessVerifier implements IVerifier {
     return hatc.equals(cPrime);
   }
 
-  public List<BigInteger> populateChallengeList() {
+  public List<String> populateChallengeList() {
     /** TODO add context in challenge list */
-    challengeList.add(Q);
-    challengeList.add(A);
-    challengeList.add(hatA);
-    challengeList.add(n_2);
+    contextList = GSContext.computeChallengeContext(extendedPublicKey, keyGenParameters , graphEncodingParameters );
+    challengeList.add(String.valueOf(Q));
+    challengeList.add(String.valueOf(A));
+    challengeList.add(String.valueOf(hatA));
+    challengeList.add(String.valueOf(n_2));
 
     return challengeList;
   }

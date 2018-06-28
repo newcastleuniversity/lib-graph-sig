@@ -1,10 +1,14 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +16,7 @@ import java.util.Map;
 /** Class represents the verification stage for the group setup. */
 public class GroupSetupVerifier implements IVerifier {
 
+  private ExtendedPublicKey extendedPublicKey;
   private ProofSignature proofSignature;
   private KeyGenParameters keyGenParameters;
   private int bitLength;
@@ -22,9 +27,10 @@ public class GroupSetupVerifier implements IVerifier {
   private Map<String, BigInteger> hatEdgeBases;
   private Map<String, BigInteger> vertexBases;
   private Map<String, BigInteger> edgeBases;
+  private GraphEncodingParameters graphEncodingParameters;
   private Map<String, BigInteger> vertexResponses;
   private Map<String, BigInteger> edgeResponses;
-  private List<BigInteger> challengeList = new ArrayList<>();
+  private List<String> challengeList = new ArrayList<>();
   private BigInteger Z;
   private BigInteger c;
   private BigInteger S;
@@ -35,27 +41,26 @@ public class GroupSetupVerifier implements IVerifier {
   private BigInteger R_0;
   private BigInteger hatr_0;
   private BigInteger hatc;
+  private List<String> contextList;
 
-//  public GroupSetupVerifier(ProofSignature proofSignature, KeyGenParameters keyGenParameters) {
-//
-//    this.proofSignature = proofSignature;
-//    this.keyGenParameters = keyGenParameters;
-//    this.Z = proofSignature.getZ();
-//    this.c = proofSignature.getC();
-//    this.S = proofSignature.getS();
-//    this.hatr_z = proofSignature.getHatr_Z();
-//    this.N = proofSignature.getN();
-//    this.R = proofSignature.getR();
-//    this.hatr = proofSignature.getHatr();
-//    this.R_0 = proofSignature.getR_0();
-//    this.hatr_0 = proofSignature.getHatr_0();
-//    this.vertexBases = proofSignature.getVertexBases();
-//    this.edgeBases = proofSignature.getEdgeBases();
-//  }
+  public void preChallengePhase(ExtendedPublicKey extendedPublicKey, ProofSignature proofSignature, KeyGenParameters keyGenParameters, GraphEncodingParameters graphEncodingParameters) {
+    this.extendedPublicKey = extendedPublicKey;
+    this.proofSignature = proofSignature;
+    this.keyGenParameters = keyGenParameters;
+    this.Z = proofSignature.getZ();
+    this.c = proofSignature.getC();
+    this.S = proofSignature.getS();
+    this.hatr_z = proofSignature.getHatr_Z();
+    this.N = proofSignature.getN();
+    this.R = proofSignature.getR();
+    this.hatr = proofSignature.getHatr();
+    this.R_0 = proofSignature.getR_0();
+    this.hatr_0 = proofSignature.getHatr_0();
+    this.vertexBases = proofSignature.getVertexBases();
+    this.edgeBases = proofSignature.getEdgeBases();
+    this.graphEncodingParameters = graphEncodingParameters;
+  }
 
-//  public GroupSetupVerifier() {
-//
-//  }
 
 //  @Override
   public void checkLengths() {
@@ -126,37 +131,38 @@ public class GroupSetupVerifier implements IVerifier {
   }
 
 //  @Override
-  public void computeVerificationChallenge() {
+  public void computeVerificationChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
 
-  private List<BigInteger> populateChallengeList() {
+  private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
-    challengeList.add(N);
-    challengeList.add(S);
-    challengeList.add(Z);
-    challengeList.add(R);
-    challengeList.add(R_0);
+    contextList = GSContext.computeChallengeContext(extendedPublicKey,  keyGenParameters, graphEncodingParameters);
+    challengeList.add(String.valueOf(N));
+    challengeList.add(String.valueOf(S));
+    challengeList.add(String.valueOf(Z));
+    challengeList.add(String.valueOf(R));
+    challengeList.add(String.valueOf(R_0));
 
     for (int i = 1; i <= vertexBases.size(); i++) {
-      challengeList.add(vertexBases.get("R_" + i));
+      challengeList.add(String.valueOf(vertexBases.get("R_" + i)));
     }
 
     for (int j = 1; j <= edgeBases.size(); j++) {
-      challengeList.add(edgeBases.get("R_" + j));
+      challengeList.add(String.valueOf(edgeBases.get("R_" + j)));
     }
 
-    challengeList.add(hatZ);
-    challengeList.add(hatR);
-    challengeList.add(hatR_0);
+    challengeList.add(String.valueOf(hatZ));
+    challengeList.add(String.valueOf(hatR));
+    challengeList.add(String.valueOf(hatR_0));
 
     for (int i = 1; i <= hatVertexBases.size(); i++) {
-      challengeList.add(hatVertexBases.get("tildeR_" + i));
+      challengeList.add(String.valueOf(hatVertexBases.get("tildeR_" + i)));
     }
 
     for (int j = 1; j <= hatEdgeBases.size(); j++) {
-      challengeList.add(hatEdgeBases.get("tildeR_" + j));
+      challengeList.add(String.valueOf(hatEdgeBases.get("tildeR_" + j)));
     }
     return challengeList;
   }
