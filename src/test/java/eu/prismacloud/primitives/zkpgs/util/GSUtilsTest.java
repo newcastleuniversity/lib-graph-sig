@@ -172,7 +172,7 @@ class GSUtilsTest {
   @DisplayName("Test generate random number in range uniqueness")
   void createRandomNumberUnique() {
     log.info("@Test: createRandomNumber ");
-    int arraySize = 1000;
+    int arraySize = 100;
     BigInteger[] rndArray = new BigInteger[arraySize];
 
     for (int i = 0; i < arraySize; i++) {
@@ -481,9 +481,9 @@ class GSUtilsTest {
 
   @Test
   @DisplayName("Test creating a QRN generator")
-  @RepeatedTest(
-      value = 10,
-      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
+  //  @RepeatedTest(
+  //      value = 10,
+  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
   void createQRNGenerator() {
     BigInteger modN = BigInteger.valueOf(77);
     QRElement element = classUnderTest.createQRNGenerator(modN);
@@ -496,9 +496,9 @@ class GSUtilsTest {
 
   @Test
   @DisplayName("Test creating a QRN element")
-  @RepeatedTest(
-      value = 10,
-      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
+  //  @RepeatedTest(
+  //      value = 10,
+  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
   void createQRNElement() {
     BigInteger modN = BigInteger.valueOf(77);
 
@@ -511,7 +511,7 @@ class GSUtilsTest {
   }
 
   @Test
-  @RepeatedTest(5)
+  //  @RepeatedTest(5)
   void computeHash() throws NoSuchAlgorithmException {
 
     List<String> list = new ArrayList<String>();
@@ -521,7 +521,7 @@ class GSUtilsTest {
     log.info("list: " + list);
     BigInteger hs = classUnderTest.computeHash(list, keyGenParameters.getL_H());
     log.info("hash: " + hs);
-    log.info("bitlength: "  + hs.bitLength());
+    log.info("bitlength: " + hs.bitLength());
 
     BigInteger hash =
         new BigInteger(
@@ -530,11 +530,5 @@ class GSUtilsTest {
 
     assertEquals(hash, hs);
     assertEquals(keyGenParameters.getL_H(), hs.bitLength());
-
-     String hasttext = String.format("%040x", hs);
-     log.info(hs.toString(16));
-     BigInteger hashB = new BigInteger(hasttext);
-     log.info("string bitlength: " + hashB.bitLength());
-
   }
 }
