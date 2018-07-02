@@ -6,9 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
+import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.File;
+import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.GraphImporter;
@@ -25,9 +31,24 @@ class GraphRepresentationTest {
   GraphEncodingParameters graphEncodingParameters;
   ExtendedPublicKey extendedPublicKey;
   GSGraph<GSVertex, GSEdge> gsGraph;
+  private KeyGenParameters keyGenParameters;
+  private Logger log = GSLoggerConfiguration.getGSlog();
+  private SignerKeyPair gsk;
+  private ExtendedKeyPair extendedKeyPair;
 
   @BeforeEach
   void setUp() throws ImportException {
+    JSONParameters parameters = new JSONParameters();
+    keyGenParameters = parameters.getKeyGenParameters();
+    graphEncodingParameters = parameters.getGraphEncodingParameters();
+    log.info("@Test: key generation");
+    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
+    extendedKeyPair.generateBases();
+    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.createExtendedKeyPair();
+    extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
+
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
     assertNotNull(file);
 
