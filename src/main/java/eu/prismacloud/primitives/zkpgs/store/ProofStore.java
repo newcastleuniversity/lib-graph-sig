@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -49,8 +48,8 @@ public class ProofStore<T> {
     Assert.notNull(key, "Store key cannot be null");
     Assert.notNull(element, "Store element cannot be null");
 
-//    gslog.log(Level.INFO, "key value:  " + key);
-//    gslog.log(Level.INFO, "element:  " + element);
+    //    gslog.log(Level.INFO, "key value:  " + key);
+    //    gslog.log(Level.INFO, "element:  " + element);
 
     if (elements.containsKey(key)) {
       throw new ProofStoreException(
@@ -122,17 +121,16 @@ public class ProofStore<T> {
    * Remove.
    *
    * @param key the key
-   * @param element the element
    */
-  public void remove(URN key, T element) {
+  public void remove(URN key) {
     Assert.notNull(key, "key cannot be null");
-    Assert.notNull(element, "Store element cannot be null");
 
     Set<T> el = elements.get(key);
-    if (null == el || !el.remove(element))
-      throw new IllegalStateException("Store element not present");
+    if (null == el) {
+      throw new IllegalStateException("Store element key not present");
+    }
 
-    if (el.isEmpty()) elements.remove(key);
+    elements.remove(key);
   }
 
   /**
