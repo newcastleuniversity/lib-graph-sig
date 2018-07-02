@@ -4,105 +4,137 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** */
 class ProofStoreTest {
-  ProofStore<Object> proverStore;
+  ProofStore<Object> proofStore;
 
   @BeforeEach
   void setUp() {
-    proverStore = new ProofStore<Object>(10);
+    proofStore = new ProofStore<Object>(10);
   }
 
   @Test
+  @DisplayName("Test add a new object in the proof store")
   void put() throws Exception {
 
-    proverStore.store("biginteger.2", BigInteger.valueOf(1));
-    List<GSCommitment> commitments = new ArrayList<GSCommitment>();
-    commitments.add(
+    proofStore.store("biginteger.2", BigInteger.valueOf(1));
+    GSCommitment gsCommitment =
         new GSCommitment(
-            BigInteger.ONE,
-            BigInteger.ONE,
-            BigInteger.TEN,
-            new QRElementN(BigInteger.ONE).getValue(),
-            BigInteger.ONE));
-    proverStore.store("commitments.ci", commitments);
+            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+    proofStore.store("commitments.ci", gsCommitment);
 
-    assertEquals(2, proverStore.size());
+    assertEquals(2, proofStore.size());
   }
 
   @Test
+  @DisplayName("Test throwing an exception when adding the same object in the proof store")
   void storeSameElement() throws Exception {
 
-    proverStore.store("biginteger.2", BigInteger.valueOf(1));
+    proofStore.store("biginteger.2", BigInteger.valueOf(1));
     List<GSCommitment> commitments = new ArrayList<GSCommitment>();
-    commitments.add(
+    GSCommitment gsCommitment =
         new GSCommitment(
-            BigInteger.ONE,
-            BigInteger.ONE,
-            BigInteger.TEN,
-            new QRElementN(BigInteger.ONE).getValue(),
-            BigInteger.ONE));
-    proverStore.store("commitments.ci", commitments);
+            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+    proofStore.store("commitments.ci", gsCommitment);
 
     Throwable exception =
         assertThrows(
             Exception.class,
             () -> {
-              proverStore.store("biginteger.2", BigInteger.valueOf(2));
+              proofStore.store("biginteger.2", BigInteger.valueOf(2));
             });
 
     assertThat(
         exception.getMessage(), CoreMatchers.containsString("with type URN was already added"));
 
-    assertEquals(2, proverStore.size());
+    assertEquals(2, proofStore.size());
   }
 
   @Test
+  @DisplayName("Test retrieve an object from the store")
   void retrieve() throws Exception {
 
-    proverStore.store("biginteger.2", BigInteger.valueOf(1));
-    List<GSCommitment> commitments = new ArrayList<GSCommitment>();
-    commitments.add(
+    proofStore.store("biginteger.2", BigInteger.valueOf(1));
+
+    GSCommitment gsCommitment =
         new GSCommitment(
-            BigInteger.ONE,
-            BigInteger.ONE,
-            BigInteger.TEN,
-            new QRElementN(BigInteger.ONE).getValue(),
-            BigInteger.ONE));
-    proverStore.store("commitments.ci", commitments);
+            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+    proofStore.store("commitments.ci", gsCommitment);
 
-    //       proverStore.store(URN.createURN(URN.getZkpgsNameSpaceIdentifier(),"biginteger.2" ),
-    // BigInteger.valueOf(2));
-    //       proverStore.store(URN.createURN(URN.getZkpgsNameSpaceIdentifier(),"biginteger.2" ),
-    // BigInteger.valueOf(3));
-
-    BigInteger el =
-        (BigInteger)
-            proverStore.retrieve("biginteger.2");
+    BigInteger el = (BigInteger) proofStore.retrieve("biginteger.2");
     assertNotNull(el);
   }
 
   @Test
-  void add() {}
+  @DisplayName("Test proof store for adding objects")
+  void add() throws ProofStoreException {
+
+    proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
+
+    GSCommitment gsCommitment =
+        new GSCommitment(
+            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+    proofStore.store("commitments.ci", gsCommitment);
+
+    BigInteger el = (BigInteger) proofStore.retrieve("biginteger.2");
+    assertNotNull(el);
+    assertEquals(2, proofStore.size());
+  }
 
   @Test
-  void remove() {}
+  @DisplayName("Test proof store for removing objects")
+  void remove() throws ProofStoreException {
+    proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
+
+    GSCommitment gsCommitment =
+        new GSCommitment(
+            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+    proofStore.store("commitments.ci", gsCommitment);
+
+    proofStore.remove(URN.createZkpgsURN("biginteger.2"));
+
+    assertEquals(1, proofStore.size());
+  }
 
   @Test
-  void isEmpty() {}
+  @DisplayName("Test proof store for outputting that the it is empty")
+  void isEmpty() throws ProofStoreException {
+    proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
+
+    assertEquals(1, proofStore.size());
+
+    proofStore.remove(URN.createZkpgsURN("biginteger.2"));
+
+    assertTrue(proofStore.isEmpty());
+  }
 
   @Test
-  void getElements() {}
+  @DisplayName("Test proof store getElement for correct collection size")
+  void getElements() throws ProofStoreException {
+    proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
+
+        GSCommitment gsCommitment =
+            new GSCommitment(
+                BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+        proofStore.store("commitments.ci", gsCommitment);
+
+        assertNotNull(proofStore.getElements());
+        assertEquals(2, proofStore.getElements().size() );
+
+
+  }
 }
