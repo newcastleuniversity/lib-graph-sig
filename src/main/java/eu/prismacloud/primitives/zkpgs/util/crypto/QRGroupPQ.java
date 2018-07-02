@@ -31,7 +31,6 @@ public final class QRGroupPQ extends Group {
 
     Assert.notNull(pPrime, "pPrime must not be null");
     Assert.notNull(qPrime, "qPrime must not be null");
-
     this.modulus = pPrime.multiply(qPrime);
     this.pPrime = pPrime;
     this.qPrime = qPrime;
@@ -89,6 +88,8 @@ public final class QRGroupPQ extends Group {
 
     } while (!isElement(qrElementPQ.getValue()));
 
+    /** TODO remove groupelement list */
+    /** TODO  add invariant for qrelement */
     this.groupElements.add(qrElementPQ);
 
     return qrElementPQ;
