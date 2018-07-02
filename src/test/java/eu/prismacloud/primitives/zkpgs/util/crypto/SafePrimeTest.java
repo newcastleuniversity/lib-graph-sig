@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import java.math.BigInteger;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -31,12 +32,6 @@ class SafePrimeTest {
     keyGenParameters = parameters.getKeyGenParameters();
   }
 
-  @AfterAll
-  public static void done() {
-    // Do something after ALL tests in this class are run
-    log.info("@AfterAll: done()");
-  }
-
   @BeforeEach
   public void setUp() throws Exception {
 
@@ -51,43 +46,6 @@ class SafePrimeTest {
     classUnderTest = null;
   }
 
-  @Test
-  @Disabled
-  @DisplayName("A disabled test")
-  void testNotRun() {
-    log.info("This test will not run");
-  }
-
-  //    @Test
-  //    @DisplayName("Generate Prime number")
-  //    public void testGeneratePrime() {
-  //        log.info("@Test: generateRandomPrime()");
-  //        assertNotNull(classUnderTest);
-  //        assertAll(
-  //                () -> {
-  //                    // Test #1 check if return value is probable prime
-  //                    SafePrime safePrime = classUnderTest.generateRandomSafePrime();
-  //                    System.out.println("safePrime 1 = " + safePrime.getSafePrime());
-  //
-  // assertTrue(safePrime.getSafePrime().isProbablePrime(KeyGenParameters.l_pt.getValue()));
-  //                    System.out.println(("sophieGermain 1 = " + safePrime.getSophieGermain()));
-  //
-  // assertTrue((safePrime.getSophieGermain().isProbablePrime(KeyGenParameters.l_pt.getValue())));
-  //                }
-  //                ,
-  //                () -> {
-  //                    // Test #2 check if return value is probable prime
-  //                    BigInteger actualSum = classUnderTest.generateRandomPrime();
-  //                    System.out.println("actualSum 2 = " + actualSum);
-  //                    assertTrue(actualSum.isProbablePrime(KeyGenParameters.l_pt.getValue()));
-  //                },
-  //                () -> {
-  //                    // Test #3 check if return value is probable prime
-  //                    BigInteger actualSum = classUnderTest.generateRandomPrime();
-  //                    System.out.println("actualSum 3 = " + actualSum);
-  //                    assertTrue(actualSum.isProbablePrime(KeyGenParameters.l_pt.getValue()));
-  //                });
-  //    }
 
   @Test
   @DisplayName("Generate Safe Prime")
@@ -102,19 +60,4 @@ class SafePrimeTest {
 
   }
 
-  //    @Test
-  //    @DisplayName("Generate a safe Prime with IDEMIX")
-  //    void generateRandomSafePrimeIDEMIX(){
-  //        log.info("@Test: generateSafePrimeIDEMIX()");
-  //        assertNotNull(classUnderTest);
-  //        SafePrime sf = classUnderTest.generateSafePrimeIdemix();
-  //        log.info("p: " + sf.a);
-  //        log.info("length: " + sf.a.bitLength());
-  //        assertNotNull(sf);
-  //        assertTrue(sf.a.isProbablePrime(KeyGenParameters.l_pt.getValue()));
-  //
-  //    }
-
-  @org.junit.jupiter.api.Test
-  void isPrime() {}
 }
