@@ -44,10 +44,12 @@ class JSONParametersTest {
     int l_H = jsonKeyGenParams.getInt("l_H");
     int l_r = jsonKeyGenParams.getInt("l_r");
     int l_pt = jsonKeyGenParams.getInt("l_pt");
-    assertEquals(2048, l_n);
+//    assertEquals(2048, l_n);
+    assertEquals(512, l_n);
     assertEquals(1632, l_gamma);
     assertEquals(256, l_rho);
-    assertEquals(256, l_m);
+//    assertEquals(256, l_m);
+    assertEquals(128, l_m);
     assertEquals(1, l_res);
     assertEquals(597, l_e);
     assertEquals(120, l_prime_e);
@@ -63,9 +65,12 @@ class JSONParametersTest {
     int l_E = jsonGraphEncodingParams.getInt("l_E");
     int l_L = jsonGraphEncodingParams.getInt("l_L");
     int l_prime_L = jsonGraphEncodingParams.getInt("l_prime_L");
-    assertEquals(1000, l_V);
-    assertEquals(120, l_prime_V);
-    assertEquals(50000, l_E);
+//    assertEquals(1000, l_V);
+    assertEquals(100, l_V);
+//    assertEquals(120, l_prime_V);
+    assertEquals(56, l_prime_V);
+//    assertEquals(50000, l_E);
+    assertEquals(500, l_E);
     assertEquals(256, l_L);
     assertEquals(16, l_prime_L);
   }
