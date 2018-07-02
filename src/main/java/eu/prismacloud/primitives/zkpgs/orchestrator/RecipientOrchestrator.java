@@ -1,10 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.GraphMLProvider;
 import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
@@ -31,6 +33,7 @@ import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +45,9 @@ import org.jgrapht.io.ImportException;
 /** Recipient orchestrator */
 public class RecipientOrchestrator {
 
-  private static final String RECIPIENT_GRAPH_FILE = "recipient.graphml";
+  private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
   private final ExtendedPublicKey extendedPublicKey;
-  private final ProofStore<Object> proofStore;
+  private static ProofStore<Object> proofStore;
   private final BigInteger modN;
   private final GroupElement baseS;
   private final GroupElement R_0;
@@ -82,14 +85,15 @@ public class RecipientOrchestrator {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-    this.proofStore = new ProofStore<Object>();
+    proofStore = new ProofStore<Object>();
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
     this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
+    this.recipient = new GSRecipient(extendedPublicKey, keyGenParameters);
   }
 
-  public void round1() {
+  public void round1() throws ProofStoreException {
     generateRecipientMSK();
 
     try {
@@ -101,10 +105,11 @@ public class RecipientOrchestrator {
     encodeR_0();
 
     // TODO needs to receive message n_1
-    GSMessage msg = recipient.receiveMessage();
+    GSMessage msg = recipient.getMessage();
     BigInteger n_1 = (BigInteger) msg.getMessageElements().get(URN.createZkpgsURN("nonces.n_1"));
 
     vPrime = recipient.generatevPrime();
+    proofStore.store("issuing.recipient.vPrime", vPrime);
 
     U = recipient.commit(encodedBases, vPrime);
 
@@ -147,14 +152,16 @@ public class RecipientOrchestrator {
   }
 
   public void computeChallenge() throws NoSuchAlgorithmException {
+    challengeList = new ArrayList<String>();
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
 
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
-
-    contextList = GSContext.computeChallengeContext(extendedPublicKey,keyGenParameters ,graphEncodingParameters );
+    contextList =
+        GSContext.computeChallengeContext(
+            extendedPublicKey, keyGenParameters, graphEncodingParameters);
 
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS.getValue()));
@@ -174,11 +181,9 @@ public class RecipientOrchestrator {
   }
 
   private void encodeR_0() {
-    BaseRepresentation base = encodedBases.get(URN.createZkpgsURN("bases.R_0"));
-    BaseRepresentation baseR_0 =
-        new BaseRepresentation(
-            base.getBase(), recipientMSK, base.getBaseIndex(), base.getBaseType());
-    encodedBases.replace(URN.createZkpgsURN("bases.R_0"), baseR_0);
+    BaseRepresentation baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
+
+    encodedBases.put(URN.createZkpgsURN("bases.R_0"), baseR_0);
   }
 
   private void generateRecipientMSK() {
@@ -226,21 +231,23 @@ public class RecipientOrchestrator {
 
   public void round3() throws VerificationException {
 
-    GSMessage correctnessMsg = recipient.receiveMessage();
+    GSMessage correctnessMsg = recipient.getMessage();
     ProofSignature P_2 = extractMessageElements(correctnessMsg);
-    
+
     v = vPrimePrime.add(vPrime);
 
-    CorrectnessVerifier correctnessVerifier = (CorrectnessVerifier) VerifierFactory.newVerifier(VerifierType.CorrectnessVerifier);
+    CorrectnessVerifier correctnessVerifier =
+        (CorrectnessVerifier) VerifierFactory.newVerifier(VerifierType.CorrectnessVerifier);
 
-    correctnessVerifier.preChallengePhase(e,
-          v,
-           P_2,
-           A,
-          extendedPublicKey,
-          n_2,
-          encodedBases,
-          keyGenParameters,
+    correctnessVerifier.preChallengePhase(
+        e,
+        v,
+        P_2,
+        A,
+        extendedPublicKey,
+        n_2,
+        encodedBases,
+        keyGenParameters,
         graphEncodingParameters);
 
     try {
@@ -254,17 +261,17 @@ public class RecipientOrchestrator {
     }
 
     try {
-      proofStore.store("recipient.graphsignature.A" ,  A);
+      proofStore.store("recipient.graphsignature.A", A);
       proofStore.store("recipient.graphsignature.e", e);
       proofStore.store("recipient.graphsignature.v", v);
-      
+
     } catch (Exception e1) {
       e1.printStackTrace();
     }
 
     for (Map.Entry<URN, BaseRepresentation> base : encodedBases.entrySet()) {
       try {
-        proofStore.save(base.getKey(),base.getValue() );
+        proofStore.save(base.getKey(), base.getValue());
       } catch (Exception e1) {
         e1.printStackTrace();
       }

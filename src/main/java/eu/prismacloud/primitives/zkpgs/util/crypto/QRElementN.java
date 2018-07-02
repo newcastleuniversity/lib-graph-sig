@@ -61,7 +61,7 @@ public class QRElementN extends QRElement {
   }
 
   @Override
-  public QRElementPQ modPow(BigInteger exponent, BigInteger modN) {
+  public QRElement modPow(BigInteger exponent, BigInteger modN) {
     return super.modPow(exponent, modN);
   }
 

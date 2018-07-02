@@ -97,6 +97,8 @@ public class SignerOrchestrator {
     this.baseZ = extendedKeyPair.getPublicKey().getBaseZ();
     this.modN = extendedKeyPair.getPublicKey().getModN();
     this.baseRepresentationMap = extendedKeyPair.getExtendedPublicKey().getBases();
+    this.signer = new GSSigner(extendedKeyPair, keyGenParameters);
+    this.recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
   }
 
   public void round0() {
@@ -120,7 +122,7 @@ public class SignerOrchestrator {
     // TODO needs to receive input message (U, P_1, n_2)
     // TODO value store needs to be populated (note this is on a different computer...)
 
-    GSMessage msg = signer.receiveMessage();
+    GSMessage msg = signer.getMessage();
     ProofSignature P_1 = extractMessageElements(msg);
 
     CommitmentVerifier commitmentVerifier =

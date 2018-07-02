@@ -2,9 +2,11 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
@@ -35,9 +37,9 @@ public class CryptoUtilsFacade {
     return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, modN);
   }
 
-  public static BigInteger computeMultiBaseEx(
+  public static BigInteger computeMultiBaseExMap(
       Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
-    return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, modN);
+    return CryptoUtilsFactory.getInstance(GS).multiBaseExpMap(bases, exponents, modN);
   }
 
   public static BigInteger computePrimeWithLength(int minBitLength, int maxBitLength) {
@@ -62,19 +64,19 @@ public class CryptoUtilsFacade {
     return CryptoUtilsFactory.getInstance(GS).computeA();
   }
 
-  public SafePrime computeRandomSafePrime() {
-    return CryptoUtilsFactory.getInstance(GS).generateRandomSafePrime();
+  public SafePrime computeRandomSafePrime(KeyGenParameters keyGenParameters) {
+    return CryptoUtilsFactory.getInstance(GS).generateRandomSafePrime(keyGenParameters);
   }
 
-  public static SpecialRSAMod computeSpecialRSAModulus() {
+  public static SpecialRSAMod computeSpecialRSAModulus(KeyGenParameters keyGenParameters) {
     return CryptoUtilsFactory.getInstance(GS).generateSpecialRSAModulus();
   }
 
-  public static BigInteger computeQRNGenerator(BigInteger n) {
+  public static QRElement computeQRNGenerator(BigInteger n) {
     return CryptoUtilsFactory.getInstance(GS).createQRNGenerator(n);
   }
 
-  public static BigInteger computeQRNElement(BigInteger n) {
+  public static QRElement computeQRNElement(BigInteger n) {
     return CryptoUtilsFactory.getInstance(GS).createQRNElement(n);
   }
 
@@ -82,8 +84,9 @@ public class CryptoUtilsFacade {
     return CryptoUtilsFactory.getInstance(GS).createRandomNumber(lowerBound, upperBound);
   }
 
-  public static CommitmentGroup commitmentGroupSetup() {
-    return CryptoUtilsFactory.getInstance(IDEMIX).generateCommitmentGroup();
+  public static CommitmentGroup commitmentGroupSetup(
+      KeyGenParameters keyGenParameters) {
+    return CryptoUtilsFactory.getInstance(GS).generateCommitmentGroup();
   }
 
   public static BigInteger commitmentGroupGenerator(BigInteger rho, BigInteger gamma) {

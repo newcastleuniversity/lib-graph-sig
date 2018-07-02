@@ -39,7 +39,7 @@ public class QRElement extends GroupElement {
   }
 
   public QRElement multiply(QRElement val) {
-    return new QRElement(value).multiply(val);
+    return new QRElement(value.multiply(val.value));
   }
 
   @Override
@@ -47,8 +47,8 @@ public class QRElement extends GroupElement {
     return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
   }
 
-  public BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents) {
-    return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
+  public BigInteger multiBaseExpMap(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents) {
+    return CryptoUtilsFacade.computeMultiBaseExMap(bases, exponents, this.group.getModulus());
   }
 
   @Override
@@ -89,12 +89,12 @@ public class QRElement extends GroupElement {
   }
 
   @Override
-  public QRElementPQ modPow(BigInteger exponent, BigInteger modN) {
-    return new QRElementPQ(value.modPow(exponent, modN));
+  public QRElement modPow(BigInteger exponent, BigInteger modN) {
+    return new QRElement(value.modPow(exponent, modN));
   }
 
-  public BigInteger modInverse(BigInteger m) {
-    return value.modInverse(m);
+  public QRElement modInverse(BigInteger m) {
+    return new QRElement(this.getValue().modInverse(m));
   }
 
   public int getLowestSetBit() {

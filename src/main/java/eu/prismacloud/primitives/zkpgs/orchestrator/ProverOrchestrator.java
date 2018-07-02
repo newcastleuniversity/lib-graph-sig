@@ -6,13 +6,18 @@ import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.GSPossessionProver;
 import eu.prismacloud.primitives.zkpgs.prover.GSProver;
+import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.PairWiseDifferenceProver;
+import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
 import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
@@ -20,6 +25,8 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -31,7 +38,10 @@ import java.util.logging.Logger;
 /** Orchestrate provers */
 public class ProverOrchestrator implements ProofOperation {
 
-  private final BigInteger n_3;
+  private GroupElement baseZ;
+  private GroupElement baseS;
+  private BigInteger n_3;
+  private BigInteger modN;
   private GSSignature graphSignature;
   private GSSignature randomizedGraphSignature;
   private ProofOperation proofCommand;
@@ -43,6 +53,7 @@ public class ProverOrchestrator implements ProofOperation {
   private BigInteger tildevPrime;
   private GraphRepresentation graphRepresentation;
   private KeyGenParameters keyGenParameters;
+  private GraphEncoding graphEncoding;
   private GraphEncodingParameters graphEncodingParameters;
   private BigInteger tildeZ;
   private Map<URN, BaseRepresentation> vertices;
@@ -62,7 +73,7 @@ public class ProverOrchestrator implements ProofOperation {
   private List<String> challengeList;
   private BigInteger tildeR_BariBarj;
   private BigInteger c;
-  private ProofStore<Object> proverStore = new ProofStore<Object>();
+  private ProofStore<Object> proofStore;
   private URN r_BariBarjURN;
   private BigInteger a_BariBarj;
   private BigInteger b_BariBarj;
@@ -72,16 +83,34 @@ public class ProverOrchestrator implements ProofOperation {
   private Map<URN, BaseRepresentation> encodedVertexBases;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
+  private GroupSetupProver groupSetupProver;
+  private BigInteger groupSetupChallenge;
+  private ProofSignature proofSignatureP;
+  private GSVerifier verifier;
 
   public ProverOrchestrator(
-      BigInteger n_3,
-      GSProver prover,
-      KeyGenParameters keyGenParameters,
-      GraphEncodingParameters graphEncodingParameters) {
+      final BigInteger n_3,
+      final GSProver prover,
+      final KeyGenParameters keyGenParameters,
+      final GraphEncodingParameters graphEncodingParameters) {
     this.n_3 = n_3;
     this.prover = prover;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
+  }
+
+  public ProverOrchestrator(
+      final ExtendedPublicKey extendedPublicKey,
+      final KeyGenParameters keyGenParameters,
+      final GraphEncoding graphEncoding) {
+
+    this.extendedPublicKey = extendedPublicKey;
+    this.keyGenParameters = keyGenParameters;
+    this.graphEncoding = graphEncoding;
+    this.modN = extendedPublicKey.getPublicKey().getModN();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
+    this.proofStore = new ProofStore<Object>();
   }
 
   public ProverOrchestrator(BigInteger n_3) {
@@ -91,6 +120,30 @@ public class ProverOrchestrator implements ProofOperation {
   public void ProverOrchestrator(final GSSignature graphSignature) {
     this.graphSignature = graphSignature;
     this.randomizedGraphSignature = getRandomizedGraphSignature(this.graphSignature);
+  }
+
+  public void groupSetupProver() throws NoSuchAlgorithmException {
+
+    prover =
+        new GSProver(
+            extendedPublicKey.getPublicKey().getModN(),
+            extendedPublicKey.getPublicKey().getBaseS(),
+            this.n_3,
+            proofStore,
+            keyGenParameters);
+
+    groupSetupProver = (GroupSetupProver) ProverFactory.newProver(ProverType.GroupSetupProver);
+/** TODO check if we need the extended key pair here for the group setup prover */
+    groupSetupProver.preChallengePhase(extendedPublicKey, proofStore, keyGenParameters, graphEncodingParameters );
+    groupSetupChallenge = groupSetupProver.computeChallenge();
+    try {
+      groupSetupProver.postChallengePhase();
+    } catch (ProofStoreException e) {
+      gslog.log(Level.SEVERE, e.getMessage());
+    }
+    proofSignatureP = groupSetupProver.outputProofSignature();
+
+    prover.sendMessage(new GSMessage(proofSignatureP), verifier);
   }
 
   public GSSignature getRandomizedGraphSignature(final GSSignature graphSignature) {
@@ -106,7 +159,7 @@ public class ProverOrchestrator implements ProofOperation {
             extendedPublicKey.getPublicKey().getModN(),
             extendedPublicKey.getPublicKey().getBaseS(),
             this.n_3,
-            proverStore,
+            proofStore,
             keyGenParameters);
 
     prover.computeCommitments(vertexRepresentations);
@@ -128,7 +181,7 @@ public class ProverOrchestrator implements ProofOperation {
               extendedPublicKey.getPublicKey().getBaseS().getValue(),
               extendedPublicKey.getPublicKey().getModN(),
               index,
-              proverStore,
+              proofStore,
               keyGenParameters);
 
       pairWiseDifferenceProver.precomputation();
@@ -156,25 +209,25 @@ public class ProverOrchestrator implements ProofOperation {
       } else if (baseRepresentation.getBaseType() == BASE.VERTEX) {
         encodedBasesURN = "bases.vertex.R_i_" + baseRepresentation.getBaseIndex();
       }
-      proverStore.store(encodedBasesURN, baseRepresentation);
+      proofStore.store(encodedBasesURN, baseRepresentation);
     }
   }
 
   private void storeBlindedGS() throws Exception {
     String commitmentsURN = "prover.commitments";
-    proverStore.store(commitmentsURN, commitments);
+    proofStore.store(commitmentsURN, commitments);
 
     String blindedGSURN = "prover.blindedgs";
-    proverStore.store(blindedGSURN, this.randomizedGraphSignature);
+    proofStore.store(blindedGSURN, this.randomizedGraphSignature);
 
     String APrimeURN = "prover.blindedgs.APrime";
-    proverStore.store(APrimeURN, this.randomizedGraphSignature.getA());
+    proofStore.store(APrimeURN, this.randomizedGraphSignature.getA());
 
     String ePrimeURN = "prover.blindedgs.ePrime";
-    proverStore.store(ePrimeURN, this.randomizedGraphSignature.getE());
+    proofStore.store(ePrimeURN, this.randomizedGraphSignature.getE());
 
     String vPrimeURN = "prover.blindedgs.vPrime";
-    proverStore.store(blindedGSURN, this.randomizedGraphSignature.getV());
+    proofStore.store(blindedGSURN, this.randomizedGraphSignature.getV());
   }
 
   public void computeChallenge() throws NoSuchAlgorithmException {
@@ -242,13 +295,13 @@ public class ProverOrchestrator implements ProofOperation {
                   "possessionprover.witnesses.tildem_" + vertex.getBaseIndex()));
 
       commitmentProver = (CommitmentProver) ProverFactory.newProver(ProverType.CommitmentProver);
-      //          new CommitmentProver(vertex, proverStore, extendedPublicKey, keyGenParameters);
+      //          new CommitmentProver(vertex, proofStore, extendedPublicKey, keyGenParameters);
       commitmentProver.createWitnessRandomness();
       commitmentProver.computeWitness();
 
       String tildeC_iURN = "commitmentprover.commitments.tildeC_" + vertex.getBaseIndex();
       try {
-        proverStore.store(tildeC_iURN, commitmentProver.getWitness());
+        proofStore.store(tildeC_iURN, commitmentProver.getWitness());
       } catch (Exception e) {
         gslog.log(Level.SEVERE, e.getMessage());
       }
@@ -265,7 +318,7 @@ public class ProverOrchestrator implements ProofOperation {
             tildem_0,
             tildevPrime,
             graphRepresentation,
-            proverStore,
+            proofStore,
             keyGenParameters);
 
     gsPossessionProver.createWitnessRandomness();

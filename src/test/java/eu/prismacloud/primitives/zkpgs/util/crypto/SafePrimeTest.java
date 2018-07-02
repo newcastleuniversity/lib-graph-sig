@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -20,14 +21,14 @@ import org.junit.runner.RunWith;
 @DisplayName("Testing Safe Prime class")
 class SafePrimeTest {
   private static final Logger log = Logger.getLogger(SafePrimeTest.class.getName());
-
-  private KeyGenParameters keyGenParameters;
+  private static KeyGenParameters keyGenParameters;
   private SafePrime classUnderTest;
 
   @BeforeAll
   public static void init() {
-    // Do something before ANY test is run in this class
     log.info("@BeforeAll: init()");
+    JSONParameters parameters = new JSONParameters();
+    keyGenParameters = parameters.getKeyGenParameters();
   }
 
   @AfterAll
@@ -93,7 +94,7 @@ class SafePrimeTest {
   void generateRandomSafePrime() {
     log.info("@Test: generateSafePrime()");
     assertNotNull(classUnderTest);
-    SafePrime sf = classUnderTest.generateRandomSafePrime();
+    SafePrime sf = classUnderTest.generateRandomSafePrime(keyGenParameters);
     assertNotNull(sf);
     assertTrue(sf.getSafePrime().isProbablePrime(keyGenParameters.getL_pt()));
     assertTrue(sf.getSophieGermain().isProbablePrime(keyGenParameters.getL_pt()));

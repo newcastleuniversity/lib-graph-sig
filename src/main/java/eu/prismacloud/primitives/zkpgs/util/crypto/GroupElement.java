@@ -17,4 +17,6 @@ public abstract class GroupElement {
   public abstract BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents);
 
   public abstract QRElement multiply(BigInteger bigInteger);
+
+  public abstract GroupElement modInverse(BigInteger bigInteger);
 }

@@ -6,7 +6,9 @@ import java.io.Serializable;
 /** Class for key generation parameters displayed in table:params of the topocert documentation. */
 public class KeyGenParameters implements Serializable {
   /** Bit length of the special RSA modulus */
-  private final int l_n;
+  private int l_n = 2048;
+
+  private static KeyGenParameters keyGenParameters;
   /** Bit length of the commitment group */
   private final int l_gamma;
   /** Bit length of the prime order of the subgroup of Γ */
@@ -53,7 +55,7 @@ public class KeyGenParameters implements Serializable {
    *     && l_pt != null
    * @post
    */
-  public KeyGenParameters(
+  private KeyGenParameters(
       int l_n,
       int l_gamma,
       int l_rho,
@@ -94,111 +96,76 @@ public class KeyGenParameters implements Serializable {
     this.l_pt = l_pt;
   }
 
-  /**
-   * Gets l n.
-   *
-   * @return the l n
-   */
+  public static KeyGenParameters getKeyGenParameters() {
+    return KeyGenParameters.keyGenParameters;
+  }
+
+  public static KeyGenParameters createKeyGenParameters(
+      int l_n,
+      int l_gamma,
+      int l_rho,
+      int l_m,
+      int l_res,
+      int l_e,
+      int l_prime_e,
+      int l_v,
+      int l_statzk,
+      int l_H,
+      int l_r,
+      int l_pt) {
+
+    keyGenParameters =
+        new KeyGenParameters(
+            l_n, l_gamma, l_rho, l_m, l_res, l_e, l_prime_e, l_v, l_statzk, l_H, l_r, l_pt);
+
+    return keyGenParameters;
+  }
+
   public int getL_n() {
-    return l_n;
+    return this.l_n;
   }
 
-  /**
-   * Gets l gamma.
-   *
-   * @return the l gamma
-   */
   public int getL_gamma() {
-    return l_gamma;
+    return this.l_gamma;
   }
 
-  /**
-   * Gets l rho.
-   *
-   * @return the l rho
-   */
   public int getL_rho() {
-    return l_rho;
+    return this.l_rho;
   }
 
-  /**
-   * Gets l m.
-   *
-   * @return the l m
-   */
   public int getL_m() {
-    return l_m;
+    return this.l_m;
   }
 
-  /**
-   * Gets l res.
-   *
-   * @return the l res
-   */
   public int getL_res() {
-    return l_res;
+    return this.l_res;
   }
 
-  /**
-   * Gets l e.
-   *
-   * @return the l e
-   */
   public int getL_e() {
-    return l_e;
+    return this.l_e;
   }
 
-  /**
-   * Gets l prime e.
-   *
-   * @return the l prime e
-   */
   public int getL_prime_e() {
-    return l_prime_e;
+    return this.l_prime_e;
   }
 
-  /**
-   * Gets l v.
-   *
-   * @return the l v
-   */
   public int getL_v() {
-    return l_v;
+    return this.l_v;
   }
 
-  /**
-   * Gets l statzk.
-   *
-   * @return the l statzk
-   */
   public int getL_statzk() {
-    return l_statzk;
+    return this.l_statzk;
   }
 
-  /**
-   * Gets l h.
-   *
-   * @return the l h
-   */
   public int getL_H() {
-    return l_H;
+    return this.l_H;
   }
 
-  /**
-   * Gets l r.
-   *
-   * @return the l r
-   */
   public int getL_r() {
-    return l_r;
+    return this.l_r;
   }
 
-  /**
-   * Gets l pt.
-   *
-   * @return the l pt
-   */
   public int getL_pt() {
-    return l_pt;
+    return this.l_pt;
   }
 }

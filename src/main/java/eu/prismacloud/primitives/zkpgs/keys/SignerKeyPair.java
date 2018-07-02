@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.KeyGenSignature;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -15,6 +16,7 @@ public class SignerKeyPair {
 
   private static SignerPrivateKey privateKey;
   private static SignerPublicKey publicKey;
+  private static KeyGenParameters keyGenParameters;
   private static KeyGenSignature keyGenSignature;
   private static SpecialRSAMod specialRSAMod = null;
   private static GroupElement S;
@@ -53,9 +55,9 @@ public class SignerKeyPair {
    *
    * @return GSSignerKeyPair gs signer key pair
    */
-  public static SignerKeyPair KeyGen() {
-
-    specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
+  public static SignerKeyPair KeyGen(KeyGenParameters keyGenParams) {
+    keyGenParameters = keyGenParams;
+    specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
 
     qrGroup = new QRGroupPQ(specialRSAMod.getpPrime(), specialRSAMod.getqPrime());
     S = qrGroup.createGenerator();
@@ -71,7 +73,7 @@ public class SignerKeyPair {
     x_R0 = qrGroup.createElement().getValue();
     R_0 = S.modPow(x_R0, specialRSAMod.getN());
 
-    cg = CryptoUtilsFacade.commitmentGroupSetup();
+    cg = CryptoUtilsFacade.commitmentGroupSetup(keyGenParameters);
     privateKey =
         new SignerPrivateKey(
             specialRSAMod.getP(),
@@ -81,7 +83,7 @@ public class SignerKeyPair {
             x_R,
             x_R0,
             x_Z);
-    publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z);
+    publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z, keyGenParameters);
 
     return new SignerKeyPair(privateKey, publicKey);
   }

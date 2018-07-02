@@ -9,9 +9,9 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
 
 /** Class representing the extended key pair */
@@ -24,17 +24,19 @@ public final class ExtendedKeyPair {
   private final GroupElement baseS;
   private final BigInteger modN;
   private final SignerKeyPair signerKeyPair;
+  private final Group qrGroup;
+  private final Map<URN, BigInteger> discLogOfBases;
   private ExtendedPublicKey extendedPublicKey;
   private ExtendedPrivateKey extendedPrivateKey;
   private int index = 0;
   private BaseRepresentation base;
   private Map<URN, BaseRepresentation> baseRepresentationMap;
-  private Map<URN, BigInteger> discLogOfEdgeBases;
   private Map<URN, BigInteger> vertexRepresentatives;
   private BigInteger vertexPrimeRepresentative;
-  private Map<URN, BigInteger> discLogOfVertexBases;
   private Map<URN, BigInteger> labelRepresentatives;
   private GraphEncoding graphEncoding;
+  private QRElement R_Z;
+  private BigInteger x_RZ;
 
   /**
    * Instantiates a new Extended key pair.
@@ -55,6 +57,10 @@ public final class ExtendedKeyPair {
     this.keyGenParameters = keyGenParameters;
     this.baseS = signerKeyPair.getPublicKey().getBaseS();
     this.modN = signerKeyPair.getPublicKey().getModN();
+    this.qrGroup = signerKeyPair.getQRGroup();
+    this.baseRepresentationMap = new HashMap<URN, BaseRepresentation>();
+    this.vertexRepresentatives = new HashMap<URN, BigInteger>();
+    this.discLogOfBases = new HashMap<URN, BigInteger>();
   }
 
   /**
@@ -64,6 +70,19 @@ public final class ExtendedKeyPair {
    */
   public ExtendedPublicKey getExtendedPublicKey() {
     return extendedPublicKey;
+  }
+
+  public void createExtendedKeyPair() {
+    this.extendedPublicKey =
+        new ExtendedPublicKey(
+            signerKeyPair.getPublicKey(),
+            keyGenParameters,
+            baseRepresentationMap,
+            vertexRepresentatives,
+            labelRepresentatives,
+            graphEncodingParameters);
+
+    this.extendedPrivateKey = new ExtendedPrivateKey(signerKeyPair.getPrivateKey(), discLogOfBases);
   }
 
   /**
@@ -108,6 +127,8 @@ public final class ExtendedKeyPair {
             keyGenParameters,
             graphEncodingParameters);
 
+    labelRepresentatives = GraphEncoding.getCountryLabels();
+
     return graphEncoding;
   }
 
@@ -145,8 +166,7 @@ public final class ExtendedKeyPair {
    * @param modN the modulus N
    * @param qrGroup the quadratic residue group
    */
-  public void generateEdgeBases(
-      final QRElementPQ S, final BigInteger modN, final QRGroupN qrGroup) {
+  public void generateEdgeBases(final GroupElement S, final BigInteger modN, final Group qrGroup) {
     BigInteger x_R_ij;
     GroupElement R_ij;
 
@@ -159,8 +179,29 @@ public final class ExtendedKeyPair {
 
       baseRepresentationMap.put(
           URN.createZkpgsURN("baseRepresentationMap.edge.R_i_j_" + index), base);
-      discLogOfEdgeBases.put(URN.createZkpgsURN("discretelogs.edge.R_i_j_" + index), x_R_ij);
+      discLogOfBases.put(URN.createZkpgsURN("discretelogs.edge.R_i_j_" + index), x_R_ij);
     }
+  }
+
+  public void generateBases() {
+
+    generateGroupBases(baseS, modN, qrGroup);
+    generateVertexBases(baseS, modN, qrGroup);
+    generateEdgeBases(baseS, modN, qrGroup);
+  }
+
+  private void generateGroupBases(
+      final GroupElement baseS, final BigInteger modN, final Group qrGroup) {
+
+    x_RZ = qrGroup.createElement().getValue();
+    R_Z = baseS.modPow(x_RZ, modN);
+
+    discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
+
+    x_RZ = qrGroup.createElement().getValue();
+    R_Z = baseS.modPow(x_RZ, modN);
+
+    discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
   }
 
   /**
@@ -171,7 +212,7 @@ public final class ExtendedKeyPair {
    * @param qrGroup the quadratic residue group
    */
   public void generateVertexBases(
-      final QRElementPQ S, final BigInteger modN, final QRGroupN qrGroup) {
+      final GroupElement S, final BigInteger modN, final Group qrGroup) {
     BigInteger x_Ri;
     GroupElement R_i;
 
@@ -189,7 +230,7 @@ public final class ExtendedKeyPair {
       vertexRepresentatives.put(
           URN.createZkpgsURN("vertex.representative.e_i_" + i), vertexPrimeRepresentative);
 
-      discLogOfVertexBases.put(URN.createZkpgsURN("discretelogs.vertex.R_i_" + index), x_Ri);
+      discLogOfBases.put(URN.createZkpgsURN("discretelogs.vertex.R_i_" + index), x_Ri);
     }
   }
 
@@ -203,7 +244,6 @@ public final class ExtendedKeyPair {
   }
 
   private void createExtendedPrivateKey() {
-    this.extendedPrivateKey =
-        new ExtendedPrivateKey(privateKey, discLogOfVertexBases, discLogOfEdgeBases);
+    this.extendedPrivateKey = new ExtendedPrivateKey(privateKey, discLogOfBases);
   }
 }

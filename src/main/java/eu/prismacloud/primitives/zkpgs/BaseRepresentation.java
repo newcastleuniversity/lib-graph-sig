@@ -8,7 +8,8 @@ public class BaseRepresentation {
 
   public enum BASE {
     VERTEX,
-    EDGE
+    EDGE,
+    BASE0
   };
 
   private final int baseIndex;

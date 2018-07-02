@@ -5,7 +5,9 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -16,6 +18,10 @@ import javax.json.JsonValue;
 /** Helper class to load the json file with the list of country names and country codes. */
 public class JsonIsoCountries {
 
+  private static final int COUNTRY_JSON_INDEX = 0;
+  private static final int COUNTRY_CODE_START = 0;
+  private static final int COUNTRY_CODE_END = 2;
+
   private static final String GS_ISO_COUNTRIES_FILE = "iso_3166_alpha_2.json";
   private final Logger gslog = GSLoggerConfiguration.getGSlog();
 
@@ -25,9 +31,13 @@ public class JsonIsoCountries {
   private JsonReader reader;
   private Map<URN, BigInteger> countriesLabel;
   private JsonArray jsonArray;
+  private JsonValue country;
+  private JsonString countryCodeJson;
+  private String countryCode;
 
   /** Json parameters. */
   public JsonIsoCountries() {
+    this.countriesLabel = new HashMap<URN, BigInteger>();
     this.reader = parseParamFile();
     build();
   }
@@ -76,9 +86,12 @@ public class JsonIsoCountries {
   public Map<URN, BigInteger> getCountryMap() {
     if (this.jsonArray != null) {
       for (int i = 0; i < this.jsonArray.size(); i++) {
-
+        country = jsonArray.get(i);
+        countryCodeJson = country.asJsonArray().getJsonString(COUNTRY_JSON_INDEX);
+        countryCode = countryCodeJson.getString().substring(COUNTRY_CODE_START,COUNTRY_CODE_END);
+//        gslog.log(Level.INFO, "countrycode: " + countryCode);
         countriesLabel.put(
-            URN.createZkpgsURN("countries.i_" + jsonArray.getString(i)),
+            URN.createZkpgsURN("countries.i_" + String.valueOf(i) + "_" + countryCode),
             BigInteger.valueOf(primeNumbers[i]));
       }
     }
@@ -93,7 +106,7 @@ public class JsonIsoCountries {
    */
   public int getIndex(String countryCode) {
     Assert.notNull(countryCode, "Country code must not be null");
-    //    Assert.notEmpty(countryCode, "Country code must not be empty");
+    //    Assert.notEmpty(countryCodeJson, "Country code must not be empty");
 
     int index = 0;
     for (int i = 0; i < this.jsonArray.size(); i++) {

@@ -49,6 +49,10 @@ public final class CommitmentGroupElement extends GroupElement {
 
   @Override
   public QRElement multiply(BigInteger bigInteger) {
-    return null;
+       throw new RuntimeException("not implemented");  }
+
+  @Override
+  public GroupElement modInverse(BigInteger bigInteger) {
+    throw new RuntimeException("not implemented");
   }
 }

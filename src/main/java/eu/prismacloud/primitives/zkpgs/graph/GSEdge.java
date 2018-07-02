@@ -39,4 +39,32 @@ public class GSEdge extends DefaultEdge {
     sb.append('}');
     return sb.toString();
   }
+
+//  @Override
+//  public boolean equals(Object o) {
+//    if (this == o) {
+//      return true;
+//    }
+//    if (o == null || this.getClass() != o.getClass()) {
+//      return false;
+//    }
+//
+//    GSEdge gsEdge = (GSEdge) o;
+//
+//    if (!this.getE_i().equals(gsEdge.getE_i())) {
+//      return false;
+//    }
+//    if (!this.getE_j().equals(gsEdge.getE_j())) {
+//      return false;
+//    }
+//    return this.getLabelRepresentative().equals(gsEdge.getLabelRepresentative());
+//  }
+//
+//  @Override
+//  public int hashCode() {
+//    int result = this.getE_i().hashCode();
+//    result = 31 * result + this.getE_j().hashCode();
+//    result = 31 * result + this.getLabelRepresentative().hashCode();
+//    return result;
+//  }
 }

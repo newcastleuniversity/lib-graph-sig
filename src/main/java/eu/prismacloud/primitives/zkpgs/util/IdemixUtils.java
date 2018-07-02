@@ -10,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
@@ -37,9 +38,9 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public SafePrime generateRandomSafePrime() {
+  public SafePrime generateRandomSafePrime(KeyGenParameters keyGenParameters) {
     BigInteger p =
-        Utils.computeSafePrime(keyGenParameters.getL_n() / 2, keyGenParameters.getL_pt());
+        Utils.computeSafePrime(this.keyGenParameters.getL_n() / 2, this.keyGenParameters.getL_pt());
     BigInteger p_prime = p.subtract(BigInteger.ONE).shiftRight(1);
 
     return new SafePrime(p, p_prime);
@@ -47,12 +48,12 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
   @Override
   public SpecialRSAMod generateSpecialRSAModulus() {
-    return null;
+    throw new RuntimeException("not currently used from idemix library");
   }
 
   @Override
-  public BigInteger createQRNGenerator(final BigInteger n) {
-    return Utils.computeGeneratorQuadraticResidue(n, getIdemixSystemParameters());
+  public QRElement createQRNGenerator(final BigInteger n) {
+    return new QRElement(Utils.computeGeneratorQuadraticResidue(n, getIdemixSystemParameters()));
   }
 
   @Override
@@ -67,6 +68,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
   @Override
   public CommitmentGroup generateCommitmentGroup() {
+
     StructureStore st = StructureStore.getInstance();
     st.add("idemix", this.getIdemixSystemParameters());
 
@@ -90,7 +92,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public BigInteger createQRNElement(final BigInteger n) {
+  public QRElement createQRNElement(final BigInteger n) {
     throw new RuntimeException("not implemented in idemix library");
   }
 
@@ -105,9 +107,8 @@ public class IdemixUtils extends Utils implements INumberUtils {
 
     Vector<BigInteger> vlist = new Vector<BigInteger>(hlist);
 
-      return Utils.hashOf(hashLength, vlist);
+    return Utils.hashOf(hashLength, vlist);
   }
-
 
   @Override
   public BigInteger computeA() {
@@ -122,11 +123,18 @@ public class IdemixUtils extends Utils implements INumberUtils {
   @Override
   public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents,
       BigInteger modN) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
+
+//  @Override
+  public BigInteger multiBaseExpMap(
+      List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
     throw new RuntimeException("not implemented in idemix library");
   }
 
   @Override
-  public BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
+  public BigInteger multiBaseExpMap(
+      Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
     throw new RuntimeException("not currently used from idemix library");
   }
 
@@ -141,8 +149,8 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public GSSignature generateSignature(BigInteger m, BaseRepresentation base,
-      SignerPublicKey signerPublicKey) {
+  public GSSignature generateSignature(
+      BigInteger m, BaseRepresentation base, SignerPublicKey signerPublicKey) {
     throw new RuntimeException("not currently used from idemix library");
   }
 

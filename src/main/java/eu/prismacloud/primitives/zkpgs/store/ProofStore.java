@@ -49,8 +49,8 @@ public class ProofStore<T> {
     Assert.notNull(key, "Store key cannot be null");
     Assert.notNull(element, "Store element cannot be null");
 
-    gslog.log(Level.INFO, "key value:  " + key);
-    gslog.log(Level.INFO, "element:  " + element);
+//    gslog.log(Level.INFO, "key value:  " + key);
+//    gslog.log(Level.INFO, "element:  " + element);
 
     if (elements.containsKey(key)) {
       throw new ProofStoreException(

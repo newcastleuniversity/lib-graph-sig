@@ -30,7 +30,13 @@ public class GSGraph<
   private SimpleGraph<GSVertex, GSEdge> g;
   private GraphMLImporter<GSVertex, GSEdge> importer;
 
-  public GSGraph(Graph<GSVertex, GSEdge> graph) {}
+  public GSGraph(
+      Graph<
+              eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+              eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+          graph) {
+    this.graph = graph;
+  }
 
   public Graph<GSVertex, GSEdge> createGraph(String graphFile) throws ImportException {
     graph = new DefaultUndirectedGraph<>(eu.prismacloud.primitives.zkpgs.graph.GSEdge.class);

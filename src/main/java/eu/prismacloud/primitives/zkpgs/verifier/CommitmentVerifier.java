@@ -117,7 +117,7 @@ public class CommitmentVerifier implements IVerifier {
     hatU =
         U.getCommitment()
             .modInverse(c)
-            .multiply(CryptoUtilsFacade.computeMultiBaseEx(basesU, exponentsU, modN));
+            .multiply(CryptoUtilsFacade.computeMultiBaseExMap(basesU, exponentsU, modN));
     return hatU;
   }
 

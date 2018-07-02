@@ -2,9 +2,11 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
@@ -15,11 +17,12 @@ import java.util.Map;
 /** Interface for Number Theoretic utilities */
 public interface INumberUtils {
 
-  SafePrime generateRandomSafePrime();
+  SafePrime generateRandomSafePrime(
+      KeyGenParameters keyGenParameters);
 
   SpecialRSAMod generateSpecialRSAModulus();
 
-  BigInteger createQRNGenerator(BigInteger N);
+  QRElement createQRNGenerator(BigInteger N);
 
   BigInteger createRandomNumber(BigInteger min, BigInteger max);
 
@@ -31,7 +34,7 @@ public interface INumberUtils {
 
   Boolean elementOfQRN(BigInteger value, BigInteger modulus);
 
-  BigInteger createQRNElement(BigInteger N);
+  QRElement createQRNElement(BigInteger N);
 
   BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException;
 
@@ -41,7 +44,7 @@ public interface INumberUtils {
 
   BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN);
 
-  BigInteger multiBaseExp(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN);
+  BigInteger multiBaseExpMap(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN);
 
   BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength);
 

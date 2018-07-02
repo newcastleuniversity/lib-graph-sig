@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.GSUtils;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.math.BigInteger;
 import java.util.logging.Logger;
@@ -12,7 +11,6 @@ public class JacobiSymbol {
   //    private static int sigma;
   private static BigInteger h;
   private static BigInteger alpha_prime;
-  private static GSUtils gs = new GSUtils();
 
   private JacobiSymbol() {}
 
@@ -43,15 +41,8 @@ public class JacobiSymbol {
         else return 0;
       }
 
-      // alpha_prime = splitPowerRemainder(alpha);
-
-      //            log.info("alpha: " + alpha);
-
       h = BigInteger.valueOf(alpha.getLowestSetBit());
       alpha_prime = alpha.shiftRight(h.intValue());
-
-      //            log.info("h: " + h);
-      //            log.info("alpha_prime: " + alpha_prime);
 
       if (!isCongruent(h, BigInteger.ZERO, NumberConstants.TWO.getValue())
           && !isCongruent(modN, BigInteger.ONE, NumberConstants.EIGHT.getValue())
@@ -63,7 +54,6 @@ public class JacobiSymbol {
 
       alpha = modN;
       modN = alpha_prime;
-      // log.info("N: " + N);
 
     } while (true);
   }
@@ -79,10 +69,8 @@ public class JacobiSymbol {
 
     h = BigInteger.valueOf(alpha.bitLength()).subtract(BigInteger.ONE);
     BigInteger b = BigInteger.ONE.shiftLeft(h.intValue());
-    //        log.info("b: " + b);
     BigInteger k = alpha.subtract(b);
-    //        log.info("k: " + k);
-    return k; // alpha.subtract(b);//alpha_prime;
+    return k;
   }
 
   /**
@@ -94,7 +82,6 @@ public class JacobiSymbol {
    * @return
    */
   public static boolean isCongruent(BigInteger a, BigInteger b, BigInteger mod) {
-    // BigInteger c = a.subtract(b);
     return a.mod(mod).compareTo(b) == 0;
   }
 

@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.Map;
@@ -44,6 +45,13 @@ public class ExtendedPublicKey {
       final Map<URN, BigInteger> vertexRepresentatives,
       final Map<URN, BigInteger> labelRepresentatives,
       final GraphEncodingParameters graphEncodingParameters) {
+
+    Assert.notNull(signerPublicKey,"public key must not be null" );
+    Assert.notNull(keygenParams, "keygen parameters must not be null");
+    Assert.notNull(bases, "bases must not be null");
+    Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
+    Assert.notNull(labelRepresentatives,"label representatives must not be null");
+    Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
 
     this.signerPublicKey = signerPublicKey;
     this.keygenParams = keygenParams;

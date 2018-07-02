@@ -194,7 +194,7 @@ public class GSPossessionProver implements IProver {
     Map<URN, BigInteger> exponents = populateExponents(tildee, tildem_0);
 
     tildeZ =
-        CryptoUtilsFacade.computeMultiBaseEx(
+        CryptoUtilsFacade.computeMultiBaseExMap(
             bases, exponents, extendedPublicKey.getPublicKey().getModN());
   }
 

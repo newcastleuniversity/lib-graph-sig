@@ -9,6 +9,7 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
@@ -38,18 +39,22 @@ public class GSUtils implements INumberUtils {
   private static KeyGenParameters keyGenParameters;
 
   /** Instantiates a new Gs utils. */
-  public GSUtils() {}
+  public GSUtils() {
+    keyGenParameters = KeyGenParameters.getKeyGenParameters();
+  }
 
   public BigInteger randomMinusPlusNumber(int bitlength) {
     SecureRandom secureRandom = new SecureRandom();
-    /** TODO check if the computations for generating a +- number are correct */
+
+    /** TODO check if the computations for generating a +- random number are correct */
     BigInteger max = NumberConstants.TWO.getValue().pow(bitlength).subtract(BigInteger.ONE);
 
     BigInteger maxWithoutSign = max.multiply(NumberConstants.TWO.getValue());
 
     BigInteger number = maxWithoutSign.add(BigInteger.ONE);
-    while (number.compareTo(maxWithoutSign) > 0
-        || number.subtract(max).compareTo(BigInteger.ZERO) == 0) {
+    while ((number.compareTo(maxWithoutSign) > 0)
+        || (number.subtract(max).compareTo(BigInteger.ZERO) == 0)
+        || ((number.bitLength() + 1) != bitlength)) {
       number = new BigInteger(bitlength + 1, secureRandom);
     }
     return number.subtract(max);
@@ -65,28 +70,34 @@ public class GSUtils implements INumberUtils {
 
     BigInteger result = BigInteger.ONE;
     for (int i = 0; i < bases.size(); i++) {
-      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN)).mod(modN);
+      result = result.multiply(bases.get(i).modPow(exponents.get(i), modN));
     }
     return result;
   }
 
   @Override
-  public BigInteger multiBaseExp(
+  public BigInteger multiBaseExpMap(
       Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
+    GroupElement base;
+    BigInteger exponent;
 
     Assert.notNull(bases, "bases must not be null");
     Assert.notNull(exponents, "exponents must not be null");
     Assert.notNull(modN, "modulus N must not be null");
     Assert.checkSize(bases.size(), exponents.size(), "bases and exponents must have the same size");
 
-    List<GroupElement> basesList = (List<GroupElement>) bases.values();
-    List<BigInteger> exponentList = (List<BigInteger>) exponents.values();
+    List<GroupElement> basesList = new ArrayList<GroupElement>(bases.values());
+    List<BigInteger> exponentList = new ArrayList<BigInteger>(exponents.values());
 
     BigInteger result = BigInteger.ONE;
 
     for (int i = 0; i < bases.size(); i++) {
-      result =
-          result.multiply(basesList.get(i).modPow(exponentList.get(i), modN).getValue()).mod(modN);
+      base = basesList.get(i);
+      exponent = exponentList.get(i);
+      if (exponent != null){
+        result = result.multiply(base.modPow(exponent, modN).getValue());
+      }
+
     }
     return result;
   }
@@ -113,8 +124,9 @@ public class GSUtils implements INumberUtils {
    */
   @Override
   public SpecialRSAMod generateSpecialRSAModulus() {
-    p = this.generateRandomSafePrime();
-    q = this.generateRandomSafePrime();
+
+    p = this.generateRandomSafePrime(keyGenParameters);
+    q = this.generateRandomSafePrime(keyGenParameters);
     modN = p.getSafePrime().multiply(q.getSafePrime());
     return new SpecialRSAMod(modN, p, q);
   }
@@ -122,7 +134,6 @@ public class GSUtils implements INumberUtils {
   @Override
   public BigInteger createRandomNumber(BigInteger min, BigInteger max) {
     BigInteger randomNumber;
-    //    final BigInteger result;
     BigInteger range;
     BigInteger temp;
 
@@ -134,16 +145,12 @@ public class GSUtils implements INumberUtils {
       return min;
     }
 
-    // range =  max - min + 1
     range = max.subtract(min).add(BigInteger.ONE);
-    //   log.info("range: " + range);
 
     do {
       randomNumber = new BigInteger(range.bitLength(), new SecureRandom());
     } while (randomNumber.compareTo(range) >= 0);
 
-    //   log.info("random: " + randomNumber);
-    //    result = randomNumber.add(min);
     return randomNumber.add(min);
   }
 
@@ -154,12 +161,14 @@ public class GSUtils implements INumberUtils {
 
   @Override
   public CommitmentGroup generateCommitmentGroup() {
+
     // TODO check if the computations are correct
     rho = generateRandomPrime(keyGenParameters.getL_rho());
     gamma = computeCommitmentGroupModulus(rho);
     g = createCommitmentGroupGenerator(rho, gamma);
     r = createRandomNumber(BigInteger.ZERO, rho);
     h = g.modPow(r, gamma);
+
     return new CommitmentGroup(rho, gamma, g, h);
   }
 
@@ -180,9 +189,9 @@ public class GSUtils implements INumberUtils {
 
     do {
       h = createRandomNumber(NumberConstants.TWO.getValue(), gamma);
-      log.info("h: " + h);
+      //      log.info("h: " + h);
       g = h.modPow(exp, gamma);
-      log.info("g: " + g);
+      //      log.info("g: " + g);
 
     } while (h.equals(BigInteger.ONE));
 
@@ -206,18 +215,12 @@ public class GSUtils implements INumberUtils {
     List<BigInteger> genFactors = new ArrayList<BigInteger>();
 
     for (BigInteger factor : primeFactors) {
-      log.info("factor: " + factor);
       do {
-
-        //              alpha = generateRandomPrime(KeyGenParameters.l_gamma.getValue());
         alpha = createRandomNumber(BigInteger.ONE, gamma.subtract(BigInteger.ONE));
-        //                log.info("alpha: " + alpha);
 
         beta = alpha.modPow(factor, gamma);
-        log.info("beta: " + beta);
 
       } while (beta.equals(BigInteger.ONE)); // || !beta.equals(BigInteger.valueOf(0)));
-      log.info("alpha: " + alpha);
       genFactors.add(alpha.modPow(factor, gamma));
     }
 
@@ -251,12 +254,12 @@ public class GSUtils implements INumberUtils {
       this.rho = getMaxNumber(primeFactors);
       // rho divides gamma - 1
       res = gamma.divideAndRemainder(rho);
-      log.info("remainder 1: " + res[1]);
+      //      log.info("remainder 1: " + res[1]);
 
     } while (!res[1].equals(
         BigInteger.ZERO)); // || gamma.bitLength() != KeyGenParameters.l_gamma.getValue());
     this.primeFactors = primeFactors;
-    log.info("gamma: " + gamma);
+    //    log.info("gamma: " + gamma);
     return gamma;
   }
 
@@ -304,8 +307,6 @@ public class GSUtils implements INumberUtils {
       do {
         n = createRandomNumber(min, n);
 
-        //  log.info("modN " + modN);
-
         if (n.isProbablePrime(keyGenParameters.getL_pt())) {
           primeSeq.add(n);
           y = y.multiply(n);
@@ -315,12 +316,7 @@ public class GSUtils implements INumberUtils {
 
       x = createRandomNumber(BigInteger.ONE, m);
 
-      //  log.info("y prime :  " + y);
-      //   log.info("isPrime:  " + isPrime(y));
-
     } while (y.compareTo(m) <= 0 && x.compareTo(y) <= 0);
-
-    //  log.info("y: " + y);
 
     return primeSeq;
   }
@@ -342,14 +338,9 @@ public class GSUtils implements INumberUtils {
       p = BigInteger.ONE;
       factors = generateRandomNumberWithFactors(m);
 
-      //  log.info("rnd length: " + factors.size());
-
       for (BigInteger factor : factors) {
-        //        log.info("factor " + i + " : " + factor);
         p = p.multiply(factor);
       }
-      //    log.info("p: " + p.add(BigInteger.ONE));
-      //    log.info("p: bitlength " + p.add(BigInteger.ONE).bitLength());
     } while (!GSUtils.isPrime(p.add(BigInteger.ONE)));
     // TODO check if correct bit length for gamma modulus
     return factors;
@@ -392,8 +383,7 @@ public class GSUtils implements INumberUtils {
     BigInteger s_prime;
     do {
 
-      s_prime =
-          createRandomNumber(NumberConstants.TWO.getValue(), this.modN.subtract(BigInteger.ONE));
+      s_prime = createRandomNumber(NumberConstants.TWO.getValue(), modN.subtract(BigInteger.ONE));
 
     } while (!isElementOfZNS(s_prime, modN));
 
@@ -402,7 +392,7 @@ public class GSUtils implements INumberUtils {
 
   private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger modN) {
     // check gcd(S', modN) = 1
-    return (s_prime.gcd(this.modN).equals(BigInteger.ONE));
+    return (s_prime.gcd(modN).equals(BigInteger.ONE));
   }
 
   /**
@@ -426,9 +416,10 @@ public class GSUtils implements INumberUtils {
    * Input: generator S, modulus modN Output: true or false
    *
    * @param s the s generator
+   * @param modN
    * @return true if s is a generator of QRN or else return false
    */
-  public Boolean verifySGeneratorOfQRN(final BigInteger s) {
+  public Boolean verifySGeneratorOfQRN(final BigInteger s, BigInteger modN) {
     return s.subtract(BigInteger.ONE).gcd(modN).compareTo(BigInteger.ONE) == 0;
   }
 
@@ -438,7 +429,7 @@ public class GSUtils implements INumberUtils {
    * verifySGenerator()
    */
   @Override
-  public BigInteger createQRNGenerator(final BigInteger modN) {
+  public QRElement createQRNGenerator(final BigInteger modN) {
 
     BigInteger s;
     BigInteger s_prime;
@@ -448,12 +439,12 @@ public class GSUtils implements INumberUtils {
       s_prime = createElementOfZNS(modN);
       s = s_prime.modPow(NumberConstants.TWO.getValue(), modN);
 
-    } while (!verifySGeneratorOfQRN(s));
-    return s;
+    } while (!verifySGeneratorOfQRN(s, modN));
+    return new QRElement(s);
   }
 
   @Override
-  public BigInteger createQRNElement(final BigInteger modN) {
+  public QRElement createQRNElement(final BigInteger modN) {
 
     BigInteger s;
     BigInteger s_prime;
@@ -464,23 +455,41 @@ public class GSUtils implements INumberUtils {
       s = s_prime.modPow(NumberConstants.TWO.getValue(), modN);
 
     } while (!elementOfQRN(s, modN));
-    return s;
+    return new QRElement(s);
   }
 
   public BigInteger computeHash(final List<String> list, final int hashLength)
       throws NoSuchAlgorithmException {
-
+    BigInteger hash;
+    BigInteger checkedHash;
     MessageDigest messageDigest;
     messageDigest = MessageDigest.getInstance("SHA-" + hashLength);
     messageDigest.reset();
     for (String element : list) {
       messageDigest.update(element.getBytes(UTF_8));
     }
+    hash = new BigInteger(1, messageDigest.digest());
 
-    //    String hashString = String.format("%040x", new BigInteger(1, messageDigest.digest()));
-    //    log.log(Level.INFO, "hash: " + hashString);
+    int diff = hashLength - hash.bitLength();
+    if (diff > 0) {
+      for (int i = 1; i <= diff; i++) {
+        hash = hash.multiply(BigInteger.valueOf(2));
+      }
+    }
+    checkedHash = hash;
 
-    return new BigInteger(1, messageDigest.digest());
+    return checkedHash;
+  }
+
+  protected byte[] getBytes(BigInteger big) {
+    byte[] bigBytes = big.toByteArray();
+    if ((big.bitLength() % 8) != 0) {
+      return bigBytes;
+    } else {
+      byte[] smallerBytes = new byte[big.bitLength() / 8];
+      System.arraycopy(bigBytes, 1, smallerBytes, 0, smallerBytes.length);
+      return smallerBytes;
+    }
   }
 
   @Override
@@ -551,18 +560,14 @@ public class GSUtils implements INumberUtils {
    * l_n bit-length, l_pt Output: safe prime p, Sophie Germain p'
    */
   @Override
-  public SafePrime generateRandomSafePrime() {
+  public SafePrime generateRandomSafePrime(KeyGenParameters keyGenParameters) {
+
     BigInteger a;
     BigInteger a_prime;
 
     do {
-
       a_prime = generateRandomPrime(keyGenParameters.getL_n() / 2);
-      log.info("a_prime: " + a_prime);
       a = NumberConstants.TWO.getValue().multiply(a_prime).add(BigInteger.ONE);
-      log.info("a: " + a);
-      log.info("isPrime: " + isPrime(a));
-
     } while (!isPrime(a));
     return new SafePrime(a, a_prime);
   }

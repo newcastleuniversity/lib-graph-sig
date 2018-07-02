@@ -16,7 +16,7 @@ public final class QRGroupPQ extends Group {
   private final BigInteger order;
   private final BigInteger oneP;
   private final BigInteger oneQ;
-  private GroupElement generator;
+  private QRElement generator;
   private final List<GroupElement> groupElements = new ArrayList<>();
 
   /**
@@ -67,14 +67,14 @@ public final class QRGroupPQ extends Group {
    * @return the group element
    */
   @Override
-  public GroupElement createGenerator() {
+  public QRElement createGenerator() {
     return this.generator =
-        new QRElementPQ(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus), pPrime, qPrime);
+            new QRElementPQ(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus).getValue(), pPrime, qPrime);
   }
 
   @Override
-  public GroupElement createElement() {
-    return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus), pPrime, qPrime);
+  public QRElement createElement() {
+    return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue(), pPrime, qPrime);
   }
 
   @Override

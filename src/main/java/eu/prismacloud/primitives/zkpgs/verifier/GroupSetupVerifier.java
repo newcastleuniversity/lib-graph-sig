@@ -1,91 +1,128 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
+import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 /** Class represents the verification stage for the group setup. */
 public class GroupSetupVerifier implements IVerifier {
 
   private ExtendedPublicKey extendedPublicKey;
   private ProofSignature proofSignature;
+  private ProofStore<Object> proofStore;
   private KeyGenParameters keyGenParameters;
   private int bitLength;
   private BigInteger hatZ;
   private BigInteger hatR;
   private BigInteger hatR_0;
-  private Map<String, BigInteger> hatVertexBases;
-  private Map<String, BigInteger> hatEdgeBases;
-  private Map<String, BigInteger> vertexBases;
-  private Map<String, BigInteger> edgeBases;
+  private Map<URN, BigInteger> hatVertexBases;
+  private Map<URN, BigInteger> hatEdgeBases;
+  private Map<URN, BigInteger> vertexBases;
+  private Map<URN, BigInteger> edgeBases;
   private GraphEncodingParameters graphEncodingParameters;
-  private Map<String, BigInteger> vertexResponses;
-  private Map<String, BigInteger> edgeResponses;
+  private Map<URN, BigInteger> vertexResponses;
+  private Map<URN, BigInteger> edgeResponses;
   private List<String> challengeList = new ArrayList<>();
-  private BigInteger Z;
+  private QRElement baseZ;
   private BigInteger c;
-  private BigInteger S;
+  private QRElement baseS;
   private BigInteger hatr_z;
-  private BigInteger N;
-  private BigInteger R;
+  private BigInteger modN;
+  private QRElement baseR;
   private BigInteger hatr;
-  private BigInteger R_0;
+  private QRElement baseR_0;
   private BigInteger hatr_0;
   private BigInteger hatc;
   private List<String> contextList;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private QRElement hatR_i_j;
 
-  public void preChallengePhase(ExtendedPublicKey extendedPublicKey, ProofSignature proofSignature, KeyGenParameters keyGenParameters, GraphEncodingParameters graphEncodingParameters) {
+  /**
+   * Pre challenge phase.
+   *
+   * @param extendedPublicKey the extended public key
+   * @param proofSignature the proof signature
+   * @param proofStore the proof store
+   * @param keyGenParameters the key gen parameters
+   * @param graphEncodingParameters the graph encoding parameters
+   */
+  public void preChallengePhase(
+      ExtendedPublicKey extendedPublicKey,
+      ProofSignature proofSignature,
+      ProofStore<Object> proofStore,
+      KeyGenParameters keyGenParameters,
+      GraphEncodingParameters graphEncodingParameters) {
     this.extendedPublicKey = extendedPublicKey;
     this.proofSignature = proofSignature;
+    this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
-    this.Z = proofSignature.getZ();
-    this.c = proofSignature.getC();
-    this.S = proofSignature.getS();
-    this.hatr_z = proofSignature.getHatr_Z();
-    this.N = proofSignature.getN();
-    this.R = proofSignature.getR();
-    this.hatr = proofSignature.getHatr();
-    this.R_0 = proofSignature.getR_0();
-    this.hatr_0 = proofSignature.getHatr_0();
-    this.vertexBases = proofSignature.getVertexBases();
-    this.edgeBases = proofSignature.getEdgeBases();
+
+    this.baseZ = (QRElement) proofSignature.get("proofsignature.P.baseZ");
+    this.c = (BigInteger) proofSignature.get("proofsignature.P.c");
+    this.baseS = (QRElement) proofSignature.get("proofsignature.P.baseS");
+    this.hatr_z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
+    this.modN = (BigInteger) proofSignature.get("proofsignature.P.modN");
+    this.baseR = (QRElement) proofSignature.get("proofsignature.P.baseR");
+    this.hatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
+    this.baseR_0 = (QRElement) proofSignature.get("proofsignature.P.baseR_0");
+    this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
+    this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
+    this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
     this.graphEncodingParameters = graphEncodingParameters;
   }
 
-
-//  @Override
+  /** Check lengths. */
+  //  @Override
   public void checkLengths() {
-    bitLength = computeBitLength();
-    Assert.checkBitLength(
-        this.proofSignature.getHatr_Z(), bitLength, "length for hatr_Z is not correct ");
-    Assert.checkBitLength(
-        this.proofSignature.getHatr(), bitLength, "length for hatr is not correct ");
-    Assert.checkBitLength(
-        this.proofSignature.getHatr_0(), bitLength, "length for hatr_0 is not correct ");
-    Map<String, BigInteger> edgeResponses = proofSignature.getEdgeResponses();
-    Map<String, BigInteger> vertexResponses = proofSignature.getVertexResponses();
+    bitLength = computeBitLength() - 1;
+
+    gslog.info("computeBitLength: " + bitLength);
+    gslog.info("bitlength: " + this.hatr_z.bitLength());
+
+    Assert.checkBitLength(this.hatr_z, bitLength, "length for hatr_Z is not correct ");
+    Assert.checkBitLength(this.hatr, bitLength, "length for hatr is not correct ");
+    Assert.checkBitLength(this.hatr_0, bitLength, "length for hatr_0 is not correct ");
+
     BigInteger vertexResponse;
     BigInteger edgeResponse;
 
-    for (int i = 1; i <= vertexResponses.size(); ++i) {
-      vertexResponse = vertexResponses.get("hatr_" + i);
-      Assert.checkBitLength(
-          vertexResponse, bitLength, "length for vertex hatr_" + i + " is not correct ");
-    }
+    BaseRepresentation baseR;
+    for (Entry<URN, BaseRepresentation> baseRepresentation :
+        extendedPublicKey.getBases().entrySet()) {
 
-    for (int j = 1; j <= vertexResponses.size(); ++j) {
-      edgeResponse = edgeResponses.get("hatr_" + j);
-      Assert.checkBitLength(
-          edgeResponse, bitLength, "length for edge hatr_" + j + " is not correct ");
+      gslog.info("key: " + baseRepresentation.getKey());
+      baseR = baseRepresentation.getValue();
+      if (baseR.getBaseType() == BASE.VERTEX) {
+        vertexResponse =
+            this.vertexResponses.get(
+                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_" + baseR.getBaseIndex()));
+        Assert.checkBitLength(
+            vertexResponse, bitLength, "length for vertex response is not correct ");
+
+      } else if (baseR.getBaseType() == BASE.EDGE) {
+        edgeResponse =
+            this.edgeResponses.get(
+                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_j_" + baseR.getBaseIndex()));
+        Assert.checkBitLength(edgeResponse, bitLength, "length for edge response is not correct ");
+      }
     }
   }
 
@@ -96,41 +133,64 @@ public class GroupSetupVerifier implements IVerifier {
         + 1;
   }
 
-//  @Override
+  /** Compute hat values. */
+  //  @Override
   public void computeHatValues() {
     BigInteger vertexBase;
     BigInteger edgeBase;
     BigInteger hatVertexResponse;
     BigInteger hatEdgeResponse;
-    BigInteger hatR_i;
+    QRElement hatR_i;
     BigInteger hatR_j;
+    BigInteger checkHatZ =
+        baseZ.getValue().modPow(c.negate(), modN).multiply(baseS.getValue().modPow(hatr_z, modN));
+    hatVertexBases = new HashMap<URN, BigInteger>();
+    hatEdgeBases = new HashMap<URN, BigInteger>();
 
-    /** TODO check computation if it computed correctly according to spec. */
-    hatZ = Z.modInverse(c).multiply(S.modPow(hatr_z, N));
-    hatR = R.modInverse(c).multiply(S.modPow(hatr, N));
-    hatR_0 = R_0.modInverse(c).multiply(S.modPow(hatR_0, N));
+    /** TODO check computation if it is computed correctly according to spec. */
+    hatZ = baseZ.modPow(c.negate(), modN).multiply(baseS.modPow(hatr_z, modN)).getValue();
+    hatR = baseR.modPow(c.negate(), modN).multiply(baseS.modPow(hatr, modN)).getValue();
+    hatR_0 = baseR_0.modPow(c.negate(), modN).multiply(baseS.modPow(hatr_0, modN)).getValue();
 
-    computeGraphHatValues(vertexBases, vertexResponses, hatVertexBases);
+    BaseRepresentation baseR;
+    for (Entry<URN, BaseRepresentation> baseRepresentation :
+        extendedPublicKey.getBases().entrySet()) {
 
-    computeGraphHatValues(edgeBases, edgeResponses, hatEdgeBases);
-  }
+      gslog.info("key: " + baseRepresentation.getKey());
+      baseR = baseRepresentation.getValue();
+      if (baseR.getBaseType() == BASE.VERTEX) {
+        hatVertexResponse =
+            vertexResponses.get(
+                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_" + baseR.getBaseIndex()));
+        hatR_i =
+            baseR
+                .getBase()
+                .modPow(c.negate(), modN)
+                .multiply(baseS.modPow(hatVertexResponse, modN));
 
-  private void computeGraphHatValues(
-      Map<String, BigInteger> bases,
-      Map<String, BigInteger> responses,
-      Map<String, BigInteger> hatBases) {
-    BigInteger edgeBase;
-    BigInteger hatEdgeResponse;
-    BigInteger hatR;
-    for (int i = 1; i <= bases.size(); i++) {
-      edgeBase = bases.get("R_" + i);
-      hatEdgeResponse = responses.get("hatr_" + i);
-      hatR = edgeBase.modInverse(c).multiply(S.modPow(hatEdgeResponse, N));
-      hatBases.put("hatR_" + i, hatR);
+        hatVertexBases.put(
+            URN.createZkpgsURN("groupsetupverifier.vertex.hatR_i_" + baseR.getBaseIndex()),
+            hatR_i.getValue());
+
+      } else if (baseR.getBaseType() == BASE.EDGE) {
+        hatEdgeResponse =
+            edgeResponses.get(
+                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_j_" + baseR.getBaseIndex()));
+        hatR_i_j =
+            baseR.getBase().modPow(c.negate(), modN).multiply(baseS.modPow(hatEdgeResponse, modN));
+        hatEdgeBases.put(
+            URN.createZkpgsURN("groupsetupverifier.edge.hatR_i_j_" + baseR.getBaseIndex()),
+            hatR_i_j.getValue());
+      }
     }
   }
 
-//  @Override
+  /**
+   * Compute verification challenge.
+   *
+   * @throws NoSuchAlgorithmException the no such algorithm exception
+   */
+  //  @Override
   public void computeVerificationChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
@@ -138,36 +198,46 @@ public class GroupSetupVerifier implements IVerifier {
 
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
-    contextList = GSContext.computeChallengeContext(extendedPublicKey,  keyGenParameters, graphEncodingParameters);
-    challengeList.add(String.valueOf(N));
-    challengeList.add(String.valueOf(S));
-    challengeList.add(String.valueOf(Z));
-    challengeList.add(String.valueOf(R));
-    challengeList.add(String.valueOf(R_0));
+    contextList =
+        GSContext.computeChallengeContext(
+            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    challengeList.add(String.valueOf(modN));
+    challengeList.add(String.valueOf(baseS));
+    challengeList.add(String.valueOf(baseZ));
+    challengeList.add(String.valueOf(baseR));
+    challengeList.add(String.valueOf(baseR_0));
 
-    for (int i = 1; i <= vertexBases.size(); i++) {
-      challengeList.add(String.valueOf(vertexBases.get("R_" + i)));
-    }
-
-    for (int j = 1; j <= edgeBases.size(); j++) {
-      challengeList.add(String.valueOf(edgeBases.get("R_" + j)));
+    for (BaseRepresentation baseRepresentation : extendedPublicKey.getBases().values()) {
+      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
     }
 
     challengeList.add(String.valueOf(hatZ));
     challengeList.add(String.valueOf(hatR));
     challengeList.add(String.valueOf(hatR_0));
 
-    for (int i = 1; i <= hatVertexBases.size(); i++) {
-      challengeList.add(String.valueOf(hatVertexBases.get("tildeR_" + i)));
+    for (BaseRepresentation baseRepresentation : extendedPublicKey.getBases().values()) {
+      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+
+        challengeList.add(
+            String.valueOf(
+                hatVertexBases.get(
+                    URN.createZkpgsURN(
+                        "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()))));
+
+      } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
+        challengeList.add(
+            String.valueOf(
+                hatEdgeBases.get(
+                    URN.createZkpgsURN(
+                        "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()))));
+      }
     }
 
-    for (int j = 1; j <= hatEdgeBases.size(); j++) {
-      challengeList.add(String.valueOf(hatEdgeBases.get("tildeR_" + j)));
-    }
     return challengeList;
   }
 
-//  @Override
+  /** Verify challenge. */
+  //  @Override
   public void verifyChallenge() {
     if (!hatc.equals(c)) {
       throw new IllegalArgumentException("Challenge is rejected ");

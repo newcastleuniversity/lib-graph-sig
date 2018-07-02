@@ -26,14 +26,14 @@ public final class QRGroupN extends Group {
   }
 
   @Override
-  public QRElementN createGenerator() {
+  public QRElement createGenerator() {
     return this.generator =
-        new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus));
+        new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus).getValue());
   }
 
   @Override
-  public GroupElement createElement() {
-    QRElement qrElement = new QRElementN(this, CryptoUtilsFacade.computeQRNElement(this.modulus));
+  public QRElement createElement() {
+    QRElement qrElement = new QRElementN(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue());
 
     this.groupElements.add(qrElement);
 
@@ -41,7 +41,9 @@ public final class QRGroupN extends Group {
   }
 
   @Override
-  public GroupElement createElement(GroupElement s) {
+  public QRElement createElement(GroupElement s)
+  {
+    /** TODO finish implementation for QRGrouN  */
     return null;
   }
 

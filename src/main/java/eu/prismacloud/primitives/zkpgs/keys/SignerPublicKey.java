@@ -4,23 +4,22 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 
-public class SignerPublicKey  {
+public class SignerPublicKey {
 
   private SignerPrivateKey privateKey;
+  private final KeyGenParameters keyGenParameters;
   private BigInteger modN;
   private GroupElement baseR;
   private GroupElement baseR_0;
   private GroupElement baseS;
   private GroupElement baseZ;
 
-  public SignerPublicKey(final SignerPrivateKey privateKey, final KeyGenParameters gs_params) {
+  public SignerPublicKey(
+      final SignerPrivateKey privateKey, final KeyGenParameters keyGenParameters) {
 
     /* TODO add unique identifier to key */
-    /* TODO initialize and Compute public key for signer */
-
     this.privateKey = privateKey;
-    // this.gs_params = gs_params;
-
+    this.keyGenParameters = keyGenParameters;
   }
 
   public SignerPublicKey(
@@ -28,12 +27,14 @@ public class SignerPublicKey  {
       final GroupElement baseR,
       final GroupElement baseR_0,
       final GroupElement baseS,
-      final GroupElement baseZ) {
+      final GroupElement baseZ,
+      final KeyGenParameters keyGenParameters) {
     this.modN = modN;
     this.baseR = baseR;
     this.baseR_0 = baseR_0;
     this.baseS = baseS;
     this.baseZ = baseZ;
+    this.keyGenParameters = keyGenParameters;
   }
 
   public BigInteger getModN() {

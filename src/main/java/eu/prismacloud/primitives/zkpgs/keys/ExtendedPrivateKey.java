@@ -7,25 +7,18 @@ import java.util.Map;
 public class ExtendedPrivateKey {
 
   private final SignerPrivateKey signerPrivateKey;
-  private Map<URN, BigInteger> discLogOfVertexBases;
+  private Map<URN, BigInteger> discLogOfBases;
   private Map<URN, BigInteger> discLogOfEdgeBases;
 
   public ExtendedPrivateKey(
-      SignerPrivateKey signerPrivateKey,
-      Map<URN, BigInteger> discLogOfVertexBases,
-      Map<URN, BigInteger> discLogOfEdgeBases) {
+      SignerPrivateKey signerPrivateKey, Map<URN, BigInteger> discLogOfBases) {
 
     this.signerPrivateKey = signerPrivateKey;
-    this.discLogOfVertexBases = discLogOfVertexBases;
-    this.discLogOfEdgeBases = discLogOfEdgeBases;
+    this.discLogOfBases = discLogOfBases;
   }
 
-  public Map<URN, BigInteger> getDiscLogOfVertexBases() {
-    return discLogOfVertexBases;
-  }
-
-  public Map<URN, BigInteger> getDiscLogOfEdgesBases() {
-    return discLogOfEdgeBases;
+  public Map<URN, BigInteger> getDiscLogOfBases() {
+    return discLogOfBases;
   }
 
   public SignerPrivateKey getPrivateKey() {

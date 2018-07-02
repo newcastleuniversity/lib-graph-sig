@@ -11,6 +11,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,7 @@ public class GraphRepresentation {
   private static Logger gslog = GSLoggerConfiguration.getGSlog();
   private static List<Integer> crossoutBaseIndex;
   private static Map<URN, BaseRepresentation> bases;
+  private static Map<URN, BaseRepresentation> encodedBases;
   private ExtendedPublicKey extendedPublicKey;
   private static GraphEncodingParameters encodingParameters;
 
@@ -51,7 +53,7 @@ public class GraphRepresentation {
     bases = extendedPublicKey.getBases();
 
     crossoutBaseIndex = new ArrayList<Integer>();
-
+    encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
     encodeVertices(graph, bases);
 
     encodeEdges(graph, bases);
@@ -61,7 +63,7 @@ public class GraphRepresentation {
 
   private static void encodeEdges(
       Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
-    String labelRepresentative;
+    BigInteger labelRepresentative;
     GSVertex e_i;
     GSVertex e_j;
     BigInteger exponentEncoding;
@@ -72,7 +74,7 @@ public class GraphRepresentation {
       gslog.log(Level.INFO, "vertex e_i : " + e_i);
       gslog.log(Level.INFO, "vertex e_i id : " + e_i.getId());
 
-      labelRepresentative = edge.getLabelRepresentative();
+      labelRepresentative = e_i.getLabelPrimeRepresentative();
       gslog.log(Level.INFO, "label representative: " + labelRepresentative);
 
       e_j = edge.getE_j();
@@ -83,7 +85,7 @@ public class GraphRepresentation {
           encodeEdge(
               e_i.getVertexPrimeRepresentative(),
               e_j.getVertexPrimeRepresentative(),
-              new BigInteger(labelRepresentative));
+              labelRepresentative);
 
       gslog.log(Level.INFO, "edge exponentEncoding: " + exponentEncoding);
 
@@ -94,7 +96,7 @@ public class GraphRepresentation {
 
       base.setExponent(exponentEncoding);
 
-      bases.put(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
+      bases.replace(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
     }
   }
 
@@ -122,7 +124,8 @@ public class GraphRepresentation {
       Assert.notNull(base, "cannot find base index");
 
       base.setExponent(exponentEncoding);
-      bases.put(URN.createZkpgsURN("bases.vertex.R_" + base.getBaseIndex()), base);
+
+      bases.replace(URN.createZkpgsURN("bases.vertex.R_" + base.getBaseIndex()), base);
     }
   }
 
@@ -130,11 +133,11 @@ public class GraphRepresentation {
     int randomBaseIndex =
         CryptoUtilsFacade.computeRandomNumber(BigInteger.ONE, BigInteger.valueOf(bases.size()))
             .intValue();
-    List<Integer> crossoutBaseIndex = new ArrayList<Integer>();
+    List<Integer> crossoutBaseIndex = new ArrayList<Integer>(bases.size());
 
     for (BaseRepresentation baseRepresentation : bases.values()) {
       if (baseRepresentation.getBaseIndex() == randomBaseIndex) {
-        if (crossoutBaseIndex.get(randomBaseIndex) == null) {
+        if (!crossoutBaseIndex.contains(randomBaseIndex)) {
           crossoutBaseIndex.add(randomBaseIndex);
           return baseRepresentation;
         }
@@ -154,6 +157,9 @@ public class GraphRepresentation {
 
   private static BigInteger encodeVertex(
       BigInteger vertexPrimeRepresentative, BigInteger labelPrimeRepresentative) {
+
+    Assert.notNull(vertexPrimeRepresentative, "vertex prime representative does not exist");
+    Assert.notNull(labelPrimeRepresentative, "label prime representative does not exist");
 
     return vertexPrimeRepresentative.multiply(labelPrimeRepresentative);
   }

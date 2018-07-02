@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -10,6 +12,7 @@ import java.util.regex.Pattern;
  *     Names</a>
  */
 public class NamespaceComponent {
+  private static Logger gslog = GSLoggerConfiguration.getGSlog();
   private String content;
   /** regular expression for namespace identifier */
   private static Pattern nidPattern = Pattern.compile("^[0-9a-zA-Z]+[0-9a-zA-Z-]{0,31}$");
@@ -66,9 +69,11 @@ public class NamespaceComponent {
   }
 
   private static void validateNSS(final String nss) {
+//    gslog.log(Level.INFO, "validate: " + nss);
+    
     if (!nssPattern.matcher(nss).matches()) {
       throw new IllegalArgumentException(
-          "Characters not allowed found in Namespace Specific String");
+          "Characters not allowed found in Namespace Specific String " + nss);
     }
   }
 

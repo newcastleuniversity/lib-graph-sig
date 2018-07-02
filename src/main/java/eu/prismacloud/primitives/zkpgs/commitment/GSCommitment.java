@@ -55,7 +55,7 @@ public class GSCommitment {
 
   public BigInteger commit() {
 
-    BigInteger baseResult = CryptoUtilsFacade.computeMultiBaseEx(basesR,exponents , modN);
+    BigInteger baseResult = CryptoUtilsFacade.computeMultiBaseExMap(basesR,exponents , modN);
 
 
     commitmentValue = baseResult.multiply(baseS.modPow(randomness, modN).getValue());

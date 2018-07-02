@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import java.math.BigInteger;
 import java.util.logging.Logger;
@@ -40,9 +41,9 @@ public class SafePrime {
    *
    * @return the safe prime
    */
-  public SafePrime generateRandomSafePrime() {
+  public SafePrime generateRandomSafePrime(KeyGenParameters keyGenParameters) {
     CryptoUtilsFacade cuf = new CryptoUtilsFacade();
-    safePrime = cuf.computeRandomSafePrime();
+    safePrime = cuf.computeRandomSafePrime(keyGenParameters);
     return new SafePrime(safePrime.a, safePrime.aPrime);
   }
 }

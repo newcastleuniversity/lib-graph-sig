@@ -31,32 +31,46 @@ public class JSONParameters {
     return Json.createReader(paramStream);
   }
 
+  public KeyGenParameters getKeyGenParameters() {
+    return this.keyGenParameters;
+  }
+
+  public GraphEncodingParameters getGraphEncodingParameters() {
+    return this.graphEncodingParameters;
+  }
+
   /** Build Keygen and graph encoding parameters objects from json file. */
   public void build() {
-    JsonObject jsonObject = reader.readObject();
-    int l_n = jsonObject.getInt("l_n");
-    int l_gamma = jsonObject.getInt("l_gamma");
-    int l_rho = jsonObject.getInt("l_rho");
-    int l_m = jsonObject.getInt("l_m");
-    int l_res = jsonObject.getInt("l_res");
-    int l_e = jsonObject.getInt("l_e");
-    int l_prime_e = jsonObject.getInt("l_prime_e");
-    int l_v = jsonObject.getInt("l_v");
-    int l_statzk = jsonObject.getInt("l_statzk");
-    int l_H = jsonObject.getInt("l_H");
-    int l_r = jsonObject.getInt("l_r");
-    int l_pt = jsonObject.getInt("l_pt");
+    JsonObject jso = reader.readObject();
+
+    JsonObject keyGenJson = jso.getJsonObject("keyGenParameters");
+
+    int l_n = keyGenJson.getInt("l_n");
+    int l_gamma = keyGenJson.getInt("l_gamma");
+    int l_rho = keyGenJson.getInt("l_rho");
+    int l_m = keyGenJson.getInt("l_m");
+    int l_res = keyGenJson.getInt("l_res");
+    int l_e = keyGenJson.getInt("l_e");
+    int l_prime_e = keyGenJson.getInt("l_prime_e");
+    int l_v = keyGenJson.getInt("l_v");
+    int l_statzk = keyGenJson.getInt("l_statzk");
+    int l_H = keyGenJson.getInt("l_H");
+    int l_r = keyGenJson.getInt("l_r");
+    int l_pt = keyGenJson.getInt("l_pt");
 
     keyGenParameters =
-        new KeyGenParameters(
+        KeyGenParameters.createKeyGenParameters(
             l_n, l_gamma, l_rho, l_m, l_res, l_e, l_prime_e, l_v, l_statzk, l_H, l_r, l_pt);
 
-    int l_V = jsonObject.getInt("l_V");
+    
+    JsonObject graphEncodingJson = jso.getJsonObject("graphEncodingParameters");
+    
+    int l_V = graphEncodingJson.getInt("l_V");
 
-    int l_prime_V = jsonObject.getInt("l_prime_V");
-    int l_E = jsonObject.getInt("l_E");
-    int l_L = jsonObject.getInt("l_L");
-    int l_prime_L = jsonObject.getInt("l_prime_L");
+    int l_prime_V = graphEncodingJson.getInt("l_prime_V");
+    int l_E = graphEncodingJson.getInt("l_E");
+    int l_L = graphEncodingJson.getInt("l_L");
+    int l_prime_L = graphEncodingJson.getInt("l_prime_L");
     graphEncodingParameters = new GraphEncodingParameters(l_V, l_prime_V, l_E, l_L, l_prime_L);
   }
 }

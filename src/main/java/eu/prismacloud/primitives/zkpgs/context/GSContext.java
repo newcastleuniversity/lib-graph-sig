@@ -30,6 +30,7 @@ public class GSContext {
 
     bases = extendedPublicKey.getBases();
     labels = extendedPublicKey.getLabelRepresentatives();
+
     addKeyGenParameters(keyGenParameters);
     ctxList.add(extendedPublicKey.getPublicKey().getModN().toString());
     ctxList.add(extendedPublicKey.getPublicKey().getBaseS().getValue().toString());

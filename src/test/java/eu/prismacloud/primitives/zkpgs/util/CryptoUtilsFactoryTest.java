@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.util;
+package eu.prismacloud.primitives.zkpgs.util;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNull;

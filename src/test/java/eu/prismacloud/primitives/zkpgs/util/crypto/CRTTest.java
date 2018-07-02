@@ -1,7 +1,9 @@
-package eu.prismacloud.primitives.grs.util.crypto;
+package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CRT;
@@ -31,9 +33,14 @@ class CRTTest {
   private BigInteger b;
   private BigInteger q;
   private BigInteger x;
+  private KeyGenParameters keyGenParameters;
 
   @BeforeEach
   void setUp() {
+
+    JSONParameters parameters = new JSONParameters();
+    keyGenParameters = parameters.getKeyGenParameters();
+
     /** \( x_p \equiv 1 \bmod 5 \) \( x_q \equiv 2 \bmod 3 \) */
     a = BigInteger.valueOf(1);
     p = BigInteger.valueOf(5);
@@ -53,7 +60,8 @@ class CRTTest {
     log.info("crt modInverse: " + p.modInverse(q));
 
     BigInteger res =
-        CRT.computeCRT(a, BigInteger.valueOf(6), b, BigInteger.valueOf(10), p.multiply(q)).getValue();
+        CRT.computeCRT(a, BigInteger.valueOf(6), b, BigInteger.valueOf(10), p.multiply(q))
+            .getValue();
     log.info("result: " + res);
 
     assertEquals(BigInteger.valueOf(11), res);
@@ -245,7 +253,7 @@ class CRTTest {
   @DisplayName("Test random modulo exponentiations using CRT")
   void computeCRTRandomExp() {
     log.info("@Test: computeCRTRandom");
-    SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
+    SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
 
     Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
 
@@ -270,9 +278,9 @@ class CRTTest {
 
       // compute using QRElementPQ modPow
       Z_pq = S.modPow(x_Z, specialRSAMod.getN()).getValue();
-
-      assertEquals(Z, Z_pq);
       assertEquals(Z, Z_n);
+      assertEquals(Z, Z_pq);
+
 
       for (int j = 0; j < 100; j++) {
 
@@ -297,7 +305,7 @@ class CRTTest {
   @DisplayName("Test random multiplications using CRT")
   void computeCRTRandomMult() {
     log.info("@Test: computeCRTRandom");
-    SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus();
+    SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
 
     Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
     Group qrGroupN = new QRGroupN(specialRSAMod.getN());
