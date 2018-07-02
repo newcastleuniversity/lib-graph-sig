@@ -1,9 +1,9 @@
 {
   "keyGenParameters": {
-    "l_n": 2048,
+    "l_n": 512,
     "l_gamma": 1632,
     "l_rho": 256,
-    "l_m": 256,
+    "l_m": 128,
     "l_res": 1,
     "l_e": 597,
     "l_prime_e": 120,
@@ -14,9 +14,9 @@
     "l_pt": 80
   },
   "graphEncodingParameters": {
-    "l_V": 1000,
-    "l_prime_V": 120,
-    "l_E": 50000,
+    "l_V": 100,
+    "l_prime_V": 56,
+    "l_E": 500,
     "l_L": 256,
     "l_prime_L": 16
   }
