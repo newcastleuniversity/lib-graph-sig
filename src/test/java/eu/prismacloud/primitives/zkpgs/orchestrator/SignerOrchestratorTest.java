@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -11,14 +12,16 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** */
@@ -40,8 +43,28 @@ class SignerOrchestratorTest {
   private ProofSignature proofSignature;
   private SignerOrchestrator signerOrchestrator;
   private RecipientOrchestrator recipientOrchestrator;
+  private BigInteger e;
+  private BigInteger R_0;
+  private BigInteger R_0com;
+  private BigInteger modN;
+  private BigInteger m_0;
+  private BigInteger baseS;
+  private BigInteger vCommRandomness;
+  private BigInteger baseScom;
+  private BigInteger vbar;
+  private BigInteger vPrimePrime;
+  private BigInteger commitment;
+  private BigInteger baseZ;
+  private BigInteger Q;
+  private BigInteger d;
+  private BigInteger A;
+  private BigInteger x_Z;
+  private BigInteger Sv;
+  private BigInteger Sv1;
+  private BigInteger ZPrime;
+  private BigInteger R_0multi;
 
-  @BeforeEach
+  //  @BeforeEach
   void setUp() throws NoSuchAlgorithmException, ProofStoreException {
     JSONParameters parameters = new JSONParameters();
     keyGenParameters = parameters.getKeyGenParameters();
@@ -139,9 +162,12 @@ class SignerOrchestratorTest {
 
     groupSetupVerifier.verifyChallenge();
 
-    signerOrchestrator = new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
+    signerOrchestrator =
+        new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
 
-    recipientOrchestrator =  new RecipientOrchestrator(extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
+    recipientOrchestrator =
+        new RecipientOrchestrator(
+            extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
 
     assertNotNull(signerOrchestrator);
   }
@@ -161,9 +187,103 @@ class SignerOrchestratorTest {
 
     signerOrchestrator.round2();
 
-//    recipientOrchestrator.round3();
+    recipientOrchestrator.round3();
 
+    //    recipientOrchestrator.round3();
 
+  }
+
+  @Test
+  void testSignatureGeneration() throws Exception {
+
+    //    N =77, l_n = 7
+    //    p = 11, p’ =5; q = 7, q’ = 3
+    //
+    //    \phi(N) = 60
+    //    S = 60; QR_N = <60>; order of QR_N = 15
+    //    R = 58
+    //
+    //    l_m = 2; l_e =4 (of course there are only 2 primes e possible fitting these parameters, 11
+    // and 13, and the only messages possible: 1, 2 or 3).
+
+    modN = BigInteger.valueOf(77);
+    m_0 = BigInteger.valueOf(3);
+    baseS = BigInteger.valueOf(60);
+
+    x_Z = CryptoUtilsFacade.computeRandomNumber(BigInteger.valueOf(2), BigInteger.valueOf(14));
+    baseZ = BigInteger.valueOf(25);//baseS.modPow(x_Z,modN );
+
+    R_0 = BigInteger.valueOf(58);
+
+    m_0 = BigInteger.valueOf(3);
+
+    vCommRandomness = BigInteger.valueOf(2);
+    R_0com = R_0.modPow(m_0, modN);
+    baseScom = baseS.modPow(vCommRandomness, modN);
+    commitment = R_0com.multiply(baseScom).mod(modN);
+
+    log.info("recipient R_0:  " + R_0);
+    log.info("recipient m_0: " + m_0);
+    log.info("commitment: " + commitment);
+    calculateSignature();
+  }
+
+  void calculateSignature() throws Exception {
+    computeQ();
+    computeA();
+    verifySignature();
+  }
+
+  void computeQ() {
+    e = BigInteger.valueOf(13);
+    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(429 - 1);
+    vPrimePrime = NumberConstants.TWO.getValue().pow(429 - 1).add(vbar);
+
+    log.info("vbar: " + vbar);
+    log.info("vPrimePrime: " + vPrimePrime);
+
+    Sv = baseS.modPow(vPrimePrime, modN);
+    R_0multi = R_0.modPow(m_0, modN);
+    Sv1 = Sv.multiply(R_0multi);
+
+    Q = baseZ.multiply(Sv1.modInverse(modN));
+
+    log.info("signer Q: " + Q);
+    log.info("signer e: " + e);
+    log.info("signer Z: " + baseZ);
+    log.info("signer S: " + baseS);
+  }
+
+  void computeA() {
+    d = e.modInverse(BigInteger.valueOf(15));
+    A = Q.modPow(d, modN);
+    
+    log.info("d: " + d);
+
+    log.info("A: " + A);
+  }
+
+  void verifySignature() throws Exception {
+
+    BigInteger vPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(87);
+    log.info("signer vPrime: " + vPrime);
+
+    BigInteger v = vPrimePrime.add(vPrime);
+
+    log.info("recipient.R_0: " + R_0);
+
+    log.info("recipient.m_0: " + m_0);
+
+    BigInteger R_0multi = R_0.modPow(m_0, modN);
+    BigInteger Ae = A.modPow(e, modN);
+    BigInteger baseSmulti = baseS.modPow(v, modN);
+    ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN));
+
+    BigInteger hatZ = ZPrime.multiply(R_0multi);
+
+    log.info("signer hatZ: " + hatZ);
+
+    assertEquals(baseZ, hatZ.mod(modN));
   }
 
   @Test
@@ -186,10 +306,4 @@ class SignerOrchestratorTest {
 
   @Test
   void store() {}
-
-  @Test
-  void computeQ() {}
-
-  @Test
-  void computeA() {}
 }
