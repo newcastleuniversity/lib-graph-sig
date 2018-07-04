@@ -64,8 +64,8 @@ public class GSGraph<
       BigInteger vertexPrimeRepresentative =
           CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_L());
       vertex.setVertexPrimeRepresentative(vertexPrimeRepresentative);
-      gslog.log(
-          Level.INFO, "vertex prime representative: " + vertex.getVertexPrimeRepresentative());
+//      gslog.log(
+//          Level.INFO, "vertex prime representative: " + vertex.getVertexPrimeRepresentative());
     }
   }
 
