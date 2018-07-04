@@ -38,6 +38,7 @@ public class QRElementPQ extends QRElement {
 
     this.qrGroupPQ = qrGroupPQ;
     this.value = value;
+    /** TODO add check for the qrelements */
   }
 
   /**
