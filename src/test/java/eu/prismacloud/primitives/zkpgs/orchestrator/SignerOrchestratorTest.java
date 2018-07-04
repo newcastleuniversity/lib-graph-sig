@@ -182,7 +182,7 @@ class SignerOrchestratorTest {
         + 1;
   }
 
-  @Test
+//  @Test
   void round0() throws Exception {
     signerOrchestrator.round0();
 
@@ -388,8 +388,8 @@ class SignerOrchestratorTest {
     log.info("recipient.m_0: " + m_0);
 
     BigInteger R_0multi = R_0.modPow(m_0, modN);
-    BigInteger Ae = A.modPow(e, modN);
-    BigInteger baseSmulti = baseS.modPow(v, modN);
+//    BigInteger Ae = A.modPow(e, modN);
+//    BigInteger baseSmulti = baseS.modPow(v, modN);
     ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN));
 
     BigInteger hatZ = ZPrime.multiply(R_0multi).mod(modN);
