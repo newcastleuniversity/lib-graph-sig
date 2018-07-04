@@ -114,8 +114,8 @@ public class JsonIsoCountries {
       JsonString cCode = (JsonString) jsonObject.asJsonArray().get(0);
       if (countryCode.equals(cCode.getString())) {
         index = i;
-        gslog.info("index: " + i);
-        gslog.info("json value: " + jsonObject.asJsonArray().get(0));
+//        gslog.info("index: " + i);
+//        gslog.info("json value: " + jsonObject.asJsonArray().get(0));
       }
     }
 
