@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -16,12 +17,12 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 /** */
@@ -63,6 +64,8 @@ class SignerOrchestratorTest {
   private BigInteger Sv1;
   private BigInteger ZPrime;
   private BigInteger R_0multi;
+  private SignerPrivateKey privateKey;
+  private BigInteger order;
 
   //  @BeforeEach
   void setUp() throws NoSuchAlgorithmException, ProofStoreException {
@@ -194,6 +197,117 @@ class SignerOrchestratorTest {
   }
 
   @Test
+  @RepeatedTest(10)
+  void testGRSignatureRandom() {
+
+    JSONParameters parameters = new JSONParameters();
+    keyGenParameters = parameters.getKeyGenParameters();
+    graphEncodingParameters = parameters.getGraphEncodingParameters();
+    log.info("@Test: key generation");
+    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    assertNotNull(gsk);
+    assertNotNull(gsk.getPrivateKey());
+    assertNotNull(gsk.getPublicKey());
+    extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
+    extendedKeyPair.generateBases();
+    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.createExtendedKeyPair();
+    assertNotNull(extendedKeyPair.getExtendedPublicKey());
+
+    privateKey = extendedKeyPair.getExtendedPrivateKey().getPrivateKey();
+
+    groupSetupProver = new GroupSetupProver();
+    proofStore = new ProofStore<Object>();
+
+    modN = extendedKeyPair.getPublicKey().getModN();
+    m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+    baseS = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseS().getValue();
+
+    baseZ = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseZ().getValue();
+
+    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0().getValue();
+
+    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
+    R_0com = R_0.modPow(m_0, modN);
+    baseScom = baseS.modPow(vbar, modN);
+    commitment = R_0com.multiply(baseScom).mod(modN);
+
+    //    log.info("recipient R_0:  " + R_0);
+    //    log.info("recipient m_0: " + m_0);
+    //    log.info("commitment: " + commitment);
+
+    calculateSignatureRandom();
+  }
+
+  private void calculateSignatureRandom() {
+    computeQRandom();
+    computeARandom();
+    verifySignatureRandom();
+  }
+
+  private void computeQRandom() {
+    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
+    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
+    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
+
+    log.info("e bitlength: " + e.bitLength());
+    log.info("vbar bitlength: " + vbar.bitLength());
+
+    vPrimePrime =
+        vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
+
+    log.info("vPrimePrime bitlength: " + vPrimePrime.bitLength());
+
+    //    log.info("vbar: " + vbar);
+    //    log.info("vPrimePrime: " + vPrimePrime);
+
+    Sv = baseS.modPow(vPrimePrime, modN);
+    R_0multi = R_0.modPow(m_0, modN);
+    Sv1 = Sv.multiply(R_0multi);
+
+    Q = baseZ.multiply(Sv1.modInverse(modN));
+
+    log.info(" Q bitlength: " + Q.bitLength());
+    log.info(" e bitlength: " + e.bitLength());
+    log.info(" Z bitlength: " + baseZ.bitLength());
+    log.info(" S bitlegth: " + baseS.bitLength());
+
+    //    log.info("signer Q: " + Q);
+    //     log.info("signer e: " + e);
+    //     log.info("signer Z: " + baseZ);
+    //     log.info("signer S: " + baseS);
+  }
+
+  private void computeARandom() {
+    order = privateKey.getpPrime().multiply(privateKey.getqPrime());
+
+    d = e.modInverse(order);
+    A = Q.modPow(d, modN);
+
+//    log.info("d: " + d);
+
+//    log.info("A: " + A);
+  }
+
+  private void verifySignatureRandom() {
+
+    //    log.info("recipient.R_0: " + R_0);
+    //
+    //    log.info("recipient.m_0: " + m_0);
+
+    ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN));
+
+    BigInteger hatZ = ZPrime.multiply(R_0multi).mod(modN);
+    log.info("Z:" + baseZ);
+
+    log.info("hatZ: " + hatZ);
+    log.info("hatZ bitlength: " + hatZ.bitLength());
+    log.info("Z bitlength:" + baseZ.bitLength());
+    
+    assertEquals(baseZ, hatZ.mod(modN));
+  }
+
+  @Test
   void testSignatureGeneration() throws Exception {
 
     //    N =77, l_n = 7
@@ -211,11 +325,9 @@ class SignerOrchestratorTest {
     baseS = BigInteger.valueOf(60);
 
     x_Z = CryptoUtilsFacade.computeRandomNumber(BigInteger.valueOf(2), BigInteger.valueOf(14));
-    baseZ = BigInteger.valueOf(25);//baseS.modPow(x_Z,modN );
+    baseZ = baseS.modPow(x_Z, modN);
 
     R_0 = BigInteger.valueOf(58);
-
-    m_0 = BigInteger.valueOf(3);
 
     vCommRandomness = BigInteger.valueOf(2);
     R_0com = R_0.modPow(m_0, modN);
@@ -225,6 +337,7 @@ class SignerOrchestratorTest {
     log.info("recipient R_0:  " + R_0);
     log.info("recipient m_0: " + m_0);
     log.info("commitment: " + commitment);
+
     calculateSignature();
   }
 
@@ -257,7 +370,7 @@ class SignerOrchestratorTest {
   void computeA() {
     d = e.modInverse(BigInteger.valueOf(15));
     A = Q.modPow(d, modN);
-    
+
     log.info("d: " + d);
 
     log.info("A: " + A);
@@ -279,7 +392,7 @@ class SignerOrchestratorTest {
     BigInteger baseSmulti = baseS.modPow(v, modN);
     ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN));
 
-    BigInteger hatZ = ZPrime.multiply(R_0multi);
+    BigInteger hatZ = ZPrime.multiply(R_0multi).mod(modN);
 
     log.info("signer hatZ: " + hatZ);
 
