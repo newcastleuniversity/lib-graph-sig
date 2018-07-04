@@ -11,11 +11,14 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class GSRecipient { // implements IRecipient {
 
@@ -32,6 +35,8 @@ public class GSRecipient { // implements IRecipient {
   private BigInteger n_2;
   private static GSMessage receiveMessage;
   private BaseRepresentation baseRepresentationR_0;
+  private QRElement R_0com;
+private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public GSRecipient(ExtendedPublicKey extendedPublicKey, KeyGenParameters keyGenParameters) {
     this.extendedPublicKey = extendedPublicKey;
@@ -52,16 +57,33 @@ public class GSRecipient { // implements IRecipient {
   public GSCommitment commit(Map<URN, BaseRepresentation> encodedBases, BigInteger rnd) {
     baseRepresentationR_0 = encodedBases.get(URN.createZkpgsURN("bases.R_0"));
     R_0 = baseRepresentationR_0.getBase();
-    m_0 = baseRepresentationR_0.getExponent();
+    m_0 = BigInteger.valueOf(3);//baseRepresentationR_0.getExponent();
+    R_0com = R_0.modPow(m_0, modN);
+    QRElement baseScom = baseS.modPow(rnd, modN);
 
-    BigInteger commitment = R_0.modPow(m_0, modN).multiply(baseS.modPow(rnd, modN)).getValue();
+    gslog.info("recipient R_0:  " + R_0);
+    gslog.info("recipient m_0: " + m_0);
+
+
+//    BigInteger commitment = R_0.modPow(m_0, modN).multiply(baseS.modPow(rnd, modN)).getValue();
+
+    BigInteger commitment = R_0com.multiply(baseScom.getValue()).mod(modN);
+
+    gslog.info("recipient commitment value:  " + commitment);
+
+
+
     Map<URN, GroupElement> bases = new HashMap<>();
-    bases.put(URN.createZkpgsURN("recipient.bases.R_0"), this.R_0);
+    bases.put(URN.createZkpgsURN("recipient.bases.R_0"), R_0);
     Map<URN, BigInteger> messages = new HashMap<>();
-    messages.put(URN.createZkpgsURN("recipient.bases.m_0"), this.m_0);
+    messages.put(URN.createZkpgsURN("recipient.exponent.m_0"), m_0);
+
 
     GSCommitment gsCommitment = new GSCommitment(bases, messages, rnd, this.baseS, this.modN);
+    gsCommitment.setCommitmentValue(commitment);
 
+//    gsCommitment.commit();
+    gslog.info("recipient commit: " + gsCommitment.getCommitmentValue());
     return gsCommitment;
   }
 
