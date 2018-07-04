@@ -35,8 +35,10 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
@@ -77,6 +79,7 @@ public class RecipientOrchestrator {
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
+  private BigInteger commitmentU;
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -94,24 +97,26 @@ public class RecipientOrchestrator {
   }
 
   public void round1() throws ProofStoreException {
+    encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
+
     generateRecipientMSK();
 
     try {
       createGraphRepresentation();
     } catch (ImportException e) {
-      e.printStackTrace();
+      gslog.log(Level.SEVERE, e.getMessage());
     }
-
-    encodeR_0();
 
     // TODO needs to receive message n_1
     GSMessage msg = recipient.getMessage();
-    BigInteger n_1 = (BigInteger) msg.getMessageElements().get(URN.createZkpgsURN("nonces.n_1"));
+    n_1 = (BigInteger) msg.getMessageElements().get(URN.createZkpgsURN("nonces.n_1"));
 
     vPrime = recipient.generatevPrime();
     proofStore.store("issuing.recipient.vPrime", vPrime);
 
     U = recipient.commit(encodedBases, vPrime);
+    gslog.info("recipient U: " + U.getCommitmentValue());
+    gslog.info("recipient vPrime: " + U.getRandomness());
 
     /** TODO generalize commit prover */
     /** TODO add commitment factory */
@@ -167,14 +172,19 @@ public class RecipientOrchestrator {
     challengeList.add(String.valueOf(baseS.getValue()));
     challengeList.add(String.valueOf(baseZ.getValue()));
     //    challengeList.add(R);
-    challengeList.add(String.valueOf(R_0.getValue()));
+    //    challengeList.add(String.valueOf(R_0.getValue()));
 
-    for (BaseRepresentation baseRepresentation : encodedBases.values()) {
-      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    }
+    //    for (BaseRepresentation baseRepresentation : encodedBases.values()) {
+    //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+    //    }
 
-    challengeList.add(String.valueOf(U.getCommitmentValue()));
-    challengeList.add(String.valueOf(tildeU.getCommitmentValue()));
+    gslog.info("recipient commitment U: " + U.getCommitmentValue());
+    gslog.info("tildeU: " + tildeU.getCommitmentValue());
+
+    commitmentU = U.getCommitmentValue();
+
+    challengeList.add(String.valueOf(commitmentU));
+    //    challengeList.add(String.valueOf(tildeU.getCommitmentValue()));
     challengeList.add(String.valueOf(n_1));
 
     return challengeList;
@@ -184,6 +194,15 @@ public class RecipientOrchestrator {
     BaseRepresentation baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
 
     encodedBases.put(URN.createZkpgsURN("bases.R_0"), baseR_0);
+
+    gslog.info("recipient msk" + recipientMSK);
+    
+    try {
+      proofStore.store("bases.R_0", baseR_0);
+      proofStore.store("bases.exponent.m_0", recipientMSK);
+    } catch (ProofStoreException pse) {
+      gslog.log(Level.SEVERE, pse.getMessage());
+    }
   }
 
   private void generateRecipientMSK() {
@@ -200,8 +219,13 @@ public class RecipientOrchestrator {
     graph.encodeGraph(g, this.graphEncodingParameters);
     GraphMLProvider.createImporter();
     GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
-    GraphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
-    encodedBases = GraphRepresentation.getEncodedBases();
+
+    if (gsGraph.getGraph().vertexSet().size() > 0) {
+      GraphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
+      encodedBases = GraphRepresentation.getEncodedBases();
+    }
+
+    encodeR_0();
   }
 
   /**
@@ -229,12 +253,17 @@ public class RecipientOrchestrator {
     return new ProofSignature(proofSignatureElements);
   }
 
-  public void round3() throws VerificationException {
+  public void round3() throws VerificationException, ProofStoreException {
 
     GSMessage correctnessMsg = recipient.getMessage();
     ProofSignature P_2 = extractMessageElements(correctnessMsg);
 
+
     v = vPrimePrime.add(vPrime);
+
+    proofStore.store("recipient.vPrimePrime", vPrimePrime);
+    proofStore.store("recipient.vPrime", vPrime);
+
 
     CorrectnessVerifier correctnessVerifier =
         (CorrectnessVerifier) VerifierFactory.newVerifier(VerifierType.CorrectnessVerifier);
@@ -246,14 +275,15 @@ public class RecipientOrchestrator {
         A,
         extendedPublicKey,
         n_2,
-        encodedBases,
+        correctnessEncodedBases,
+        proofStore,
         keyGenParameters,
         graphEncodingParameters);
 
     try {
       correctnessVerifier.computeChallenge();
     } catch (NoSuchAlgorithmException ns) {
-      ns.getMessage();
+      gslog.log(Level.SEVERE, ns.getMessage());
     }
 
     if (!correctnessVerifier.verifyChallenge()) {
@@ -266,7 +296,7 @@ public class RecipientOrchestrator {
       proofStore.store("recipient.graphsignature.v", v);
 
     } catch (Exception e1) {
-      e1.printStackTrace();
+      gslog.log(Level.SEVERE, e1.getMessage());
     }
 
     for (Map.Entry<URN, BaseRepresentation> base : encodedBases.entrySet()) {
