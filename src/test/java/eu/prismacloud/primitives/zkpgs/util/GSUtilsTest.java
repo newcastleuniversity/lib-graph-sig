@@ -13,6 +13,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -397,16 +398,16 @@ class GSUtilsTest {
   void randomMinusPlusNumber() {
 
     for (int i = 0; i < 100; i++) {
-      BigInteger numb = classUnderTest.randomMinusPlusNumber(4);
+      BigInteger numb = classUnderTest.randomMinusPlusNumber(24);
       log.info("number: " + numb);
       log.info("number bitlength: " + numb.bitLength());
 
       assertNotNull(numb);
-      assertTrue(numb.bitLength() <= 4);
+      assertTrue(numb.bitLength() == 24);
 
-      assertTrue(
-          numb.compareTo(BigInteger.valueOf(-16)) > 0
-              && numb.compareTo(BigInteger.valueOf(16)) < 0);
+      //      assertTrue(
+      //          numb.compareTo(BigInteger.valueOf(-16)) > 0
+      //              && numb.compareTo(BigInteger.valueOf(16)) < 0);
     }
   }
 
@@ -443,17 +444,20 @@ class GSUtilsTest {
       value = 5,
       name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
   void generatePrimeWithLength() {
-    int minBitLength = 2;
-    int maxBitLength = 4;
-
+    int minBitLength = keyGenParameters.getL_e();
+    int maxBitLength = keyGenParameters.getL_prime_e();
+    BigInteger min = NumberConstants.TWO.getValue().pow(minBitLength);
+    BigInteger max = min.add(NumberConstants.TWO.getValue().pow(maxBitLength));
     BigInteger result = classUnderTest.generatePrimeWithLength(minBitLength, maxBitLength);
 
+    log.info("l_e bitlength: " + keyGenParameters.getL_e());
+    log.info("l_prime_e bitlength: " + keyGenParameters.getL_prime_e());
+    log.info("min bitlength: " + min.bitLength());
+    log.info("max bitlength: " + max.bitLength());
     log.info("result: " + result);
-    log.info("bitlength: " + result.bitLength());
+    log.info("result bitlength: " + result.bitLength());
 
-    assertTrue(
-        result.compareTo(BigInteger.valueOf(4)) >= 0
-            && result.compareTo(BigInteger.valueOf(20)) <= 0);
+    assertTrue(result.compareTo(min) > 0 && result.compareTo(max) < 0);
   }
 
   @Test
@@ -478,7 +482,17 @@ class GSUtilsTest {
 
     assertTrue(res);
   }
+  @Test
+  @DisplayName("Test creating an element of ZNS with full bitlength")
+  void createElementOfZNSWithFullBitlength() {
 
+    BigInteger modN = BigInteger.valueOf(77);
+    BigInteger number = BigInteger.valueOf(15);
+    BigInteger element = classUnderTest.createElementOfZNS(modN);
+    boolean res = element.gcd(modN).equals(BigInteger.ONE);
+
+    assertTrue(res);
+  }
   @Test
   @DisplayName("Test creating a QRN generator")
   //  @RepeatedTest(
@@ -530,5 +544,30 @@ class GSUtilsTest {
 
     assertEquals(hash, hs);
     assertEquals(keyGenParameters.getL_H(), hs.bitLength());
+  }
+
+  @Test
+  void multiBaseExpMap() {}
+
+  @Test
+  @RepeatedTest(10)
+  void generateRandomSafePrime() {
+    SafePrime prime = classUnderTest.generateRandomSafePrime(keyGenParameters);
+    log.info("prime bitlength: " + prime.getSafePrime().bitLength());
+    assertEquals(keyGenParameters.getL_n() / 2, prime.getSafePrime().bitLength());
+    assertTrue(prime.getSafePrime().isProbablePrime(80));
+  }
+
+  @Test
+  void isPrime() {}
+
+  @Test
+  @RepeatedTest(10)
+  void generateRandomPrime() {
+
+    BigInteger prime = classUnderTest.generateRandomPrime(128);
+    log.info("prime bitlength: " + prime.bitLength());
+    assertEquals(128, prime.bitLength());
+    assertTrue(prime.isProbablePrime(80));
   }
 }
