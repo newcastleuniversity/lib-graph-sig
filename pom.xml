@@ -27,6 +27,7 @@
       <groupId>com.ibm.zurich</groupId>
       <artifactId>ibm-idemix</artifactId>
       <version>1.0</version>
+      <systemPath>${project.basedir}/lib/com/ibm/zurich/ibm-idemix/1.0/ibm-idemix-1.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.jgrapht</groupId>
