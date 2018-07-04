@@ -82,10 +82,11 @@ public class JacobiSymbol {
    * @return
    */
   public static boolean isCongruent(BigInteger a, BigInteger b, BigInteger mod) {
-    return a.mod(mod).compareTo(b) == 0;
+    return a.mod(mod).compareTo(b) == 0;  // TODO This congruence function is not quite what we'd want: Rather compute modN divides a-b.
+    // I'd suggest: mod.remainder(a.subtract(b)).equals(BigInteger.ZERO)
   }
 
-  private static int j;
+  private static int j; // TODO not thread-safe. Make local temporary variable.
 
   /**
    * Compute Jacobi symbol based on Algorithm 1.4 in "Cryptography made simple" book
