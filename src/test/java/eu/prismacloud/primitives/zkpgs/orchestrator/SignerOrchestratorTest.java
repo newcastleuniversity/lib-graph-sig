@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -197,9 +198,10 @@ class SignerOrchestratorTest {
   }
 
   @Test
-  @RepeatedTest(10)
+  //@RepeatedTest(10)
   void testGRSignatureRandom() {
-
+    // TODO Ioannis: The computations should be done by QRElement in the actual implementation.
+	  // Not on externalized BigIntegers.
     JSONParameters parameters = new JSONParameters();
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
@@ -226,6 +228,13 @@ class SignerOrchestratorTest {
     baseZ = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseZ().getValue();
 
     R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0().getValue();
+    
+    assertTrue(CryptoUtilsFacade.isElementOfQR(baseS, modN), "S is not a Quadratic Residue.");
+    assertTrue(checkQRGenerator(baseS), "S not a generator!");
+    assertTrue(CryptoUtilsFacade.isElementOfQR(baseZ, modN), "Z is not a Quadratic Residue.");
+    assertTrue(checkQRGenerator(baseZ), "Z not a generator!");
+    assertTrue(CryptoUtilsFacade.isElementOfQR(R_0, modN), "R_0 is not a Quadratic Residue.");
+    assertTrue(checkQRGenerator(R_0), "R_0 not a generator!");
 
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
     R_0com = R_0.modPow(m_0, modN);
@@ -237,6 +246,10 @@ class SignerOrchestratorTest {
     //    log.info("commitment: " + commitment);
 
     calculateSignatureRandom();
+  }
+  
+  private boolean checkQRGenerator(BigInteger candidate) {
+	  return (modN.gcd(candidate.subtract(BigInteger.ONE))).equals(BigInteger.ONE);
   }
 
   private void calculateSignatureRandom() {
@@ -263,9 +276,9 @@ class SignerOrchestratorTest {
 
     Sv = baseS.modPow(vPrimePrime, modN);
     R_0multi = R_0.modPow(m_0, modN);
-    Sv1 = Sv.multiply(R_0multi);
+    Sv1 = (Sv.multiply(R_0multi)).mod(modN);  // TODO Ioannis: always do a modular reduction in each step
 
-    Q = baseZ.multiply(Sv1.modInverse(modN));
+    Q = (baseZ.multiply(Sv1.modInverse(modN))).mod(modN);
 
     log.info(" Q bitlength: " + Q.bitLength());
     log.info(" e bitlength: " + e.bitLength());
@@ -283,6 +296,8 @@ class SignerOrchestratorTest {
 
     d = e.modInverse(order);
     A = Q.modPow(d, modN);
+    BigInteger sign = A.modPow(e, modN);
+    assertEquals(sign, Q, "Signature A not reverting to Q.");
 
 //    log.info("d: " + d);
 
@@ -294,10 +309,15 @@ class SignerOrchestratorTest {
     //    log.info("recipient.R_0: " + R_0);
     //
     //    log.info("recipient.m_0: " + m_0);
+	  
+	  BigInteger blindingPrime = baseS.modPow(vPrimePrime, modN);
+	  assertEquals(Sv, blindingPrime, "Blinding of proof and verification unequal.");
+	  
+	  BigInteger signPrime = A.modPow(e, modN);
 
-    ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN));
+    ZPrime = (signPrime.multiply(blindingPrime)).mod(modN);
 
-    BigInteger hatZ = ZPrime.multiply(R_0multi).mod(modN);
+    BigInteger hatZ = (ZPrime.multiply(R_0multi)).mod(modN);
     log.info("Z:" + baseZ);
 
     log.info("hatZ: " + hatZ);
