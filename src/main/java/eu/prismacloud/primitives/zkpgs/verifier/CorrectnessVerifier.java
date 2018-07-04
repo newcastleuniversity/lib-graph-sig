@@ -1,18 +1,23 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
+import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,10 +34,10 @@ public class CorrectnessVerifier implements IVerifier {
   private ProofSignature P_2;
   private ExtendedPublicKey extendedPublicKey;
   private BigInteger cPrime;
-  private BigInteger Z;
+  private GroupElement baseZ;
   private BigInteger A;
-  private BigInteger S;
-  private BigInteger R_0;
+  private GroupElement baseS;
+  private GroupElement R_0;
   private BigInteger m_0;
   private BigInteger modN;
   private Map<URN, BaseRepresentation> encodedVertices;
@@ -40,55 +45,33 @@ public class CorrectnessVerifier implements IVerifier {
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
   private BigInteger Q;
-  private BigInteger R_i;
-  private BigInteger R_i_j;
+  private QRElement R_i;
+  private QRElement R_i_j;
   private BigInteger hatQ;
   private BigInteger hatA;
   private BigInteger hatc;
   private List<String> challengeList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
-
-//  public CorrectnessVerifier(
-//      BigInteger e,
-//      BigInteger v,
-//      BigInteger cPrime,
-//      BigInteger hatd,
-//      BigInteger Z,
-//      BigInteger A,
-//      BigInteger S,
-//      BigInteger R_0,
-//      BigInteger m_0,
-//      BigInteger modN,
-//      Map<URN, BaseRepresentation> encodedVertices,
-//      Map<URN, BaseRepresentation> encodedEdges,
-//      BigInteger n_2,
-//      KeyGenParameters keyGenParameters) {
-//
-//    checkE(e);
-//    this.e = e;
-//    this.v = v;
-//    this.cPrime = cPrime;
-//    this.hatd = hatd;
-//    this.Z = Z;
-//    this.A = A;
-//    this.S = S;
-//    this.R_0 = R_0;
-//    this.m_0 = m_0;
-//    this.modN = modN;
-//    this.encodedVertices = encodedVertices;
-//    this.encodedEdges = encodedEdges;
-//    this.n_2 = n_2;
-//    this.keyGenParameters = keyGenParameters;
-//  }
+  private ProofStore<Object> proofStore;
+  private BigInteger Ae;
+  private QRElement baseSmulti;
+  private BigInteger ZPrime;
+  private BigInteger hatZ;
+  private BigInteger vPrime;
+  private BigInteger vPrimePrime;
 
   private void checkE(BigInteger e) {
     if (!e.isProbablePrime(80)) {
       throw new IllegalArgumentException("e is not prime");
     }
+    int maxBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
     BigInteger min = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
-    BigInteger max =
-        min.add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_prime_e() - 1));
+    BigInteger max = min.add(NumberConstants.TWO.getValue().pow(maxBitLength));
+
+    //    BigInteger min = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
+    //    BigInteger max =
+    //        min.add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_prime_e() - 1));
 
     if ((e.compareTo(min) < 0) || (e.compareTo(max) > 0)) {
       throw new IllegalArgumentException("e is not within range");
@@ -96,27 +79,83 @@ public class CorrectnessVerifier implements IVerifier {
   }
 
   public void computeQ() {
-    for (BaseRepresentation encodedVertex : encodedVertices.values()) {
-      R_i =
-          R_i.multiply(
-              encodedVertex.getBase().modPow(encodedVertex.getExponent(), modN).getValue());
-    }
+//    for (BaseRepresentation encodedBase : encodedBases.values()) {
+//      if (encodedBase.getExponent() != null) {
+//        if (encodedBase.getBaseType() == BASE.VERTEX) {
+//          if (R_i == null) {
+//            R_i = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
+//          } else {
+//            R_i = R_i.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
+//          }
+//
+//        } else if (encodedBase.getBaseType() == BASE.EDGE) {
+//
+//          if (R_i_j == null) {
+//
+//            R_i_j = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
+//
+//          } else {
+//            R_i_j = R_i_j.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
+//          }
+//        }
+//      }
+//    }
 
-    for (BaseRepresentation encodedEdge : encodedEdges.values()) {
-      R_i_j =
-          R_i_j.multiply(encodedEdge.getBase().modPow(encodedEdge.getExponent(), modN).getValue());
-    }
+//    R_0 = (BaseRepresentation) proofStore.retrieve("bases.R_0");//encodedBases.get(URN.createZkpgsURN("bases.R_0"));
+    R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
-    BigInteger invertible =
-        S.modPow(v, modN).multiply(R_0.modPow(m_0, modN)).multiply(R_i).multiply(R_i_j).mod(modN);
-    Q = Z.multiply(invertible.modInverse(modN)).mod(modN);
+    vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
+//    vPrimePrime = (BigInteger) P_2.get("proofsignature.vPrimePrime");
+    vPrimePrime = (BigInteger) proofStore.retrieve("recipient.vPrimePrime");
+    m_0 = (BigInteger) proofStore.retrieve("bases.exponent.m_0");
+
+    gslog.info("signer vPrime: " + vPrime);
+    gslog.info("signer vPrimePrime: " + vPrimePrime);
+
+       v = vPrimePrime.add(vPrime);
+
+       gslog.info("recipient.R_0: " + R_0);
+
+       gslog.info("recipient.m_0: " + m_0);
+
+       QRElement R_0multi = R_0.modPow(m_0, modN);
+        Ae = A.modPow(e, modN);
+        baseSmulti = baseS.modPow(v, modN);
+       ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN).getValue());
+
+       hatZ = ZPrime.multiply(R_0multi.getValue()).mod(modN);
+
+       gslog.info("correctness verifier hatZ: " + hatZ);
+       gslog.info("correctness verifier baseZ: " + baseZ);
+       
+
+//    BigInteger invertible =
+//        baseS.modPow(v, modN)
+//            .multiply(R_0.getBase().modPow(R_0.getExponent(), modN).getValue())
+//            .multiply(R_i.getValue())
+//            .multiply(R_i_j.getValue())
+//            .mod(modN);
+
+//    BigInteger invertible =
+//            baseS.modPow(v, modN)
+//                .multiply(R_0.getBase().modPow(R_0.getExponent(), modN).getValue()).getValue();
+//    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
+    gslog.info("recipient Q: " + Q);
+    gslog.info("recipient Z: " + baseZ);
+    gslog.info("recipient S: " + baseS);
+    
   }
 
   public void computehatQ() throws VerificationException {
-    hatQ = A.modPow(e, modN);
+//    hatQ = A.modPow(e, modN);
+//
+//    gslog.info("hatQ: " + hatQ);
+//
+//    gslog.info("recipient e: "  + e);
 
-    if (!hatQ.equals(Q)) {
-      throw new VerificationException("Q is not correct");
+
+    if (!hatZ.equals(baseZ.getValue())) {
+      throw new VerificationException("Q cannot be verified");
     }
   }
 
@@ -128,6 +167,7 @@ public class CorrectnessVerifier implements IVerifier {
       final ExtendedPublicKey extendedPublicKey,
       final BigInteger n_2,
       final Map<URN, BaseRepresentation> encodedBases,
+      final ProofStore<Object> proofStore,
       final KeyGenParameters keyGenParameters,
       final GraphEncodingParameters graphEncodingParameters)
       throws VerificationException {
@@ -138,8 +178,12 @@ public class CorrectnessVerifier implements IVerifier {
     this.extendedPublicKey = extendedPublicKey;
     this.n_2 = n_2;
     this.encodedBases = encodedBases;
+    this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
+    this.modN = extendedPublicKey.getPublicKey().getModN();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
 
     checkE(this.e);
     verifySignature();
@@ -147,6 +191,9 @@ public class CorrectnessVerifier implements IVerifier {
   }
 
   private void verifyP2() {
+    cPrime = (BigInteger) P_2.get("P_2.cPrime");
+    hatd = (BigInteger) P_2.get("P_2.hatd");
+    
     hatA = A.modPow(cPrime.add(hatd.multiply(e)), modN);
   }
 
@@ -170,8 +217,11 @@ public class CorrectnessVerifier implements IVerifier {
   }
 
   public List<String> populateChallengeList() {
+    challengeList = new ArrayList<String>();
     /** TODO add context in challenge list */
-    contextList = GSContext.computeChallengeContext(extendedPublicKey, keyGenParameters , graphEncodingParameters );
+    contextList =
+        GSContext.computeChallengeContext(
+            extendedPublicKey, keyGenParameters, graphEncodingParameters);
     challengeList.add(String.valueOf(Q));
     challengeList.add(String.valueOf(A));
     challengeList.add(String.valueOf(hatA));

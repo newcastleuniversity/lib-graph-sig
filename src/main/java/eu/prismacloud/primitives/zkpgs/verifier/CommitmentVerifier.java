@@ -2,25 +2,26 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
-import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /** The type Commitment verifier. */
 public class CommitmentVerifier implements IVerifier {
 
   private BigInteger hatvPrime;
   private BigInteger hatm_0;
-  private ICommitment U;
+  private GSCommitment U;
   private BigInteger c;
   private GroupElement baseS;
   private GroupElement baseZ;
@@ -41,6 +42,7 @@ public class CommitmentVerifier implements IVerifier {
   private ProofStore<Object> proofStore;
   private GSCommitment gscommitment;
   private BigInteger witnesss;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public enum STAGE {
     ISSUING,
@@ -92,11 +94,15 @@ public class CommitmentVerifier implements IVerifier {
     hatvPrime = (BigInteger) proofStore.retrieve("proofsignature.P_1.hatvPrime");
     hatm_0 = (BigInteger) proofStore.retrieve("proofsignature.P_1.hatm_0");
 
-    Assert.checkBitLength(hatm_0, messageLength, "length of hatm_0 is not correct ");
-    Assert.checkBitLength(hatvPrime, hatvPrimeLength, "length of hatvPrime is not correct ");
+    gslog.info("hatm_0 bitlength: " + hatm_0.bitLength());
+    gslog.info("messageLength: " + messageLength);
+    Assert.checkBitLength(hatm_0, messageLength - 1, "length of hatm_0 is not correct ");
+    Assert.checkBitLength(hatvPrime, hatvPrimeLength - 1, "length of hatvPrime is not correct ");
 
     for (BigInteger response : responses.values()) {
-      Assert.checkBitLength(response, messageLength, " response length is not correct");
+      if (!(response == hatvPrime)) {
+        Assert.checkBitLength(response, messageLength - 1, " response length is not correct");
+      }
     }
   }
 
@@ -110,20 +116,28 @@ public class CommitmentVerifier implements IVerifier {
     Map<URN, BigInteger> exponentsU = new HashMap<>();
     Map<URN, GroupElement> basesU = new HashMap<>();
 
+    String uCommitmentURN = "recipient.U";
+    U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
+    cChallenge = (BigInteger) proofStore.retrieve("proofsignature.P_1.c");
+
     populateExponents(exponentsU);
 
     populateBases(basesU);
 
+    BigInteger valueU = U.getCommitmentValue();
+
+    gslog.info("valueU: " + valueU);
+
     hatU =
-        U.getCommitment()
-            .modInverse(c)
+        valueU
+            .modPow(cChallenge.negate(), modN)
             .multiply(CryptoUtilsFacade.computeMultiBaseExMap(basesU, exponentsU, modN));
     return hatU;
   }
 
   private void populateBases(Map<URN, GroupElement> basesMap) {
     basesMap.put(URN.createZkpgsURN("baseRepresentationMap.S"), baseS);
-//    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.R_0"),R_0);
+    //    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.R_0"),R_0);
 
     for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
       basesMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getBase());
@@ -132,7 +146,7 @@ public class CommitmentVerifier implements IVerifier {
 
   private void populateExponents(Map<URN, BigInteger> exponentsMap) {
     exponentsMap.put(URN.createZkpgsURN("exponents.hatvPrime"), hatvPrime);
-//    exponentsMap.put(URN.createZkpgsURN("exponents.hatm_0"), hatm_0);
+    //    exponentsMap.put(URN.createZkpgsURN("exponents.hatm_0"), hatm_0);
 
     for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
       exponentsMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getExponent());

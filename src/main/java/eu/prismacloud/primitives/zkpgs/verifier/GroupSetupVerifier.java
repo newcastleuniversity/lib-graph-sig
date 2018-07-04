@@ -108,7 +108,7 @@ public class GroupSetupVerifier implements IVerifier {
     for (Entry<URN, BaseRepresentation> baseRepresentation :
         extendedPublicKey.getBases().entrySet()) {
 
-      gslog.info("key: " + baseRepresentation.getKey());
+//      gslog.info("key: " + baseRepresentation.getKey());
       baseR = baseRepresentation.getValue();
       if (baseR.getBaseType() == BASE.VERTEX) {
         vertexResponse =
@@ -156,7 +156,7 @@ public class GroupSetupVerifier implements IVerifier {
     for (Entry<URN, BaseRepresentation> baseRepresentation :
         extendedPublicKey.getBases().entrySet()) {
 
-      gslog.info("key: " + baseRepresentation.getKey());
+//      gslog.info("key: " + baseRepresentation.getKey());
       baseR = baseRepresentation.getValue();
       if (baseR.getBaseType() == BASE.VERTEX) {
         hatVertexResponse =
