@@ -1,14 +1,18 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /** */
 public class CorrectnessProver implements IProver {
@@ -28,6 +32,7 @@ public class CorrectnessProver implements IProver {
   private BigInteger d;
   private BigInteger Q;
   private BigInteger A;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public BigInteger preChallengePhase(
       final GSSignature gsSignature,
@@ -45,11 +50,12 @@ public class CorrectnessProver implements IProver {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.modN = extendedPublicKey.getPublicKey().getModN();
-
-    tilded =
+    this.tilded =
         CryptoUtilsFacade.computeRandomNumber(
             NumberConstants.TWO.getValue(), order.subtract(BigInteger.ONE));
-
+    this.Q = (BigInteger) proofStore.retrieve("issuing.signer.Q");
+    this.A = (BigInteger) proofStore.retrieve("issuing.signer.A");
+    this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");;
     proofStore.store("correctnessprover.randomness.tilded", tilded);
     tildeA = Q.modPow(tilded, modN);
 
@@ -57,12 +63,12 @@ public class CorrectnessProver implements IProver {
   }
 
   @Override
-  public void createWitnessRandomness() {
-    
+  public void createWitnessRandomness() throws ProofStoreException {
+
   }
 
   @Override
-  public void computeWitness() {
+  public void computeWitness() throws ProofStoreException {
 
   }
 
@@ -72,8 +78,17 @@ public class CorrectnessProver implements IProver {
     return cPrime;
   }
 
-  private List<String> populateChallengeList() {
+  @Override
+  public void computeResponses() {
 
+  }
+
+  private List<String> populateChallengeList() {
+    challengeList = new ArrayList<String>();
+//    this.Q = (BigInteger) proofStore.retrieve("issuing.signer.Q");
+//    this.A = (BigInteger) proofStore.retrieve("issuing.signer.A");
+//    gslog.info("Q: " + Q);
+//    gslog.info("A: " + A);
 
     // TODO add context list
     challengeList.add(String.valueOf(Q));
@@ -81,11 +96,6 @@ public class CorrectnessProver implements IProver {
     challengeList.add(String.valueOf(tildeA));
     challengeList.add(String.valueOf(n_2));
     return challengeList;
-  }
-
-//  @Override
-  public void computeResponses() {
-    hatd = tilded.subtract(cPrime.multiply(d).mod(order));
   }
 
   public BigInteger postChallengePhase() {

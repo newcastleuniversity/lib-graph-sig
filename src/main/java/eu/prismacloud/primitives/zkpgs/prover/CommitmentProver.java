@@ -218,9 +218,9 @@ public class CommitmentProver implements IProver {
       }
       baseMap.put(URN.createZkpgsURN("commitment.S"), baseS);
       exponentsMap.put(URN.createZkpgsURN("commitments.tildevPrime"), tildevPrime);
-
-      tildeU = CryptoUtilsFacade.computeMultiBaseExMap(baseMap, exponentsMap, modN);
       witness = new GSCommitment(baseMap, exponentsMap, tildevPrime, baseS, modN);
+      tildeU = witness.getCommitmentValue();//commit();//CryptoUtilsFacade.computeMultiBaseExMap(baseMap, exponentsMap, modN);
+
 
     } else {
 
@@ -289,11 +289,13 @@ public class CommitmentProver implements IProver {
     hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
     String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
     String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
-
+    String cChallengeURN = "issuing.commitmentprover.commitment.C";
+    
     responses.put(URN.createZkpgsURN(hatvPrimeURN), hatvPrime);
     responses.put(URN.createZkpgsURN(hatm_0URN), hatm_0);
     proofStore.store(hatvPrimeURN, hatvPrime);
     proofStore.store(hatm_0URN, hatm_0);
+    proofStore.store(cChallengeURN, cChallenge);
 
     for (BaseRepresentation base : baseRepresentationMap.values()) {
 

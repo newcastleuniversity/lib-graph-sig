@@ -368,7 +368,7 @@ public class GroupSetupProver implements IProver {
     BaseRepresentation baseR;
     for (Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
 
-      gslog.info("key: " + baseRepresentation.getKey());
+//      gslog.info("key: " + baseRepresentation.getKey());
       baseR = baseRepresentation.getValue();
       if (baseR.getBaseType() == BASE.VERTEX) {
         proofSignatureElements.put(
