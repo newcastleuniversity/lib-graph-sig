@@ -33,6 +33,11 @@ public class IdemixUtils extends Utils implements INumberUtils {
   private KeyGenParameters keyGenParameters;
 
   /** Instantiates a new Idemix utils. */
+  public IdemixUtils(KeyGenParameters keyGenParameters) {
+    super();
+    this.keyGenParameters = keyGenParameters;
+  }
+
   public IdemixUtils() {
     super();
   }
@@ -121,12 +126,12 @@ public class IdemixUtils extends Utils implements INumberUtils {
   }
 
   @Override
-  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents,
-      BigInteger modN) {
+  public BigInteger multiBaseExp(
+      List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
     throw new RuntimeException("not currently used from idemix library");
   }
 
-//  @Override
+  //  @Override
   public BigInteger multiBaseExpMap(
       List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
     throw new RuntimeException("not implemented in idemix library");

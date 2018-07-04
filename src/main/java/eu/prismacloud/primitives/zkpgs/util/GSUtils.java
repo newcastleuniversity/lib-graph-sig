@@ -47,17 +47,27 @@ public class GSUtils implements INumberUtils {
     SecureRandom secureRandom = new SecureRandom();
 
     /** TODO check if the computations for generating a +- random number are correct */
+
+    /** TODO range is -2^bitlength+1 , + 2^bitlength -1 */
     BigInteger max = NumberConstants.TWO.getValue().pow(bitlength).subtract(BigInteger.ONE);
+    BigInteger min = NumberConstants.TWO.getValue().pow(bitlength).add(BigInteger.ONE).negate();
 
     BigInteger maxWithoutSign = max.multiply(NumberConstants.TWO.getValue());
 
     BigInteger number = maxWithoutSign.add(BigInteger.ONE);
-    while ((number.compareTo(maxWithoutSign) > 0)
+
+    while ((number.compareTo(max) > 0)
         || (number.subtract(max).compareTo(BigInteger.ZERO) == 0)
         || ((number.bitLength() + 1) != bitlength)) {
+
       number = new BigInteger(bitlength + 1, secureRandom);
     }
-    return number.subtract(max);
+    
+    BigInteger result = number.subtract(max);
+
+//    log.info("result bitlength: " + result.bitLength());
+
+    return result; //number.subtract(max);
   }
 
   public BigInteger multiBaseExp(
@@ -94,10 +104,9 @@ public class GSUtils implements INumberUtils {
     for (int i = 0; i < bases.size(); i++) {
       base = basesList.get(i);
       exponent = exponentList.get(i);
-      if (exponent != null){
+      if (exponent != null) {
         result = result.multiply(base.modPow(exponent, modN).getValue());
       }
-
     }
     return result;
   }
@@ -110,7 +119,7 @@ public class GSUtils implements INumberUtils {
     BigInteger max = min.add(NumberConstants.TWO.getValue().pow(maxBitLength));
     BigInteger prime = max;
 
-    while (prime.compareTo(max) >= 0) {
+    while ((prime.compareTo(min) < 0) || (prime.compareTo(max) > 0) || !prime.isProbablePrime(80)) {
       BigInteger offset = new BigInteger(maxBitLength, secureRandom);
       prime = min.add(offset).nextProbablePrime();
     }
@@ -566,7 +575,7 @@ public class GSUtils implements INumberUtils {
     BigInteger a_prime;
 
     do {
-      a_prime = generateRandomPrime(keyGenParameters.getL_n() / 2);
+      a_prime = generateRandomPrime((keyGenParameters.getL_n() / 2) -1);
       a = NumberConstants.TWO.getValue().multiply(a_prime).add(BigInteger.ONE);
     } while (!isPrime(a));
     return new SafePrime(a, a_prime);

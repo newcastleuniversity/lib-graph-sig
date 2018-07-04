@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.signature;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 public class GSSignature {
   private static Logger gslog = GSLoggerConfiguration.getGSlog();
   private ExtendedKeyPair extendedKeyPair;
-  private ICommitment U;
+  private GSCommitment U;
   private KeyGenParameters keyGenParameters;
   private BigInteger A;
   private BigInteger e;
@@ -38,7 +39,7 @@ public class GSSignature {
 
   public GSSignature(
       final ExtendedPublicKey extendedPublicKey,
-      ICommitment U,
+      GSCommitment U,
       Map<URN, BaseRepresentation> encodedBases,
       KeyGenParameters keyGenParameters) {
 
