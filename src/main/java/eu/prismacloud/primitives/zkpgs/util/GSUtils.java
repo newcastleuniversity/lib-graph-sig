@@ -397,7 +397,7 @@ public class GSUtils implements INumberUtils {
     } while (!isElementOfZNS(s_prime, modN));
 
     return s_prime;
-  }
+  }  // Post-condition: return BigInteger x in [2, N-1], gcd(x, N) = 1
 
   private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger modN) {
     // check gcd(S', modN) = 1
@@ -418,7 +418,7 @@ public class GSUtils implements INumberUtils {
         && (alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue()))
             <= 0)
         && (JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1);
-  }
+  } // TODO: This function does not seem to match what I was expecting.
 
   /**
    * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc Evaluate generator S properties
