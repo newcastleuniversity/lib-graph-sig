@@ -9,40 +9,52 @@ import java.util.List;
  * modulus N.
  */
 public class QRElementN extends QRElement {
-  private QRGroupN qrGroup;
-  private BigInteger number;
+  private final QRGroupN qrGroup;
+  private final BigInteger value;
 
   /**
-   * Instantiates a new Qr element n.
+   * Instantiates a new QR element n.
    *
-   * @param qrGroup the qr group
-   * @param number the number
+   * @param qrGroup the QR group
+   * @param value the number
    */
-  public QRElementN(final QRGroupN qrGroup, final BigInteger number) {
-
-    super(qrGroup, number);
+  public QRElementN(final QRGroupN qrGroup, final BigInteger value) {
+    super(qrGroup, value);
+    if(!qrGroup.isElement(value)) {
+    	throw new IllegalArgumentException("The provided value is not a group element.");
+    }
+    
     this.qrGroup = qrGroup;
-    this.number = number;
+    this.value = value;
   }
 
   /**
-   * Instantiates a new Qr element n.
-   *
-   * @param value the value
-   */
-  public QRElementN(final BigInteger value) {
-    super(value);
-    this.number = value;
-  }
-
-  /**
-   * Instantiates a new Qr element n.
+   * Instantiates a new QR element n.
    *
    * @param group the group
    * @param value the value
    */
   public QRElementN(final Group group, final BigInteger value) {
-    super(group, value);
+	  super(group, value);
+
+	  if(!(group instanceof QRGroup)) {
+		  throw new IllegalArgumentException("The provided group is not a Quadratic Residues group.");
+	  } else if (group instanceof QRGroupN) {
+		  this.qrGroup = (QRGroupN) group;
+	  } else if (group instanceof QRGroupPQ) {
+		  QRGroupPQ groupPQ = (QRGroupPQ) group;
+		  QRGroupN absGroup = groupPQ.getPublicQRGroup();
+		  this.qrGroup = absGroup;
+	  } else {
+		  throw new IllegalArgumentException("The provided group is not a known type of Quadratic Residues realizations.");
+	  }
+
+
+	  if(!group.isElement(value)) {
+		  throw new IllegalArgumentException("The provided value is not a group element.");
+	  } else {
+		  this.value = value;
+	  }
   }
 
   @Override
@@ -52,17 +64,17 @@ public class QRElementN extends QRElement {
 
   @Override
   public BigInteger getValue() {
-    return number;
+    return value;
   }
 
   @Override
-  public QRElement multiply(QRElement val) {
-    return super.multiply(val);
+  public QRElementN multiply(GroupElement val) {
+    return (QRElementN) super.multiply(val);
   }
 
   @Override
-  public QRElement modPow(BigInteger exponent, BigInteger modN) {
-    return super.modPow(exponent, modN);
+  public QRElement modPow(BigInteger exponent) {
+    return super.modPow(exponent);
   }
 
   /**
@@ -72,8 +84,8 @@ public class QRElementN extends QRElement {
    * @param exponents the exponents
    * @return the big integer
    */
-  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
-    return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.qrGroup.getModulus());
+  public QRElementN multiBaseExp(List<GroupElement> bases, List<BigInteger> exponents) {
+    return (QRElementN) super.multiBaseExp(bases, exponents);
   }
 
   @Override
@@ -81,7 +93,7 @@ public class QRElementN extends QRElement {
     final StringBuilder sb =
         new StringBuilder("eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN{");
     sb.append("qrGroup=").append(qrGroup);
-    sb.append(", number=").append(number);
+    sb.append(", number=").append(value);
     sb.append(", group=").append(getGroup());
     sb.append(", value=").append(getValue());
     sb.append('}');
