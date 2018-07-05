@@ -9,7 +9,7 @@ public abstract class QRGroup extends Group {
 	
 	private final BigInteger modulus;
 	private QRElementN generator;
-	private QRElementN one;
+	private final QRElementN one;
 	
 	public QRGroup(BigInteger modulus) {
 		super();

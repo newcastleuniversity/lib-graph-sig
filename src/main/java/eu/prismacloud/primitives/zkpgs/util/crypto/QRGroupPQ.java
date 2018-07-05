@@ -17,8 +17,7 @@ public final class QRGroupPQ extends QRGroup {
 	private final BigInteger order;
 	private final BigInteger oneP;
 	private final BigInteger oneQ;
-
-	private final QRElementPQ one;
+	
 	
 	/**
 	 * Instantiates a new QR group where we know the modulus factorization.
@@ -44,7 +43,6 @@ public final class QRGroupPQ extends QRGroup {
 		QRGroupPQ.computeEEA(pPrime, qPrime);
 		this.oneP = CRT.compute1p(EEAlgorithm.getT(), pPrime, qPrime); // TODO doublecheck. This should be mod p, right?
 		this.oneQ = CRT.compute1q(EEAlgorithm.getS(), pPrime, qPrime);
-		this.one = new QRElementPQ(this, BigInteger.ONE);
 	}
 
 	private static void computeEEA(final BigInteger p, final BigInteger q) {
@@ -83,17 +81,16 @@ public final class QRGroupPQ extends QRGroup {
 
 	/**
 	 * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc Determines if an integer alpha is an
-	 * element of QRN If the factorization of a Special RSA modulus is known \(N = pq\) then \((a | p)
+	 * element of QRN if the factorization of a Special RSA modulus is known \(N = pq\) then \((a | p)
 	 * = 1 \land (a | q) = 1\)
 	 *
 	 * @param alpha candidate integer alpha,
-	 * @return true if alpha in QRN, false if alpha not in QRN Dependencies: jacobiSymbol()
+	 * @return true if alpha in QRN, false if alpha not in QRN
 	 */
 	@Override
 	public boolean isElement(final BigInteger alpha) {
-		// TODO check if computations are correct
-		return CryptoUtilsFacade.isElementOfQR(alpha, pPrime)
-				&& CryptoUtilsFacade.isElementOfQR(alpha, qPrime);
+		return (computeLegendreP(alpha).equals(BigInteger.ONE) && 
+				computeLegendreQ(alpha).equals(BigInteger.ONE));
 	}
 
 	/**
@@ -163,6 +160,32 @@ public final class QRGroupPQ extends QRGroup {
 	public BigInteger getQ() {
 		return this.q;
 	}
+	
+	/**
+	 * Computes the Legendre symbol of a BigInteger value with respect to the
+	 * prime factor p of this QRGroupPQ.
+	 *  
+	 * @param value BigInteger
+	 * @return -1 if value is not a Quadratic Residue modulo p, 
+	 *               0 if p divides the value, and 
+	 *               +1 if value is a Quadratic Residue modulo p.
+	 */
+	public BigInteger computeLegendreP(BigInteger value) {
+		return value.modPow(this.pPrime, this.p);
+	}
+	
+	/**
+	 * Computes the Legendre symbol of a BigInteger value with respect to the
+	 * prime factor q of this QRGroupPQ.
+	 *  
+	 * @param value BigInteger
+	 * @return -1 if value is not a Quadratic Residue modulo q, 
+	 *               0 if q divides the value, and 
+	 *               +1 if value is a Quadratic Residue modulo q.
+	 */
+	public BigInteger computeLegendreQ(BigInteger value) {
+		return value.modPow(this.qPrime, this.q);
+	}
 
 	/**
 	 * Creates the QRGroupN that corresponds to this group, however, without any secret information.
@@ -188,6 +211,6 @@ public final class QRGroupPQ extends QRGroup {
 	
 	@Override
 	public QRElementPQ getOne() {
-		return this.one;
+		return (QRElementPQ) super.getOne();
 	}
 }

@@ -14,6 +14,8 @@ public class QRElementPQ extends QRElement {
   private BigInteger order;
   private final BigInteger xp;
   private final BigInteger xq;
+  private BigInteger lgdrP;
+  private BigInteger lgdrQ;
 
 
 
@@ -97,6 +99,7 @@ public class QRElementPQ extends QRElement {
     return new QRElementPQ(this.qrGroupPQ, crt);
   }
 
+  
   /**
    * Multi base exp big integer.
    *
