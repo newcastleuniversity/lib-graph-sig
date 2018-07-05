@@ -32,7 +32,7 @@ public final class QRGroupN extends QRGroup {
   }
 
   @Override
-  public QRElement createElement() {
+  public QRElement createRandomElement() {
     QRElement qrElement = new QRElementN(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue());
 
     this.groupElements.add(qrElement);

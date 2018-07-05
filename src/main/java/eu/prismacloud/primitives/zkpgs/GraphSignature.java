@@ -35,7 +35,7 @@ public class GraphSignature {
   }
 
   public GraphSignature blindGS(GraphSignature gs) {
-    return new GraphSignature();
+    return new GraphSignature(); // TODO does not create a randomization of this signature.
   }
 
   public BigInteger getBasesPermutation() {

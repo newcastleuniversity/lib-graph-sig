@@ -144,13 +144,13 @@ public final class ExtendedKeyPair {
   /** Certify prime representatives. */
   public void certifyPrimeRepresentatives() {
     Group qrGroup = signerKeyPair.getQRGroup();
-    BigInteger x_R_V = qrGroup.createElement().getValue();
+    BigInteger x_R_V = qrGroup.createRandomElement().getValue();
 
     GroupElement R_V = baseS.modPow(x_R_V, modN);
 
     BaseRepresentation baseV = new BaseRepresentation(R_V, 0, BASE.VERTEX);
 
-    BigInteger x_R_L = qrGroup.createElement().getValue();
+    BigInteger x_R_L = qrGroup.createRandomElement().getValue();
 
     GroupElement R_L = baseS.modPow(x_R_L, modN);
 
@@ -172,7 +172,7 @@ public final class ExtendedKeyPair {
 
     for (int j = 0; j < graphEncodingParameters.getL_E(); j++) {
       index++;
-      x_R_ij = qrGroup.createElement().getValue();
+      x_R_ij = qrGroup.createRandomElement().getValue();
       R_ij = S.modPow(x_R_ij, modN);
 
       base = new BaseRepresentation(R_ij, index, BASE.EDGE);
@@ -193,12 +193,12 @@ public final class ExtendedKeyPair {
   private void generateGroupBases(
       final GroupElement baseS, final BigInteger modN, final Group qrGroup) {
 
-    x_RZ = qrGroup.createElement().getValue();
+    x_RZ = qrGroup.createRandomElement().getValue();
     R_Z = baseS.modPow(x_RZ, modN);
 
     discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
 
-    x_RZ = qrGroup.createElement().getValue();
+    x_RZ = qrGroup.createRandomElement().getValue();
     R_Z = baseS.modPow(x_RZ, modN);
 
     discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
@@ -218,7 +218,7 @@ public final class ExtendedKeyPair {
 
     for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
       index++;
-      x_Ri = qrGroup.createElement().getValue();
+      x_Ri = qrGroup.createRandomElement().getValue();
       R_i = S.modPow(x_Ri, modN);
       base = new BaseRepresentation(R_i, index, BASE.VERTEX);
       baseRepresentationMap.put(

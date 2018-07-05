@@ -70,7 +70,7 @@ public final class CommitmentGroup extends Group {
   }
 
   @Override
-  public GroupElement createElement() {
+  public GroupElement createRandomElement() {
     return null;
   }
 

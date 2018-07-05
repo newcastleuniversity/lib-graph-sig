@@ -20,7 +20,7 @@ public abstract class QRGroup extends Group {
 	public abstract GroupElement createGenerator();
 
 	@Override
-	public abstract GroupElement createElement();
+	public abstract GroupElement createRandomElement();
 
 	@Override
 	public abstract GroupElement createElement(GroupElement s);

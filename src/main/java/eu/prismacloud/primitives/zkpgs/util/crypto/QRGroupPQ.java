@@ -72,7 +72,7 @@ public final class QRGroupPQ extends QRGroup {
   }
 
   @Override
-  public QRElement createElement() {
+  public QRElement createRandomElement() {
     return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue(), pPrime, qPrime);
   }
 
@@ -156,5 +156,14 @@ public final class QRGroupPQ extends QRGroup {
    */
   public BigInteger getOneQ() {
     return oneQ;
+  }
+  
+  /**
+   * Creates the QRGroupN that corresponds to this group, however, without any secret information.
+   * 
+   * @return QRGroupN corresponding to this group
+   */
+  public QRGroupN getPublicQRGroup() {
+	  return new QRGroupN(this.modulus);
   }
 }

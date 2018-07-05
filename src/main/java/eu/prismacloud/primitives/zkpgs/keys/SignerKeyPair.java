@@ -63,14 +63,14 @@ public class SignerKeyPair {
     S = qrGroup.createGenerator();
 
     // ** TODO check if the computations with the group elements are correct
-    x_Z = qrGroup.createElement().getValue();
+    x_Z = qrGroup.createRandomElement().getValue();
 
     Z = S.modPow(x_Z, specialRSAMod.getN());
 
-    x_R = qrGroup.createElement().getValue();
+    x_R = qrGroup.createRandomElement().getValue();
     R = S.modPow(x_R, specialRSAMod.getN());
 
-    x_R0 = qrGroup.createElement().getValue();
+    x_R0 = qrGroup.createRandomElement().getValue();
     R_0 = S.modPow(x_R0, specialRSAMod.getN());
 
     cg = CryptoUtilsFacade.commitmentGroupSetup(keyGenParameters);
