@@ -17,7 +17,7 @@ public final class QRGroupN extends QRGroup {
 
   @Override
   public BigInteger getOrder() {
-    throw new RuntimeException("Order must not be known");
+    throw new UnsupportedOperationException("Order not known.");
   }
 
   @Override
@@ -46,6 +46,12 @@ public final class QRGroupN extends QRGroup {
     /** TODO finish implementation for QRGrouN  */
     return null;
   }
+  
+  @Override
+  public GroupElement createElement(BigInteger value) {
+  	// TODO Auto-generated method stub
+  	return null;
+  }
 
   @Override
   public BigInteger getModulus() {
@@ -57,14 +63,15 @@ public final class QRGroupN extends QRGroup {
     return false;
   }
 
-  /**
-   * Check if an element \( x \in Z^*_p \) is a quadratic residue.
-   *
-   * @param x the number to check for quadratic residuosity
-   * @return the boolean
-   */
-  public boolean isQR(final BigInteger x) {
+//  /**
+//   * Check if an element \( x \in Z^*_p \) is a quadratic residue.
+//   *
+//   * @param x the number to check for quadratic residuosity
+//   * @return the boolean
+//   */
+//  public boolean isQR(final BigInteger x) {
+//
+//    return JacobiSymbol.computeJacobiSymbol(x, this.modulus) == 1;
+//  }
 
-    return JacobiSymbol.computeJacobiSymbol(x, this.modulus) == 1;
-  }
 }
