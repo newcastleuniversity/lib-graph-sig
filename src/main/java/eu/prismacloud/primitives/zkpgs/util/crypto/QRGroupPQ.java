@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Quadratic Residues Group when the modulus factorization is known. */
-public final class QRGroupPQ extends Group {
+public final class QRGroupPQ extends QRGroup {
 
   private final BigInteger modulus;
   private final BigInteger pPrime;

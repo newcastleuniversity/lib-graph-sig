@@ -3,153 +3,195 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /** Element of Quadratic Residue Group. */
 public class QRElement extends GroupElement {
-  private Group group;
+	private final Group group;
 
-  private final BigInteger value;
+	private final BigInteger value;
 
-  public QRElement(final BigInteger value) {
-    this.value = value;
-  }
+	public QRElement(final Group group, final BigInteger value) {
+		this.group = group;
+		this.value = value;
+	}
 
-  public QRElement(final Group group, final BigInteger value) {
-    this.group = group;
-    this.value = value;
-  }
+	@Override
+	public BigInteger getElementOrder() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Element order is not efficiently computable.");
+	}
 
-  @Override
-  public BigInteger getValue() {
-    return value;
-  }
+	@Override
+	public boolean isOrderKnown() {
+		return false;
+	}
 
-  public BigInteger nextProbablePrime() {
-    return value.nextProbablePrime();
-  }
+	@Override
+	public BigInteger getValue() {
+		return value;
+	}
 
-  public BigInteger add(BigInteger val) {
-    return value.add(val);
-  }
+	@Override
+	public QRElement multiBaseExp(List<GroupElement> bases, List<BigInteger> exponents) {
+		List<BigInteger> baseList = new ArrayList<BigInteger>(bases.size());
+		Iterator<GroupElement> baseIter = bases.iterator();
+		while (baseIter.hasNext()) {
+			GroupElement groupElement = (GroupElement) baseIter.next();
+			BigInteger bigInteger = groupElement.getValue();
+			baseList.add(bigInteger);
+		}
+		// TODO Provide a CryptoUtils function that operates directly on GroupElements!
+		BigInteger expProduct = CryptoUtilsFacade.computeMultiBaseEx(baseList, exponents, this.group.getModulus());
+		return new QRElement(this.getGroup(), expProduct);
+	}
 
-  public BigInteger subtract(BigInteger val) {
-    return value.subtract(val);
-  }
+	public QRElement multiBaseExpMap(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents) {
+		BigInteger expProduct = CryptoUtilsFacade.computeMultiBaseExMap(bases, exponents, this.group.getModulus());
+		return new QRElement(this.getGroup(), expProduct);
+	}
 
-  public QRElement multiply(QRElement val) {
-    return new QRElement(value.multiply(val.value));
-  }
+	@Override
+	public QRElement multiply(GroupElement value) {
+		if (!this.getGroup().equals(value.getGroup())) {
+			throw new UnsupportedOperationException("The two elements are from different groups.");
+			// TODO Graceful exit strategy if elements are not part of the same group?
+			// Exception
+		}
 
-  @Override
-  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
-    return CryptoUtilsFacade.computeMultiBaseEx(bases, exponents, this.group.getModulus());
-  }
+		BigInteger product = (this.value.multiply(value.getValue())).mod(this.getGroup().getModulus());
+		return new QRElement(this.group, product);
+	}
 
-  public BigInteger multiBaseExpMap(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents) {
-    return CryptoUtilsFacade.computeMultiBaseExMap(bases, exponents, this.group.getModulus());
-  }
+	BigInteger divide(BigInteger val) {
+		return value.divide(val);
+	}
 
-  @Override
-  public QRElement multiply(BigInteger val) {
-    return new QRElement(value.multiply(val));
-  }
+	BigInteger[] divideAndRemainder(BigInteger val) {
+		return value.divideAndRemainder(val);
+	}
 
-  public BigInteger divide(BigInteger val) {
-    return value.divide(val);
-  }
+	BigInteger remainder(BigInteger val) {
+		return value.remainder(val);
+	}
 
-  public BigInteger[] divideAndRemainder(BigInteger val) {
-    return value.divideAndRemainder(val);
-  }
+	BigInteger gcd(BigInteger val) {
+		return value.gcd(val);
+	}
 
-  public BigInteger remainder(BigInteger val) {
-    return value.remainder(val);
-  }
+	BigInteger abs() {
+		return value.abs();
+	}
 
-  public BigInteger gcd(BigInteger val) {
-    return value.gcd(val);
-  }
+	BigInteger negate() {
+		return value.negate();
+	}
 
-  public BigInteger abs() {
-    return value.abs();
-  }
+	int signum() {
+		return value.signum();
+	}
 
-  public BigInteger negate() {
-    return value.negate();
-  }
+	BigInteger mod(BigInteger m) {
+		return value.mod(m);
+	}
 
-  public int signum() {
-    return value.signum();
-  }
+	@Override
+	public QRElement modPow(BigInteger exponent) {
+		BigInteger result = this.value.modPow(exponent, this.getGroup().getModulus());
+		return new QRElement(this.getGroup(), result);
+	}
 
-  public BigInteger mod(BigInteger m) {
-    return value.mod(m);
-  }
+	@Override
+	public QRElement modInverse() {
+		BigInteger inverse = this.value.modInverse(this.getGroup().getModulus());
+		return new QRElement(this.getGroup(), inverse);
+	}
 
-  @Override
-  public QRElement modPow(BigInteger exponent, BigInteger modN) {
-    return new QRElement(value.modPow(exponent, modN));
-  }
+	int getLowestSetBit() {
+		return value.getLowestSetBit();
+	}
 
-  public QRElement modInverse(BigInteger m) {
-    return new QRElement(this.getValue().modInverse(m));
-  }
+	@Override
+	public int bitLength() {
+		return value.bitLength();
+	}
 
-  public int getLowestSetBit() {
-    return value.getLowestSetBit();
-  }
+	@Override
+	public int bitCount() {
+		return value.bitCount();
+	}
 
-  public int bitLength() {
-    return value.bitLength();
-  }
+	public boolean isProbablePrime(int certainty) {
+		return value.isProbablePrime(certainty);
+	}
 
-  public int bitCount() {
-    return value.bitCount();
-  }
+	@Override
+	public int compareTo(BigInteger val) {
+		return value.compareTo(val);
+	}
 
-  public boolean isProbablePrime(int certainty) {
-    return value.isProbablePrime(certainty);
-  }
+	@Override
+	public int compareTo(GroupElement val) {
+		return this.value.compareTo(val.getValue());
+	}
 
-  public int compareTo(BigInteger val) {
-    return value.compareTo(val);
-  }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof QRElement))
+			return false;
+		QRElement other = (QRElement) obj;
+		if (group == null) {
+			if (other.group != null)
+				return false;
+		} else if (!group.equals(other.group))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
+	}
 
-  @Override
-  public boolean equals(Object x) {
-    return value.equals(x);
-  }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((group == null) ? 0 : group.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
 
-  public BigInteger min(BigInteger val) {
-    return value.min(val);
-  }
+	public BigInteger min(BigInteger val) {
+		return value.min(val);
+	}
 
-  public BigInteger max(BigInteger val) {
-    return value.max(val);
-  }
+	public BigInteger max(BigInteger val) {
+		return value.max(val);
+	}
 
-  @Override
-  public int hashCode() {
-    return value.hashCode();
-  }
+	public String toString(int radix) {
+		return value.toString(radix);
+	}
 
-  public String toString(int radix) {
-    return value.toString(radix);
-  }
+	@Override
+	public String toString() {
+		return value.toString();
+	}
 
-  @Override
-  public String toString() {
-    return value.toString();
-  }
+	public byte[] toByteArray() {
+		return value.toByteArray();
+	}
 
-  public byte[] toByteArray() {
-    return value.toByteArray();
-  }
+	@Override
+	public Group getGroup() {
+		return group;
+	}
 
-  @Override
-  public Group getGroup() {
-    return group;
-  }
 }

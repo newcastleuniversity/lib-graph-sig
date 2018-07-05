@@ -18,4 +18,6 @@ public abstract class Group {
   public abstract GroupElement createElement();
 
   public abstract GroupElement createElement(GroupElement s);
+  
+  public abstract GroupElement createElement(BigInteger value);
 }
