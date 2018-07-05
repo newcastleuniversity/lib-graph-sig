@@ -9,10 +9,11 @@ public final class QRGroupN extends QRGroup {
 
 	private final BigInteger modulus;
 	private QRElementN generator;
-	private ArrayList<GroupElement> groupElements;
+	private QRElementN one;
 
 	public QRGroupN(final BigInteger modulus) {
 		this.modulus = modulus;
+		this.one = new QRElementN(this, BigInteger.ONE);
 	}
 
 	@Override
@@ -34,8 +35,6 @@ public final class QRGroupN extends QRGroup {
 	@Override
 	public QRElement createRandomElement() {
 		QRElement qrElement = new QRElementN(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue());
-
-		this.groupElements.add(qrElement);
 
 		return qrElement;
 	}
@@ -59,5 +58,11 @@ public final class QRGroupN extends QRGroup {
 	@Override
 	public boolean isKnownOrder() {
 		return false;
+	}
+
+	@Override
+	public GroupElement getOne() {
+		
+		return this.one;
 	}
 }
