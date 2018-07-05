@@ -55,11 +55,36 @@ public class IdemixUtils extends Utils implements INumberUtils {
   public SpecialRSAMod generateSpecialRSAModulus() {
     throw new RuntimeException("not currently used from idemix library");
   }
+  
+  /**
+   * Algorithm <tt>alg:createElementOfZNS</tt> - topocert-doc Generate S' number
+   *
+   * <p>Dependencies: isElementOfZNS()
+   *
+   * @param modN the special RSA modulus
+   * @return s_prime random number S' of QRN
+   */
+  public BigInteger createElementOfZNS(final BigInteger modN) {
 
-  @Override
-  public QRElement createQRNGenerator(final BigInteger n) {
-    return new QRElement(Utils.computeGeneratorQuadraticResidue(n, getIdemixSystemParameters()));
-  }
+    BigInteger s_prime;
+    do {
+
+      s_prime = createRandomNumber(NumberConstants.TWO.getValue(), modN.subtract(BigInteger.ONE));
+
+    } while (!isElementOfZNS(s_prime, modN));
+
+    return s_prime;
+  } 
+  
+  private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger modN) {
+	    // check gcd(S', modN) = 1
+	    return (s_prime.gcd(modN).equals(BigInteger.ONE));
+	  }
+
+//  @Override
+//  public QRElement createQRNGenerator(final BigInteger n) {
+//    return new QRElement(Utils.computeGeneratorQuadraticResidue(n, getIdemixSystemParameters()));
+//  }
 
   @Override
   public BigInteger createRandomNumber(final BigInteger lowerBound, final BigInteger upperBound) {
@@ -96,10 +121,10 @@ public class IdemixUtils extends Utils implements INumberUtils {
     throw new RuntimeException("not implemented in idemix library");
   }
 
-  @Override
-  public QRElement createQRNElement(final BigInteger n) {
-    throw new RuntimeException("not implemented in idemix library");
-  }
+//  @Override
+//  public QRElement createQRNElement(final BigInteger n) {
+//    throw new RuntimeException("not implemented in idemix library");
+//  }
 
   @Override
   public BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException {

@@ -22,7 +22,7 @@ public interface INumberUtils {
 
   SpecialRSAMod generateSpecialRSAModulus();
 
-  QRElement createQRNGenerator(BigInteger N);
+ // QRElement createQRNGenerator(BigInteger N);
 
   BigInteger createRandomNumber(BigInteger min, BigInteger max);
 
@@ -32,9 +32,9 @@ public interface INumberUtils {
 
   BigInteger createCommitmentGroupGenerator(BigInteger rho, BigInteger gamma);
 
-  Boolean elementOfQRN(BigInteger value, BigInteger modulus);
+Boolean elementOfQRN(BigInteger value, BigInteger modulus);
 
-  QRElement createQRNElement(BigInteger N);
+//  QRElement createQRNElement(BigInteger N);
 
   BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException;
 
@@ -52,4 +52,6 @@ public interface INumberUtils {
 
   GSSignature generateSignature(BigInteger m, BaseRepresentation base,
       SignerPublicKey signerPublicKey);
+  
+  BigInteger createElementOfZNS(BigInteger modN);
 }

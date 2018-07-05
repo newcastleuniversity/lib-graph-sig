@@ -72,13 +72,13 @@ public class CryptoUtilsFacade {
     return CryptoUtilsFactory.getInstance(GS).generateSpecialRSAModulus();
   }
 
-  public static QRElement computeQRNGenerator(BigInteger n) {
-    return CryptoUtilsFactory.getInstance(GS).createQRNGenerator(n);
-  }
+//  public static QRElement computeQRNGenerator(BigInteger n) {
+//    return CryptoUtilsFactory.getInstance(GS).createQRNGenerator(n);
+//  }
 
-  public static QRElement computeQRNElement(BigInteger n) {
-    return CryptoUtilsFactory.getInstance(GS).createQRNElement(n);
-  }
+//  public static QRElement computeQRNElement(BigInteger n) {
+//    return CryptoUtilsFactory.getInstance(GS).createQRNElement(n);
+//  }
 
   public static BigInteger computeRandomNumber(BigInteger lowerBound, BigInteger upperBound) {
     return CryptoUtilsFactory.getInstance(GS).createRandomNumber(lowerBound, upperBound);
@@ -99,5 +99,9 @@ public class CryptoUtilsFacade {
 
   public static BigInteger generateRandomPrime(int bitLength) {
     return CryptoUtilsFactory.getInstance(GS).generateRandomPrime(bitLength);
+  }
+  
+  public static BigInteger createElementOfZNS(final BigInteger modN) {
+	  return CryptoUtilsFactory.getInstance(GS).createElementOfZNS(modN);
   }
 }

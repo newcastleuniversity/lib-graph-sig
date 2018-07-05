@@ -10,7 +10,6 @@ import java.util.List;
 /** Quadratic Residues Group when the modulus factorization is known. */
 public final class QRGroupPQ extends QRGroup {
 
-	private final BigInteger modulus;
 	private final BigInteger pPrime;
 	private final BigInteger qPrime;
 	private final BigInteger p;
@@ -18,7 +17,6 @@ public final class QRGroupPQ extends QRGroup {
 	private final BigInteger order;
 	private final BigInteger oneP;
 	private final BigInteger oneQ;
-	private QRElementPQ generator;
 
 	private final QRElementPQ one;
 	
@@ -31,11 +29,13 @@ public final class QRGroupPQ extends QRGroup {
 	 * @post
 	 */
 	public QRGroupPQ(final BigInteger pPrime, final BigInteger qPrime) {
-		super();
+		super(
+				((NumberConstants.TWO.getValue().multiply(pPrime)).add(BigInteger.ONE)).multiply(
+						((NumberConstants.TWO.getValue().multiply(qPrime)).add(BigInteger.ONE)))
+				);
 		
 		Assert.notNull(pPrime, "pPrime must not be null");
 		Assert.notNull(qPrime, "qPrime must not be null");
-		this.modulus = pPrime.multiply(qPrime);
 		this.pPrime = pPrime;
 		this.qPrime = qPrime;
 		this.p = (NumberConstants.TWO.getValue().multiply(pPrime)).add(BigInteger.ONE);
@@ -57,31 +57,10 @@ public final class QRGroupPQ extends QRGroup {
 		return this.pPrime.multiply(this.qPrime);
 	}
 
-	@Override
-	public BigInteger getModulus() {
-		return this.modulus;
-	}
-
-	@Override
-	public GroupElement getGenerator() {
-		return this.generator;
-	}
-
-	/**
-	 * Create generator group element for QRN when the modulus factorization is known.
-	 *
-	 * @return the group element
-	 */
-	@Override
-	public QRElement createGenerator() {
-		return this.generator =
-				new QRElementPQ(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus).getValue(), pPrime, qPrime);
-	}
-
-	@Override
-	public QRElement createRandomElement() {
-		return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue(), pPrime, qPrime);
-	}
+//	@Override
+//	public QRElement createRandomElement() {
+//		return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue(), pPrime, qPrime);
+//	}
 
 	//  @Override
 	//  public GroupElement createElement(final GroupElement s) {
@@ -127,9 +106,9 @@ public final class QRGroupPQ extends QRGroup {
 	 */
 	public boolean verifySGenerator(
 			final BigInteger S, final BigInteger pPrime, final BigInteger qPrime) {
-		if (!S.equals(BigInteger.ONE.mod(modulus))) {
-			if (!S.modPow(pPrime, modulus).equals(BigInteger.ONE.mod(modulus)))
-				return !S.modPow(qPrime, modulus).equals(BigInteger.ONE.mod(modulus));
+		if (!S.equals(BigInteger.ONE.mod(this.getModulus()))) {
+			if (!S.modPow(pPrime, this.getModulus()).equals(BigInteger.ONE.mod(this.getModulus())))
+				return !S.modPow(qPrime, this.getModulus()).equals(BigInteger.ONE.mod(this.getModulus()));
 		} else return false;
 
 		return false;
@@ -191,7 +170,7 @@ public final class QRGroupPQ extends QRGroup {
 	 * @return QRGroupN corresponding to this group
 	 */
 	public QRGroupN getPublicQRGroup() {
-		return new QRGroupN(this.modulus);
+		return new QRGroupN(this.getModulus());
 	}
 
 	@Override

@@ -404,22 +404,26 @@ public class GSUtils implements INumberUtils {
     return (s_prime.gcd(modN).equals(BigInteger.ONE));
   }
 
-  /**
-   * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc Determines if an integer a is an element
-   * of QRN
-   *
-   * @param alpha candidate integer a
-   * @param modN positive odd integer (prime factors \( modN: q_1, \ldots , q_r \) )
-   * @return true if a in QRN, false if a not in QRN Dependencies: jacobiSymbol()
-   */
-  @Override
-  public Boolean elementOfQRN(final BigInteger alpha, final BigInteger modN) {
-    return (alpha.compareTo(BigInteger.ZERO) > 0)
-        && (alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue()))
-            <= 0)
-        && (JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1);
-  } // TODO: This function does not seem to match what I was expecting.
+//  /**
+//   * Algorithm <tt>alg:element_of_QR_N</tt> - topocert-doc Determines if an integer a is an element
+//   * of QRN
+//   *
+//   * @param alpha candidate integer a
+//   * @param modN positive odd integer (prime factors \( modN: q_1, \ldots , q_r \) )
+//   * @return true if a in QRN, false if a not in QRN Dependencies: jacobiSymbol()
+//   */
+//  @Override
+//  public Boolean elementOfQRN(final BigInteger alpha, final BigInteger modN) {
+//    return (alpha.compareTo(BigInteger.ZERO) > 0)
+//        && (alpha.compareTo(modN.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue()))
+//            <= 0)
+//        && (JacobiSymbol.computeJacobiSymbol(alpha, modN) == 1);
+//  } // TODO: This function does not seem to match what I was expecting.
 
+  public Boolean elementOfQRN(final BigInteger alpha, final BigInteger modN) {
+	  return false;
+  }
+  
   /**
    * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc Evaluate generator S properties
    * Input: generator S, modulus modN Output: true or false

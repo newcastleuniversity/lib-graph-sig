@@ -9,56 +9,13 @@ import java.util.ArrayList;
 /** Quadratic Residue Group where we don't know the modulus factorization in \(Z^*_p \) */
 public final class QRGroupN extends QRGroup {
 
-	private final BigInteger modulus;
-	private QRElementN generator;
-	private QRElementN one;
-
 	public QRGroupN(final BigInteger modulus) {
-		this.modulus = modulus;
-		this.one = new QRElementN(this, BigInteger.ONE);
+		super(modulus);
 	}
 
 	@Override
 	public BigInteger getOrder() {
 		throw new UnsupportedOperationException("Order not known.");
-	}
-
-	@Override
-	public GroupElement getGenerator() {
-		return this.generator;
-	}
-
-	@Override
-	public QRElement createGenerator() {
-		return this.generator =
-				new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus).getValue());
-	}
-	
-	  /**
-	   * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc Create generator of QRN Input: Special RSA
-	   * modulus modN, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
-	   * verifySGenerator()
-	   */
-	  @Override
-	  public QRElement createQRNGenerator() {
-
-		  BigInteger s;
-	    BigInteger s_prime;
-
-	    do {
-	      s_prime = CryptoUtilsFacade.createElementOfZNS(this.modulus);
-	      s = s_prime.modPow(NumberConstants.TWO.getValue(), this.modulus);
-
-	    } while (!CryptoUtilsFacade.verifySGeneratorOfQRN(s, this.modulus));
-	    
-	    this.generator = new QRElementN(this, s);
-	  }
-
-	@Override
-	public QRElement createRandomElement() {
-		QRElement qrElement = new QRElementN(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue());
-
-		return qrElement;
 	}
 	
 
@@ -88,11 +45,6 @@ public final class QRGroupN extends QRGroup {
 	}
 
 	@Override
-	public BigInteger getModulus() {
-		return this.modulus;
-	}
-
-	@Override
 	public boolean isElement(final BigInteger value) {
 		return false;
 	}
@@ -102,9 +54,4 @@ public final class QRGroupN extends QRGroup {
 		return false;
 	}
 
-	@Override
-	public GroupElement getOne() {
-		
-		return this.one;
-	}
 }
