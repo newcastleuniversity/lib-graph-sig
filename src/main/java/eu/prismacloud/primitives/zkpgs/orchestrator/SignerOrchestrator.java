@@ -70,7 +70,7 @@ public class SignerOrchestrator {
   private BigInteger hatvPrime;
   private BigInteger hatm_0;
   private Map<URN, BigInteger> responses;
-  private BigInteger hatU;
+  private GroupElement hatU;
   private List<String> challengeList;
   private BigInteger hatc;
   private GSSignature gsSignature;

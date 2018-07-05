@@ -71,7 +71,7 @@ public class RecipientOrchestrator {
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
   private Map<URN, BaseRepresentation> correctnessEncodedBases;
-  private BigInteger A;
+  private GroupElement A;
   private BigInteger e;
   private BigInteger vPrimePrime;
   private ProofSignature P_2;
@@ -311,7 +311,7 @@ public class RecipientOrchestrator {
   private ProofSignature extractMessageElements(GSMessage correctnessMsg) {
     Map<URN, Object> correctnessMessageElements = correctnessMsg.getMessageElements();
 
-    A = (BigInteger) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.A"));
+    A = (GroupElement) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.A"));
     e = (BigInteger) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.e"));
     vPrimePrime =
         (BigInteger)

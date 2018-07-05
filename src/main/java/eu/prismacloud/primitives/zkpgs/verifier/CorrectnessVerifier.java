@@ -35,7 +35,7 @@ public class CorrectnessVerifier implements IVerifier {
   private ExtendedPublicKey extendedPublicKey;
   private BigInteger cPrime;
   private GroupElement baseZ;
-  private BigInteger A;
+  private GroupElement A;
   private GroupElement baseS;
   private GroupElement R_0;
   private BigInteger m_0;
@@ -44,20 +44,20 @@ public class CorrectnessVerifier implements IVerifier {
   private Map<URN, BaseRepresentation> encodedEdges;
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
-  private BigInteger Q;
-  private QRElement R_i;
-  private QRElement R_i_j;
+  private GroupElement Q;
+  private GroupElement R_i;
+  private GroupElement R_i_j;
   private BigInteger hatQ;
-  private BigInteger hatA;
+  private GroupElement hatA;
   private BigInteger hatc;
   private List<String> challengeList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
   private ProofStore<Object> proofStore;
-  private BigInteger Ae;
-  private QRElement baseSmulti;
-  private BigInteger ZPrime;
-  private BigInteger hatZ;
+  private GroupElement Ae;
+  private GroupElement baseSmulti;
+  private GroupElement ZPrime;
+  private GroupElement hatZ;
   private BigInteger vPrime;
   private BigInteger vPrimePrime;
 
@@ -118,12 +118,12 @@ public class CorrectnessVerifier implements IVerifier {
 
        gslog.info("recipient.m_0: " + m_0);
 
-       QRElement R_0multi = R_0.modPow(m_0, modN);
-        Ae = A.modPow(e, modN);
-        baseSmulti = baseS.modPow(v, modN);
-       ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN).getValue());
+       GroupElement R_0multi = R_0.modPow(m_0);
+        Ae = A.modPow(e);
+        baseSmulti = baseS.modPow(v);
+       ZPrime = A.modPow(e).multiply(baseS.modPow(vPrimePrime));
 
-       hatZ = ZPrime.multiply(R_0multi.getValue()).mod(modN);
+       hatZ = ZPrime.multiply(R_0multi);
 
        gslog.info("correctness verifier hatZ: " + hatZ);
        gslog.info("correctness verifier baseZ: " + baseZ);
@@ -163,7 +163,7 @@ public class CorrectnessVerifier implements IVerifier {
       final BigInteger e,
       final BigInteger v,
       final ProofSignature P_2,
-      final BigInteger A,
+      final GroupElement A,
       final ExtendedPublicKey extendedPublicKey,
       final BigInteger n_2,
       final Map<URN, BaseRepresentation> encodedBases,
@@ -194,7 +194,7 @@ public class CorrectnessVerifier implements IVerifier {
     cPrime = (BigInteger) P_2.get("P_2.cPrime");
     hatd = (BigInteger) P_2.get("P_2.hatd");
     
-    hatA = A.modPow(cPrime.add(hatd.multiply(e)), modN);
+    hatA = A.modPow(cPrime.add(hatd.multiply(e)));
   }
 
   public void verifySignature() {

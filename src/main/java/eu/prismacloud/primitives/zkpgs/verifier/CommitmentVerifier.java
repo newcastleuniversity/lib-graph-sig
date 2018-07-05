@@ -10,6 +10,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -26,22 +28,22 @@ public class CommitmentVerifier implements IVerifier {
   private GroupElement baseS;
   private GroupElement baseZ;
   private GroupElement baseR_0;
-  private BigInteger S;
-  private BigInteger Z;
-  private BigInteger R_0;
+  private GroupElement S;
+  private GroupElement Z;
+  private GroupElement R_0;
   private BigInteger n_1;
   private BigInteger modN;
   private STAGE proofStage;
   private Map<URN, BaseRepresentation> baseRepresentationMap;
   private KeyGenParameters keyGenParameters;
-  private BigInteger hatU;
+  private GroupElement hatU;
   private List<BigInteger> challengeList;
   private BigInteger hatc;
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
   private ProofStore<Object> proofStore;
   private GSCommitment gscommitment;
-  private BigInteger witnesss;
+  private GroupElement witness;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public enum STAGE {
@@ -49,7 +51,7 @@ public class CommitmentVerifier implements IVerifier {
     VERIFYING
   };
 
-  public BigInteger computeWitness(
+  public GroupElement computeWitness(
       final BigInteger cChallenge,
       final Map<URN, BigInteger> responses,
       final ProofStore<Object> proofStore,
@@ -71,13 +73,13 @@ public class CommitmentVerifier implements IVerifier {
 
       checkLengthsIssuing(responses, keyGenParameters);
 
-      witnesss = computehatUIssuing();
+      witness = computehatUIssuing();
 
     } else if (STAGE.VERIFYING == proofStage) {
       /** TODO finish implementation for verifying stage */
     }
 
-    return witnesss;
+    return witness;
   }
 
   private void checkLengthsIssuing(
@@ -111,7 +113,7 @@ public class CommitmentVerifier implements IVerifier {
   }
 
   /** Computehat U. */
-  public BigInteger computehatUIssuing() {
+  public GroupElement computehatUIssuing() {
 
     Map<URN, BigInteger> exponentsU = new HashMap<>();
     Map<URN, GroupElement> basesU = new HashMap<>();
@@ -124,14 +126,14 @@ public class CommitmentVerifier implements IVerifier {
 
     populateBases(basesU);
 
-    BigInteger valueU = U.getCommitmentValue();
+    GroupElement valueU = U.getCommitmentValue();
 
     gslog.info("valueU: " + valueU);
 
     hatU =
         valueU
-            .modPow(cChallenge.negate(), modN)
-            .multiply(CryptoUtilsFacade.computeMultiBaseExMap(basesU, exponentsU, modN));
+            .modPow(cChallenge.negate())
+            .multiply(new QRElement(baseS.getGroup(), CryptoUtilsFacade.computeMultiBaseExMap(basesU, exponentsU, modN)));
     return hatU;
   }
 

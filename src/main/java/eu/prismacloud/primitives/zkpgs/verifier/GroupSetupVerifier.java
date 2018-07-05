@@ -12,6 +12,7 @@ import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -30,30 +31,30 @@ public class GroupSetupVerifier implements IVerifier {
   private ProofStore<Object> proofStore;
   private KeyGenParameters keyGenParameters;
   private int bitLength;
-  private BigInteger hatZ;
-  private BigInteger hatR;
-  private BigInteger hatR_0;
-  private Map<URN, BigInteger> hatVertexBases;
-  private Map<URN, BigInteger> hatEdgeBases;
-  private Map<URN, BigInteger> vertexBases;
-  private Map<URN, BigInteger> edgeBases;
+  private GroupElement hatZ;
+  private GroupElement hatR;
+  private GroupElement hatR_0;
+  private Map<URN, GroupElement> hatVertexBases;
+  private Map<URN, GroupElement> hatEdgeBases;
+  private Map<URN, GroupElement> vertexBases;
+  private Map<URN, GroupElement> edgeBases;
   private GraphEncodingParameters graphEncodingParameters;
   private Map<URN, BigInteger> vertexResponses;
   private Map<URN, BigInteger> edgeResponses;
   private List<String> challengeList = new ArrayList<>();
-  private QRElement baseZ;
+  private GroupElement baseZ;
   private BigInteger c;
-  private QRElement baseS;
+  private GroupElement baseS;
   private BigInteger hatr_z;
   private BigInteger modN;
-  private QRElement baseR;
+  private GroupElement baseR;
   private BigInteger hatr;
-  private QRElement baseR_0;
+  private GroupElement baseR_0;
   private BigInteger hatr_0;
   private BigInteger hatc;
   private List<String> contextList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private QRElement hatR_i_j;
+  private GroupElement hatR_i_j;
 
   /**
    * Pre challenge phase.
@@ -140,17 +141,17 @@ public class GroupSetupVerifier implements IVerifier {
     BigInteger edgeBase;
     BigInteger hatVertexResponse;
     BigInteger hatEdgeResponse;
-    QRElement hatR_i;
+    GroupElement hatR_i;
     BigInteger hatR_j;
     BigInteger checkHatZ =
         baseZ.getValue().modPow(c.negate(), modN).multiply(baseS.getValue().modPow(hatr_z, modN));
-    hatVertexBases = new HashMap<URN, BigInteger>();
-    hatEdgeBases = new HashMap<URN, BigInteger>();
+    hatVertexBases = new HashMap<URN, GroupElement>();
+    hatEdgeBases = new HashMap<URN, GroupElement>();
 
     /** TODO check computation if it is computed correctly according to spec. */
-    hatZ = baseZ.modPow(c.negate(), modN).multiply(baseS.modPow(hatr_z, modN)).getValue();
-    hatR = baseR.modPow(c.negate(), modN).multiply(baseS.modPow(hatr, modN)).getValue();
-    hatR_0 = baseR_0.modPow(c.negate(), modN).multiply(baseS.modPow(hatr_0, modN)).getValue();
+    hatZ = baseZ.modPow(c.negate()).multiply(baseS.modPow(hatr_z));
+    hatR = baseR.modPow(c.negate()).multiply(baseS.modPow(hatr));
+    hatR_0 = baseR_0.modPow(c.negate()).multiply(baseS.modPow(hatr_0));
 
     BaseRepresentation baseR;
     for (Entry<URN, BaseRepresentation> baseRepresentation :
@@ -165,22 +166,22 @@ public class GroupSetupVerifier implements IVerifier {
         hatR_i =
             baseR
                 .getBase()
-                .modPow(c.negate(), modN)
-                .multiply(baseS.modPow(hatVertexResponse, modN));
+                .modPow(c.negate())
+                .multiply(baseS.modPow(hatVertexResponse));
 
         hatVertexBases.put(
             URN.createZkpgsURN("groupsetupverifier.vertex.hatR_i_" + baseR.getBaseIndex()),
-            hatR_i.getValue());
+            hatR_i);
 
       } else if (baseR.getBaseType() == BASE.EDGE) {
         hatEdgeResponse =
             edgeResponses.get(
                 URN.createZkpgsURN("groupsetupprover.responses.hatr_i_j_" + baseR.getBaseIndex()));
         hatR_i_j =
-            baseR.getBase().modPow(c.negate(), modN).multiply(baseS.modPow(hatEdgeResponse, modN));
+            baseR.getBase().modPow(c.negate()).multiply(baseS.modPow(hatEdgeResponse));
         hatEdgeBases.put(
             URN.createZkpgsURN("groupsetupverifier.edge.hatR_i_j_" + baseR.getBaseIndex()),
-            hatR_i_j.getValue());
+            hatR_i_j);
       }
     }
   }
