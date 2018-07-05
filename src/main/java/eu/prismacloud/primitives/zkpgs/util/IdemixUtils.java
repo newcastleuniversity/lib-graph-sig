@@ -206,4 +206,8 @@ public class IdemixUtils extends Utils implements INumberUtils {
     }
     return sp;
   }
+  
+  public boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN) {
+	  throw new RuntimeException("not currently used from idemix library");
+  }
 }

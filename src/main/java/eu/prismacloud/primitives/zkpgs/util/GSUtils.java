@@ -432,7 +432,7 @@ public class GSUtils implements INumberUtils {
    * @param modN
    * @return true if s is a generator of QRN or else return false
    */
-  public Boolean verifySGeneratorOfQRN(final BigInteger s, BigInteger modN) {
+  public boolean verifySGeneratorOfQRN(final BigInteger s, BigInteger modN) {
     return s.subtract(BigInteger.ONE).gcd(modN).compareTo(BigInteger.ONE) == 0;
   }
 

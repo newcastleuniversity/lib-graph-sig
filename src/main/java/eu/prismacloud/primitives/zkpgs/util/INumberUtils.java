@@ -54,4 +54,6 @@ Boolean elementOfQRN(BigInteger value, BigInteger modulus);
       SignerPublicKey signerPublicKey);
   
   BigInteger createElementOfZNS(BigInteger modN);
+  
+  boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN);
 }

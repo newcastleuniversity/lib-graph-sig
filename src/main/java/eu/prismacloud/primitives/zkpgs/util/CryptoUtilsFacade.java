@@ -104,4 +104,8 @@ public class CryptoUtilsFacade {
   public static BigInteger createElementOfZNS(final BigInteger modN) {
 	  return CryptoUtilsFactory.getInstance(GS).createElementOfZNS(modN);
   }
+  
+  public static boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN) {
+	  return CryptoUtilsFactory.getInstance(GS).verifySGeneratorOfQRN(s, modN);
+  }
 }
