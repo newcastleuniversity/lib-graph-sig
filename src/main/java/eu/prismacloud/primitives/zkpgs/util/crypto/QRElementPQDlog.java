@@ -8,17 +8,14 @@ import java.math.BigInteger;
  */
 public abstract class QRElementPQDlog extends QRElement {
   private QRGroupPQ qrGroupPQ;
-  private BigInteger number;
+  private BigInteger value;
 
-  public QRElementPQDlog(final BigInteger value) {
-    super(value);
-  }
 
   public QRElementPQDlog(final QRGroupPQ qrGroupPQ, final BigInteger number) {
     super(qrGroupPQ, number);
 
     this.qrGroupPQ = qrGroupPQ;
-    this.number = number;
+    this.value = number;
   }
 
   @Override
@@ -28,6 +25,6 @@ public abstract class QRElementPQDlog extends QRElement {
 
   @Override
   public BigInteger getValue() {
-    return this.number;
+    return this.value;
   }
 }
