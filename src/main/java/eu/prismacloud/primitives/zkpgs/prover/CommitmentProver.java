@@ -49,7 +49,7 @@ public class CommitmentProver implements IProver {
   private BigInteger tildem_0;
   private BigInteger tildem_i;
   private BigInteger tildem_i_j;
-  private BigInteger tildeU;
+  private GroupElement tildeU;
   private BigInteger hatvPrime;
   private BigInteger hatm_0;
   private BigInteger hatm_i;
@@ -205,7 +205,7 @@ public class CommitmentProver implements IProver {
 
     if (proofStage == STAGE.ISSUING) {
 
-      R_0tildem_0 = R_0.modPow(tildem_0, modN).getValue();
+      R_0tildem_0 = R_0.modPow(tildem_0).getValue();
       baseMap.put(URN.createZkpgsURN("commitment.R_0"), R_0);
       exponentsMap.put(URN.createZkpgsURN("commitment.m_0"), tildem_0);
       for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
@@ -230,7 +230,7 @@ public class CommitmentProver implements IProver {
       BigInteger tildem_i = (BigInteger) proofStore.retrieve(tildem_i_iURN);
 
       R_i = vertex.getBase();
-      tildeC_i = R_i.modPow(tildem_i, modN).multiply(baseS.modPow(tilder_i, modN)).getValue();
+      tildeC_i = R_i.modPow(tildem_i).multiply(baseS.modPow(tilder_i)).getValue();
 
       baseMap.put(URN.createZkpgsURN("commitment.base.R_" + vertex.getBaseIndex()), R_i);
       exponentsMap.put(

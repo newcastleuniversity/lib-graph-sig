@@ -69,9 +69,9 @@ public class ProverOrchestrator implements ProofOperation {
   private Map<URN, BigInteger> vertexWitnesses;
   private BigInteger tildem_i;
   private BigInteger tilder_i;
-  private Map<URN, BigInteger> pairWiseWitnesses;
+  private Map<URN, GroupElement> pairWiseWitnesses;
   private List<String> challengeList;
-  private BigInteger tildeR_BariBarj;
+  private GroupElement tildeR_BariBarj;
   private BigInteger c;
   private ProofStore<Object> proofStore;
   private URN r_BariBarjURN;
@@ -147,8 +147,7 @@ public class ProverOrchestrator implements ProofOperation {
   }
 
   public GSSignature getRandomizedGraphSignature(final GSSignature graphSignature) {
-    return graphSignature.blind(
-        graphSignature.getA(), graphSignature.getE(), graphSignature.getV());
+    return graphSignature.blind();
   }
 
   public void computePreChallengePhase() throws Exception {
@@ -178,7 +177,7 @@ public class ProverOrchestrator implements ProofOperation {
           new PairWiseDifferenceProver(
               commitmentPair.getC_i(),
               commitmentPair.getC_j(),
-              extendedPublicKey.getPublicKey().getBaseS().getValue(),
+              extendedPublicKey.getPublicKey().getBaseS(),
               extendedPublicKey.getPublicKey().getModN(),
               index,
               proofStore,
@@ -255,7 +254,7 @@ public class ProverOrchestrator implements ProofOperation {
       challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
     }
 
-    for (BigInteger witness : pairWiseWitnesses.values()) {
+    for (GroupElement witness : pairWiseWitnesses.values()) {
       challengeList.add(String.valueOf(witness));
     }
 

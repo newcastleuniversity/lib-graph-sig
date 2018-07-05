@@ -10,6 +10,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.EEAlgorithm;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+
 import java.math.BigInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +26,7 @@ public class PairWiseDifferenceProver implements IProver {
   private KeyGenParameters keyGenParameters;
   private GSCommitment C_j;
   private GSCommitment C_i;
-  private BigInteger S;
+  private GroupElement S;
   private BigInteger modN;
   private ProofStore<Object> proverStore;
   private int index;
@@ -38,7 +40,7 @@ public class PairWiseDifferenceProver implements IProver {
   private BigInteger hata_BariBarj;
   private BigInteger hatb_BariBarj;
   private BigInteger hatr_BariBarj;
-  private BigInteger basetildeR_BariBarj;
+  private GroupElement basetildeR_BariBarj;
   private BigInteger c;
   private String a_BariBarjURN;
   private String b_BariBarjURN;
@@ -64,7 +66,7 @@ public class PairWiseDifferenceProver implements IProver {
   public PairWiseDifferenceProver(
       GSCommitment C_i,
       GSCommitment C_j,
-      BigInteger S,
+      GroupElement S,
       BigInteger modN,
       int index,
       ProofStore<Object> proverStore,
@@ -246,12 +248,12 @@ public class PairWiseDifferenceProver implements IProver {
 
   @Override
   public void computeWitness() {
-    BigInteger C_Bari = C_i.getCommitmentValue();
-    BigInteger C_Barj = C_j.getCommitmentValue();
+    GroupElement C_Bari = C_i.getCommitmentValue();
+    GroupElement C_Barj = C_j.getCommitmentValue();
     basetildeR_BariBarj =
-        C_Bari.modPow(tildea_BariBarj, modN)
+        C_Bari.modPow(tildea_BariBarj)
             .multiply(
-                C_Bari.modPow(tildeb_BariBarj, modN).multiply(S.modPow(tilder_BariBarj, modN)));
+                C_Bari.modPow(tildeb_BariBarj).multiply(S.modPow(tilder_BariBarj)));
 
     storeWitness();
   }
@@ -335,7 +337,7 @@ public class PairWiseDifferenceProver implements IProver {
    *
    * @return the tilde r bari barj
    */
-  public BigInteger getBasetildeR_BariBarj() {
+  public GroupElement getBasetildeR_BariBarj() {
     return basetildeR_BariBarj;
   }
 }

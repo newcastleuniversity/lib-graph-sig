@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class GSProver { // implements IProver {
 
   private final BigInteger modN;
-  private final BigInteger baseS;
+  private final GroupElement baseS;
   private BigInteger n_3;
   private final ProofStore<Object> proofStore;
   private final KeyGenParameters keyGenParameters;
@@ -39,7 +39,7 @@ public class GSProver { // implements IProver {
       final KeyGenParameters keyGenParameters) {
 
     this.modN = modN;
-    this.baseS = baseS.getValue();
+    this.baseS = baseS;
     this.n_3 = n_3;
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
@@ -52,7 +52,7 @@ public class GSProver { // implements IProver {
       final KeyGenParameters keyGenParameters) {
 
     this.modN = modN;
-    this.baseS = baseS.getValue();
+    this.baseS = baseS;
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
   }
@@ -64,19 +64,19 @@ public class GSProver { // implements IProver {
   public void computeCommitments(Map<URN, BaseRepresentation> vertexRepresentations)
       throws Exception {
     GSCommitment commitment;
-    BigInteger R_i;
+    GroupElement R_i;
     BigInteger m_i;
-    BigInteger C_i;
+    GroupElement C_i;
 
     this.commitmentMap = new HashMap<>();
 
     int i = 0;
     for (BaseRepresentation vertexRepresentation : vertexRepresentations.values()) {
-      R_i = vertexRepresentation.getBase().getValue();
+      R_i = vertexRepresentation.getBase();
       /** TODO check lenght of randomness r */
       r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
       m_i = vertexRepresentation.getExponent();
-      C_i = R_i.modPow(m_i, modN).multiply(baseS.modPow(r, modN));
+      C_i = R_i.modPow(m_i).multiply(baseS.modPow(r));
       commitment = new GSCommitment(R_i, m_i, r_i, baseS, modN);
       String commitmentURN = "prover.commitments.C_" + i;
       commitmentMap.put(
@@ -92,7 +92,7 @@ public class GSProver { // implements IProver {
 
   public void computeBlindedSignature(GSSignature gsSignature) {
     blindedSignature =
-        gsSignature.blind(gsSignature.getA(), gsSignature.getE(), gsSignature.getV());
+        gsSignature.blind();
     storeBlindedGS();
   }
 

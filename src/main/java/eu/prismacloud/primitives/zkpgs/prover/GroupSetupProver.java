@@ -166,9 +166,9 @@ public class GroupSetupProver implements IProver {
 
   //  @Override
   public void computeWitness() throws ProofStoreException {
-    tildeZ = baseS.modPow(tilder_Z, modN).getValue();
-    basetildeR = baseS.modPow(tilder, modN).getValue();
-    basetildeR_0 = baseS.modPow(tilder_0, modN).getValue();
+    tildeZ = baseS.modPow(tilder_Z).getValue();
+    basetildeR = baseS.modPow(tilder).getValue();
+    basetildeR_0 = baseS.modPow(tilder_0).getValue();
 
     proofStore.store("groupsetupprover.witnesses.tildeZ", tildeZ);
 
@@ -190,7 +190,7 @@ public class GroupSetupProver implements IProver {
                     "groupsetupprover.witnesses.randomness.tilder_i_"
                         + baseRepresentation.getBaseIndex());
 
-        vWitnessBase = baseS.modPow(vWitnessRandomNumber, modN).getValue();
+        vWitnessBase = baseS.modPow(vWitnessRandomNumber).getValue();
         //        vertexWitnessRandomNumbers.put("tildeR_" + baseRepresentation.getBaseIndex(),
         // vWitnessBase);
 
@@ -205,7 +205,7 @@ public class GroupSetupProver implements IProver {
                 proofStore.retrieve(
                     "groupsetupprover.witnesses.randomness.tilder_j_"
                         + baseRepresentation.getBaseIndex());
-        eWitnessBase = baseS.modPow(eWitnessRandomNumber, modN).getValue();
+        eWitnessBase = baseS.modPow(eWitnessRandomNumber).getValue();
         //        vertexWitnessRandomNumbers.put("tildeR_" + baseRepresentation.getBaseIndex(),
         // eWitnessBase);
         proofStore.store(

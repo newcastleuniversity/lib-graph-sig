@@ -77,11 +77,11 @@ public class SignerOrchestrator {
   private BigInteger e;
   private BigInteger vbar;
   private BigInteger vPrimePrime;
-  private BigInteger Q;
+  private GroupElement Q;
   private QRElement R_i;
   private QRElement R_i_j;
   private BigInteger d;
-  private BigInteger A;
+  private GroupElement A;
   private Map<URN, BaseRepresentation> encodedBases;
   private GSGraph<GSVertex, GSEdge> gsGraph;
   private BigInteger order;
@@ -96,9 +96,9 @@ public class SignerOrchestrator {
   private GroupElement R_0;
   private BigInteger pPrime;
   private BigInteger qPrime;
-  private QRElement Sv;
-  private QRElement R_0multi;
-  private QRElement Sv1;
+  private GroupElement Sv;
+  private GroupElement R_0multi;
+  private GroupElement Sv1;
 
   public SignerOrchestrator(
       ExtendedKeyPair extendedKeyPair,
@@ -232,11 +232,11 @@ public class SignerOrchestrator {
 
     gslog.info("recipient.m_0: " + m_0);
 
-    QRElement R_0multi = R_0.modPow(m_0, modN);
-    BigInteger Ae = A.modPow(e, modN);
-    BigInteger baseSmulti = baseS.modPow(v, modN).getValue();
+    GroupElement R_0multi = R_0.modPow(m_0);
+    GroupElement Ae = A.modPow(e);
+    GroupElement baseSmulti = baseS.modPow(v);
 
-    BigInteger hatZ = Ae.multiply(R_0multi.getValue()).multiply(baseSmulti).mod(modN);
+    GroupElement hatZ = Ae.multiply(R_0multi).multiply(baseSmulti);
     //        R_0multi
     //            .multiply(A.modPow(e, modN).multiply(baseS.modPow(v, modN).getValue()))
     //            .getValue();
@@ -370,7 +370,7 @@ public class SignerOrchestrator {
     proofStore.store("issuing.signer.context", contextList);
   }
 
-  public BigInteger computeQ() {
+  public GroupElement computeQ() {
     int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
     e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
@@ -406,11 +406,11 @@ public class SignerOrchestrator {
     BigInteger m_0 = U.getExponents().get(URN.createZkpgsURN("recipient.exponent.m_0"));
 
 
-    Sv = baseS.modPow(vPrimePrime, modN);
-    R_0multi = R_0.modPow(m_0, modN);
+    Sv = baseS.modPow(vPrimePrime);
+    R_0multi = R_0.modPow(m_0);
     Sv1 = Sv.multiply(R_0multi);
 
-    Q = baseZ.multiply(Sv1.modInverse(modN)).getValue();
+    Q = baseZ.multiply(Sv1.modInverse());
 
 //    QRElement R_0multi =
 //        extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0().modPow(m_0, modN);
@@ -434,7 +434,7 @@ public class SignerOrchestrator {
     return Q;
   }
 
-  public BigInteger computeA() {
+  public GroupElement computeA() {
     pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getpPrime();
     qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getqPrime();
 
@@ -442,7 +442,7 @@ public class SignerOrchestrator {
 
     // TODO Remove logging of values that can break security (secret key or modInverse mod order;
 
-    A = Q.modPow(d, modN);
+    A = Q.modPow(d);
     gslog.info("signer A: " + A);
     return A;
   }

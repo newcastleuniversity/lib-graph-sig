@@ -38,7 +38,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   private List<String> challengeList = new ArrayList<String>();
   private Map<URN, BaseRepresentation> encodedBases;
   private Map<String, BigInteger> edgeBases;
-  private BigInteger tildeU;
+  private GroupElement tildeU;
   private BigInteger cChallenge;
   private BigInteger m_0;
   private Map<String, BigInteger> vertexResponses;
@@ -127,23 +127,23 @@ public class IssuingCommitmentProver implements IProver, Storable {
 
     GroupElement qrElementN = null; // = new QRElementN();
     BigInteger R_0tildem_0;
-    R_0tildem_0 = R_0.modPow(tildem_0, extendedPublicKey.getPublicKey().getModN()).getValue();
+    R_0tildem_0 = R_0.modPow(tildem_0).getValue();
 
-    List<BigInteger> bases = new ArrayList<>();
+    List<GroupElement> bases = new ArrayList<>();
     List<BigInteger> exponents = new ArrayList<>();
-    bases.add(R_0.getValue());
+    bases.add(R_0);
     exponents.add(tildem_0);
 
     for (Map.Entry<URN, BaseRepresentation> base : verticesPrime.entrySet()) {
-      bases.add(base.getValue().getBase().getValue());
+      bases.add(base.getValue().getBase());
       exponents.add(base.getValue().getExponent());
     }
     for (Map.Entry<URN, BaseRepresentation> edgeBase : edgesPrime.entrySet()) {
-      bases.add(edgeBase.getValue().getBase().getValue());
+      bases.add(edgeBase.getValue().getBase());
       exponents.add(edgeBase.getValue().getExponent());
     }
 
-    bases.add(extendedPublicKey.getPublicKey().getBaseS().getValue());
+    bases.add(extendedPublicKey.getPublicKey().getBaseS());
     exponents.add(tildevPrime);
 
     tildeU = qrElementN.multiBaseExp(bases, exponents);

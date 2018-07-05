@@ -79,7 +79,7 @@ public class RecipientOrchestrator {
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
-  private BigInteger commitmentU;
+  private GroupElement commitmentU;
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
