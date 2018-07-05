@@ -30,29 +30,60 @@ public final class CommitmentGroupElement extends GroupElement {
   }
 
   @Override
-  public QRElementPQ modPow(BigInteger x_z, BigInteger n)
-  {
-    /** TODO implement modpow  */
-    throw new RuntimeException("not implemented");
-  }
-
-  @Override
-  public QRElement multiply(QRElement val) {
+  public CommitmentGroupElement multiply(GroupElement val) {
     return null;
   }
 
   @Override
-  public BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents) {
+  public CommitmentGroupElement multiBaseExp(List<GroupElement> bases, List<BigInteger> exponents) {
     // TODO implement multibase exponentiations
        throw new RuntimeException("not implemented");
   }
 
   @Override
-  public QRElement multiply(BigInteger bigInteger) {
-       throw new RuntimeException("not implemented");  }
-
-  @Override
-  public GroupElement modInverse(BigInteger bigInteger) {
+  public GroupElement modInverse() {
     throw new RuntimeException("not implemented");
   }
+
+@Override
+public BigInteger getElementOrder() throws UnsupportedOperationException {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public boolean isOrderKnown() {
+	// TODO Auto-generated method stub
+	return false;
+}
+
+@Override
+public GroupElement modPow(BigInteger exponent) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public int bitLength() {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public int bitCount() {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public int compareTo(BigInteger val) {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public int compareTo(GroupElement val) {
+	// TODO Auto-generated method stub
+	return 0;
+}
 }

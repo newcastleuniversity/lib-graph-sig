@@ -74,8 +74,14 @@ public final class CommitmentGroup extends Group {
     return null;
   }
 
-  @Override
-  public GroupElement createElement(GroupElement s) {
-    return null;
-  }
+@Override
+public GroupElement createElement(BigInteger value) throws IllegalArgumentException, UnsupportedOperationException {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public boolean isKnownOrder() {
+	return true;
+}
 }
