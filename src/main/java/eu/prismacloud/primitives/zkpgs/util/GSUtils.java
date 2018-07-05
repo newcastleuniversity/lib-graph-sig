@@ -105,7 +105,7 @@ public class GSUtils implements INumberUtils {
       base = basesList.get(i);
       exponent = exponentList.get(i);
       if (exponent != null) {
-        result = result.multiply(base.modPow(exponent, modN).getValue());
+        result = result.multiply(base.modPow(exponent).getValue());
       }
     }
     return result;
@@ -432,41 +432,6 @@ public class GSUtils implements INumberUtils {
     return s.subtract(BigInteger.ONE).gcd(modN).compareTo(BigInteger.ONE) == 0;
   }
 
-  /**
-   * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc Create generator of QRN Input: Special RSA
-   * modulus modN, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
-   * verifySGenerator()
-   */
-  @Override
-  public QRElement createQRNGenerator(final BigInteger modN) {
-
-    BigInteger s;
-    BigInteger s_prime;
-
-    do {
-
-      s_prime = createElementOfZNS(modN);
-      s = s_prime.modPow(NumberConstants.TWO.getValue(), modN);
-
-    } while (!verifySGeneratorOfQRN(s, modN));
-    return new QRElement(s);
-  }
-
-  @Override
-  public QRElement createQRNElement(final BigInteger modN) {
-
-    BigInteger s;
-    BigInteger s_prime;
-
-    do {
-
-      s_prime = createElementOfZNS(modN);
-      s = s_prime.modPow(NumberConstants.TWO.getValue(), modN);
-
-    } while (!elementOfQRN(s, modN));
-    return new QRElement(s);
-  }
-
   public BigInteger computeHash(final List<String> list, final int hashLength)
       throws NoSuchAlgorithmException {
     BigInteger hash;
@@ -530,26 +495,26 @@ public class GSUtils implements INumberUtils {
    */
   public GSSignature generateSignature(
       final BigInteger m, final BaseRepresentation base, final SignerPublicKey signerPublicKey) {
-    BigInteger A;
+    GroupElement A;
     BigInteger e;
     BigInteger v;
     BigInteger modN = signerPublicKey.getModN();
     GroupElement baseS = signerPublicKey.getBaseS();
     GroupElement baseZ = signerPublicKey.getBaseZ();
     GroupElement baseR;
-    BigInteger Q;
+    GroupElement Q;
     BigInteger d;
 
     int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
     e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
     v = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
 
-    baseR = base.getBase().modPow(m, modN);
+    baseR = base.getBase().modPow(m);
 
     /** TODO check if the computations for generating the cl-signature are correct */
-    BigInteger invertible = baseS.modPow(v, modN).multiply(baseR.getValue()).mod(modN);
-    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
-    A = Q.modPow(e.modInverse(modN), modN);
+    GroupElement invertible = baseS.modPow(v).multiply(baseR);
+    Q = baseZ.multiply(invertible.modInverse());
+    A = Q.modPow(e.modInverse(modN));
 
     return new GSSignature(A, e, v);
   }

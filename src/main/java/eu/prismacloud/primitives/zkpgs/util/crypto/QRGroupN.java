@@ -1,6 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -31,6 +33,26 @@ public final class QRGroupN extends QRGroup {
 		return this.generator =
 				new QRElementN(this, CryptoUtilsFacade.computeQRNGenerator(this.modulus).getValue());
 	}
+	
+	  /**
+	   * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc Create generator of QRN Input: Special RSA
+	   * modulus modN, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
+	   * verifySGenerator()
+	   */
+	  @Override
+	  public QRElement createQRNGenerator() {
+
+		  BigInteger s;
+	    BigInteger s_prime;
+
+	    do {
+	      s_prime = CryptoUtilsFacade.createElementOfZNS(this.modulus);
+	      s = s_prime.modPow(NumberConstants.TWO.getValue(), this.modulus);
+
+	    } while (!CryptoUtilsFacade.verifySGeneratorOfQRN(s, this.modulus));
+	    
+	    this.generator = new QRElementN(this, s);
+	  }
 
 	@Override
 	public QRElement createRandomElement() {
@@ -38,6 +60,26 @@ public final class QRGroupN extends QRGroup {
 
 		return qrElement;
 	}
+	
+
+	/**
+	 * Creates an element without guarantee of uniform distribution
+	 * 
+	 * @return
+	 */
+	  public QRElementN createElement() {
+// TODO Possible create a second version of this function using the generator to create new random elements.
+	    BigInteger s;
+	    BigInteger s_prime;
+
+	    do {
+
+	      s_prime = CryptoUtilsFacade.createElementOfZNS(this.getModulus());
+	      s = s_prime.modPow(NumberConstants.TWO.getValue(), this.getModulus());
+
+	    } while (!this.isElement(s));
+	    return new QRElementN(this, s);
+	  }
 
 
 	@Override
