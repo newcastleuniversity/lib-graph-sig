@@ -35,7 +35,7 @@ public final class ExtendedKeyPair {
   private BigInteger vertexPrimeRepresentative;
   private Map<URN, BigInteger> labelRepresentatives;
   private GraphEncoding graphEncoding;
-  private QRElement R_Z;
+  private GroupElement R_Z;
   private BigInteger x_RZ;
 
   /**
@@ -146,13 +146,13 @@ public final class ExtendedKeyPair {
     Group qrGroup = signerKeyPair.getQRGroup();
     BigInteger x_R_V = qrGroup.createRandomElement().getValue();
 
-    GroupElement R_V = baseS.modPow(x_R_V, modN);
+    GroupElement R_V = baseS.modPow(x_R_V);
 
     BaseRepresentation baseV = new BaseRepresentation(R_V, 0, BASE.VERTEX);
 
     BigInteger x_R_L = qrGroup.createRandomElement().getValue();
 
-    GroupElement R_L = baseS.modPow(x_R_L, modN);
+    GroupElement R_L = baseS.modPow(x_R_L);
 
     BaseRepresentation baseL = new BaseRepresentation(R_L, 0, BASE.VERTEX);
 
@@ -166,14 +166,14 @@ public final class ExtendedKeyPair {
    * @param modN the modulus N
    * @param qrGroup the quadratic residue group
    */
-  public void generateEdgeBases(final GroupElement S, final BigInteger modN, final Group qrGroup) {
+  public void generateEdgeBases(final GroupElement S) {
     BigInteger x_R_ij;
     GroupElement R_ij;
 
     for (int j = 0; j < graphEncodingParameters.getL_E(); j++) {
       index++;
-      x_R_ij = qrGroup.createRandomElement().getValue();
-      R_ij = S.modPow(x_R_ij, modN);
+      x_R_ij = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+      R_ij = S.modPow(x_R_ij);
 
       base = new BaseRepresentation(R_ij, index, BASE.EDGE);
 
@@ -184,22 +184,21 @@ public final class ExtendedKeyPair {
   }
 
   public void generateBases() {
-
-    generateGroupBases(baseS, modN, qrGroup);
-    generateVertexBases(baseS, modN, qrGroup);
-    generateEdgeBases(baseS, modN, qrGroup);
+    generateGroupBases(baseS);
+    generateVertexBases(baseS);
+    generateEdgeBases(baseS);
   }
 
   private void generateGroupBases(
-      final GroupElement baseS, final BigInteger modN, final Group qrGroup) {
+      final GroupElement baseS) {
 
-    x_RZ = qrGroup.createRandomElement().getValue();
-    R_Z = baseS.modPow(x_RZ, modN);
+    x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+    R_Z = baseS.modPow(x_RZ);
 
     discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
 
-    x_RZ = qrGroup.createRandomElement().getValue();
-    R_Z = baseS.modPow(x_RZ, modN);
+    x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+    R_Z = baseS.modPow(x_RZ);
 
     discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
   }
@@ -212,14 +211,14 @@ public final class ExtendedKeyPair {
    * @param qrGroup the quadratic residue group
    */
   public void generateVertexBases(
-      final GroupElement S, final BigInteger modN, final Group qrGroup) {
+      final GroupElement S) {
     BigInteger x_Ri;
     GroupElement R_i;
 
     for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
       index++;
-      x_Ri = qrGroup.createRandomElement().getValue();
-      R_i = S.modPow(x_Ri, modN);
+      x_Ri = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+      R_i = S.modPow(x_Ri);
       base = new BaseRepresentation(R_i, index, BASE.VERTEX);
       baseRepresentationMap.put(
           URN.createZkpgsURN("baseRepresentationMap.vertex.R_i_" + index), base);

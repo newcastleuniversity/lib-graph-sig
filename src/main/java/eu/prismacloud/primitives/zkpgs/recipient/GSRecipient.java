@@ -35,7 +35,7 @@ public class GSRecipient { // implements IRecipient {
   private BigInteger n_2;
   private static GSMessage receiveMessage;
   private BaseRepresentation baseRepresentationR_0;
-  private QRElement R_0com;
+  private GroupElement R_0com;
 private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public GSRecipient(ExtendedPublicKey extendedPublicKey, KeyGenParameters keyGenParameters) {
@@ -58,8 +58,8 @@ private Logger gslog = GSLoggerConfiguration.getGSlog();
     baseRepresentationR_0 = encodedBases.get(URN.createZkpgsURN("bases.R_0"));
     R_0 = baseRepresentationR_0.getBase();
     m_0 = BigInteger.valueOf(3);//baseRepresentationR_0.getExponent();
-    R_0com = R_0.modPow(m_0, modN);
-    QRElement baseScom = baseS.modPow(rnd, modN);
+    R_0com = R_0.modPow(m_0);
+    GroupElement baseScom = baseS.modPow(rnd);
 
     gslog.info("recipient R_0:  " + R_0);
     gslog.info("recipient m_0: " + m_0);
@@ -67,7 +67,7 @@ private Logger gslog = GSLoggerConfiguration.getGSlog();
 
 //    BigInteger commitment = R_0.modPow(m_0, modN).multiply(baseS.modPow(rnd, modN)).getValue();
 
-    BigInteger commitment = R_0com.multiply(baseScom.getValue()).mod(modN);
+    GroupElement commitment = R_0com.multiply(baseScom);
 
     gslog.info("recipient commitment value:  " + commitment);
 

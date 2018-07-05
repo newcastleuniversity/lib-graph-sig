@@ -11,10 +11,10 @@ public class GSCommitment {
 
   private BigInteger m_i;
   private BigInteger r_i1;
-  private BigInteger baseS;
-  private BigInteger R_i;
+  private GroupElement baseS;
+  private GroupElement R_i;
 
-  private static BigInteger commitmentValue;
+  private GroupElement commitmentValue;
   private Map<URN, GroupElement> basesR;
   private Map<URN, BigInteger> exponents;
   private BigInteger randomness;
@@ -45,7 +45,7 @@ public class GSCommitment {
   }
 
   public GSCommitment(
-      BigInteger R_i, BigInteger m_i, BigInteger r_i1, BigInteger baseS, BigInteger modN) {
+      GroupElement R_i, BigInteger m_i, BigInteger r_i1, GroupElement baseS, BigInteger modN) {
 
     this.R_i = R_i;
     this.m_i = m_i;
@@ -63,13 +63,13 @@ public class GSCommitment {
 //    return commitmentValue;
 //  }
 
-  public void setCommitmentValue(BigInteger commitmentValue) {
+  public void setCommitmentValue(GroupElement commitmentValue) {
     this.commitmentValue = commitmentValue;
   }
 
 
 
-  public BigInteger getCommitmentValue() {
+  public GroupElement getCommitmentValue() {
     return commitmentValue;
   }
 
