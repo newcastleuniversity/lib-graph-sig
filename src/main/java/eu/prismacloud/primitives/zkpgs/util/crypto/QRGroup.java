@@ -10,12 +10,12 @@ public abstract class QRGroup extends Group {
 
 	private final BigInteger modulus;
 	private QRElementN generator;
-	private final QRElementN one;
+	private final QRElement one;
 
 	public QRGroup(BigInteger modulus) {
 		super();
 		this.modulus = modulus;
-		this.one = new QRElementN(this, BigInteger.ONE);
+		this.one = new QRElement(this, BigInteger.ONE);
 	}
 
 	@Override

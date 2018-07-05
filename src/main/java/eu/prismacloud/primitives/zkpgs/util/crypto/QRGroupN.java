@@ -46,7 +46,7 @@ public final class QRGroupN extends QRGroup {
 
 	@Override
 	public boolean isElement(final BigInteger value) {
-		return false;
+		throw new UnsupportedOperationException("Checking the group membership is intractable.");
 	}
 
 	@Override

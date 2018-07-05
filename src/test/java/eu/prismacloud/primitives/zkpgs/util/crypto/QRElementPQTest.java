@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.util.crypto;
+package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
 import java.util.logging.Logger;

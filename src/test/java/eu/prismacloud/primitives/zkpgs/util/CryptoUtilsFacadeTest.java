@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.util;
+package eu.prismacloud.primitives.zkpgs.util;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

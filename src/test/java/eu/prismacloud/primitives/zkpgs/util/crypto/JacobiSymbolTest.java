@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.grs.utils.crypto;
+package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

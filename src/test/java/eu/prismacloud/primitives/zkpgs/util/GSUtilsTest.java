@@ -493,36 +493,36 @@ class GSUtilsTest {
 
     assertTrue(res);
   }
-  @Test
-  @DisplayName("Test creating a QRN generator")
-  //  @RepeatedTest(
-  //      value = 10,
-  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
-  void createQRNGenerator() {
-    BigInteger modN = BigInteger.valueOf(77);
-    QRElement element = classUnderTest.createQRNGenerator(modN);
-
-    log.info("qrn generator: " + element);
-    assertNotNull(element);
-
-    assertTrue(classUnderTest.verifySGeneratorOfQRN(element.getValue(), modN));
-  }
-
-  @Test
-  @DisplayName("Test creating a QRN element")
-  //  @RepeatedTest(
-  //      value = 10,
-  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
-  void createQRNElement() {
-    BigInteger modN = BigInteger.valueOf(77);
-
-    QRElement element = classUnderTest.createQRNElement(modN);
-
-    log.info("qrn element: " + element);
-    assertNotNull(element);
-
-    assertTrue(classUnderTest.elementOfQRN(element.getValue(), modN));
-  }
+//  @Test
+//  @DisplayName("Test creating a QRN generator")
+//  //  @RepeatedTest(
+//  //      value = 10,
+//  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
+//  void createQRNGenerator() {
+//    BigInteger modN = BigInteger.valueOf(77);
+//    QRElement element = classUnderTest.createQRNGenerator(modN);
+//
+//    log.info("qrn generator: " + element);
+//    assertNotNull(element);
+//
+//    assertTrue(classUnderTest.verifySGeneratorOfQRN(element.getValue(), modN));
+//  }
+//
+//  @Test
+//  @DisplayName("Test creating a QRN element")
+//  //  @RepeatedTest(
+//  //      value = 10,
+//  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
+//  void createQRNElement() {
+//    BigInteger modN = BigInteger.valueOf(77);
+//
+//    QRElement element = classUnderTest.createQRNElement(modN);
+//
+//    log.info("qrn element: " + element);
+//    assertNotNull(element);
+//
+//    assertTrue(classUnderTest.elementOfQRN(element.getValue(), modN));
+//  }
 
   @Test
   //  @RepeatedTest(5)
