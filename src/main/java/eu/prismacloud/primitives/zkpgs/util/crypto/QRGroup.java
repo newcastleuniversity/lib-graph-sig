@@ -23,9 +23,6 @@ public abstract class QRGroup extends Group {
 	public abstract GroupElement createRandomElement();
 
 	@Override
-	public abstract GroupElement createElement(GroupElement s);
-
-	@Override
 	public abstract GroupElement createElement(BigInteger value);
 
 }
