@@ -13,11 +13,15 @@ public final class QRGroupPQ extends QRGroup {
 	private final BigInteger modulus;
 	private final BigInteger pPrime;
 	private final BigInteger qPrime;
+	private final BigInteger p;
+	private final BigInteger q;
 	private final BigInteger order;
 	private final BigInteger oneP;
 	private final BigInteger oneQ;
-	private QRElement generator;
+	private QRElementPQ generator;
 
+	private final QRElementPQ one;
+	
 	/**
 	 * Instantiates a new QR group where we know the modulus factorization.
 	 *
@@ -27,16 +31,20 @@ public final class QRGroupPQ extends QRGroup {
 	 * @post
 	 */
 	public QRGroupPQ(final BigInteger pPrime, final BigInteger qPrime) {
-
+		super();
+		
 		Assert.notNull(pPrime, "pPrime must not be null");
 		Assert.notNull(qPrime, "qPrime must not be null");
 		this.modulus = pPrime.multiply(qPrime);
 		this.pPrime = pPrime;
 		this.qPrime = qPrime;
+		this.p = (NumberConstants.TWO.getValue().multiply(pPrime)).add(BigInteger.ONE);
+		this.q = (NumberConstants.TWO.getValue().multiply(qPrime)).add(BigInteger.ONE);
 		this.order = this.getOrder();
 		QRGroupPQ.computeEEA(pPrime, qPrime);
-		this.oneP = CRT.compute1p(EEAlgorithm.getT(), pPrime, qPrime);
+		this.oneP = CRT.compute1p(EEAlgorithm.getT(), pPrime, qPrime); // TODO doublecheck. This should be mod p, right?
 		this.oneQ = CRT.compute1q(EEAlgorithm.getS(), pPrime, qPrime);
+		this.one = new QRElementPQ(this, BigInteger.ONE);
 	}
 
 	private static void computeEEA(final BigInteger p, final BigInteger q) {
@@ -140,7 +148,7 @@ public final class QRGroupPQ extends QRGroup {
 	}
 
 	/**
-	 * Gets one p.
+	 * Gets one with respect to modulus p.
 	 *
 	 * @return the one p
 	 */
@@ -149,12 +157,32 @@ public final class QRGroupPQ extends QRGroup {
 	}
 
 	/**
-	 * Gets one q.
+	 * Gets one with respect to modulus q.
 	 *
 	 * @return the one q
 	 */
 	public BigInteger getOneQ() {
 		return oneQ;
+	}
+	
+
+	/**
+	 * Returns the factor p.
+	 *
+	 * @return p
+	 */
+	public BigInteger getP() {
+		return this.p;
+	}
+	
+
+	/**
+	 * Returns the factor q.
+	 *
+	 * @return g
+	 */
+	public BigInteger getQ() {
+		return this.q;
 	}
 
 	/**
@@ -177,5 +205,10 @@ public final class QRGroupPQ extends QRGroup {
 	@Override
 	public boolean isKnownOrder() {
 		return true;
+	}
+	
+	@Override
+	public QRElementPQ getOne() {
+		return this.one;
 	}
 }

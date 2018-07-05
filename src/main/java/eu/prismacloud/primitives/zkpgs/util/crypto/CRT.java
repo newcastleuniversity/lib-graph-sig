@@ -62,14 +62,14 @@ public class CRT {
    * @param modN the modulus N
    * @return the big integer
    */
-  public static QRElement computeCRT(
+  public static BigInteger computeCRT(
       final BigInteger xp,
       final BigInteger oneP,
       final BigInteger xq,
       final BigInteger oneQ,
       final BigInteger modN) {
 
-    return new QRElement(xp.multiply(oneP).add(xq.multiply(oneQ)).mod(modN));
+    return xp.multiply(oneP).add(xq.multiply(oneQ)).mod(modN);
   }
 
   /**
@@ -98,18 +98,21 @@ public class CRT {
     return X.multiply(p).mod(modN);
   }
 
-  /**
-   * Convert an element x modulo modN to its corresponding representation modulo p and modulo q.
-   *
-   * @param qr the qr
-   * @param x element x in modulo modN representation
-   * @param p prime factor of N
-   * @param q prime factor of modN modulo p and modulo q representation \( (x \bmod p) , (x \bmod q)
-   *     \)
-   */
-  public static void convertToPQ(
-      final QRElementPQ qr, final BigInteger x, final BigInteger p, final BigInteger q) {
-    // TODO check if this method should be in CRT class or in QRElementPQ
-    qr.setPQRepresentation(x.mod(p), x.mod(q));
-  }
+  // Method could mess up the group representation. Better have the representation mod p/mod q
+  // generated whenever the QRElementPQ is created.
+  
+//  /**
+//   * Convert an element x modulo modN to its corresponding representation modulo p and modulo q.
+//   *
+//   * @param qr the qr
+//   * @param x element x in modulo modN representation
+//   * @param p prime factor of N
+//   * @param q prime factor of modN modulo p and modulo q representation \( (x \bmod p) , (x \bmod q)
+//   *     \)
+//   */
+//  public static void convertToPQ(
+//      final QRElementPQ qr, final BigInteger x, final BigInteger p, final BigInteger q) {
+//    // TODO check if this method should be in CRT class or in QRElementPQ
+//    qr.setPQRepresentation(x.mod(p), x.mod(q));
+//  }
 }

@@ -3,7 +3,7 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import java.math.BigInteger;
 
 public abstract class QRGroup extends Group {
-
+	
 	@Override
 	public abstract BigInteger getOrder();
 
@@ -24,5 +24,6 @@ public abstract class QRGroup extends Group {
 
 	@Override
 	public abstract GroupElement createElement(BigInteger value);
-
+	
+	public abstract GroupElement getOne();
 }
