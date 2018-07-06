@@ -23,7 +23,8 @@ class ExtendedKeyPairTest {
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
     log.info("@Test: key generation");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     assertNotNull(gsk);
     assertNotNull(gsk.getPrivateKey());
     assertNotNull(gsk.getPublicKey());
@@ -87,8 +88,6 @@ class ExtendedKeyPairTest {
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPrivateKey());
     assertNotNull(extendedKeyPair.getExtendedPrivateKey().getPrivateKey());
-
-
   }
 
   @Test
@@ -98,18 +97,19 @@ class ExtendedKeyPairTest {
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    assertNotNull(extendedKeyPair.graphEncodingSetup());
+    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.getGraphEncoding();
+    assertNotNull(extendedKeyPair.getGraphEncoding());
   }
 
   @Test
   void getGraphEncoding() {
-
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    assertNotNull(extendedKeyPair.graphEncodingSetup());
+    assertNotNull(extendedKeyPair.getGraphEncoding());
 
     assertNotNull(extendedKeyPair.getGraphEncoding());
   }

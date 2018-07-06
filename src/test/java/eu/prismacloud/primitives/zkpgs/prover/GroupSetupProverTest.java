@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 /** */
@@ -47,7 +46,8 @@ class GroupSetupProverTest {
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
     log.info("@Test: key generation");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     assertNotNull(gsk);
     assertNotNull(gsk.getPrivateKey());
     assertNotNull(gsk.getPublicKey());

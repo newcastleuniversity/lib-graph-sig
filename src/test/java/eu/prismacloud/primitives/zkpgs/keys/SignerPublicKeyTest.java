@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
-import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import java.util.logging.Logger;
@@ -18,8 +19,9 @@ class SignerPublicKeyTest {
     // classUnderTest = new GSSignerKeyPair();
     JSONParameters parameters = new JSONParameters();
     keyGenParameters = parameters.getKeyGenParameters();
-
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
+    assertNotNull(gsk);
   }
 
   @AfterEach

@@ -3,17 +3,12 @@ package eu.prismacloud.primitives.zkpgs.keys;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,9 +33,10 @@ class SignerKeyPairTest {
   @DisplayName("Test key generation")
   void keyGen() {
     log.info("@Test: key generation");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     SignerPublicKey pk = gsk.getPublicKey();
-    
+
     assertNotNull(gsk);
     assertNotNull(gsk.getPrivateKey());
     assertNotNull(gsk.getPublicKey());
@@ -54,16 +50,15 @@ class SignerKeyPairTest {
 
     baseS = (QRElementPQ) gsk.getPublicKey().getBaseS();
     assertNotNull(baseS);
-
-
   }
 
   @Test
   @DisplayName("Test key generation 10 times")
   void keyGen10times() {
     log.info("@Test: keyGen10times ");
+    SignerKeyPair gsk = new SignerKeyPair();
     for (int i = 0; i < 10; i++) {
-      gsk = SignerKeyPair.KeyGen(keyGenParameters);
+      gsk.keyGen(keyGenParameters);
       assertNotNull(gsk);
     }
   }
@@ -74,7 +69,8 @@ class SignerKeyPairTest {
   @Test
   void getPrivateKey() {
     log.info("@Test: getPrivateKey");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     assertNotNull(gsk.getPrivateKey());
 
     assertNotNull(gsk.getPrivateKey().getpPrime());
@@ -91,9 +87,8 @@ class SignerKeyPairTest {
   @Test
   void getPublicKey() {
     log.info("@Test: getPublickKey");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     assertNotNull(gsk.getPublicKey());
   }
-
-
 }
