@@ -12,62 +12,56 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /** The type Graph encoding. */
 public class GraphEncoding {
 
-  private static BigInteger vertexPrimeRepresentative;
-  private static List<BigInteger> vertexPrimes;
-  private static SignerPublicKey publicKey;
-  private static Map<BigInteger, GSSignature> signatureMap;
+  private final SignerPublicKey signerPublicKey;
+  private BigInteger vertexPrimeRepresentative;
+  private List<BigInteger> vertexPrimes;
+  private SignerPublicKey publicKey;
+  private Map<BigInteger, GSSignature> signatureMap;
   private ExtendedPublicKey ePublicKey;
   private ExtendedPrivateKey ePrivateKey;
-  private static Map<URN, BaseRepresentation> bases;
-  private final Map<URN, BigInteger> vertexPrimeRepresentatives;
+  private Map<URN, BaseRepresentation> bases;
+  private Map<URN, BigInteger> vertexPrimeRepresentatives = new LinkedHashMap<>();
   private KeyGenParameters keyGenParameters;
-  private static Map<URN, BigInteger> discLogOfVertexBases;
-  private static Map<URN, BigInteger> discLogOfEdgeBases;
+  private Map<URN, BigInteger> discLogOfVertexBases;
+  private Map<URN, BigInteger> discLogOfEdgeBases;
   private KeyGenParameters keygenParams;
-  private static GraphEncodingParameters graphEncodingParameters;
-  private static Map<URN, BigInteger> countryLabels;
-  private static JsonIsoCountries jsonIsoCountries;
-  private static Map<URN, Object> certifiedPrimeRepresenatives = new HashMap<URN, Object>();
+  private GraphEncodingParameters graphEncodingParameters;
+  private Map<URN, BigInteger> countryLabels;
+  private JsonIsoCountries jsonIsoCountries;
+  private Map<URN, Object> certifiedPrimeRepresenatives = new HashMap<URN, Object>();
 
   /**
    * Instantiates a new Graph encoding.
    *
    * @param bases the bases
    * @param vertexPrimeRepresentatives the vertex prime representatives
-   * @param countryLabels the country labels
+   * @param signerPublicKey the country labels
+   * @param keyGenParameters the key gen parameters
+   * @param graphEncodingParameters the graph encoding parameters
    */
   public GraphEncoding(
       final Map<URN, BaseRepresentation> bases,
       final Map<URN, BigInteger> vertexPrimeRepresentatives,
-      final Map<URN, BigInteger> countryLabels) {
+      final SignerPublicKey signerPublicKey,
+      final KeyGenParameters keyGenParameters,
+      final GraphEncodingParameters graphEncodingParameters) {
 
     this.bases = bases;
     this.vertexPrimeRepresentatives = vertexPrimeRepresentatives;
-    this.countryLabels = countryLabels;
+    this.signerPublicKey = signerPublicKey;
+    this.keyGenParameters = keyGenParameters;
+    this.graphEncodingParameters = graphEncodingParameters;
   }
 
-  /**
-   * Graph encoding setup gs graph encoding result.
-   *
-   * @param bases the bases
-   * @param vertexPrimeRepresentatives the vertex prime representatives
-   * @param publicKey the public key
-   * @param keyGenParameters the key gen parameters
-   * @param graphEncodingParameters the graph encoding parameters
-   * @return the gs graph encoding result
-   */
-  public static GraphEncoding graphEncodingSetup(
-      final Map<URN, BaseRepresentation> bases,
-      final Map<URN, BigInteger> vertexPrimeRepresentatives,
-      final SignerPublicKey publicKey,
-      final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters) {
+  /** Setups the graph encoding. */
+  public void setup() {
 
     //    bases = GraphRepresentation.getEncodedBases();
     jsonIsoCountries = new JsonIsoCountries();
@@ -75,7 +69,6 @@ public class GraphEncoding {
 
     // certify(bases, vertexPrimeRepresentatives, countryLabels );
 
-    return new GraphEncoding(bases, vertexPrimeRepresentatives, countryLabels);
   }
 
   /**
@@ -83,8 +76,8 @@ public class GraphEncoding {
    *
    * @return the bases
    */
-  public static Map<URN, BaseRepresentation> getBases() {
-    return GraphEncoding.bases;
+  public Map<URN, BaseRepresentation> getBases() {
+    return bases;
   }
 
   /**
@@ -95,21 +88,23 @@ public class GraphEncoding {
   public Map<URN, BigInteger> getVertexPrimeRepresentatives() {
     return this.vertexPrimeRepresentatives;
   }
+
   /**
    * Gets signature map.
    *
    * @return the signature map
    */
-  public static Map<BigInteger, GSSignature> getSignatureMap() {
-    return GraphEncoding.signatureMap;
+  public Map<BigInteger, GSSignature> getSignatureMap() {
+    return signatureMap;
   }
+
   /**
    * Gets country labels.
    *
    * @return the country labels
    */
-  public static Map<URN, BigInteger> getCountryLabels() {
-    return GraphEncoding.countryLabels;
+  public Map<URN, BigInteger> getCountryLabels() {
+    return countryLabels;
   }
 
   /**
@@ -117,8 +112,8 @@ public class GraphEncoding {
    *
    * @return the certified prime represenatives
    */
-  public static Map<URN, Object> getCertifiedPrimeRepresenatives() {
-    return GraphEncoding.certifiedPrimeRepresenatives;
+  public Map<URN, Object> getCertifiedPrimeRepresenatives() {
+    return certifiedPrimeRepresenatives;
   }
 
   /**
@@ -129,7 +124,7 @@ public class GraphEncoding {
    * @param labelRepresenatives the public key
    * @param baseL the base l
    */
-  public static void certify(
+  public void certify(
       Map<URN, BigInteger> vertexPrimeRepresentatives,
       BaseRepresentation baseV,
       Map<URN, BigInteger> labelRepresenatives,

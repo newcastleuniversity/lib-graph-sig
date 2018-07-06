@@ -9,7 +9,6 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,6 +71,7 @@ public final class ExtendedKeyPair {
     return extendedPublicKey;
   }
 
+  /** Create extended key pair. */
   public void createExtendedKeyPair() {
     this.extendedPublicKey =
         new ExtendedPublicKey(
@@ -113,23 +113,21 @@ public final class ExtendedKeyPair {
   }
 
   /**
-   * Graph encoding setup graph encoding.
+   * Setups a new graph encoding.
    *
    * @return the graph encoding
    */
-  public GraphEncoding graphEncodingSetup() {
+  public void graphEncodingSetup() {
 
     graphEncoding =
-        GraphEncoding.graphEncodingSetup(
+        new GraphEncoding(
             baseRepresentationMap,
             vertexRepresentatives,
             publicKey,
             keyGenParameters,
             graphEncodingParameters);
+    graphEncoding.setup();
 
-    labelRepresentatives = GraphEncoding.getCountryLabels();
-
-    return graphEncoding;
   }
 
   /**
@@ -156,15 +154,13 @@ public final class ExtendedKeyPair {
 
     BaseRepresentation baseL = new BaseRepresentation(R_L, 0, BASE.VERTEX);
 
-    GraphEncoding.certify(vertexRepresentatives, baseV, labelRepresentatives, baseL);
+    graphEncoding.certify(vertexRepresentatives, baseV, labelRepresentatives, baseL);
   }
 
   /**
    * Generate edge baseRepresentationMap.
    *
    * @param S the quadratic group generator S
-   * @param modN the modulus N
-   * @param qrGroup the quadratic residue group
    */
   public void generateEdgeBases(final GroupElement S) {
     BigInteger x_R_ij;
@@ -172,7 +168,8 @@ public final class ExtendedKeyPair {
 
     for (int j = 0; j < graphEncodingParameters.getL_E(); j++) {
       index++;
-      x_R_ij = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+      x_R_ij =
+          CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
       R_ij = S.modPow(x_R_ij);
 
       base = new BaseRepresentation(R_ij, index, BASE.EDGE);
@@ -183,14 +180,14 @@ public final class ExtendedKeyPair {
     }
   }
 
+  /** Generate bases. */
   public void generateBases() {
     generateGroupBases(baseS);
     generateVertexBases(baseS);
     generateEdgeBases(baseS);
   }
 
-  private void generateGroupBases(
-      final GroupElement baseS) {
+  private void generateGroupBases(final GroupElement baseS) {
 
     x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
     R_Z = baseS.modPow(x_RZ);
@@ -207,11 +204,8 @@ public final class ExtendedKeyPair {
    * Generate vertex baseRepresentationMap.
    *
    * @param S the quadratic group generator S
-   * @param modN the modulus N
-   * @param qrGroup the quadratic residue group
    */
-  public void generateVertexBases(
-      final GroupElement S) {
+  public void generateVertexBases(final GroupElement S) {
     BigInteger x_Ri;
     GroupElement R_i;
 
