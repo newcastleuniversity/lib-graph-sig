@@ -149,7 +149,7 @@ public class SignerOrchestrator {
     // TODO value store needs to be populated (note this is on a different computer...)
 
     GSMessage msg = signer.getMessage();
-    ProofSignature P_1 = extractMessageElements(msg);
+    P_1 = extractMessageElements(msg);
 
     CommitmentVerifier commitmentVerifier =
         (CommitmentVerifier) VerifierFactory.newVerifier(VerifierType.CommitmentVerifier);

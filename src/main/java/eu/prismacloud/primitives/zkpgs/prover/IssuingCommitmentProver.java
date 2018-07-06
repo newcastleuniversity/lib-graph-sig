@@ -125,7 +125,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
   @Override
   public void computeWitness() {
 
-    GroupElement qrElementN = null; // = new QRElementN();
+    GroupElement qrElementN = null;
     BigInteger R_0tildem_0;
     R_0tildem_0 = R_0.modPow(tildem_0).getValue();
 
