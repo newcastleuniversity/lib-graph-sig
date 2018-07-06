@@ -57,7 +57,6 @@ class ProofStoreTest {
   void storeSameElement() throws Exception {
 
     proofStore.store("biginteger.2", BigInteger.valueOf(1));
-    List<GSCommitment> commitments = new ArrayList<GSCommitment>();
     GSCommitment gsCommitment =
         new GSCommitment(
             testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
