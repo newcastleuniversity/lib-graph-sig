@@ -21,9 +21,9 @@ import java.util.Map;
 /** The type Commitment prover for issuing. */
 public class IssuingCommitmentProver implements IProver, Storable {
 
+  private final GroupElement baseS;
   private ICommitment commitment;
   private BigInteger vPrime;
-  private Map<URN, BaseRepresentation> vertices;
   private GroupElement R_0;
   private BigInteger nonce;
   private KeyGenParameters keyGenParameters;
@@ -43,7 +43,6 @@ public class IssuingCommitmentProver implements IProver, Storable {
   private BigInteger m_0;
   private Map<String, BigInteger> vertexResponses;
   private Map<String, BigInteger> edgeResponses;
-  private ProofObject proofObject;
   private BigInteger hatvPrime;
   private BigInteger hatm_0;
   private BigInteger hatm_i;
@@ -52,7 +51,8 @@ public class IssuingCommitmentProver implements IProver, Storable {
 
   /**
    * Instantiates a new Commitment prover.
-   *  @param commitment the commitment
+   *
+   * @param commitment the commitment
    * @param vPrime the v prime
    * @param R_0 the r 0
    * @param m_0 the m 0
@@ -78,6 +78,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
     this.extendedPublicKey = extendedPublicKey;
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
   }
 
   @Override
@@ -124,8 +125,7 @@ public class IssuingCommitmentProver implements IProver, Storable {
 
   @Override
   public void computeWitness() {
-
-    GroupElement qrElementN = null; // = new QRElementN();
+    GroupElement baseSvTildePrime;
     BigInteger R_0tildem_0;
     R_0tildem_0 = R_0.modPow(tildem_0).getValue();
 
@@ -143,10 +143,9 @@ public class IssuingCommitmentProver implements IProver, Storable {
       exponents.add(edgeBase.getValue().getExponent());
     }
 
-    bases.add(extendedPublicKey.getPublicKey().getBaseS());
-    exponents.add(tildevPrime);
+    baseSvTildePrime = baseS.modPow(tildevPrime);
 
-    tildeU = qrElementN.multiBaseExp(bases, exponents);
+    tildeU = baseSvTildePrime.multiBaseExp(bases, exponents);
   }
 
   @Override
@@ -160,7 +159,9 @@ public class IssuingCommitmentProver implements IProver, Storable {
     /** TODO add context to list of elements in challenge */
     //    R = extendedPublicKey.getPublicKey().getBasesR();
     //    R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
-    contextList = GSContext.computeChallengeContext(extendedPublicKey,keyGenParameters ,graphEncodingParameters );
+    contextList =
+        GSContext.computeChallengeContext(
+            extendedPublicKey, keyGenParameters, graphEncodingParameters);
     encodedBases = extendedPublicKey.getBases();
 
     challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getModN()));
