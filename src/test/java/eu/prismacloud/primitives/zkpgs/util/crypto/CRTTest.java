@@ -254,19 +254,17 @@ class CRTTest {
 		log.info("@Test: computeCRTRandom");
 		SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
 
-		Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
+		QRGroupPQ qrGroupPQ = new QRGroupPQ(specialRSAMod.getpPrime(), specialRSAMod.getqPrime());
 
 		Group qrGroupN = new QRGroupN(specialRSAMod.getN());
 
 		BigInteger upperBound =
-				specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
+				(specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime())).subtract(BigInteger.ONE);
 
-		GroupElement S = qrGroupPQ.createGenerator();
+		QRElementPQ S = qrGroupPQ.createGenerator();
 		GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
 
-		BigInteger Z;
-		GroupElement Z_pq;
-		GroupElement Z_n;
+		BigInteger Z,  Z_pq, Z_n;
 
 		for (int i = 0; i < 100; i++) {
 			BigInteger x_Z =
@@ -276,10 +274,10 @@ class CRTTest {
 			Z = S.getValue().modPow(x_Z, specialRSAMod.getN());
 
 			// compute using QRElementN modPow
-			Z_n = S_n.modPow(x_Z);
+			Z_n = S_n.modPow(x_Z).getValue();
 
 			// compute using QRElementPQ modPow
-			Z_pq = S.modPow(x_Z);
+			Z_pq = S.modPow(x_Z).getValue();
 
 			assertEquals(Z, Z_n, "The exponentiation over QRGroupN did not yield the same result as the BigInteger computation.");
 			assertEquals(Z, Z_pq, "The CRT exponentiation over QRGroupPQ did not yield the same result as the BigInteger computation.");
@@ -320,7 +318,7 @@ class CRTTest {
 		 *  Need to create large keys once and reuse them.
 		 */
 
-		Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
+		QRGroupPQ qrGroupPQ = new QRGroupPQ(specialRSAMod.getpPrime(), specialRSAMod.getqPrime());
 		Group qrGroupN = new QRGroupN(specialRSAMod.getN());
 
 		BigInteger upperBound =
@@ -338,6 +336,16 @@ class CRTTest {
 			BigInteger multiplier = preMultiplier.modPow(NumberConstants.TWO.getValue(), specialRSAMod.getN());
 			QRElementPQ multiplier_pq = new QRElementPQ((QRGroupPQ) qrGroupPQ, multiplier);
 			QRElementN multiplier_n = new QRElementN((QRGroupN) qrGroupN, multiplier);
+			
+//			BigInteger expValueP = S.getValue().mod(specialRSAMod.getP());
+//			BigInteger expValueQ = S.getValue().mod(specialRSAMod.getQ());
+//			log.info("Expected value of S in  ZPS = " + expValueP);
+//			log.info("Expected value of S in ZQS = " + expValueQ);
+//			
+//			BigInteger expMultiplierP = multiplier.mod(specialRSAMod.getP());
+//			BigInteger expMultiplierQ = multiplier.mod(specialRSAMod.getQ());
+//			log.info("Expected multiplier P = " + expMultiplierP);
+//			log.info("Expected multiplier Q = " + expMultiplierQ);
 
 			// compute using BigIntegers
 			BigInteger Z, Z_n, Z_pq;

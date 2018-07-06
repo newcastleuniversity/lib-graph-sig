@@ -100,18 +100,18 @@ public class QRElementPQ extends QRElement {
         this.qrGroupPQ.getOneQ(),
         this.qrGroupPQ.getModulus());
 	
-	log.info("----- Multiplication Profile -----");
-	log.info("element value = " + this.value);
-	log.info("element in ZPS = " + this.xp);
-	log.info("element in ZQS = " + this.xq);
-	log.info("---");
-	log.info("multiplier = " + multiplier);
-	log.info("multiplier in ZPS = " + multiplierP);
-	log.info("multiplier in ZQS = " + multiplierQ);
-	log.info("---");
-	log.info("product in ZPS = " + productP);
-	log.info("product in ZQS = " + productQ);
-	log.info("product in ZNS = " + crt);
+//	log.info("----- Multiplication Profile -----");
+//	log.info("element value = " + this.value);
+//	log.info("element in ZPS = " + this.xp);
+//	log.info("element in ZQS = " + this.xq);
+//	log.info("---");
+//	log.info("multiplier = " + multiplier);
+//	log.info("multiplier in ZPS = " + multiplierP);
+//	log.info("multiplier in ZQS = " + multiplierQ);
+//	log.info("---");
+//	log.info("product in ZPS = " + productP);
+//	log.info("product in ZQS = " + productQ);
+//	log.info("product in ZNS = " + crt);
 	
     return new QRElementPQ(this.qrGroupPQ, crt);
   }
