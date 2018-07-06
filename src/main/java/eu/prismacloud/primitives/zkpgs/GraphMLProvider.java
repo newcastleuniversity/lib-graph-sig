@@ -10,6 +10,8 @@ import org.jgrapht.io.VertexProvider;
 /** Imports a graphml file with the graph structure of the cloud infrastructure. */
 public class GraphMLProvider {
 
+  private static final String EMPTY_LABEL = "";
+
   private GraphMLProvider() {}
 
   public static File getGraphMLFile(String graphFile) {
@@ -33,16 +35,13 @@ public class GraphMLProvider {
     EdgeProvider<GSVertex, GSEdge> edgeProvider =
         (from, to, label, attributes) -> {
           GSEdge ge = new GSEdge(from, to);
-          if (label != null && !label.equals("")) {
+          if (!EMPTY_LABEL.equals(label)) {
             ge.setLabelRepresentative(label);
           }
 
           return ge;
         };
 
-    GraphMLImporter<GSVertex, GSEdge> importer =
-        new GraphMLImporter<>(vertexProvider, edgeProvider);
-
-    return importer;
+    return new GraphMLImporter<GSVertex, GSEdge>(vertexProvider, edgeProvider);
   }
 }
