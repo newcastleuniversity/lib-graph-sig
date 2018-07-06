@@ -154,7 +154,7 @@ public class CorrectnessVerifier implements IVerifier {
 //    gslog.info("recipient e: "  + e);
 
 
-    if (!hatZ.equals(baseZ.getValue())) {
+    if (hatZ.compareTo(baseZ) != 0) {
       throw new VerificationException("Q cannot be verified");
     }
   }
