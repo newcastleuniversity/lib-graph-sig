@@ -261,17 +261,18 @@ class CRTTest {
     BigInteger upperBound =
         specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
 
+    GroupElement S = qrGroupPQ.createGenerator();
+    GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
+    
+    BigInteger Z;
+	GroupElement Z_pq;
+	GroupElement Z_n;
+    
     for (int i = 0; i < 100; i++) {
-
-      GroupElement S = qrGroupPQ.createGenerator();
-      GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
       BigInteger x_Z =
           CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
 
       // compute using BigIntegers modPow
-      BigInteger Z;
-	GroupElement Z_pq;
-	GroupElement Z_n;
       Z = S.getValue().modPow(x_Z, specialRSAMod.getN());
 
       // compute using QRElementN modPow
@@ -279,13 +280,14 @@ class CRTTest {
 
       // compute using QRElementPQ modPow
       Z_pq = S.modPow(x_Z);
-      assertEquals(Z, Z_n);
-      assertEquals(Z, Z_pq);
-
+      
+      assertEquals(Z, Z_n, "The exponentiation over QRGroupN did not yield the same result as the BigInteger computation.");
+      assertEquals(Z, Z_pq, "The CRT exponentiation over QRGroupPQ did not yield the same result as the BigInteger computation.");
+    }
 
       for (int j = 0; j < 100; j++) {
 
-        x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+        BigInteger x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
 
         // compute using BigIntegers
         BigInteger Ri = S.getValue().modPow(x_Z, specialRSAMod.getN());
@@ -296,10 +298,9 @@ class CRTTest {
         // compute using QRElementPQ modPow
         BigInteger Ri_pq = S.modPow(x_Z).getValue();
 
-        assertEquals(Ri, Ri_pq);
-        assertEquals(Ri, Ri_n);
+        assertEquals(Ri, Ri_pq, "The exponentiation over QRGroupN did not yield the same result as the BigInteger computation.");
+        assertEquals(Ri, Ri_n, "The CRT exponentiation over QRGroupPQ did not yield the same result as the BigInteger computation.");
       }
-    }
   }
 
   @Test
