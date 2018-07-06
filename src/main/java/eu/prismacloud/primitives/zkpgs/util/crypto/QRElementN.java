@@ -14,15 +14,15 @@ public class QRElementN extends QRElement {
 
   /**
    * Instantiates a new QR element n.
+   * 
+   * The corresponding group cannot efficiently check whether an element is actually a Quadratic
+   * Residue. BigInteger values provided must be in QR by construction.
    *
    * @param qrGroup the QR group
    * @param value the number
    */
   public QRElementN(final QRGroupN qrGroup, final BigInteger value) {
     super(qrGroup, value);
-    if(!qrGroup.isElement(value)) {
-    	throw new IllegalArgumentException("The provided value is not a group element.");
-    }
     
     this.qrGroup = qrGroup;
     this.value = value;
@@ -30,6 +30,10 @@ public class QRElementN extends QRElement {
 
   /**
    * Instantiates a new QR element n.
+   * 
+   * Without factorization of the modulus, the constructor cannot efficiently check whether a
+   * value provided is actually a Quadratic Residue. Hence, the BigInteger supplied must be
+   * in QR by construction.
    *
    * @param group the group
    * @param value the value
@@ -49,12 +53,7 @@ public class QRElementN extends QRElement {
 		  throw new IllegalArgumentException("The provided group is not a known type of Quadratic Residues realizations.");
 	  }
 
-
-	  if(!group.isElement(value)) {
-		  throw new IllegalArgumentException("The provided value is not a group element.");
-	  } else {
-		  this.value = value;
-	  }
+	  this.value = value;
   }
 
   @Override
@@ -68,8 +67,15 @@ public class QRElementN extends QRElement {
   }
 
   @Override
-  public QRElementN multiply(GroupElement val) {
-    return (QRElementN) super.multiply(val);
+  public QRElementN multiply(GroupElement multiplier) {
+	  if (!this.getGroup().equals(multiplier.getGroup())) {
+			throw new UnsupportedOperationException("The two elements are from different groups.");
+			// TODO Graceful exit strategy if elements are not part of the same group?
+			// Exception
+		}
+
+		BigInteger product = (this.value.multiply(multiplier.getValue())).mod(this.getGroup().getModulus());
+		return new QRElementN(this.getGroup(), product);
   }
 
   @Override

@@ -213,4 +213,55 @@ public final class QRGroupPQ extends QRGroup {
 	public QRElementPQ getOne() {
 		return (QRElementPQ) super.getOne();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((order == null) ? 0 : order.hashCode());
+		result = prime * result + ((p == null) ? 0 : p.hashCode());
+		result = prime * result + ((pPrime == null) ? 0 : pPrime.hashCode());
+		result = prime * result + ((q == null) ? 0 : q.hashCode());
+		result = prime * result + ((qPrime == null) ? 0 : qPrime.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof QRGroupPQ))
+			return false;
+		QRGroupPQ other = (QRGroupPQ) obj;
+		if (order == null) {
+			if (other.order != null)
+				return false;
+		} else if (!order.equals(other.order))
+			return false;
+		if (p == null) {
+			if (other.p != null)
+				return false;
+		} else if (!p.equals(other.p))
+			return false;
+		if (pPrime == null) {
+			if (other.pPrime != null)
+				return false;
+		} else if (!pPrime.equals(other.pPrime))
+			return false;
+		if (q == null) {
+			if (other.q != null)
+				return false;
+		} else if (!q.equals(other.q))
+			return false;
+		if (qPrime == null) {
+			if (other.qPrime != null)
+				return false;
+		} else if (!qPrime.equals(other.qPrime))
+			return false;
+		return true;
+	}
+	
+	
 }

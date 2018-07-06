@@ -53,5 +53,4 @@ public final class QRGroupN extends QRGroup {
 	public boolean isKnownOrder() {
 		return false;
 	}
-
 }

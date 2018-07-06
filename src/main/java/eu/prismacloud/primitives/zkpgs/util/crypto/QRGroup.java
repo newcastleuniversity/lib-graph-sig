@@ -88,4 +88,29 @@ public abstract class QRGroup extends Group {
 	public GroupElement getOne() {
 		return one;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((modulus == null) ? 0 : modulus.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof QRGroup))
+			return false;
+		QRGroup other = (QRGroup) obj;
+		if (modulus == null) {
+			if (other.modulus != null)
+				return false;
+		} else if (!modulus.equals(other.modulus))
+			return false;
+		return true;
+	}
 }

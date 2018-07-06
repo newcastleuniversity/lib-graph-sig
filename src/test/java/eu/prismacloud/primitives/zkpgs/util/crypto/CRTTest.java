@@ -305,8 +305,19 @@ class CRTTest {
   @Test
   @DisplayName("Test random multiplications using CRT")
   void computeCRTRandomMult() {
+	  /*
+	   *  TODO Please do not just copy and paste test cases. 
+	   *  This test case seems to be copied from the exponentiation test case.
+	   *  It uses the wrong setup for testing a multiplication, that is, 
+	   *  was multiplying group elements with exponents.
+	   */
+	  
     log.info("@Test: computeCRTRandom");
     SpecialRSAMod specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
+    /* TODO Recreating special RSA mods in multiple test cases won't work. 
+     *  It takes too much time.
+     *  Need to create large keys once and reuse them.
+     */
 
     Group qrGroupPQ = new QRGroupPQ(specialRSAMod.getP(), specialRSAMod.getQ());
     Group qrGroupN = new QRGroupN(specialRSAMod.getN());
@@ -314,69 +325,76 @@ class CRTTest {
     BigInteger upperBound =
         specialRSAMod.getpPrime().multiply(specialRSAMod.getqPrime()).subtract(BigInteger.ONE);
 
+    // Creating a generator can be expensive to intractable. Do not put that into a loop.
+    GroupElement S = qrGroupPQ.createGenerator();
+    GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
+    
     for (int i = 0; i < 100; i++) {
 
-      GroupElement S = qrGroupPQ.createGenerator();
-      GroupElement S_n = new QRElementN(qrGroupN, S.getValue());
 
-      BigInteger x_Z =
-          CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
+      // Create a fresh likely-quadratic residue.
+      BigInteger preMultiplier = CryptoUtilsFacade.createElementOfZNS(specialRSAMod.getN());
+      BigInteger multiplier = preMultiplier.modPow(NumberConstants.TWO.getValue(), specialRSAMod.getN());
+      QRElementPQ multiplier_pq = new QRElementPQ((QRGroupPQ) qrGroupPQ, multiplier);
+      QRElementN multiplier_n = new QRElementN((QRGroupN) qrGroupN, multiplier);
 
       // compute using BigIntegers
       BigInteger Z, Z_n, Z_pq;
-      Z = S.getValue().multiply(x_Z).mod(specialRSAMod.getN());
+      Z = S.getValue().multiply(multiplier).mod(specialRSAMod.getN());
 
       // compute using QRElementN multiply
-      Z_n = S_n.multiply(x_Z); // TODO Not correct, must be multiplication with a group element.
-
+      Z_n = S_n.multiply(multiplier_n).getValue(); 
+      
       // compute using QRElementPQ multiply
-      Z_pq = S.multiply(x_Z);
+      Z_pq = S.multiply(multiplier_pq).getValue();
 
-      assertEquals(Z, Z_pq);
-      assertEquals(Z, Z_n);
-
+      assertEquals(Z, Z_n, "The computation in QRGroupN did not yield the same result as the BigInteger computation.");
+      assertEquals(Z, Z_pq, "The CRT Computation in QRGroupPQ did not yield the same result as the BigInteger computation.");
+    }
       for (int j = 0; j < 100; j++) {
 
         //                log.info("j: " + j);
-        x_Z = CryptoUtilsFacade.computeRandomNumber(NumberConstants.TWO.getValue(), upperBound);
-// TODO not correct: must be QRElement multiplier
+          // Create a fresh likely-quadratic residue.
+          BigInteger preMultiplier = CryptoUtilsFacade.createElementOfZNS(specialRSAMod.getN());
+          BigInteger multiplier = preMultiplier.modPow(NumberConstants.TWO.getValue(), specialRSAMod.getN());
+          QRElementPQ multiplier_pq = new QRElementPQ((QRGroupPQ) qrGroupPQ, multiplier);
+          QRElementN multiplier_n = new QRElementN((QRGroupN) qrGroupN, multiplier);
         
         // compute using BigIntegers multiply
-        BigInteger Ri = S.getValue().multiply(x_Z).mod(specialRSAMod.getN());
+        BigInteger Ri = S.getValue().multiply(multiplier).mod(specialRSAMod.getN());
 
         // compute using QRElementN multiply
-        BigInteger Ri_n = S_n.multiply(x_Z);
+        BigInteger Ri_n = S_n.multiply(multiplier_n).getValue();
 
         // compute using QRElementPQ multiply
-        BigInteger Ri_pq = S.multiply(x_Z);
+        BigInteger Ri_pq = S.multiply(multiplier_pq).getValue();
 
-        assertEquals(Ri, Ri_pq);
 
-        assertEquals(Ri, Ri_n);
+        assertEquals(Ri, Ri_n, "The computation in QRGroupN did not yield the same result as the BigInteger computation.");
+        assertEquals(Ri, Ri_pq, "The CRT Computation in QRGroupPQ did not yield the same result as the BigInteger computation.");
       }
-    }
   }
 
-  @Test
-  @DisplayName("Test convert to pq representation ")
-  void convertToPQ() {
-    a = BigInteger.valueOf(1);
-    p = BigInteger.valueOf(5);
-    b = BigInteger.valueOf(2);
-    q = BigInteger.valueOf(3);
-    x = BigInteger.valueOf(11);
-    EEAlgorithm.computeEEAlgorithm(p, q);
-    log.info("crt s: " + EEAlgorithm.getS());
-    log.info("crt t: " + EEAlgorithm.getT());
-    log.info("crt modInverse: " + p.modInverse(q));
-    QRElementPQ qr = new QRElementPQ(NumberConstants.TWO.getValue()); // TODO Needs access to QRGroup.
-    CRT.convertToPQ(qr, x, p, q);
-    log.info("representation 0: " + qr.getXp());
-    log.info("representation 1: " + qr.getXq());
-
-    assertEquals(a, qr.getXp());
-    assertEquals(b, qr.getXq());
-  }
+//  @Test
+//  @DisplayName("Test convert to pq representation ")
+//  void convertToPQ() {
+//    a = BigInteger.valueOf(1);
+//    p = BigInteger.valueOf(5);
+//    b = BigInteger.valueOf(2);
+//    q = BigInteger.valueOf(3);
+//    x = BigInteger.valueOf(11);
+//    EEAlgorithm.computeEEAlgorithm(p, q);
+//    log.info("crt s: " + EEAlgorithm.getS());
+//    log.info("crt t: " + EEAlgorithm.getT());
+//    log.info("crt modInverse: " + p.modInverse(q));
+//    QRElementPQ qr = new QRElementPQ(NumberConstants.TWO.getValue()); // TODO Needs access to QRGroup.
+//    CRT.convertToPQ(qr, x, p, q);
+//    log.info("representation 0: " + qr.getXp());
+//    log.info("representation 1: " + qr.getXq());
+//
+//    assertEquals(a, qr.getXp());
+//    assertEquals(b, qr.getXq());
+//  }
 
   @Test
   void compute1p() {
