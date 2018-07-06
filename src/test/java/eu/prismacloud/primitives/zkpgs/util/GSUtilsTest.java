@@ -299,6 +299,7 @@ class GSUtilsTest {
     log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
   }
 
+  // TODO The random prime with factors test does not seem to terminate.
   @Test
   @DisplayName("generate Prime number with factors")
   void generateRandomPrimeWithFactors() {

@@ -10,6 +10,11 @@ import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +26,16 @@ import org.junit.jupiter.api.Test;
 /** */
 class ProofStoreTest {
   ProofStore<Object> proofStore;
+  QRGroup testGroup;
+  GroupElement testS;
+  GroupElement testR;
 
   @BeforeEach
   void setUp() {
     proofStore = new ProofStore<Object>(10);
+    testGroup = new QRGroupN(BigInteger.valueOf(77));
+    testS = new QRElementN(testGroup, BigInteger.valueOf(60));
+    testR = new QRElementN(testGroup, BigInteger.valueOf(58));
   }
 
   @Test
@@ -49,7 +60,7 @@ class ProofStoreTest {
     List<GSCommitment> commitments = new ArrayList<GSCommitment>();
     GSCommitment gsCommitment =
         new GSCommitment(
-            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+            testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     Throwable exception =
@@ -72,8 +83,8 @@ class ProofStoreTest {
     proofStore.store("biginteger.2", BigInteger.valueOf(1));
 
     GSCommitment gsCommitment =
-        new GSCommitment(
-            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+            new GSCommitment(
+                testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     BigInteger el = (BigInteger) proofStore.retrieve("biginteger.2");
@@ -87,8 +98,8 @@ class ProofStoreTest {
     proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
 
     GSCommitment gsCommitment =
-        new GSCommitment(
-            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+            new GSCommitment(
+                testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     BigInteger el = (BigInteger) proofStore.retrieve("biginteger.2");
@@ -102,8 +113,8 @@ class ProofStoreTest {
     proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
 
     GSCommitment gsCommitment =
-        new GSCommitment(
-            BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+            new GSCommitment(
+                testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     proofStore.remove(URN.createZkpgsURN("biginteger.2"));
@@ -128,9 +139,9 @@ class ProofStoreTest {
   void getElements() throws ProofStoreException {
     proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
 
-        GSCommitment gsCommitment =
+    GSCommitment gsCommitment =
             new GSCommitment(
-                BigInteger.ONE, BigInteger.ONE, BigInteger.TEN, BigInteger.TEN, BigInteger.ONE);
+                testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
         proofStore.store("commitments.ci", gsCommitment);
 
         assertNotNull(proofStore.getElements());
