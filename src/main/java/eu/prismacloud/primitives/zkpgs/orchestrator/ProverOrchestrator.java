@@ -117,11 +117,6 @@ public class ProverOrchestrator implements ProofOperation {
     this.n_3 = n_3;
   }
 
-  public void ProverOrchestrator(final GSSignature graphSignature) {
-    this.graphSignature = graphSignature;
-    this.randomizedGraphSignature = getRandomizedGraphSignature(this.graphSignature);
-  }
-
   public void groupSetupProver() throws NoSuchAlgorithmException {
 
     prover =
@@ -133,8 +128,9 @@ public class ProverOrchestrator implements ProofOperation {
             keyGenParameters);
 
     groupSetupProver = (GroupSetupProver) ProverFactory.newProver(ProverType.GroupSetupProver);
-/** TODO check if we need the extended key pair here for the group setup prover */
-    groupSetupProver.preChallengePhase(extendedPublicKey, proofStore, keyGenParameters, graphEncodingParameters );
+    /** TODO check if we need the extended key pair here for the group setup prover */
+    groupSetupProver.preChallengePhase(
+        extendedPublicKey, proofStore, keyGenParameters, graphEncodingParameters);
     groupSetupChallenge = groupSetupProver.computeChallenge();
     try {
       groupSetupProver.postChallengePhase();
