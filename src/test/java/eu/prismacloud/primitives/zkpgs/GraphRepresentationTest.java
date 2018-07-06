@@ -42,7 +42,8 @@ class GraphRepresentationTest {
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
     log.info("@Test: key generation");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();

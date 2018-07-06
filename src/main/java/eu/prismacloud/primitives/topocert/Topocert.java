@@ -15,6 +15,6 @@ public abstract class Topocert {
   // 1000, 120, 50000, 256, 16);
   //            Topocert tpc = new Topocert();
   //
-  //            tpc.graphEncodingSetup(graphEnc, encParams);
+  //            tpc.setup(graphEnc, encParams);
 
 }

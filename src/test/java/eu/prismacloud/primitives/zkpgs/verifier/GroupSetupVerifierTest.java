@@ -46,7 +46,8 @@ class GroupSetupVerifierTest {
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
     log.info("@Test: key generation");
-    gsk = SignerKeyPair.KeyGen(keyGenParameters);
+    SignerKeyPair gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
     assertNotNull(gsk);
     assertNotNull(gsk.getPrivateKey());
     assertNotNull(gsk.getPublicKey());

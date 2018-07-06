@@ -149,7 +149,7 @@ public class SignerOrchestrator {
     // TODO value store needs to be populated (note this is on a different computer...)
 
     GSMessage msg = signer.getMessage();
-    P_1 = extractMessageElements(msg);
+    extractMessageElements(msg);
 
     CommitmentVerifier commitmentVerifier =
         (CommitmentVerifier) VerifierFactory.newVerifier(VerifierType.CommitmentVerifier);
@@ -287,14 +287,14 @@ public class SignerOrchestrator {
     return challengeList;
   }
 
-  private ProofSignature extractMessageElements(GSMessage msg) throws Exception {
+  private void extractMessageElements(GSMessage msg) throws Exception {
     Map<URN, Object> messageElements = msg.getMessageElements();
 
     commitmentU = (GSCommitment) messageElements.get(URN.createZkpgsURN("recipient.U"));
 
     //    proofStore.store("recipient.U", commitmentU );
 
-    ProofSignature P_1 = (ProofSignature) messageElements.get(URN.createZkpgsURN("recipient.P_1"));
+    P_1 = (ProofSignature) messageElements.get(URN.createZkpgsURN("recipient.P_1"));
     Map<URN, Object> proofSignatureElements = P_1.getProofSignatureElements();
 
     cChallenge =
@@ -322,7 +322,6 @@ public class SignerOrchestrator {
 
     storeMessageElements(P_1);
 
-    return P_1;
   }
 
   private void storeMessageElements(ProofSignature P_1) throws Exception {

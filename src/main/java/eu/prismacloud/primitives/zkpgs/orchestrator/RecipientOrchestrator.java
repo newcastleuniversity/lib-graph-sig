@@ -157,7 +157,6 @@ public class RecipientOrchestrator {
   }
 
   public void computeChallenge() throws NoSuchAlgorithmException {
-    challengeList = new ArrayList<String>();
     challengeList = populateChallengeList();
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }

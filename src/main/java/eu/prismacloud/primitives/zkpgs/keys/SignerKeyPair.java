@@ -14,39 +14,28 @@ import java.util.logging.Logger;
 /** Generates key pair for the Signer */
 public class SignerKeyPair {
 
-  private static SignerPrivateKey privateKey;
-  private static SignerPublicKey publicKey;
-  private static KeyGenParameters keyGenParameters;
-  private static KeyGenSignature keyGenSignature;
-  private static SpecialRSAMod specialRSAMod = null;
-  private static GroupElement S;
-  private static BigInteger x_Z;
-  private static BigInteger x_R;
-  private static BigInteger x_R0;
-  private static GroupElement R;
-  private static GroupElement R_0;
-  private static GroupElement Z;
-  private static Group cg;
-  private static final Logger log = GSLoggerConfiguration.getGSlog();
-  private static Group qrGroup;
-
-  /**
-   * Instantiates a new Gs signer key pair.
-   *
-   * @param privateKey the private key
-   * @param publicKey the public key
-   */
-  public SignerKeyPair(final SignerPrivateKey privateKey, final SignerPublicKey publicKey) {
-    this.privateKey = privateKey;
-    this.publicKey = publicKey;
-  }
+  private SignerPrivateKey privateKey;
+  private SignerPublicKey publicKey;
+  private KeyGenParameters keyGenParameters;
+  private KeyGenSignature keyGenSignature;
+  private SpecialRSAMod specialRSAMod = null;
+  private GroupElement S;
+  private BigInteger x_Z;
+  private BigInteger x_R;
+  private BigInteger x_R0;
+  private GroupElement R;
+  private GroupElement R_0;
+  private GroupElement Z;
+  private Group cg;
+  private final Logger log = GSLoggerConfiguration.getGSlog();
+  private Group qrGroup;
 
   /**
    * Gets key gen signature.
    *
    * @return the key gen signature
    */
-  public static KeyGenSignature getKeyGenSignature() {
+  public KeyGenSignature getKeyGenSignature() {
     return keyGenSignature;
   }
 
@@ -55,7 +44,7 @@ public class SignerKeyPair {
    *
    * @return GSSignerKeyPair gs signer key pair
    */
-  public static SignerKeyPair KeyGen(KeyGenParameters keyGenParams) {
+  public void keyGen(KeyGenParameters keyGenParams) {
     keyGenParameters = keyGenParams;
     specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
 
@@ -64,7 +53,6 @@ public class SignerKeyPair {
 
     // ** TODO check if the computations with the group elements are correct
     x_Z = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
-
     Z = S.modPow(x_Z);
 
     x_R = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
@@ -74,6 +62,7 @@ public class SignerKeyPair {
     R_0 = S.modPow(x_R0);
 
     cg = CryptoUtilsFacade.commitmentGroupSetup(keyGenParameters);
+    
     privateKey =
         new SignerPrivateKey(
             specialRSAMod.getP(),
@@ -83,9 +72,9 @@ public class SignerKeyPair {
             x_R,
             x_R0,
             x_Z);
+    
     publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z, keyGenParameters);
 
-    return new SignerKeyPair(privateKey, publicKey);
   }
 
   public SignerPrivateKey getPrivateKey() {
