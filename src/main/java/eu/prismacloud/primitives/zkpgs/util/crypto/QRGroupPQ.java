@@ -17,6 +17,7 @@ public final class QRGroupPQ extends QRGroup {
 	private final BigInteger order;
 	private final BigInteger oneP;
 	private final BigInteger oneQ;
+	private QRElementPQ generator;
 	
 	
 	/**
@@ -40,9 +41,13 @@ public final class QRGroupPQ extends QRGroup {
 		this.p = (NumberConstants.TWO.getValue().multiply(pPrime)).add(BigInteger.ONE);
 		this.q = (NumberConstants.TWO.getValue().multiply(qPrime)).add(BigInteger.ONE);
 		this.order = this.getOrder();
-		QRGroupPQ.computeEEA(pPrime, qPrime);
-		this.oneP = CRT.compute1p(EEAlgorithm.getT(), pPrime, qPrime); // TODO doublecheck. This should be mod p, right?
-		this.oneQ = CRT.compute1q(EEAlgorithm.getS(), pPrime, qPrime);
+		
+		QRGroupPQ.computeEEA(this.p, this.q);
+		this.oneP = CRT.compute1p(EEAlgorithm.getT(), this.p, this.q);
+		this.oneQ = CRT.compute1q(EEAlgorithm.getS(), this.p, this.q);
+		
+		Assert.notNull(this.oneP, "oneP must not be null");
+		Assert.notNull(this.oneQ, "oneQ must not be null");
 	}
 
 	private static void computeEEA(final BigInteger p, final BigInteger q) {
@@ -91,6 +96,27 @@ public final class QRGroupPQ extends QRGroup {
 	public boolean isElement(final BigInteger alpha) {
 		return (computeLegendreP(alpha).equals(BigInteger.ONE) && 
 				computeLegendreQ(alpha).equals(BigInteger.ONE));
+	}
+	
+	/**
+	 * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc Create generator of QRN Input: Special RSA
+	 * modulus modN, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
+	 * verifySGenerator()
+	 */
+	@Override
+	public QRElementPQ createGenerator() {
+
+		BigInteger s;
+		BigInteger s_prime;
+
+		do {
+			s_prime = CryptoUtilsFacade.createElementOfZNS(this.getModulus());
+			s = s_prime.modPow(NumberConstants.TWO.getValue(), this.getModulus());
+
+		} while (!CryptoUtilsFacade.verifySGeneratorOfQRN(s, this.getModulus()));
+
+		this.generator = new QRElementPQ(this, s);
+		return generator;
 	}
 
 	/**

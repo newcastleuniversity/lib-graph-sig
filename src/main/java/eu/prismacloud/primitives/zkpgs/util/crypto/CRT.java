@@ -23,7 +23,8 @@ public class CRT {
    */
   public static BigInteger computeCRT(
       final BigInteger xp, final BigInteger p, final BigInteger xq, final BigInteger q) {
-    Assert.notNull(p, "p must not be null");
+	    Assert.notNull(xp, "xp must not be null");
+	  Assert.notNull(p, "p must not be null");
     Assert.notNull(xq, "xq must not be null");
     Assert.notNull(q, "q must not be null");
 
@@ -52,6 +53,8 @@ public class CRT {
     return xp.multiply(one_p).add(xq.multiply(one_q)).mod(modN);
   }
 
+  
+  // TODO Provide more documentation for key functions such as CRT. What does it do? What are the arguments?
   /**
    * Compute the CRT algorithm when 1p and 1q are pre-computed.
    *

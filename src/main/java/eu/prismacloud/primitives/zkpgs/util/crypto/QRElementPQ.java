@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Class that represents an element in the Quadratic Residues group when the modulus factorization
@@ -17,7 +18,7 @@ public class QRElementPQ extends QRElement {
   private BigInteger lgdrP;
   private BigInteger lgdrQ;
 
-
+  private static final Logger log = Logger.getLogger(QRElementPQ.class.getName());
 
   /**
    * Instantiates a new QR element with known p and q.
@@ -62,17 +63,19 @@ public class QRElementPQ extends QRElement {
 	  // TODO The computation does not work.
 	  // The order of the QR_p is p', the order of QR_q is q', not those values minus 1.
     //      compute exponentiation using CRT for modulo p and q representation
-    BigInteger xp = this.getValue().modPow(exponent, this.qrGroupPQ.getP());
+    BigInteger expP = this.xp.modPow(exponent, this.qrGroupPQ.getP());
 
-    BigInteger xq =  this.getValue().modPow(exponent, this.qrGroupPQ.getOneQ());
+    BigInteger expQ =  this.xq.modPow(exponent, this.qrGroupPQ.getQ());
+    
     // uses precomputation for 1p and 1q
     BigInteger crt =
         CRT.computeCRT(
-            xp,
+            expP,
             this.qrGroupPQ.getOneP(),
-            xq,
+            expQ,
             this.qrGroupPQ.getOneQ(),
             this.qrGroupPQ.getModulus());
+    
     return new QRElementPQ(this.qrGroupPQ, crt);
   }
 
@@ -82,20 +85,34 @@ public class QRElementPQ extends QRElement {
   }
 
   @Override
-  public QRElementPQ multiply(GroupElement val) {
-    BigInteger xp1 = this.value.mod(this.qrGroupPQ.getP());
-    BigInteger xq1 = this.value.mod(this.qrGroupPQ.getQ());
-
-    BigInteger xp2 = val.getValue().mod(this.qrGroupPQ.getP());
-    BigInteger xq2 = val.getValue().mod(this.qrGroupPQ.getQ());
-
+  public QRElementPQ multiply(GroupElement multiplier) {
+    BigInteger multiplierP = (multiplier.getValue()).mod(this.qrGroupPQ.getP());
+    BigInteger multiplierQ = (multiplier.getValue()).mod(this.qrGroupPQ.getQ());
+    
     // uses precomputation for 1p and 1q
-    BigInteger crt = CRT.computeCRT(
-        xp1.multiply(xp2),
+    BigInteger productP = (this.xp.multiply(multiplierP)).mod(this.qrGroupPQ.getP());
+    BigInteger productQ = (this.xq.multiply(multiplierQ)).mod(this.qrGroupPQ.getQ());
+    
+	BigInteger crt = CRT.computeCRT(
+    	productP,
         this.qrGroupPQ.getOneP(),
-        xq1.multiply(xq2),
+        productQ,
         this.qrGroupPQ.getOneQ(),
         this.qrGroupPQ.getModulus());
+	
+	log.info("----- Multiplication Profile -----");
+	log.info("element value = " + this.value);
+	log.info("element in ZPS = " + this.xp);
+	log.info("element in ZQS = " + this.xq);
+	log.info("---");
+	log.info("multiplier = " + multiplier);
+	log.info("multiplier in ZPS = " + multiplierP);
+	log.info("multiplier in ZQS = " + multiplierQ);
+	log.info("---");
+	log.info("product in ZPS = " + productP);
+	log.info("product in ZQS = " + productQ);
+	log.info("product in ZNS = " + crt);
+	
     return new QRElementPQ(this.qrGroupPQ, crt);
   }
 
