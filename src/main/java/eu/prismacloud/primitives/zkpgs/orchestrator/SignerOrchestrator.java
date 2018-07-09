@@ -402,13 +402,18 @@ public class SignerOrchestrator {
     //    BigInteger invertible = U.getCommitmentValue().multiply(baseS.modPow(vPrimePrime,
     // modN).multiply(R_i).multiply(R_i_j).mod(modN));
 
-    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
-    BigInteger m_0 = U.getExponents().get(URN.createZkpgsURN("recipient.exponent.m_0"));
-
+    // TODO Signer must not assume knowledge of m_0
+//    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
+//    BigInteger m_0 = U.getExponents().get(URN.createZkpgsURN("recipient.exponent.m_0"));
+//  R_0multi = R_0.modPow(m_0);
+    
+    // Compute exponents for vertices and edges
+    
+    
 
     Sv = baseS.modPow(vPrimePrime);
-    R_0multi = R_0.modPow(m_0);
-    Sv1 = Sv.multiply(R_0multi);
+
+    Sv1 = Sv.multiply(U.getCommitmentValue());
 
     Q = baseZ.multiply(Sv1.modInverse());
 
