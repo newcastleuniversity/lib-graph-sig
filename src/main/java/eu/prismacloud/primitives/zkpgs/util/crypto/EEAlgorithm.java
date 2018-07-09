@@ -14,10 +14,10 @@ public class EEAlgorithm {
 
   /**
    * Compute the Extended Euclidean Algorithm based on <tt>alg:eea_schoup</tt> in topocert-doc
+   * Computes d = gcd(a,b) and as + bt = d
    *
    * @param a positive BigInteger \( \geq 0 \)
    * @param b positive BigInteger \( \geq 0 \)
-   * @return d, s, t
    */
   public static void computeEEAlgorithm(final BigInteger a, final BigInteger b) {
 
