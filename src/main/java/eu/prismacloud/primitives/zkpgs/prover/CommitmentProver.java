@@ -21,72 +21,40 @@ import java.util.logging.Logger;
 /** The type Commitment prover. */
 public class CommitmentProver implements IProver {
 
-  private GSCommitment u;
+  public static final String RANDOMNESS_TILDEM_I =
+      "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_";
+  public static final String RANDOMNESS_TILDEM_I_J =
+      "issuing.commitmentprover.witnesses.randomness.edge.tildem_i_j_";
+  public static final String RANDOMNESS_TILDEM_0 =
+      "issuing.commitmentprover.witnesses.randomness.vertex.tildem_0";
+  public static final String RANDOMNESS_VERTEX_TILDER =
+      "commitmentprover.witnesses.randomness.vertex.tilder_";
+  public static final String POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM =
+      "possessionprover.witnesses.randomness.tildem_";
   private Map<URN, BaseRepresentation> baseRepresentationMap;
   private ProofStore<Object> proofStore;
-  private GSCommitment commmitmentU;
-  private BigInteger vPrime;
-  private GroupElement R_0;
-  private BigInteger m_0;
-  private BigInteger n_1;
-  private Map<URN, BaseRepresentation> vertices;
   private BaseRepresentation vertex;
   private ExtendedPublicKey extendedPublicKey;
   private KeyGenParameters keyGenParameters;
   private final Map<URN, BigInteger> witnesses = new HashMap<>();
   private BigInteger modN;
   private GroupElement baseS;
-  private BigInteger tildeC_i;
   private BigInteger tilder_i;
-  private GroupElement R_i;
   private GSCommitment witness;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private BigInteger cChallenge;
-  private BigInteger hatr_i;
   private STAGE proofStage;
   private BigInteger tildevPrime;
   private BigInteger tildem_0;
   private BigInteger tildem_i;
   private BigInteger tildem_i_j;
-  private GroupElement tildeU;
-  private BigInteger hatvPrime;
-  private BigInteger hatm_0;
-  private BigInteger hatm_i;
-  private BigInteger hatm_i_j;
   private static Map<URN, BigInteger> responses = new LinkedHashMap<URN, BigInteger>();
   private BaseRepresentation baseRepresentationR_0;
 
   public enum STAGE {
     ISSUING,
     PROVING
-  };
-
-  //  /**
-  //   * Instantiates a new Commitment prover.
-  //   *
-  //   * @param baseRepresentationMap the base representation map
-  //   * @param proofStore the proof store
-  //   * @param extendedPublicKey the extended public key
-  //   * @param keyGenParameters the key gen parameters
-  //   */
-  //  public CommitmentProver(
-  //      final Map<URN, BaseRepresentation> baseRepresentationMap,
-  //      final ProofStore<Object> proofStore,
-  //      final ExtendedPublicKey extendedPublicKey,
-  //      final KeyGenParameters keyGenParameters) {
-  //
-  //    Assert.notNull(baseRepresentationMap, "baseRepresentationMap must not be null");
-  //    Assert.notNull(proofStore, "store must not be null");
-  //    Assert.notNull(extendedPublicKey, "extended public key must not be null");
-  //    Assert.notNull(keyGenParameters, "keygen parameters must not be null");
-  //
-  //    this.baseRepresentationMap = baseRepresentationMap;
-  //    this.proofStore = proofStore;
-  //    this.extendedPublicKey = extendedPublicKey;
-  //    this.keyGenParameters = keyGenParameters;
-  //    this.modN = extendedPublicKey.getPublicKey().getModN();
-  //    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-  //  }
+  }
 
   public GSCommitment preChallengePhase(
       final Map<URN, BaseRepresentation> baseRepresentationMap,
@@ -120,7 +88,7 @@ public class CommitmentProver implements IProver {
       try {
         witnessRandomnessIssuing();
       } catch (Exception e) {
-        e.printStackTrace();
+        gslog.log(Level.SEVERE, e.getMessage());
       }
 
     } else {
@@ -133,8 +101,9 @@ public class CommitmentProver implements IProver {
     URN urnVertex;
     URN urnEdge;
     int tildevPrimeBitLength =
-        keyGenParameters.getL_n() + (2 * keyGenParameters.getL_statzk()) + keyGenParameters
-            .getL_H();
+        keyGenParameters.getL_n()
+            + (2 * keyGenParameters.getL_statzk())
+            + keyGenParameters.getL_H();
 
     tildevPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(tildevPrimeBitLength);
 
@@ -142,34 +111,22 @@ public class CommitmentProver implements IProver {
         keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
 
     tildem_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
-    proofStore.store("issuing.commitmentprover.witnesses.randomness.vertex.tildem_0", tildem_0);
+    proofStore.store(RANDOMNESS_TILDEM_0, tildem_0);
 
     Map<URN, BigInteger> vertexWitnessRandomness = new HashMap<URN, BigInteger>();
 
     for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
       if (baseRepresentation.getBaseType() == BASE.VERTEX) {
-        urnVertex =
-            URN.createZkpgsURN(
-                "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_"
-                    + baseRepresentation.getBaseIndex());
+        urnVertex = URN.createZkpgsURN(RANDOMNESS_TILDEM_I + baseRepresentation.getBaseIndex());
         tildem_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
         vertexWitnessRandomness.put(urnVertex, tildem_i);
-        proofStore.store(
-            "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_"
-                + baseRepresentation.getBaseIndex(),
-            tildem_i);
+        proofStore.store(RANDOMNESS_TILDEM_I + baseRepresentation.getBaseIndex(), tildem_i);
       } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
 
-        urnEdge =
-            URN.createZkpgsURN(
-                "issuing.commitmentprover.witnesses.randomness.edge.tildem_i_j_"
-                    + baseRepresentation.getBaseIndex());
+        urnEdge = URN.createZkpgsURN(RANDOMNESS_TILDEM_I_J + baseRepresentation.getBaseIndex());
         tildem_i_j = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
         vertexWitnessRandomness.put(urnEdge, tildem_i_j);
-        proofStore.store(
-            "issuing.commitmentprover.witnesses.randomness.edge.tildem_i_j_"
-                + baseRepresentation.getBaseIndex(),
-            tildem_i_j);
+        proofStore.store(RANDOMNESS_TILDEM_I_J + baseRepresentation.getBaseIndex(), tildem_i_j);
       }
     }
   }
@@ -185,7 +142,7 @@ public class CommitmentProver implements IProver {
     tilder_i = CryptoUtilsFacade.computeRandomNumber(tilder_iLength);
 
     /** TODO store witness randomness tilder_i */
-   String tilder_iURN = "commitmentprover.witnesses.randomness.vertex.tilder_" + vertex.getBaseIndex();
+    String tilder_iURN = RANDOMNESS_VERTEX_TILDER + vertex.getBaseIndex();
 
     try {
       proofStore.store(tilder_iURN, tilder_i);
@@ -196,16 +153,15 @@ public class CommitmentProver implements IProver {
 
   @Override
   public void computeWitness() {
-    BigInteger R_0tildem_0;
     Map<URN, GroupElement> baseMap = new HashMap<>();
     Map<URN, BigInteger> exponentsMap = new HashMap<>();
 
     baseRepresentationR_0 = baseRepresentationMap.get(URN.createZkpgsURN("bases.R_0"));
-    R_0 = baseRepresentationR_0.getBase();
+    GroupElement R_0 = baseRepresentationR_0.getBase();
 
     if (proofStage == STAGE.ISSUING) {
 
-      R_0tildem_0 = R_0.modPow(tildem_0).getValue();
+      BigInteger R_0tildem_0 = R_0.modPow(tildem_0).getValue();
       baseMap.put(URN.createZkpgsURN("commitment.R_0"), R_0);
       exponentsMap.put(URN.createZkpgsURN("commitment.m_0"), tildem_0);
       for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
@@ -219,18 +175,16 @@ public class CommitmentProver implements IProver {
       baseMap.put(URN.createZkpgsURN("commitment.S"), baseS);
       exponentsMap.put(URN.createZkpgsURN("commitments.tildevPrime"), tildevPrime);
       witness = new GSCommitment(baseMap, exponentsMap, tildevPrime, baseS, modN);
-      tildeU = witness.getCommitmentValue();//commit();//CryptoUtilsFacade.computeMultiBaseExMap(baseMap, exponentsMap, modN);
-
+      GroupElement tildeU = witness.getCommitmentValue();
 
     } else {
 
       /** TODO retrieve witness randomness of committed messages from the common store */
-      String tildem_i_iURN =
-          "possessionprover.witnesses.randomness.tildem_" + vertex.getBaseIndex();
-      BigInteger tildem_i = (BigInteger) proofStore.retrieve(tildem_i_iURN);
+      String tildem_i_iURN = POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM + vertex.getBaseIndex();
+      tildem_i = (BigInteger) proofStore.retrieve(tildem_i_iURN);
 
-      R_i = vertex.getBase();
-      tildeC_i = R_i.modPow(tildem_i).multiply(baseS.modPow(tilder_i)).getValue();
+      GroupElement R_i = vertex.getBase();
+      BigInteger tildeC_i = R_i.modPow(tildem_i).multiply(baseS.modPow(tilder_i)).getValue();
 
       baseMap.put(URN.createZkpgsURN("commitment.base.R_" + vertex.getBaseIndex()), R_i);
       exponentsMap.put(
@@ -265,14 +219,14 @@ public class CommitmentProver implements IProver {
       try {
         computeResponsesIssuing();
       } catch (Exception e) {
-        e.printStackTrace();
+        gslog.log(Level.SEVERE, e.getMessage());
       }
 
     } else if (this.proofStage == STAGE.PROVING) {
       try {
         computeResponsesProving();
       } catch (Exception e) {
-        e.printStackTrace();
+        gslog.log(Level.SEVERE, e.getMessage());
       }
     }
 
@@ -281,12 +235,10 @@ public class CommitmentProver implements IProver {
 
   private void computeResponsesIssuing() throws Exception {
     BaseRepresentation baseRepresentation;
-
-    vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
-    //    baseRepresentationR_0 = baseRepresentationMap.get(URN.createZkpgsURN("bases.R_0"));
-    m_0 = baseRepresentationR_0.getExponent();
-    hatvPrime = tildevPrime.add(cChallenge.multiply(vPrime));
-    hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
+    BigInteger vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
+    BigInteger m_0 = baseRepresentationR_0.getExponent();
+    BigInteger hatvPrime = tildevPrime.add(cChallenge.multiply(vPrime));
+    BigInteger hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
     String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
     String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
     String cChallengeURN = "issuing.commitmentprover.commitment.C";
@@ -300,12 +252,8 @@ public class CommitmentProver implements IProver {
     for (BaseRepresentation base : baseRepresentationMap.values()) {
 
       if (base.getBaseType() == BASE.VERTEX && base.getExponent() != null) {
-        tildem_i =
-            (BigInteger)
-                proofStore.retrieve(
-                    "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_"
-                        + base.getBaseIndex());
-        hatm_i = tildem_i.add(cChallenge.multiply(base.getExponent()));
+        tildem_i = (BigInteger) proofStore.retrieve(RANDOMNESS_TILDEM_I + base.getBaseIndex());
+        BigInteger hatm_i = tildem_i.add(cChallenge.multiply(base.getExponent()));
         String hatm_iURN = "issuing.commitmentprover.responses.hatm_i_" + base.getBaseIndex();
         responses.put(URN.createZkpgsURN(hatm_iURN), hatm_i);
 
@@ -313,11 +261,8 @@ public class CommitmentProver implements IProver {
 
       } else if (base.getBaseType() == BASE.EDGE && base.getExponent() != null) {
         tildem_i_j =
-            (BigInteger)
-                proofStore.retrieve(
-                    "issuing.commitmentprover.witnesses.randomness.edge.tildem_i_j_"
-                        + base.getBaseIndex());
-        hatm_i_j = tildem_i_j.add(cChallenge.multiply(base.getExponent()));
+            (BigInteger) proofStore.retrieve(RANDOMNESS_TILDEM_I_J + base.getBaseIndex());
+        BigInteger hatm_i_j = tildem_i_j.add(cChallenge.multiply(base.getExponent()));
         String hatm_i_jURN = "issuing.commitmentprover.responses.hatm_i_j_" + base.getBaseIndex();
         responses.put(URN.createZkpgsURN(hatm_i_jURN), hatm_i_j);
         proofStore.store(
@@ -327,14 +272,15 @@ public class CommitmentProver implements IProver {
   }
 
   public void computeResponsesProving() throws Exception {
-    String tilder_iURN = "commitmentprover.witnesses.randomness.vertex.tilder_" + vertex.getBaseIndex();
-    BigInteger tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
+    String tilder_iURN =
+        "commitmentprover.witnesses.randomness.vertex.tilder_" + vertex.getBaseIndex();
+    tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
     String C_iURN = "prover.commitments.C_" + vertex.getBaseIndex();
     GSCommitment C_i = (GSCommitment) proofStore.retrieve(C_iURN);
     BigInteger r_i = C_i.getRandomness();
 
-    hatr_i = tilder_i.add(this.cChallenge.multiply(r_i));
+    BigInteger hatr_i = tilder_i.add(this.cChallenge.multiply(r_i));
 
     String hatr_iURN = "proving.commitmentprover.responses.hatm_i_" + vertex.getBaseIndex();
 
