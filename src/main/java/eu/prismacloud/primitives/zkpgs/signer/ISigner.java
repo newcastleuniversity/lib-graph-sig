@@ -1,6 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.signer;
 
-import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
@@ -9,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import java.math.BigInteger;
 
 public interface ISigner {
@@ -16,7 +16,7 @@ public interface ISigner {
 
   GSCommitment commit(GSGraph<GSVertex, GSEdge> gsGraph, BigInteger rnd);
 
-  GraphSignature hiddenSign(
+  GSSignature hiddenSign(
       GSCommitment cmt,
       GSVertex signerVertex,
       GSVertex recipientVertex,

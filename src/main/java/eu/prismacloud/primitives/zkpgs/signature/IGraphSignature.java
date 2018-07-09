@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
 import eu.prismacloud.primitives.topocert.IGraph;
-import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
@@ -50,5 +49,5 @@ public interface IGraphSignature {
   public Boolean verify(
       SignerPublicKey pk_s, ICommitment cmt, BigInteger rTilde, IGraphSignature gsig);
 
-  GraphSignature getGraphSignature();
+  GSSignature getGraphSignature();
 }

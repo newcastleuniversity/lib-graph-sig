@@ -1,8 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
-import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.commitment.ICommitment;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,8 @@ public class GSMessage<T> implements IMessage {
 
   /** TODO finish gsmessage class to use a proxy */
   Map<URN, Object> messageElements = new HashMap<>();
+  private GSSignature graphSignature;
+  private GSCommitment gsCommitment;
 
   public GSMessage() {}
 
@@ -34,17 +36,19 @@ public class GSMessage<T> implements IMessage {
   public void addCommitment(ICommitment recipientCommitment) {}
 
   public GSMessage receive(GSMessage msg) {
-    return null;
+    return msg;
   }
 
   @Override
   public GSCommitment getCommitment() {
-    return null;
+    return gsCommitment;
   }
 
-  public void addSignature(GraphSignature partialGSignature) {}
+  public void addSignature(GSSignature partialGSignature) {
+    this.graphSignature = partialGSignature;
+  }
 
-  public GraphSignature getSignature() {
-    return null;
+  public GSSignature getSignature() {
+    return graphSignature;
   }
 }

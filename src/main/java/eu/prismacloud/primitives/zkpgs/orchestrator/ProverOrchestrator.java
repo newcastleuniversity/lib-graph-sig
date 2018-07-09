@@ -3,7 +3,6 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
-import eu.prismacloud.primitives.zkpgs.GraphSignature;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
@@ -195,7 +194,7 @@ public class ProverOrchestrator implements ProofOperation {
   private void storeBases() throws Exception {
     String encodedBasesURN = "";
 
-    encodedBases =  graphRepresentation.getEncodedBases();
+    encodedBases = graphRepresentation.getEncodedBases();
 
     for (BaseRepresentation baseRepresentation : encodedBases.values()) {
 
@@ -363,7 +362,7 @@ public class ProverOrchestrator implements ProofOperation {
 
   public void sendPostChallenge() {}
 
-  public void execute(GraphSignature randomizedGraphSignature) {}
+  public void execute(GSSignature randomizedGraphSignature) {}
 
   @Override
   public void execute() {}
