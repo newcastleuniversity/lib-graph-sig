@@ -13,7 +13,6 @@ import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
-import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
@@ -33,7 +32,6 @@ import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,10 +57,7 @@ public class RecipientOrchestrator {
   private GSRecipient recipient;
   private BigInteger n_1;
   private BigInteger n_2;
-  private GSGraph<GSVertex, GSEdge> recipientGraph; // = new GSGraph();
-  private ProofSignature P_1;
   private GSCommitment U;
-  private IMessageGateway messageGateway;
   private GSSigner signer;
   private Map<URN, BaseRepresentation> encodedBases;
   private BigInteger recipientMSK;
@@ -75,11 +70,9 @@ public class RecipientOrchestrator {
   private BigInteger e;
   private BigInteger vPrimePrime;
   private ProofSignature P_2;
-  private BigInteger v;
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
-  private GroupElement commitmentU;
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -103,8 +96,8 @@ public class RecipientOrchestrator {
 
     try {
       createGraphRepresentation();
-    } catch (ImportException e) {
-      gslog.log(Level.SEVERE, e.getMessage());
+    } catch (ImportException im) {
+      gslog.log(Level.SEVERE, im.getMessage());
     }
 
     // TODO needs to receive message n_1
@@ -132,7 +125,7 @@ public class RecipientOrchestrator {
     try {
       computeChallenge();
     } catch (NoSuchAlgorithmException ns) {
-      ns.getMessage();
+      gslog.log(Level.SEVERE, ns.getMessage());
     }
 
     responses = commitmentProver.postChallengePhase(cChallenge);
@@ -140,7 +133,7 @@ public class RecipientOrchestrator {
     //        recipient.createCommitmentProver(U, extendedPublicKey); // TODO Needs access to
     // secrets
 
-    P_1 = createProofSignature(); // TODO Needs to sign n_1
+    ProofSignature P_1 = createProofSignature(); // TODO Needs to sign n_1
 
     n_2 = recipient.generateN_2();
 
@@ -180,7 +173,7 @@ public class RecipientOrchestrator {
     gslog.info("recipient commitment U: " + U.getCommitmentValue());
     gslog.info("tildeU: " + tildeU.getCommitmentValue());
 
-    commitmentU = U.getCommitmentValue();
+    GroupElement commitmentU = U.getCommitmentValue();
 
     challengeList.add(String.valueOf(commitmentU));
     //    challengeList.add(String.valueOf(tildeU.getCommitmentValue()));
@@ -220,7 +213,7 @@ public class RecipientOrchestrator {
     GraphMLProvider.createImporter();
     GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 
-    if (gsGraph.getGraph().vertexSet().size() > 0) {
+    if (!gsGraph.getGraph().vertexSet().isEmpty()) {
       graphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
       encodedBases = graphRepresentation.getEncodedBases();
     }
@@ -256,10 +249,10 @@ public class RecipientOrchestrator {
   public void round3() throws VerificationException, ProofStoreException {
 
     GSMessage correctnessMsg = recipient.getMessage();
-    ProofSignature P_2 = extractMessageElements(correctnessMsg);
+    P_2 = extractMessageElements(correctnessMsg);
 
 
-    v = vPrimePrime.add(vPrime);
+    BigInteger v = vPrimePrime.add(vPrime);
 
     proofStore.store("recipient.vPrimePrime", vPrimePrime);
     proofStore.store("recipient.vPrime", vPrime);
@@ -302,8 +295,8 @@ public class RecipientOrchestrator {
     for (Map.Entry<URN, BaseRepresentation> base : encodedBases.entrySet()) {
       try {
         proofStore.save(base.getKey(), base.getValue());
-      } catch (Exception e1) {
-        e1.printStackTrace();
+      } catch (Exception ex) {
+        gslog.log(Level.SEVERE,ex.getMessage());
       }
     }
   }
