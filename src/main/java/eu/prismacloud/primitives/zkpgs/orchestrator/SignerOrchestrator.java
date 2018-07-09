@@ -374,7 +374,7 @@ public class SignerOrchestrator {
     int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
     e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-    vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
+    vPrimePrime = (NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1)).add(vbar);
 
     //    for (BaseRepresentation encodedBase : encodedBases.values()) {
     //      if (encodedBase.getExponent() != null) {

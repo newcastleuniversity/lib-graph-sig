@@ -130,6 +130,7 @@ public class GraphRepresentation {
   }
 
   private BaseRepresentation generateRandomBase() {
+	  // TODO: The bases need to be selected randomly either from the vertex or the edge bases, not over all bases.
     int randomBaseIndex =
         CryptoUtilsFacade.computeRandomNumber(BigInteger.ONE, BigInteger.valueOf(bases.size()))
             .intValue();
@@ -164,9 +165,11 @@ public class GraphRepresentation {
     Assert.notNull(vertexPrimeRepresentative, "vertex prime representative does not exist");
     Assert.notNull(labelPrimeRepresentative, "label prime representative does not exist");
 
+    // TODO A vertex can have multiple labels, not just one.
     return vertexPrimeRepresentative.multiply(labelPrimeRepresentative);
   }
 
+  // TODO An edge can have multiple labels, not just one.
   private static BigInteger encodeEdge(BigInteger e_i, BigInteger e_j, BigInteger e_k) {
     return e_i.multiply(e_j.multiply(e_k));
   }
