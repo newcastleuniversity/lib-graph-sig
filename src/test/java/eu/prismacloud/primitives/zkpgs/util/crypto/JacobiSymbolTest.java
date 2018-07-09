@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;

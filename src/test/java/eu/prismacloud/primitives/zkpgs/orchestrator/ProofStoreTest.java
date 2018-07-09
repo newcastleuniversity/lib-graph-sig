@@ -14,10 +14,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
-
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

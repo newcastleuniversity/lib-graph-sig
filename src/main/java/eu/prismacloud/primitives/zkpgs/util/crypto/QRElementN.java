@@ -1,6 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import java.math.BigInteger;
 import java.util.List;
 

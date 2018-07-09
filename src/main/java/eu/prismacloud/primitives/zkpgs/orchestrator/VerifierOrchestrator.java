@@ -6,7 +6,6 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

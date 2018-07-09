@@ -1,10 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
-import java.math.BigInteger;
-
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import java.math.BigInteger;
 
 public abstract class QRGroup extends Group {
 

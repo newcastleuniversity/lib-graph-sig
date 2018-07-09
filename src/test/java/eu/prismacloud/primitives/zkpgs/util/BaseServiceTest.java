@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.prismacloud.primitives.zkpgs.store.Base;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
-import eu.prismacloud.primitives.zkpgs.util.BaseService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

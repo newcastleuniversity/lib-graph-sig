@@ -8,7 +8,6 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;

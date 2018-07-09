@@ -2,9 +2,7 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
-
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 /** Quadratic Residue Group where we don't know the modulus factorization in \(Z^*_p \) */
 public final class QRGroupN extends QRGroup {

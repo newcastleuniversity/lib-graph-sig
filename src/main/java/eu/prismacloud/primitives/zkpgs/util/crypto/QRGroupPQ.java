@@ -4,8 +4,6 @@ import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /** Quadratic Residues Group when the modulus factorization is known. */
 public final class QRGroupPQ extends QRGroup {
