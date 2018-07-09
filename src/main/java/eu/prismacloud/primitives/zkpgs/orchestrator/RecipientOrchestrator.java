@@ -222,7 +222,7 @@ public class RecipientOrchestrator {
 
     if (gsGraph.getGraph().vertexSet().size() > 0) {
       graphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
-      encodedBases = GraphRepresentation.getEncodedBases();
+      encodedBases = graphRepresentation.getEncodedBases();
     }
 
     encodeR_0();

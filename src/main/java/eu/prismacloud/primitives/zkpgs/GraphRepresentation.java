@@ -22,13 +22,13 @@ import org.jgrapht.Graph;
 public class GraphRepresentation {
   private final Logger gslog = GSLoggerConfiguration.getGSlog();
 
-  private static Map<URN, BaseRepresentation> bases;
+  private Map<URN, BaseRepresentation> bases;
   private ExtendedPublicKey extendedPublicKey;
-  private static GraphEncodingParameters encodingParameters;
+  private GraphEncodingParameters encodingParameters;
   private Map<URN, BaseRepresentation> encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
-  public GraphRepresentation() {
-    
-  }
+
+  public GraphRepresentation() {}
+
   private GraphRepresentation(Map<URN, BaseRepresentation> bases) {
     this.bases = bases;
   }
@@ -41,12 +41,11 @@ public class GraphRepresentation {
    * @param extendedPublicKey the extended public key
    * @return the graph representation
    */
-  public  GraphRepresentation encode(
+  public GraphRepresentation encode(
       GSGraph<GSVertex, GSEdge> gsGraph,
       GraphEncodingParameters graphEncodingParameters,
       ExtendedPublicKey extendedPublicKey) {
     Graph<GSVertex, GSEdge> graph;
-    List<Integer> crossoutBaseIndex;
     encodingParameters = graphEncodingParameters;
 
     graph = gsGraph.getGraph();
@@ -54,8 +53,6 @@ public class GraphRepresentation {
     gsGraph.encodeGraph(graph, graphEncodingParameters);
 
     bases = extendedPublicKey.getBases();
-
-    crossoutBaseIndex = new ArrayList<Integer>();
 
     encodeVertices(graph, bases);
 
@@ -102,8 +99,7 @@ public class GraphRepresentation {
     }
   }
 
-  private void encodeVertices(Graph<GSVertex, GSEdge> graph,
-      Map<URN, BaseRepresentation> bases) {
+  private void encodeVertices(Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
     BigInteger labelRepresentative;
     BigInteger vertexRepresentative;
     BigInteger exponentEncoding;
@@ -124,7 +120,7 @@ public class GraphRepresentation {
 
       BaseRepresentation base =
           generateRandomBase(); // bases.get(URN.createZkpgsURN("baseRepresentationMap.edge.R_i_" +
-                                // vertex.getId()));//generateRandomBase();
+      // vertex.getId()));//generateRandomBase();
       Assert.notNull(base, "cannot find base index");
 
       base.setExponent(exponentEncoding);
@@ -138,16 +134,19 @@ public class GraphRepresentation {
         CryptoUtilsFacade.computeRandomNumber(BigInteger.ONE, BigInteger.valueOf(bases.size()))
             .intValue();
     List<Integer> crossoutBaseIndex = new ArrayList<Integer>(bases.size());
-
+    
+    BaseRepresentation resultBase = null;
+    
     for (BaseRepresentation baseRepresentation : bases.values()) {
       if (baseRepresentation.getBaseIndex() == randomBaseIndex) {
         if (!crossoutBaseIndex.contains(randomBaseIndex)) {
           crossoutBaseIndex.add(randomBaseIndex);
-          return baseRepresentation;
+          resultBase = baseRepresentation;
         }
       }
     }
-    return null;
+
+    return  resultBase;
   }
 
   /**
@@ -155,7 +154,7 @@ public class GraphRepresentation {
    *
    * @return the encoded bases
    */
-  public static Map<URN, BaseRepresentation> getEncodedBases() {
+  public Map<URN, BaseRepresentation> getEncodedBases() {
     return bases;
   }
 
@@ -169,7 +168,6 @@ public class GraphRepresentation {
   }
 
   private static BigInteger encodeEdge(BigInteger e_i, BigInteger e_j, BigInteger e_k) {
-
     return e_i.multiply(e_j.multiply(e_k));
   }
 }

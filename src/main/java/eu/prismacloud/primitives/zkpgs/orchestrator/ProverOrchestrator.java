@@ -194,7 +194,8 @@ public class ProverOrchestrator implements ProofOperation {
 
   private void storeBases() throws Exception {
     String encodedBasesURN = "";
-    encodedBases = GraphRepresentation.getEncodedBases();
+
+    encodedBases =  graphRepresentation.getEncodedBases();
 
     for (BaseRepresentation baseRepresentation : encodedBases.values()) {
 
@@ -277,7 +278,7 @@ public class ProverOrchestrator implements ProofOperation {
   }
 
   private void computeCommitmentProvers() {
-    vertices = GraphRepresentation.getEncodedBases();
+    vertices = graphRepresentation.getEncodedBases();
     CommitmentProver commitmentProver;
 
     /** TODO store commitments for later use */

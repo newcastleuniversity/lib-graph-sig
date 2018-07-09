@@ -86,7 +86,7 @@ public class GSPossessionProver implements IProver {
         keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
     BigInteger tildem_0 = CryptoUtilsFacade.computeRandomNumber(messageLength);
 
-    bases = GraphRepresentation.getEncodedBases();
+    bases = graphRepresentation.getEncodedBases();
 
     vertexWitnesses = new LinkedHashMap<>();
     edgeWitnesses = new LinkedHashMap<>();
