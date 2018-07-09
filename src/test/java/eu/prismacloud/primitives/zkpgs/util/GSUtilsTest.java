@@ -289,7 +289,7 @@ class GSUtilsTest {
     for (int i = 0; i < factors.size(); i++) {
       factor = factors.get(i);
       log.info("@Test: factor " + i + " : " + factor);
-      assertTrue(GSUtils.isPrime(factor));
+      assertTrue(factor.isProbablePrime(80));
       m = m.multiply(factor);
     }
 
@@ -320,7 +320,7 @@ class GSUtilsTest {
     for (int i = 0; i < factors.size(); i++) {
       factor = factors.get(i);
       log.info("@Test: factor " + i + " : " + factor);
-      assertTrue(GSUtils.isPrime(factor));
+      assertTrue(factor.isProbablePrime(80));
       m = m.multiply(factor);
     }
 
@@ -328,7 +328,8 @@ class GSUtilsTest {
 
     log.info("@Test: m+1: " + m.add(BigInteger.ONE));
     log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
-    assertTrue(GSUtils.isPrime(m.add(BigInteger.ONE)));
+    Boolean isPrime = m.add(BigInteger.ONE).isProbablePrime(80);
+    assertTrue(isPrime);
   }
 
   @Test

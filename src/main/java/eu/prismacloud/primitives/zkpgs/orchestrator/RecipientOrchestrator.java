@@ -49,7 +49,7 @@ public class RecipientOrchestrator {
 
   private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
   private final ExtendedPublicKey extendedPublicKey;
-  private static ProofStore<Object> proofStore;
+  private final ProofStore<Object> proofStore;
   private final BigInteger modN;
   private final GroupElement baseS;
   private final GroupElement R_0;

@@ -36,7 +36,7 @@ public class GSUtils implements INumberUtils {
   private BigInteger r;
   private BigInteger h;
   private ArrayList<BigInteger> primeFactors;
-  private static KeyGenParameters keyGenParameters;
+  private KeyGenParameters keyGenParameters;
 
   /** Instantiates a new Gs utils. */
   public GSUtils() {
@@ -350,7 +350,7 @@ public class GSUtils implements INumberUtils {
       for (BigInteger factor : factors) {
         p = p.multiply(factor);
       }
-    } while (!GSUtils.isPrime(p.add(BigInteger.ONE)));
+    } while (!isPrime(p.add(BigInteger.ONE)));
     // TODO check if correct bit length for gamma modulus
     return factors;
   }
@@ -556,7 +556,7 @@ public class GSUtils implements INumberUtils {
    * @param number the number
    * @return the boolean
    */
-  public static Boolean isPrime(final BigInteger number) {
+  public Boolean isPrime(final BigInteger number) {
     return number.isProbablePrime(keyGenParameters.getL_pt());
   }
 

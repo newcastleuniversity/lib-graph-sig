@@ -16,15 +16,9 @@ public class EEAlgorithm {
   private static BigInteger t_prime;
   private static BigInteger r_prime_prime;
   private static BigInteger q;
-
   private static BigInteger d;
 
-  private EEAlgorithm(final BigInteger d, final BigInteger s, final BigInteger t) {
-
-    EEAlgorithm.d = d;
-    EEAlgorithm.s = s;
-    EEAlgorithm.t = t;
-  }
+  private EEAlgorithm() {}
 
   /**
    * Compute the Extended Euclidean Algorithm based on <tt>alg:eea_schoup</tt> in topocert-doc
@@ -33,7 +27,7 @@ public class EEAlgorithm {
    * @param b positive BigInteger \( \geq 0 \)
    * @return d, s, t
    */
-  public static EEAlgorithm computeEEAlgorithm(final BigInteger a, final BigInteger b) {
+  public static void computeEEAlgorithm(final BigInteger a, final BigInteger b) {
 
     if (a.compareTo(BigInteger.ZERO) <= 0)
       throw new IllegalArgumentException("EEA requires positive integers");
@@ -74,7 +68,6 @@ public class EEAlgorithm {
 
     d = r;
 
-    return new EEAlgorithm(d, s, t);
   }
 
   public static BigInteger getS() {
