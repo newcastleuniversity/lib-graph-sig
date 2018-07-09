@@ -1,6 +1,5 @@
 package eu.prismacloud.primitives.zkpgs;
 
-import static eu.prismacloud.primitives.zkpgs.GraphRepresentation.encode;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
@@ -72,8 +71,9 @@ class GraphRepresentationTest {
   @Test
   void encodeGraph() {
     /** TODO fix test for graph representation */
-    GraphRepresentation graphRepresentation =
-        encode(gsGraph, graphEncodingParameters, extendedPublicKey);
+    GraphRepresentation graphRepresentation = new GraphRepresentation();
+
+    graphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
 
     assertNotNull(graphRepresentation);
   }
