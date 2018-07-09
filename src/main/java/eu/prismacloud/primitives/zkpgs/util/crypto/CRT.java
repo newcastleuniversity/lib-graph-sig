@@ -9,6 +9,8 @@ public class CRT {
 
   private static final Logger log = Logger.getLogger(CRT.class.getName());
 
+
+  private CRT(){}
   /**
    * Compute the Chinese Remainder Theorem based on <tt>alg:crt_men</tt> in topocert-doc
    *
