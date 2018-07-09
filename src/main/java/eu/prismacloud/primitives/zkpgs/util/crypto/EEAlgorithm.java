@@ -5,17 +5,9 @@ import java.util.logging.Logger;
 
 /** Extended Euclidean Algorithm */
 public class EEAlgorithm {
-
   private static final Logger log = Logger.getLogger(EEAlgorithm.class.getName());
-
-  private static BigInteger r;
-  private static BigInteger r_prime;
   private static BigInteger s;
-  private static BigInteger s_prime;
   private static BigInteger t;
-  private static BigInteger t_prime;
-  private static BigInteger r_prime_prime;
-  private static BigInteger q;
   private static BigInteger d;
 
   private EEAlgorithm() {}
@@ -35,22 +27,23 @@ public class EEAlgorithm {
     if (b.compareTo(BigInteger.ZERO) <= 0)
       throw new IllegalArgumentException("EEA requires positive integers");
 
+    BigInteger q;
     BigInteger temps;
     BigInteger tempt;
 
-    r = a;
-    r_prime = b;
+    BigInteger r = a;
+    BigInteger r_prime = b;
     s = BigInteger.ONE;
     temps = BigInteger.ZERO;
     tempt = BigInteger.ONE;
-    s_prime = BigInteger.ZERO;
+    BigInteger s_prime = BigInteger.ZERO;
     t = BigInteger.ZERO;
-    t_prime = BigInteger.ONE;
+    BigInteger t_prime = BigInteger.ONE;
 
     while (r_prime.compareTo(BigInteger.ZERO) != 0) {
 
       q = r.divide(r_prime);
-      r_prime_prime = r.mod(r_prime);
+      BigInteger r_prime_prime = r.mod(r_prime);
 
       r = r_prime;
 
@@ -67,7 +60,6 @@ public class EEAlgorithm {
     }
 
     d = r;
-
   }
 
   public static BigInteger getS() {
