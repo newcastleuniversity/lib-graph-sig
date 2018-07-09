@@ -59,6 +59,7 @@ public final class ExtendedKeyPair {
     this.qrGroup = signerKeyPair.getQRGroup();
     this.baseRepresentationMap = new HashMap<URN, BaseRepresentation>();
     this.vertexRepresentatives = new HashMap<URN, BigInteger>();
+    this.labelRepresentatives = new HashMap<URN, BigInteger>();
     this.discLogOfBases = new HashMap<URN, BigInteger>();
   }
 

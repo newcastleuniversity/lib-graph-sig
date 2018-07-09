@@ -17,6 +17,9 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
 import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -44,25 +47,25 @@ class SignerOrchestratorTest {
   private SignerOrchestrator signerOrchestrator;
   private RecipientOrchestrator recipientOrchestrator;
   private BigInteger e;
-  private BigInteger R_0;
-  private BigInteger R_0com;
+  private GroupElement R_0;
+  private GroupElement R_0com;
   private BigInteger modN;
   private BigInteger m_0;
-  private BigInteger baseS;
+  private GroupElement baseS;
   private BigInteger vCommRandomness;
-  private BigInteger baseScom;
+  private GroupElement baseScom;
   private BigInteger vbar;
   private BigInteger vPrimePrime;
-  private BigInteger commitment;
-  private BigInteger baseZ;
-  private BigInteger Q;
+  private GroupElement commitment;
+  private GroupElement baseZ;
+  private GroupElement Q;
   private BigInteger d;
-  private BigInteger A;
+  private GroupElement A;
   private BigInteger x_Z;
-  private BigInteger Sv;
-  private BigInteger Sv1;
-  private BigInteger ZPrime;
-  private BigInteger R_0multi;
+  private GroupElement Sv;
+  private GroupElement Sv1;
+  private GroupElement ZPrime;
+  private GroupElement R_0multi;
   private SignerPrivateKey privateKey;
   private BigInteger order;
 
@@ -223,11 +226,11 @@ class SignerOrchestratorTest {
 
     modN = extendedKeyPair.getPublicKey().getModN();
     m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    baseS = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseS().getValue();
+    baseS = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseS();
 
-    baseZ = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseZ().getValue();
+    baseZ = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseZ();
 
-    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0().getValue();
+    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
 
     //    assertTrue(CryptoUtilsFacade.isElementOfQR(baseS, modN), "S is not a Quadratic Residue.");
     //    assertTrue(checkQRGenerator(baseS), "S not a generator!");
@@ -237,28 +240,28 @@ class SignerOrchestratorTest {
     //    assertTrue(checkQRGenerator(R_0), "R_0 not a generator!");
 
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-    R_0com = R_0.modPow(m_0, modN);
-    baseScom = baseS.modPow(vbar, modN);
-    commitment = R_0com.multiply(baseScom).mod(modN);
+    R_0com = R_0.modPow(m_0);
+    baseScom = baseS.modPow(vbar);
+    commitment = R_0com.multiply(baseScom);
 
     //    log.info("recipient R_0:  " + R_0);
     //    log.info("recipient m_0: " + m_0);
     //    log.info("commitment: " + commitment);
 
-    calculateSignatureRandom();
+    calculateSignatureRandom(commitment);
   }
 
   private boolean checkQRGenerator(BigInteger candidate) {
     return (modN.gcd(candidate.subtract(BigInteger.ONE))).equals(BigInteger.ONE);
   }
 
-  private void calculateSignatureRandom() {
-    computeQRandom();
+  private void calculateSignatureRandom(GroupElement commitment) {
+    computeQRandom(commitment);
     computeARandom();
     verifySignatureRandom();
   }
 
-  private void computeQRandom() {
+  private void computeQRandom(GroupElement commitment) {
     int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
     e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
@@ -273,13 +276,14 @@ class SignerOrchestratorTest {
     //    log.info("vbar: " + vbar);
     //    log.info("vPrimePrime: " + vPrimePrime);
 
-    Sv = baseS.modPow(vPrimePrime, modN);
-    R_0multi = R_0.modPow(m_0, modN);
+    Sv = baseS.modPow(vPrimePrime);
+    // TODO The Signer must not assume knowledge of m_0!
+    // R_0multi = R_0.modPow(m_0, modN);
+    
     Sv1 =
-        (Sv.multiply(R_0multi))
-            .mod(modN); // TODO Ioannis: always do a modular reduction in each step
+        (Sv.multiply(commitment));
 
-    Q = (baseZ.multiply(Sv1.modInverse(modN))).mod(modN);
+    Q = (baseZ.multiply(Sv1.modInverse()));
 
     log.info(" Q bitlength: " + Q.bitLength());
     log.info(" e bitlength: " + e.bitLength());
@@ -296,9 +300,9 @@ class SignerOrchestratorTest {
     order = privateKey.getpPrime().multiply(privateKey.getqPrime());
 
     d = e.modInverse(order);
-    A = Q.modPow(d, modN);
-    BigInteger sign = A.modPow(e, modN);
-    assertEquals(sign, Q, "Signature A not reverting to Q.");
+    A = Q.modPow(d);
+    GroupElement sigma = A.modPow(e);
+    assertEquals(sigma, Q, "Signature A not reverting to Q.");
 
     //    log.info("d: " + d);
 
@@ -311,21 +315,21 @@ class SignerOrchestratorTest {
     //
     //    log.info("recipient.m_0: " + m_0);
 
-    BigInteger blindingPrime = baseS.modPow(vPrimePrime, modN);
+    GroupElement blindingPrime = baseS.modPow(vPrimePrime);
     assertEquals(Sv, blindingPrime, "Blinding of proof and verification unequal.");
 
-    BigInteger signPrime = A.modPow(e, modN);
+    GroupElement sigmaPrime = A.modPow(e);
 
-    ZPrime = (signPrime.multiply(blindingPrime)).mod(modN);
+    ZPrime = (sigmaPrime.multiply(blindingPrime));
 
-    BigInteger hatZ = (ZPrime.multiply(R_0multi)).mod(modN);
+    GroupElement hatZ = (ZPrime.multiply(commitment));
     log.info("Z:" + baseZ);
 
     log.info("hatZ: " + hatZ);
     log.info("hatZ bitlength: " + hatZ.bitLength());
     log.info("Z bitlength:" + baseZ.bitLength());
 
-    assertEquals(baseZ, hatZ.mod(modN));
+    assertEquals(baseZ, hatZ);
   }
 
   @Test
@@ -342,18 +346,19 @@ class SignerOrchestratorTest {
     // and 13, and the only messages possible: 1, 2 or 3).
 
     modN = BigInteger.valueOf(77);
+    QRGroupN group = new QRGroupN(modN);
     m_0 = BigInteger.valueOf(3);
-    baseS = BigInteger.valueOf(60);
+    baseS = new QRElementN(group, BigInteger.valueOf(60));
 
     x_Z = CryptoUtilsFacade.computeRandomNumber(BigInteger.valueOf(2), BigInteger.valueOf(14));
-    baseZ = baseS.modPow(x_Z, modN);
+    baseZ = baseS.modPow(x_Z);
 
-    R_0 = BigInteger.valueOf(58);
+    R_0 = new QRElementN(group, BigInteger.valueOf(58));
 
     vCommRandomness = BigInteger.valueOf(2);
-    R_0com = R_0.modPow(m_0, modN);
-    baseScom = baseS.modPow(vCommRandomness, modN);
-    commitment = R_0com.multiply(baseScom).mod(modN);
+    R_0com = R_0.modPow(m_0);
+    baseScom = baseS.modPow(vCommRandomness);
+    commitment = R_0com.multiply(baseScom);
 
     log.info("recipient R_0:  " + R_0);
     log.info("recipient m_0: " + m_0);
@@ -376,11 +381,11 @@ class SignerOrchestratorTest {
     log.info("vbar: " + vbar);
     log.info("vPrimePrime: " + vPrimePrime);
 
-    Sv = baseS.modPow(vPrimePrime, modN);
-    R_0multi = R_0.modPow(m_0, modN);
+    Sv = baseS.modPow(vPrimePrime);
+    R_0multi = R_0.modPow(m_0);
     Sv1 = Sv.multiply(R_0multi);
 
-    Q = baseZ.multiply(Sv1.modInverse(modN));
+    Q = baseZ.multiply(Sv1.modInverse());
 
     log.info("signer Q: " + Q);
     log.info("signer e: " + e);
@@ -390,7 +395,7 @@ class SignerOrchestratorTest {
 
   void computeA() {
     d = e.modInverse(BigInteger.valueOf(15));
-    A = Q.modPow(d, modN);
+    A = Q.modPow(d);
 
     log.info("d: " + d);
 
@@ -408,16 +413,16 @@ class SignerOrchestratorTest {
 
     log.info("recipient.m_0: " + m_0);
 
-    BigInteger R_0multi = R_0.modPow(m_0, modN);
+    GroupElement R_0multi = R_0.modPow(m_0);
     //    BigInteger Ae = A.modPow(e, modN);
     //    BigInteger baseSmulti = baseS.modPow(v, modN);
-    ZPrime = A.modPow(e, modN).multiply(baseS.modPow(vPrimePrime, modN));
+    ZPrime = A.modPow(e).multiply(baseS.modPow(vPrimePrime));
 
-    BigInteger hatZ = ZPrime.multiply(R_0multi).mod(modN);
+    GroupElement hatZ = ZPrime.multiply(R_0multi);
 
     log.info("signer hatZ: " + hatZ);
 
-    assertEquals(baseZ, hatZ.mod(modN));
+    assertEquals(baseZ, hatZ);
   }
 
   @Test
