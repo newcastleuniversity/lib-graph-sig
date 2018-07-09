@@ -15,19 +15,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jgrapht.Graph;
 
 /** The type Graph representation. */
 public class GraphRepresentation {
-  private static Logger gslog = GSLoggerConfiguration.getGSlog();
-  private static List<Integer> crossoutBaseIndex;
+  private final Logger gslog = GSLoggerConfiguration.getGSlog();
+
   private static Map<URN, BaseRepresentation> bases;
-  private static Map<URN, BaseRepresentation> encodedBases;
   private ExtendedPublicKey extendedPublicKey;
   private static GraphEncodingParameters encodingParameters;
-
+  private Map<URN, BaseRepresentation> encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
+  public GraphRepresentation() {
+    
+  }
   private GraphRepresentation(Map<URN, BaseRepresentation> bases) {
     this.bases = bases;
   }
@@ -40,12 +41,12 @@ public class GraphRepresentation {
    * @param extendedPublicKey the extended public key
    * @return the graph representation
    */
-  public static GraphRepresentation encode(
+  public  GraphRepresentation encode(
       GSGraph<GSVertex, GSEdge> gsGraph,
       GraphEncodingParameters graphEncodingParameters,
       ExtendedPublicKey extendedPublicKey) {
     Graph<GSVertex, GSEdge> graph;
-
+    List<Integer> crossoutBaseIndex;
     encodingParameters = graphEncodingParameters;
 
     graph = gsGraph.getGraph();
@@ -55,7 +56,7 @@ public class GraphRepresentation {
     bases = extendedPublicKey.getBases();
 
     crossoutBaseIndex = new ArrayList<Integer>();
-    encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
+
     encodeVertices(graph, bases);
 
     encodeEdges(graph, bases);
@@ -63,8 +64,7 @@ public class GraphRepresentation {
     return new GraphRepresentation(bases);
   }
 
-  private static void encodeEdges(
-      Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
+  private void encodeEdges(Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
     BigInteger labelRepresentative;
     GSVertex e_i;
     GSVertex e_j;
@@ -73,15 +73,15 @@ public class GraphRepresentation {
 
     for (GSEdge edge : edgeSet) {
       e_i = edge.getE_i();
-//      gslog.log(Level.INFO, "vertex e_i : " + e_i);
-//      gslog.log(Level.INFO, "vertex e_i id : " + e_i.getId());
+      //      gslog.log(Level.INFO, "vertex e_i : " + e_i);
+      //      gslog.log(Level.INFO, "vertex e_i id : " + e_i.getId());
 
       labelRepresentative = e_i.getLabelPrimeRepresentative();
-//      gslog.log(Level.INFO, "label representative: " + labelRepresentative);
+      //      gslog.log(Level.INFO, "label representative: " + labelRepresentative);
 
       e_j = edge.getE_j();
-//      gslog.log(Level.INFO, "vertex e_j: " + e_j);
-//      gslog.log(Level.INFO, "vertex e_i id: " + e_j.getId());
+      //      gslog.log(Level.INFO, "vertex e_j: " + e_j);
+      //      gslog.log(Level.INFO, "vertex e_i id: " + e_j.getId());
 
       exponentEncoding =
           encodeEdge(
@@ -89,12 +89,12 @@ public class GraphRepresentation {
               e_j.getVertexPrimeRepresentative(),
               labelRepresentative);
 
-//      gslog.log(Level.INFO, "edge exponentEncoding: " + exponentEncoding);
+      //      gslog.log(Level.INFO, "edge exponentEncoding: " + exponentEncoding);
 
       BaseRepresentation base = generateRandomBase();
       Assert.notNull(base, "cannot find base index");
 
-//      gslog.log(Level.INFO, "random base : " + base);
+      //      gslog.log(Level.INFO, "random base : " + base);
 
       base.setExponent(exponentEncoding);
 
@@ -102,27 +102,29 @@ public class GraphRepresentation {
     }
   }
 
-  private static void encodeVertices(
-      Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
+  private void encodeVertices(Graph<GSVertex, GSEdge> graph,
+      Map<URN, BaseRepresentation> bases) {
     BigInteger labelRepresentative;
     BigInteger vertexRepresentative;
     BigInteger exponentEncoding;
     Set<GSVertex> vertexSet = graph.vertexSet();
 
     for (GSVertex vertex : vertexSet) {
-//      gslog.log(Level.INFO, "vertex Id: " + vertex.getId());
-//      gslog.log(Level.INFO, "country: " + vertex.getCountry());
+      //      gslog.log(Level.INFO, "vertex Id: " + vertex.getId());
+      //      gslog.log(Level.INFO, "country: " + vertex.getCountry());
 
       labelRepresentative = vertex.getLabelPrimeRepresentative();
-//      gslog.log(Level.INFO, "label representative: " + labelRepresentative);
-      
+      //      gslog.log(Level.INFO, "label representative: " + labelRepresentative);
+
       vertexRepresentative = vertex.getVertexPrimeRepresentative();
-//      gslog.log(Level.INFO, "vertex prime representative: " + vertexRepresentative);
+      //      gslog.log(Level.INFO, "vertex prime representative: " + vertexRepresentative);
 
       exponentEncoding = encodeVertex(vertexRepresentative, labelRepresentative);
-//      gslog.log(Level.INFO, "exponentEncoding: " + exponentEncoding);
+      //      gslog.log(Level.INFO, "exponentEncoding: " + exponentEncoding);
 
-      BaseRepresentation base = generateRandomBase(); //bases.get(URN.createZkpgsURN("baseRepresentationMap.edge.R_i_" + vertex.getId()));//generateRandomBase();
+      BaseRepresentation base =
+          generateRandomBase(); // bases.get(URN.createZkpgsURN("baseRepresentationMap.edge.R_i_" +
+                                // vertex.getId()));//generateRandomBase();
       Assert.notNull(base, "cannot find base index");
 
       base.setExponent(exponentEncoding);
@@ -131,7 +133,7 @@ public class GraphRepresentation {
     }
   }
 
-  private static BaseRepresentation generateRandomBase() {
+  private BaseRepresentation generateRandomBase() {
     int randomBaseIndex =
         CryptoUtilsFacade.computeRandomNumber(BigInteger.ONE, BigInteger.valueOf(bases.size()))
             .intValue();

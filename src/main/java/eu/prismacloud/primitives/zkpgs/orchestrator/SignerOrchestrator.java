@@ -128,6 +128,7 @@ public class SignerOrchestrator {
 
   public void round2() throws Exception {
     //    gsGraph = signer.initGraph();
+    GraphRepresentation graphRepresentation = new GraphRepresentation();
 
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
 
@@ -140,10 +141,10 @@ public class SignerOrchestrator {
 
     graph = gsGraph.createGraph(SIGNER_GRAPH_FILE);
 
-    GraphRepresentation.encode(
+    graphRepresentation.encode(
         gsGraph, graphEncodingParameters, extendedKeyPair.getExtendedPublicKey());
 
-    this.encodedBases = GraphRepresentation.getEncodedBases();
+    this.encodedBases = graphRepresentation.getEncodedBases();
 
     // TODO needs to receive input message (U, P_1, n_2)
     // TODO value store needs to be populated (note this is on a different computer...)

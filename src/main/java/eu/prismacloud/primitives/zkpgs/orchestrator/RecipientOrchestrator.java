@@ -209,6 +209,7 @@ public class RecipientOrchestrator {
   }
 
   private void createGraphRepresentation() throws ImportException {
+    GraphRepresentation graphRepresentation = new GraphRepresentation();
     Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
     GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
@@ -220,7 +221,7 @@ public class RecipientOrchestrator {
     GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 
     if (gsGraph.getGraph().vertexSet().size() > 0) {
-      GraphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
+      graphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
       encodedBases = GraphRepresentation.getEncodedBases();
     }
 
