@@ -23,14 +23,19 @@ public class CommitmentProver implements IProver {
 
   public static final String RANDOMNESS_TILDEM_I =
       "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_";
+
   public static final String RANDOMNESS_TILDEM_I_J =
       "issuing.commitmentprover.witnesses.randomness.edge.tildem_i_j_";
+
   public static final String RANDOMNESS_TILDEM_0 =
       "issuing.commitmentprover.witnesses.randomness.vertex.tildem_0";
+
   public static final String RANDOMNESS_VERTEX_TILDER =
       "commitmentprover.witnesses.randomness.vertex.tilder_";
+
   public static final String POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM =
       "possessionprover.witnesses.randomness.tildem_";
+
   private Map<URN, BaseRepresentation> baseRepresentationMap;
   private ProofStore<Object> proofStore;
   private BaseRepresentation vertex;
@@ -41,14 +46,14 @@ public class CommitmentProver implements IProver {
   private GroupElement baseS;
   private BigInteger tilder_i;
   private GSCommitment witness;
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private final Logger gslog = GSLoggerConfiguration.getGSlog();
   private BigInteger cChallenge;
   private STAGE proofStage;
   private BigInteger tildevPrime;
   private BigInteger tildem_0;
   private BigInteger tildem_i;
   private BigInteger tildem_i_j;
-  private static Map<URN, BigInteger> responses = new LinkedHashMap<URN, BigInteger>();
+  private final Map<URN, BigInteger> responses = new LinkedHashMap<URN, BigInteger>();
   private BaseRepresentation baseRepresentationR_0;
 
   public enum STAGE {
@@ -56,9 +61,19 @@ public class CommitmentProver implements IProver {
     PROVING
   }
 
+  /**
+   * Pre challenge phase gs commitment.
+   *
+   * @param baseRepresentationMap the base representation map
+   * @param pStore the proof store
+   * @param extendedPublicKey the extended public key
+   * @param keyGenParameters the key generation parameters
+   * @param proofStage the proof stage
+   * @return the gs outputs a commitment
+   */
   public GSCommitment preChallengePhase(
       final Map<URN, BaseRepresentation> baseRepresentationMap,
-      ProofStore<Object> pStore,
+      final ProofStore<Object> pStore,
       final ExtendedPublicKey extendedPublicKey,
       final KeyGenParameters keyGenParameters,
       final STAGE proofStage) {
@@ -212,6 +227,12 @@ public class CommitmentProver implements IProver {
   @Override
   public void computeResponses() {}
 
+  /**
+   * Post challenge phase computes responses.
+   *
+   * @param cChallenge the common challenge c
+   * @return the map outputs responses
+   */
   public Map<URN, BigInteger> postChallengePhase(BigInteger cChallenge) {
     this.cChallenge = cChallenge;
 
@@ -260,8 +281,7 @@ public class CommitmentProver implements IProver {
         proofStore.store(hatm_iURN, base);
 
       } else if (base.getBaseType() == BASE.EDGE && base.getExponent() != null) {
-        tildem_i_j =
-            (BigInteger) proofStore.retrieve(RANDOMNESS_TILDEM_I_J + base.getBaseIndex());
+        tildem_i_j = (BigInteger) proofStore.retrieve(RANDOMNESS_TILDEM_I_J + base.getBaseIndex());
         BigInteger hatm_i_j = tildem_i_j.add(cChallenge.multiply(base.getExponent()));
         String hatm_i_jURN = "issuing.commitmentprover.responses.hatm_i_j_" + base.getBaseIndex();
         responses.put(URN.createZkpgsURN(hatm_i_jURN), hatm_i_j);
@@ -271,6 +291,11 @@ public class CommitmentProver implements IProver {
     }
   }
 
+  /**
+   * Compute responses proving.
+   *
+   * @throws Exception the exception
+   */
   public void computeResponsesProving() throws Exception {
     String tilder_iURN =
         "commitmentprover.witnesses.randomness.vertex.tilder_" + vertex.getBaseIndex();
@@ -289,7 +314,7 @@ public class CommitmentProver implements IProver {
   }
 
   /**
-   * Gets witness.
+   * Returns a witness.
    *
    * @return the witness
    */
