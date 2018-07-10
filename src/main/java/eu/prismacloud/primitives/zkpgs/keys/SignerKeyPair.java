@@ -8,12 +8,15 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
 /** Generates key pair for the Signer */
-public class SignerKeyPair {
+public class SignerKeyPair implements Serializable {
 
+  private static final long serialVersionUID = -5396481186679228018L;
+  
   private SignerPrivateKey privateKey;
   private SignerPublicKey publicKey;
   private KeyGenParameters keyGenParameters;
@@ -27,7 +30,7 @@ public class SignerKeyPair {
   private GroupElement R_0;
   private GroupElement Z;
   private Group cg;
-  private final Logger log = GSLoggerConfiguration.getGSlog();
+//  private final Logger log = GSLoggerConfiguration.getGSlog();
   private Group qrGroup;
 
   /**
@@ -48,6 +51,8 @@ public class SignerKeyPair {
     keyGenParameters = keyGenParams;
     specialRSAMod = CryptoUtilsFacade.computeSpecialRSAModulus(keyGenParameters);
 
+//    log.info("specialRSAmod: " + specialRSAMod);
+    
     qrGroup = new QRGroupPQ(specialRSAMod.getpPrime(), specialRSAMod.getqPrime());
     S = qrGroup.createGenerator();
 

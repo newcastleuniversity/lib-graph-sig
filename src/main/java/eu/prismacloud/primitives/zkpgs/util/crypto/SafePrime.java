@@ -2,12 +2,14 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
 /** Wrapper for generating safe primes */
-public class SafePrime {
+public class SafePrime implements Serializable {
 
+  private static final long serialVersionUID = 3099828170257665401L;
   private BigInteger a;
   private SafePrime safePrime;
   private BigInteger aPrime;

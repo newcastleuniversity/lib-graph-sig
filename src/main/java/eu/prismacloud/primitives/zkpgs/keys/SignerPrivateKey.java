@@ -1,8 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class SignerPrivateKey {
+public class SignerPrivateKey implements Serializable {
+  private static final long serialVersionUID = -9134821806862114638L;
   private final BigInteger p;
   private BigInteger bigInteger;
   /** Safe prime <tt>q = 2*q' + 1</tt>. */

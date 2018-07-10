@@ -1,10 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 
 /** Group Element class */
-public abstract class GroupElement {
+public abstract class GroupElement implements Serializable {
+  private static final long serialVersionUID = 3297036609477587811L;
 
   public abstract Group getGroup();
   

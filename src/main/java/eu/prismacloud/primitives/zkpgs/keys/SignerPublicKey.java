@@ -2,10 +2,12 @@ package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class SignerPublicKey {
+public class SignerPublicKey implements Serializable {
 
+  private static final long serialVersionUID = 7953446087582080777L;
   private SignerPrivateKey privateKey;
   private final KeyGenParameters keyGenParameters;
   private BigInteger modN;

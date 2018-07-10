@@ -1,9 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /** High-level abstraction of a number-theoretic group. */
-public abstract class Group {
+public abstract class Group implements Serializable {
+
+	private static final long serialVersionUID = 7933357117240792496L;
 
 	/**
 	 * Returns the group order, if it is known or efficiently computable.

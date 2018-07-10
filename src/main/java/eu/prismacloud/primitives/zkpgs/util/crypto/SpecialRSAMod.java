@@ -1,10 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /** Special RSA Modulus class */
-public class SpecialRSAMod {
-
+public class SpecialRSAMod implements Serializable {
+  private static final long serialVersionUID = -8028993096815931923L;
   private final BigInteger modN;
   private BigInteger p;
   private BigInteger q;
