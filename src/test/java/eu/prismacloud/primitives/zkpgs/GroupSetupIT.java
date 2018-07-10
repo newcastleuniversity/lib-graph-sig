@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.zkpgs.orchestrator;
+package eu.prismacloud.primitives.zkpgs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
