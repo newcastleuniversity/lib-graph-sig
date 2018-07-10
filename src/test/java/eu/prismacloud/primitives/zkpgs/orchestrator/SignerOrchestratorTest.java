@@ -86,6 +86,7 @@ class SignerOrchestratorTest {
 
   @Test
   void round0() throws Exception {
+    testCreateSignerOrchestrator();
     signerOrchestrator.round0();
 
     recipientOrchestrator.round1();
