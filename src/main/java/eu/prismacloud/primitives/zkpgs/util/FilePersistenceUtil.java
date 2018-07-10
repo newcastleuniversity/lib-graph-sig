@@ -21,7 +21,6 @@ public class FilePersistenceUtil {
     FileOutputStream fileOutputStream = new FileOutputStream(fileName);
     try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
       objectOutputStream.writeObject(serialized);
-      // closing resources
       objectOutputStream.close();
     }
     fileOutputStream.close();
@@ -33,7 +32,6 @@ public class FilePersistenceUtil {
     Object object;
     try (ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
       object = objectInputStream.readObject();
-
       objectInputStream.close();
     }
 
