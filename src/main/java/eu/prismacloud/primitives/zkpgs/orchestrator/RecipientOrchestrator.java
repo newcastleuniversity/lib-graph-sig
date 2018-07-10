@@ -32,6 +32,7 @@ import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -159,7 +160,7 @@ public class RecipientOrchestrator {
     contextList =
         GSContext.computeChallengeContext(
             extendedPublicKey, keyGenParameters, graphEncodingParameters);
-
+    challengeList = new ArrayList<>();
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS.getValue()));
     challengeList.add(String.valueOf(baseZ.getValue()));
