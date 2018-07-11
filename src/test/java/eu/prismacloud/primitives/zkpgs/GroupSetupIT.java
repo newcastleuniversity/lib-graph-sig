@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,30 +37,16 @@ public class GroupSetupIT {
   private GroupSetupProver groupSetupProver;
   private ProofStore<Object> proofStore;
 
-  @BeforeEach
-  void setUp()
-      throws NoSuchAlgorithmException, ProofStoreException, IOException, ClassNotFoundException {
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    graphEncodingParameters = parameters.getGraphEncodingParameters();
-  }
-
-  @ParameterizedTest(name = "{index} => bitLength=''{0}''")
-  @ValueSource(strings = {"2048"})
-  void shouldCreateASignerKeyPair(String bitLength) throws IOException, ClassNotFoundException {
-
-    if (bitLength.equals("2048")) {
-      FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
-      gsk = (SignerKeyPair) persistenceUtil.read("SignerKeyPair-" + bitLength + ".ser");
-    } else {
-      gsk.keyGen(keyGenParameters);
-    }
-
-    assertNotNull(gsk);
-    assertNotNull(gsk.getPrivateKey());
-    assertNotNull(gsk.getPublicKey());
-  }
-
+  @BeforeAll
+   void setupKey() throws IOException, ClassNotFoundException {
+     BaseTest baseTest = new BaseTest();
+     baseTest.setup();
+     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+     gsk = baseTest.getSignerKeyPair();
+     graphEncodingParameters = baseTest.getGraphEncodingParameters();
+     keyGenParameters = baseTest.getKeyGenParameters();
+   }
+   
   private int computeBitLength() {
     return keyGenParameters.getL_n()
         + keyGenParameters.getL_statzk()
@@ -68,20 +55,14 @@ public class GroupSetupIT {
   }
 
   @Test
-  void testExtendedKeyPair() throws IOException, ClassNotFoundException {
-    shouldCreateASignerKeyPair("2048");
-
+  void testGroupSetup()
+      throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException {
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPublicKey());
-  }
 
-  @Test
-  void testGroupSetup()
-      throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException {
-    testExtendedKeyPair();
     testGroupSetupProver();
 
     ProofSignature proofSignature = groupSetupProver.outputProofSignature();
@@ -174,8 +155,8 @@ public class GroupSetupIT {
 
     int bitLength = computeBitLength();
 
-    assertEquals(bitLength, hatr_Z.bitLength()+1);
-    assertEquals(bitLength, hatr.bitLength()+1);
-    assertEquals(bitLength, hatr_0.bitLength()+1);
+    assertEquals(bitLength, hatr_Z.bitLength() + 1);
+    assertEquals(bitLength, hatr.bitLength() + 1);
+    assertEquals(bitLength, hatr_0.bitLength() + 1);
   }
 }

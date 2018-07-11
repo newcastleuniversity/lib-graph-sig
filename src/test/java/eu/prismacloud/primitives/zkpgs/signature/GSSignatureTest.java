@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.signature;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -23,13 +24,17 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /** */
+@TestInstance(Lifecycle.PER_CLASS)
 class GSSignatureTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
@@ -60,6 +65,19 @@ class GSSignatureTest {
   private GroupElement R_0multi;
   private GroupElement Sv1;
   private GSSignature gsSignature;
+  private SignerKeyPair signerKeyPair;
+
+
+  @BeforeAll
+  void setupKey() throws IOException, ClassNotFoundException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    signerKeyPair = baseTest.getSignerKeyPair();
+    publicKey = signerKeyPair.getPublicKey();
+    privateKey = signerKeyPair.getPrivateKey();
+  }
+
 
   @BeforeEach
   void setUp()
@@ -69,29 +87,11 @@ class GSSignatureTest {
     graphEncodingParameters = parameters.getGraphEncodingParameters();
   }
 
-  @ParameterizedTest(name = "{index} => bitLength=''{0}''")
-  @ValueSource(strings = {"2048"})
-  void shouldCreateASignerKeyPair(String bitLength) throws IOException, ClassNotFoundException {
-
-    if (bitLength.equals("2048")) {
-      FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
-      gsk = (SignerKeyPair) persistenceUtil.read("SignerKeyPair-" + bitLength + ".ser");
-    } else {
-      gsk.keyGen(keyGenParameters);
-    }
-
-    privateKey = gsk.getPrivateKey();
-    publicKey = gsk.getPublicKey();
-
-    assertNotNull(gsk);
-    assertNotNull(gsk.getPrivateKey());
-    assertNotNull(gsk.getPublicKey());
-  }
+  
 
   @Test
   @RepeatedTest(10)
   void testGRSignatureRandom() throws IOException, ClassNotFoundException {
-    shouldCreateASignerKeyPair("2048");
     // TODO Ioannis: The computations should be done by QRElement in the actual implementation.
     // Not on externalized BigIntegers.
 
