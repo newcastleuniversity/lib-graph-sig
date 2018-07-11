@@ -1,9 +1,9 @@
 {
   "keyGenParameters": {
-    "l_n": 512,
+    "l_n": 2048,
     "l_gamma": 1632,
     "l_rho": 256,
-    "l_m": 128,
+    "l_m": 256,
     "l_res": 1,
     "l_e": 597,
     "l_prime_e": 120,
