@@ -2,29 +2,26 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
+@TestInstance(Lifecycle.PER_CLASS)
 class SignerOrchestratorTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
@@ -40,34 +37,18 @@ class SignerOrchestratorTest {
   private SignerPublicKey publicKey;
   private SignerPrivateKey privateKey;
 
-  @BeforeEach
-  void setUp()
-      throws NoSuchAlgorithmException, ProofStoreException, IOException, ClassNotFoundException {
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    graphEncodingParameters = parameters.getGraphEncodingParameters();
-
-    SignerKeyPair gsk = new SignerKeyPair();
-
-    if (bitLength.equals("2048")) {
-      FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
-      gsk = (SignerKeyPair) persistenceUtil.read("SignerKeyPair-" + bitLength + ".ser");
-    } else {
-      gsk.keyGen(keyGenParameters);
-    }
-
-    privateKey = gsk.getPrivateKey();
-    publicKey = gsk.getPublicKey();
-
-    assertNotNull(gsk);
-    assertNotNull(gsk.getPrivateKey());
-    assertNotNull(gsk.getPublicKey());
-
+  @BeforeAll
+  void setupKey() throws IOException, ClassNotFoundException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    gsk = baseTest.getSignerKeyPair();
+    graphEncodingParameters = baseTest.getGraphEncodingParameters();
+    keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
-    assertNotNull(extendedKeyPair.getExtendedPublicKey());
   }
 
   @Test
@@ -83,24 +64,24 @@ class SignerOrchestratorTest {
     assertNotNull(recipientOrchestrator);
   }
 
-
   @Test
   void round0() throws Exception {
-    testCreateSignerOrchestrator();
     signerOrchestrator.round0();
 
-    recipientOrchestrator.round1();
-
-    signerOrchestrator.round2();
-
-    recipientOrchestrator.round3();
+//    recipientOrchestrator.round1();
+//
+//    signerOrchestrator.round2();
+//
+//    recipientOrchestrator.round3();
 
     //    recipientOrchestrator.round3();
 
   }
 
   @Test
-  void round2() {}
+  void round2() throws Exception {
+    signerOrchestrator.round2();
+  }
 
   @Test
   void computeChallenge() {}
