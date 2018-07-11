@@ -292,6 +292,16 @@ public class GSUtils implements INumberUtils {
   /**
    * Algorithm <tt>alg:gen_numb_fact</tt> - topocert-doc Generate random number in factored form.
    *
+   * This algorithm takes an integer threshold m as input.
+   * This algorithm is guaranteed to output a set uniformly at random chosen prime factors,
+   * whose product will be a uniformly-chosen random number greater than the threshold m.
+   * 
+   * The algorithm will output a list of the prime factors of the computed random number.
+   *
+   * Note that the algorithm will call repeatedly to BigInteger.isProbablePrime() tests
+   * with the certainty level specified for the entire library.
+   * That means that this method will be computationally intensive.
+   *
    * @param m integer number \(m \geq 2 \)
    * @return prime number factorization \(p_1, \ldots, p_r \)
    */
@@ -332,6 +342,15 @@ public class GSUtils implements INumberUtils {
   /**
    * Algorithm <tt>alg:gen_prime_numb_fact</tt> - topocert-doc Generate random prime number along
    * with its factorization.
+   * 
+   * This algorithm takes as input an integer threshold m.
+   * It will create a uniformly chosen random prime number (probablePrime) and 
+   * output the list of its prime factors.
+   * 
+   * This method calls the generateRandomNumberWithFactors() method repeatedly, 
+   * testing the respective outputs for primeness. While generateRandomNumberWithFactors()
+   * is already computationally intensive, this method is further impacted by repeated
+   * primeness tests.
    *
    * @param m integer number \( m \geq 2 \)
    * @return prime number factorization \(p_1, \ldots, p_r \) of a prime number
