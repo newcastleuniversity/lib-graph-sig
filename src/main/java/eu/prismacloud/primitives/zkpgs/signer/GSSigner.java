@@ -34,17 +34,7 @@ public class GSSigner { // implements ISigner {
     this.messageGateway = new MessageGatewayProxy();
   }
 
-  /**
-   * Gets signer graph.
-   *
-   * @return the signer graph
-   */
-  public GSGraph<GSVertex, GSEdge> getSignerGraph() {
-    return signerGraph;
-  }
 
-  /** encodeGraph */
-  public void encodeGraph() {}
 
   /**
    * Init graph gs graph.

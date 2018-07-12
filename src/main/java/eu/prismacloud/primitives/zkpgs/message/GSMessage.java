@@ -32,8 +32,7 @@ public class GSMessage<T> implements IMessage {
     return this.messageElements;
   }
 
-  @Override
-  public void addCommitment(ICommitment recipientCommitment) {}
+  public void addCommitment(GSCommitment recipientCommitment) {}
 
   public GSMessage receive(GSMessage msg) {
     return msg;
