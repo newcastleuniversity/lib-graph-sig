@@ -56,23 +56,20 @@ class SignerOrchestratorTest {
     signerOrchestrator =
         new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
 
-    recipientOrchestrator =
-        new RecipientOrchestrator(
-            extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
-
     assertNotNull(signerOrchestrator);
-    assertNotNull(recipientOrchestrator);
   }
 
   @Test
   void round0() throws Exception {
+    signerOrchestrator =
+        new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
     signerOrchestrator.round0();
 
-//    recipientOrchestrator.round1();
-//
-//    signerOrchestrator.round2();
-//
-//    recipientOrchestrator.round3();
+    //    recipientOrchestrator.round1();
+    //
+    //    signerOrchestrator.round2();
+    //
+    //    recipientOrchestrator.round3();
 
     //    recipientOrchestrator.round3();
 

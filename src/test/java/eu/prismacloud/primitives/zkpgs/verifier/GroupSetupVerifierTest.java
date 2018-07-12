@@ -2,25 +2,30 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** Test group setup verifier */
+@TestInstance(Lifecycle.PER_CLASS)
 class GroupSetupVerifierTest {
 
   private KeyGenParameters keyGenParameters;
@@ -39,22 +44,22 @@ class GroupSetupVerifierTest {
   private GroupSetupVerifier groupSetupVerifier;
   private ProofSignature proofSignature;
 
-  @BeforeEach
-  void setUp() throws NoSuchAlgorithmException, ProofStoreException {
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    graphEncodingParameters = parameters.getGraphEncodingParameters();
-    log.info("@Test: key generation");
-    SignerKeyPair gsk = new SignerKeyPair();
-    gsk.keyGen(keyGenParameters);
-    assertNotNull(gsk);
-    assertNotNull(gsk.getPrivateKey());
-    assertNotNull(gsk.getPublicKey());
+  @BeforeAll
+  void setupKey() throws IOException, ClassNotFoundException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    gsk = baseTest.getSignerKeyPair();
+    graphEncodingParameters = baseTest.getGraphEncodingParameters();
+    keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
-    assertNotNull(extendedKeyPair.getExtendedPublicKey());
+  }
+
+  @BeforeEach
+  void setUp() throws NoSuchAlgorithmException, ProofStoreException {
 
     groupSetupProver = new GroupSetupProver();
     proofStore = new ProofStore<Object>();
@@ -160,44 +165,41 @@ class GroupSetupVerifierTest {
     groupSetupVerifier.checkLengths();
 
     groupSetupVerifier.computeHatValues();
-
   }
 
   @Test
   void computeVerificationChallenge() throws NoSuchAlgorithmException {
 
     groupSetupVerifier.preChallengePhase(
-           extendedKeyPair.getExtendedPublicKey(),
-           proofSignature,
-           proofStore,
-           keyGenParameters,
-           graphEncodingParameters);
+        extendedKeyPair.getExtendedPublicKey(),
+        proofSignature,
+        proofStore,
+        keyGenParameters,
+        graphEncodingParameters);
 
-       groupSetupVerifier.checkLengths();
+    groupSetupVerifier.checkLengths();
 
-       groupSetupVerifier.computeHatValues();
+    groupSetupVerifier.computeHatValues();
 
-       groupSetupVerifier.computeVerificationChallenge();
-
+    groupSetupVerifier.computeVerificationChallenge();
   }
 
   @Test
   void verifyChallenge() throws NoSuchAlgorithmException {
 
     groupSetupVerifier.preChallengePhase(
-           extendedKeyPair.getExtendedPublicKey(),
-           proofSignature,
-           proofStore,
-           keyGenParameters,
-           graphEncodingParameters);
+        extendedKeyPair.getExtendedPublicKey(),
+        proofSignature,
+        proofStore,
+        keyGenParameters,
+        graphEncodingParameters);
 
-       groupSetupVerifier.checkLengths();
+    groupSetupVerifier.checkLengths();
 
-       groupSetupVerifier.computeHatValues();
+    groupSetupVerifier.computeHatValues();
 
-       groupSetupVerifier.computeVerificationChallenge();
+    groupSetupVerifier.computeVerificationChallenge();
 
-       groupSetupVerifier.verifyChallenge();
-
+    groupSetupVerifier.verifyChallenge();
   }
 }
