@@ -1,41 +1,77 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class SignerPublicKeyTest {
-  private static final Logger log = Logger.getLogger(SignerPublicKeyTest.class.getName());
-  private SignerKeyPair gsk;
+  private Logger log = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
+  private SignerKeyPair signerKeyPair;
+  private SignerPublicKey signerPublicKey;
+  private QRGroupPQ qrGroup;
 
-  @BeforeEach
-  void setUp() {
-    // classUnderTest = new GSSignerKeyPair();
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    SignerKeyPair gsk = new SignerKeyPair();
-    gsk.keyGen(keyGenParameters);
-    assertNotNull(gsk);
+  @BeforeAll
+  void setupKey() throws IOException, ClassNotFoundException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    signerKeyPair = baseTest.getSignerKeyPair();
+    keyGenParameters = baseTest.getKeyGenParameters();
+    signerPublicKey = signerKeyPair.getPublicKey();
+    qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
   }
 
-  @AfterEach
-  void tearDown() {}
+  @Test
+  void getN() {
+    BigInteger modN = signerPublicKey.getModN();
+    assertNotNull(modN);
+  }
 
   @Test
-  void getN() {}
+  void getR_0() {
+    GroupElement baseR_0 = signerPublicKey.getBaseR_0();
+    assertNotNull(baseR_0);
+    assertTrue(qrGroup.isElement(baseR_0.getValue()));
+  }
 
   @Test
-  void getR_0() {}
+  void getR() {
+    GroupElement baseR = signerPublicKey.getBaseR();
+    assertNotNull(baseR);
+    assertTrue(qrGroup.isElement(baseR.getValue()));
+  }
 
   @Test
-  void getS() {}
+  void getS() {
+    GroupElement baseS = signerPublicKey.getBaseS();
+    assertNotNull(baseS);
+    assertTrue(
+        qrGroup.verifySGenerator(
+            baseS.getValue(),
+            signerKeyPair.getPrivateKey().getpPrime(),
+            signerKeyPair.getPrivateKey().getqPrime()));
+    assertTrue(qrGroup.isElement(baseS.getValue()));
+  }
 
   @Test
-  void getZ() {}
+  void getZ() {
+    GroupElement baseZ = signerPublicKey.getBaseZ();
+    assertNotNull(baseZ);
+
+    assertTrue(qrGroup.isElement(baseZ.getValue()));
+  }
 }

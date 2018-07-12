@@ -2,34 +2,37 @@ package eu.prismacloud.primitives.zkpgs.keys;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import java.io.IOException;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class ExtendedKeyPairTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
   private SignerKeyPair gsk;
   private ExtendedKeyPair extendedKeyPair;
+  @BeforeAll
+    void setupKey() throws IOException, ClassNotFoundException {
+      BaseTest baseTest = new BaseTest();
+      baseTest.setup();
+      baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+      gsk = baseTest.getSignerKeyPair();
+      graphEncodingParameters = baseTest.getGraphEncodingParameters();
+      keyGenParameters = baseTest.getKeyGenParameters();
+     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
 
-  @BeforeEach
-  void setUp() {
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    graphEncodingParameters = parameters.getGraphEncodingParameters();
-    log.info("@Test: key generation");
-    SignerKeyPair gsk = new SignerKeyPair();
-    gsk.keyGen(keyGenParameters);
-    assertNotNull(gsk);
-    assertNotNull(gsk.getPrivateKey());
-    assertNotNull(gsk.getPublicKey());
-    extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
-  }
+    }
 
   @Test
   void getExtendedPublicKey() {
