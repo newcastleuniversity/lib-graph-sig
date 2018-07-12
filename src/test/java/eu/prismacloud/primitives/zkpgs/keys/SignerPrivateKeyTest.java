@@ -51,9 +51,6 @@ class SignerPrivateKeyTest {
     qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
   }
 
-  @BeforeEach
-  void setUp() {}
-
   @Test
   void getpPrime() {
     BigInteger pPrime = privateKey.getpPrime();
