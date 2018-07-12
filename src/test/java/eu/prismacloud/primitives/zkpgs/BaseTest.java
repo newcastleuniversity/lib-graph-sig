@@ -16,8 +16,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /** Base test class for using persisted SignerKeyPair */
+@TestInstance(Lifecycle.PER_CLASS)
 public class BaseTest {
+  /** flag to execute performance intensive tests */
+  public static final Boolean EXECUTE_INTENSIVE_TESTS = false;
   public static final String MODULUS_BIT_LENGTH = "2048";
+  
   private KeyGenParameters keyGenParameters;
   private SignerKeyPair gsk;
 
