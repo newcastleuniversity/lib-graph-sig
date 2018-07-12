@@ -27,6 +27,8 @@ class SignerKeyPairTest {
     JSONParameters parameters = new JSONParameters();
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
+    gsk = new SignerKeyPair();
+    gsk.keyGen(keyGenParameters);
   }
 
   @Test

@@ -137,21 +137,27 @@ public class GroupSetupVerifier implements IVerifier {
   /** Compute hat values. */
   //  @Override
   public void computeHatValues() {
-    BigInteger vertexBase;
-    BigInteger edgeBase;
+    GroupElement vertexBase;
+    GroupElement edgeBase;
     BigInteger hatVertexResponse;
     BigInteger hatEdgeResponse;
     GroupElement hatR_i;
-    BigInteger hatR_j;
-    BigInteger checkHatZ =
-        baseZ.getValue().modPow(c.negate(), modN).multiply(baseS.getValue().modPow(hatr_z, modN));
+    GroupElement hatR_j;
+   
     hatVertexBases = new HashMap<URN, GroupElement>();
     hatEdgeBases = new HashMap<URN, GroupElement>();
+    
+    // Compute the negation of the challenge once.
+    BigInteger negChallenge = c.negate();
+    
+//    GroupElement checkHatZ =
+//            baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
+//    // What is checkHatZ used for?
 
     /** TODO check computation if it is computed correctly according to spec. */
-    hatZ = baseZ.modPow(c.negate()).multiply(baseS.modPow(hatr_z));
-    hatR = baseR.modPow(c.negate()).multiply(baseS.modPow(hatr));
-    hatR_0 = baseR_0.modPow(c.negate()).multiply(baseS.modPow(hatr_0));
+    hatZ = baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
+    hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
+    hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
 
     BaseRepresentation baseR;
     for (Entry<URN, BaseRepresentation> baseRepresentation :
@@ -166,7 +172,7 @@ public class GroupSetupVerifier implements IVerifier {
         hatR_i =
             baseR
                 .getBase()
-                .modPow(c.negate())
+                .modPow(negChallenge)
                 .multiply(baseS.modPow(hatVertexResponse));
 
         hatVertexBases.put(
@@ -178,7 +184,7 @@ public class GroupSetupVerifier implements IVerifier {
             edgeResponses.get(
                 URN.createZkpgsURN("groupsetupprover.responses.hatr_i_j_" + baseR.getBaseIndex()));
         hatR_i_j =
-            baseR.getBase().modPow(c.negate()).multiply(baseS.modPow(hatEdgeResponse));
+            baseR.getBase().modPow(negChallenge).multiply(baseS.modPow(hatEdgeResponse));
         hatEdgeBases.put(
             URN.createZkpgsURN("groupsetupverifier.edge.hatR_i_j_" + baseR.getBaseIndex()),
             hatR_i_j);
