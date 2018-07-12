@@ -8,7 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
@@ -21,27 +23,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Test GSUtils class */
-@ExtendWith(MockitoExtension.class)
 class GSUtilsTest {
 
   private static final Logger log = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
   private GSUtils classUnderTest;
 
-  @Mock private SpecialRSAMod specialRSAModMock;
+  private SpecialRSAMod specialRSAModMock;
 
-  @Mock private GSUtils gsUtilsMock;
+  private GSUtils gsUtilsMock;
 
   @BeforeEach
   void setUp() {
@@ -50,14 +47,11 @@ class GSUtilsTest {
     classUnderTest = new GSUtils();
   }
 
-  @AfterEach
-  void tearDown() {
-    classUnderTest = null;
-  }
-
   @Test
   @DisplayName("Test generate Special RSA modulus")
   void generateSpecialRSAModulus() {
+    assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
+
     log.info("@Test: generateSpecialRSAModulus");
     SpecialRSAMod srm = classUnderTest.generateSpecialRSAModulus();
     assertNotNull(srm);
@@ -67,6 +61,8 @@ class GSUtilsTest {
   @Test
   @DisplayName("Test generate Special RSA modulus for uniqueness")
   void generateUniqueSpecialRSAModulus() {
+    assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
+
     log.info("@Test: generateSpecialRSAModulus");
     int arraySize = 10;
     SpecialRSAMod[] srmArray = new SpecialRSAMod[arraySize];
@@ -171,6 +167,8 @@ class GSUtilsTest {
   @Test
   @DisplayName("Test generate random number in range uniqueness")
   void createRandomNumberUnique() {
+
+    assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
     log.info("@Test: createRandomNumber ");
     int arraySize = 100;
     BigInteger[] rndArray = new BigInteger[arraySize];
@@ -227,44 +225,42 @@ class GSUtilsTest {
     }
   }
 
-  @Test
-  @DisplayName("Test if an integer a is an element of QRN")
-  void elementOfQRN() {
+//  @Test
+//  @DisplayName("Test if an integer a is an element of QRN")
+//  void elementOfQRN() {
+//
+//    BigInteger qrn = BigInteger.valueOf(15);
+//    BigInteger modN = BigInteger.valueOf(77);
+//
+//    Boolean isQRN = classUnderTest.elementOfQRN(qrn, modN);
+//
+//    log.info("element of qrn: " + isQRN);
+//
+//    assertTrue(isQRN);
+//
+//    qrn = BigInteger.valueOf(14);
+//    modN = BigInteger.valueOf(77);
+//
+//    isQRN = classUnderTest.elementOfQRN(qrn, modN);
+//
+//    log.info("element of qrn: " + isQRN);
+//
+//    Assert.assertThat(isQRN, is(true));
+//  }
 
-    BigInteger qrn = BigInteger.valueOf(15);
-    BigInteger modN = BigInteger.valueOf(77);
-
-    Boolean isQRN = classUnderTest.elementOfQRN(qrn, modN);
-
-    log.info("element of qrn: " + isQRN);
-
-    assertTrue(isQRN);
-
-    qrn = BigInteger.valueOf(14);
-    modN = BigInteger.valueOf(77);
-
-    isQRN = classUnderTest.elementOfQRN(qrn, modN);
-
-    log.info("element of qrn: " + isQRN);
-
-    assertFalse(isQRN);
-  }
-
-  @Test
-  @DisplayName("Test if S is a generator of QRN")
-  void verifySGeneratorOfQRN() {
-    SpecialRSAMod specialRSAMod = classUnderTest.generateSpecialRSAModulus();
-    log.info("specialrsa mod : " + specialRSAMod.getN());
-
-    BigInteger generatorS = BigInteger.valueOf(60);
-    BigInteger modN = BigInteger.valueOf(77);
-
-    Boolean isGenerator = classUnderTest.verifySGeneratorOfQRN(generatorS, modN);
-
-    log.info("is generator of QRN " + isGenerator);
-
-    assertTrue(isGenerator);
-  }
+//  @Test
+//  @DisplayName("Test if S is a generator of QRN")
+//  void verifySGeneratorOfQRN() {
+//
+//    BigInteger generatorS = BigInteger.valueOf(60);
+//    BigInteger modN = BigInteger.valueOf(77);
+//
+//    Boolean isGenerator = classUnderTest.verifySGeneratorOfQRN(generatorS, modN);
+//
+//    log.info("is generator of QRN " + isGenerator);
+//
+//    assertTrue(isGenerator);
+//  }
 
   @Test
   @DisplayName("generate random number with factors")
@@ -278,11 +274,17 @@ class GSUtilsTest {
 
     ArrayList<BigInteger> factors;
 
-    //        factors = classUnderTest.generateRandomNumberWithFactors(BigInteger.valueOf(10109));
-    factors =
-        classUnderTest.generateRandomPrimeWithFactors(
-            new BigInteger(
-                keyGenParameters.getL_gamma(), keyGenParameters.getL_pt(), new SecureRandom()));
+    if (BaseTest.EXECUTE_INTENSIVE_TESTS) {
+      factors =
+          classUnderTest.generateRandomPrimeWithFactors(
+              new BigInteger(
+                  keyGenParameters.getL_gamma(), keyGenParameters.getL_pt(), new SecureRandom()));
+    } else {
+      factors =
+          classUnderTest.generateRandomNumberWithFactors(
+              new BigInteger(512, keyGenParameters.getL_pt(), new SecureRandom()));
+    }
+
     log.info("@Test: rnd length: " + factors.size());
 
     for (int i = 0; i < factors.size(); i++) {
@@ -294,13 +296,14 @@ class GSUtilsTest {
 
     log.info("@Test: m: " + m);
 
-    log.info("@Test: m+1: " + m.add(BigInteger.ONE));
-    log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
+//    log.info("@Test: m+1: " + m.add(BigInteger.ONE));
+//    log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
   }
 
   // TODO The random prime with factors test does not seem to terminate.
+  // TODO smaller version to test case with 512
   @Test
-  @DisplayName("generate Prime number with factors")
+  @DisplayName("generate random Prime number with factors")
   void generateRandomPrimeWithFactors() {
 
     BigInteger m;
@@ -309,10 +312,16 @@ class GSUtilsTest {
 
     ArrayList<BigInteger> factors;
 
-    factors =
-        classUnderTest.generateRandomPrimeWithFactors(
-            new BigInteger(
-                keyGenParameters.getL_gamma(), keyGenParameters.getL_pt(), new SecureRandom()));
+    if (BaseTest.EXECUTE_INTENSIVE_TESTS) {
+      factors =
+          classUnderTest.generateRandomPrimeWithFactors(
+              new BigInteger(
+                  keyGenParameters.getL_gamma(), keyGenParameters.getL_pt(), new SecureRandom()));
+    } else {
+      factors =
+          classUnderTest.generateRandomPrimeWithFactors(
+              new BigInteger(512, keyGenParameters.getL_pt(), new SecureRandom()));
+    }
 
     log.info("@Test: rnd length: " + factors.size());
 
@@ -324,10 +333,10 @@ class GSUtilsTest {
     }
 
     log.info("@Test: m: " + m);
-
+    m = m.add(BigInteger.ONE);
     log.info("@Test: m+1: " + m.add(BigInteger.ONE));
     log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
-    Boolean isPrime = m.add(BigInteger.ONE).isProbablePrime(80);
+    Boolean isPrime = m.isProbablePrime(80);
     assertTrue(isPrime);
   }
 
@@ -483,6 +492,7 @@ class GSUtilsTest {
 
     assertTrue(res);
   }
+
   @Test
   @DisplayName("Test creating an element of ZNS with full bitlength")
   void createElementOfZNSWithFullBitlength() {
@@ -494,36 +504,36 @@ class GSUtilsTest {
 
     assertTrue(res);
   }
-//  @Test
-//  @DisplayName("Test creating a QRN generator")
-//  //  @RepeatedTest(
-//  //      value = 10,
-//  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
-//  void createQRNGenerator() {
-//    BigInteger modN = BigInteger.valueOf(77);
-//    QRElement element = classUnderTest.createQRNGenerator(modN);
-//
-//    log.info("qrn generator: " + element);
-//    assertNotNull(element);
-//
-//    assertTrue(classUnderTest.verifySGeneratorOfQRN(element.getValue(), modN));
-//  }
-//
-//  @Test
-//  @DisplayName("Test creating a QRN element")
-//  //  @RepeatedTest(
-//  //      value = 10,
-//  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
-//  void createQRNElement() {
-//    BigInteger modN = BigInteger.valueOf(77);
-//
-//    QRElement element = classUnderTest.createQRNElement(modN);
-//
-//    log.info("qrn element: " + element);
-//    assertNotNull(element);
-//
-//    assertTrue(classUnderTest.elementOfQRN(element.getValue(), modN));
-//  }
+  //  @Test
+  //  @DisplayName("Test creating a QRN generator")
+  //  //  @RepeatedTest(
+  //  //      value = 10,
+  //  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
+  //  void createQRNGenerator() {
+  //    BigInteger modN = BigInteger.valueOf(77);
+  //    QRElement element = classUnderTest.createQRNGenerator(modN);
+  //
+  //    log.info("qrn generator: " + element);
+  //    assertNotNull(element);
+  //
+  //    assertTrue(classUnderTest.verifySGeneratorOfQRN(element.getValue(), modN));
+  //  }
+  //
+  //  @Test
+  //  @DisplayName("Test creating a QRN element")
+  //  //  @RepeatedTest(
+  //  //      value = 10,
+  //  //      name = "{displayName} - repetition {currentRepetition} of {totalRepetitions}")
+  //  void createQRNElement() {
+  //    BigInteger modN = BigInteger.valueOf(77);
+  //
+  //    QRElement element = classUnderTest.createQRNElement(modN);
+  //
+  //    log.info("qrn element: " + element);
+  //    assertNotNull(element);
+  //
+  //    assertTrue(classUnderTest.elementOfQRN(element.getValue(), modN));
+  //  }
 
   @Test
   //  @RepeatedTest(5)
@@ -551,8 +561,13 @@ class GSUtilsTest {
   void multiBaseExpMap() {}
 
   @Test
-  @RepeatedTest(10)
+//  @RepeatedTest(10)
   void generateRandomSafePrime() {
+    if (!BaseTest.EXECUTE_INTENSIVE_TESTS) {
+      // test generating a random safe prime with 512 modulus bitlength
+      keyGenParameters = KeyGenParameters.createKeyGenParameters(512, 0, 0, 0, 0, 0, 0 ,0, 0,0,0,0);
+    }
+    
     SafePrime prime = classUnderTest.generateRandomSafePrime(keyGenParameters);
     log.info("prime bitlength: " + prime.getSafePrime().bitLength());
     assertEquals(keyGenParameters.getL_n() / 2, prime.getSafePrime().bitLength());
@@ -563,7 +578,7 @@ class GSUtilsTest {
   void isPrime() {}
 
   @Test
-  @RepeatedTest(10)
+//  @RepeatedTest(10)
   void generateRandomPrime() {
 
     BigInteger prime = classUnderTest.generateRandomPrime(128);
