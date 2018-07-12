@@ -8,18 +8,17 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
-import eu.prismacloud.primitives.zkpgs.signature.IGraphSignature;
 import java.math.BigInteger;
 
 public interface IRecipient {
 
-  public IGraphSignature hiddenSign(
-      ICommitment cmt,
-      GSVertex signerConnectingVertex,
-      GSVertex recipientConnectingVertex,
-      ExtendedPublicKey extendedPublicKey,
-      GSGraph<GSVertex, GSEdge> recipientGraph,
-      BigInteger rndRecipient);
+//  public IGraphSignature hiddenSign(
+//      ICommitment cmt,
+//      GSVertex signerConnectingVertex,
+//      GSVertex recipientConnectingVertex,
+//      ExtendedPublicKey extendedPublicKey,
+//      GSGraph<GSVertex, GSEdge> recipientGraph,
+//      BigInteger rndRecipient);
 
   public SignerKeyPair keyGen(KeyGenParameters gs_params);
 

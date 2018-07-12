@@ -5,7 +5,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 
 public abstract class Topocert {
 
-  public abstract void graphEncodingSetup(IGraph graph, KeyGenParameters params);
+//  public abstract void graphEncodingSetup(IGraph graph, KeyGenParameters params);
 
   //    ArrayList<IVertex> vertices = new ArrayList<IVertex>();
   //            ArrayList<IEdge> edges = new ArrayList<IEdge>();
