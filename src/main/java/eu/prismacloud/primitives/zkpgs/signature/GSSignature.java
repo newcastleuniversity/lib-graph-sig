@@ -40,13 +40,9 @@ public class GSSignature {
       GSCommitment U,
       Map<URN, BaseRepresentation> encodedBases,
       KeyGenParameters keyGenParameters) {
-
     this.U = U;
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;
-    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-    this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
-    this.modN = extendedPublicKey.getPublicKey().getModN();
   }
 
   public GSSignature(GroupElement A, BigInteger e, BigInteger v) {
@@ -56,29 +52,26 @@ public class GSSignature {
   }
 
   public GroupElement getA() {
-    return this.A;
+    return A;
   }
 
   public BigInteger getE() {
-    return this.e;
+    return e;
   }
 
   public BigInteger getV() {
-    return this.v;
+    return v;
   }
 
   // TODO Lift computations to GSSigner; GSSignature should not have knowledge of the sk.
 
-
   public GSSignature blind() {
-
     int r_ALength = keyGenParameters.getL_n() + keyGenParameters.getL_statzk();
     BigInteger r_A = CryptoUtilsFacade.computeRandomNumber(r_ALength);
     GroupElement APrime = A.multiply(baseS.modPow(r_A));
     BigInteger vPrime = v.subtract(e.multiply(r_A));
     BigInteger ePrime =
         e.subtract(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1));
-
     return new GSSignature(APrime, ePrime, vPrime);
   }
 }
