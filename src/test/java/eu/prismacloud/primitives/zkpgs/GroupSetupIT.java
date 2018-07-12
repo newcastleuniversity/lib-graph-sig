@@ -7,12 +7,10 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
@@ -22,12 +20,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** Group Setup integration testing using a 2048 modulus length with a persisted SignerKeyPair. */
+@TestInstance(Lifecycle.PER_CLASS)
 public class GroupSetupIT {
   private Logger log = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
@@ -46,7 +44,7 @@ public class GroupSetupIT {
      graphEncodingParameters = baseTest.getGraphEncodingParameters();
      keyGenParameters = baseTest.getKeyGenParameters();
    }
-   
+
   private int computeBitLength() {
     return keyGenParameters.getL_n()
         + keyGenParameters.getL_statzk()
