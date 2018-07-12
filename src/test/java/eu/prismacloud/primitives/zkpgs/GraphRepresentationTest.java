@@ -9,19 +9,23 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.GraphImporter;
 import org.jgrapht.io.ImportException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
+@TestInstance(Lifecycle.PER_CLASS)
 class GraphRepresentationTest {
   private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   Graph<GSVertex, GSEdge> graph;
@@ -35,19 +39,23 @@ class GraphRepresentationTest {
   private SignerKeyPair gsk;
   private ExtendedKeyPair extendedKeyPair;
 
-  @BeforeEach
-  void setUp() throws ImportException {
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    graphEncodingParameters = parameters.getGraphEncodingParameters();
-    log.info("@Test: key generation");
-    SignerKeyPair gsk = new SignerKeyPair();
-    gsk.keyGen(keyGenParameters);
+  @BeforeAll
+  void setupKey() throws IOException, ClassNotFoundException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    gsk = baseTest.getSignerKeyPair();
+    graphEncodingParameters = baseTest.getGraphEncodingParameters();
+    keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
+  }
+
+  @BeforeEach
+  void setUp() throws ImportException {
 
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
     assertNotNull(file);
