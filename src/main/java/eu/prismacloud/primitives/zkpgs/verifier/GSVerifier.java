@@ -11,7 +11,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GSVerifier implements IProver, Storable {
+public class GSVerifier  {
 
   private final Map<URN, BigInteger> barV = new HashMap<>();
   private final ProofStore<Object> verifierStore;
@@ -24,28 +24,6 @@ public class GSVerifier implements IProver, Storable {
 
   public Map<URN, BigInteger> getBarV() {
     return barV;
-  }
-
-  @Override
-  public void createWitnessRandomness() {}
-
-  @Override
-  public void computeWitness() {}
-
-  @Override
-  public BigInteger computeChallenge() {
-    return BigInteger.ONE;
-  }
-
-  @Override
-  public void computeResponses() {}
-
-  @Override
-  public void store(URN urn, ProofObject proofObject) {}
-
-  @Override
-  public ProofObject retrieve(URN urn) {
-    return null;
   }
 
   public void checkLengths(ProofSignature p_3) {
