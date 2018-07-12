@@ -43,21 +43,6 @@ public class SignerPrivateKey implements Serializable {
     this.x_Z = x_Z;
   }
 
-  public SignerPrivateKey(
-      final BigInteger p,
-      final BigInteger p_prime,
-      final BigInteger q,
-      final BigInteger q_prime,
-      final BigInteger x_r_0,
-      final BigInteger x_Z) {
-
-    this.p = p;
-    this.pPrime = p_prime;
-    this.q = q;
-    this.qPrime = q_prime;
-    this.x_r_0 = x_r_0;
-    this.x_Z = x_Z;
-  }
 
   public BigInteger getpPrime() {
     return pPrime;
