@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import java.util.logging.Logger;
@@ -43,11 +44,15 @@ class SafePrimeTest {
     classUnderTest = null;
   }
 
-
   @Test
   @DisplayName("Generate Safe Prime")
   void generateRandomSafePrime() {
     log.info("@Test: generateSafePrime()");
+    if (!BaseTest.EXECUTE_INTENSIVE_TESTS) {
+      // execute test with 512 bitlength
+      keyGenParameters =
+          KeyGenParameters.createKeyGenParameters(512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
     assertNotNull(classUnderTest);
     SafePrime sf = classUnderTest.generateRandomSafePrime(keyGenParameters);
     assertNotNull(sf);
@@ -56,5 +61,4 @@ class SafePrimeTest {
     //        assertEquals(sf.a,new BigInteger("2").multiply(sf.a_prime).add(new BigInteger("1")));
 
   }
-
 }
