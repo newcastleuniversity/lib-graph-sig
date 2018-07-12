@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.signature.KeyGenSignature;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
@@ -20,7 +19,6 @@ public class SignerKeyPair implements Serializable {
   private SignerPrivateKey privateKey;
   private SignerPublicKey publicKey;
   private KeyGenParameters keyGenParameters;
-  private KeyGenSignature keyGenSignature;
   private SpecialRSAMod specialRSAMod = null;
   private GroupElement S;
   private BigInteger x_Z;
@@ -33,14 +31,6 @@ public class SignerKeyPair implements Serializable {
 //  private final Logger log = GSLoggerConfiguration.getGSlog();
   private Group qrGroup;
 
-  /**
-   * Gets key gen signature.
-   *
-   * @return the key gen signature
-   */
-  public KeyGenSignature getKeyGenSignature() {
-    return keyGenSignature;
-  }
 
   /**
    * Generate a key pair for the signer.
