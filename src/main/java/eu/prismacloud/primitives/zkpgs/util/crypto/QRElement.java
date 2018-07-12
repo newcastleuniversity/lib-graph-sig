@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,6 +11,9 @@ import java.util.Map;
 
 /** Element of Quadratic Residue Group. */
 public class QRElement extends GroupElement {
+
+	private static final long serialVersionUID = 197876973241169380L;
+
 	private final Group group;
 
 	private final BigInteger value;
