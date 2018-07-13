@@ -1,11 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.IProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
-import eu.prismacloud.primitives.zkpgs.store.ProofObject;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.store.Storable;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.HashMap;
