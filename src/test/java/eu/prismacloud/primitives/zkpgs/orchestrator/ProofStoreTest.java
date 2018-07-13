@@ -1,6 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -66,8 +65,9 @@ class ProofStoreTest {
               proofStore.store("biginteger.2", BigInteger.valueOf(2));
             });
 
-    assertThat(
-        exception.getMessage(), CoreMatchers.containsString("with type URN was already added"));
+    String exceptionMessage = exception.getMessage();
+    Boolean containsString = exceptionMessage.contains("with type URN was already added");
+    assertTrue(containsString);
 
     assertEquals(2, proofStore.size());
   }

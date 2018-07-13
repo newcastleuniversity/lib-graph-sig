@@ -1,6 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -11,11 +10,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
 /** Test CryptoUtilsFactory class */
-@RunWith(JUnitPlatform.class)
 @DisplayName("Testing CryptoUtilsFactory class")
 class CryptoUtilsFactoryTest {
   private static final String GS = "GS";
@@ -30,8 +27,6 @@ class CryptoUtilsFactoryTest {
     classUnderTest = new CryptoUtilsFactory();
   }
 
-  //    @ParameterizedTest(name = "run #{index} with [{arguments}]")
-  //    @ValueSource(strings = {"IDEMIX", "GS"})
   @Test
   @DisplayName("Test correct instance of util classes in factory")
   void getInstance() {
@@ -44,14 +39,16 @@ class CryptoUtilsFactoryTest {
           // Test if factory returns the correct class
           INumberUtils idemix = CryptoUtilsFactory.getInstance(IDEMIX);
           INumberUtils id = new IdemixUtils();
-          assertThat(id, instanceOf(idemix.getClass()));
+
+          assertNotNull(idemix);
+          assertEquals("eu.prismacloud.primitives.zkpgs.util.IdemixUtils",idemix.getClass().getCanonicalName() );
         },
         () -> {
 
           // Test if factory returns the correct class
           INumberUtils gs = CryptoUtilsFactory.getInstance(GS);
           GSUtils id = new GSUtils();
-          assertThat(id, instanceOf(gs.getClass()));
+          assertEquals("eu.prismacloud.primitives.zkpgs.util.GSUtils",gs.getClass().getCanonicalName() );
         },
         () -> {
           // Test factory when name is not correct
@@ -61,6 +58,4 @@ class CryptoUtilsFactoryTest {
         });
   }
 
-  @AfterEach
-  void tearDown() {}
 }
