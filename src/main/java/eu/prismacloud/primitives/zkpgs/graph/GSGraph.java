@@ -7,6 +7,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.File;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.jgrapht.Graph;
@@ -22,21 +24,35 @@ public class GSGraph<
   private static GraphMLProvider graphMLProvider;
   private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
+  /** The Graph. */
   Graph<
           eu.prismacloud.primitives.zkpgs.graph.GSVertex,
           eu.prismacloud.primitives.zkpgs.graph.GSEdge>
       graph;
+
   private SimpleGraph<GSVertex, GSEdge> g;
   private GraphMLImporter<GSVertex, GSEdge> importer;
 
+  /**
+   * Creates a new GSGraph with the corresponding vertices and edges after parsing a graphml file.
+   *
+   * @param graph the graph
+   */
   public GSGraph(
-      Graph<
+        Graph<
               eu.prismacloud.primitives.zkpgs.graph.GSVertex,
               eu.prismacloud.primitives.zkpgs.graph.GSEdge>
           graph) {
     this.graph = graph;
   }
 
+  /**
+   * Creates a graph structure with a number of vertices and edges after importing the graphml file.
+   *
+   * @param graphFile the graph file
+   * @return the graph
+   * @throws ImportException the import exception
+   */
   public Graph<GSVertex, GSEdge> createGraph(String graphFile) throws ImportException {
     graph = new DefaultUndirectedGraph<>(eu.prismacloud.primitives.zkpgs.graph.GSEdge.class);
 
@@ -47,27 +63,53 @@ public class GSGraph<
     return (Graph<GSVertex, GSEdge>) graph;
   }
 
+  /**
+   * Encodes a graph that has been constructed from an imported graphml file. Selects the vertex
+   * prime representative for a vertex and its prime representatives for the labels. The edge prime
+   * representative is selected and its prime representatives for the labels.
+   *
+   * @param graph the graph which includes the vertices, edges and associated labels
+   * @param graphEncodingParameters the graph encoding parameters
+   */
   public void encodeGraph(
       Graph<GSVertex, GSEdge> graph, GraphEncodingParameters graphEncodingParameters) {
     JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
+    BigInteger vertexPrimeRepresentative;
 
     Set<GSVertex> vertexSet = graph.vertexSet();
+    List<BigInteger> labelRepresentatives = new ArrayList<>();
 
     for (GSVertex vertex : vertexSet) {
-      //      gslog.log(Level.INFO, "vertex Id: " + vertex.getId());
-      //      gslog.log(Level.INFO, "country: " + vertex.getCountry());
-      vertex.setLabelPrimeRepresentative(
-          BigInteger.valueOf(jsonIsoCountries.getIndex(vertex.getCountry())));
-      //      gslog.log(Level.INFO, "label representative: " +
-      // vertex.getLabelPrimeRepresentative());
-      BigInteger vertexPrimeRepresentative =
+
+      if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
+        for (String label : vertex.getLabels()) {
+          labelRepresentatives.add(BigInteger.valueOf(jsonIsoCountries.getIndex(label)));
+        }
+      }
+      vertex.setLabelPrimeRepresentatives(labelRepresentatives);
+      vertexPrimeRepresentative =
           CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_L());
       vertex.setVertexPrimeRepresentative(vertexPrimeRepresentative);
-//      gslog.log(
-//          Level.INFO, "vertex prime representative: " + vertex.getVertexPrimeRepresentative());
+    }
+
+    Set<GSEdge> edgeSet = graph.edgeSet();
+    
+    for (GSEdge edge : edgeSet) {
+
+      if ((edge.getLabels() != null) && (!edge.getLabels().isEmpty())) {
+        for (String label : edge.getLabels()) {
+          labelRepresentatives.add(BigInteger.valueOf(jsonIsoCountries.getIndex(label)));
+        }
+        edge.setLabelRepresentatives(labelRepresentatives);
+      }
     }
   }
 
+  /**
+   * Returns a graph.
+   *
+   * @return the graph
+   */
   public Graph<
           eu.prismacloud.primitives.zkpgs.graph.GSVertex,
           eu.prismacloud.primitives.zkpgs.graph.GSEdge>

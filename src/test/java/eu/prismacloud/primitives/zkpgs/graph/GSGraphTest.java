@@ -1,8 +1,13 @@
 package eu.prismacloud.primitives.zkpgs.graph;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.ImportException;
@@ -13,8 +18,6 @@ import org.junit.jupiter.api.Test;
 class GSGraphTest {
   private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
 
-  @BeforeEach
-  void setUp() {}
 
   @Test
   void createGraph() throws ImportException {
@@ -39,8 +42,25 @@ class GSGraphTest {
     assertNotNull(g);
 
     graph.encodeGraph(g, graphEncodingParameters);
+    Set<GSEdge> edges = g.edgeSet();
+    Set<GSVertex> vertices = g.vertexSet();
+
+    assertFalse(edges.isEmpty());
+    assertFalse(vertices.isEmpty());
+
+    for (GSVertex vertex : vertices) {
+      assertNotNull(vertex.getLabels());
+      assertNotNull(vertex.getVertexPrimeRepresentative());
+      assertTrue(vertex.getVertexPrimeRepresentative().isProbablePrime(80));
+      
+    }
+
+    for (GSEdge edge : edges) {
+      assertNotNull(edge.getE_i());
+      assertNotNull(edge.getE_j());
+      assertTrue(edge.getE_i().getVertexPrimeRepresentative().isProbablePrime(80));
+      assertTrue(edge.getE_j().getVertexPrimeRepresentative().isProbablePrime(80));
+    }
   }
 
-  @Test
-  void addConnectingVertex() {}
 }
