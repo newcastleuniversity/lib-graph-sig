@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class GSSignature {
   private static Logger gslog = GSLoggerConfiguration.getGSlog();
-  private ExtendedKeyPair extendedKeyPair;
+  private final ExtendedPublicKey extendedPublicKey;
   private GSCommitment U;
   private KeyGenParameters keyGenParameters;
   private GroupElement A;
@@ -25,8 +25,8 @@ public class GSSignature {
   private GroupElement Q;
   private BigInteger vbar;
   private BigInteger vPrimePrime;
-  private GroupElement baseS;
-  private GroupElement baseZ;
+  private final GroupElement baseS;
+  private final GroupElement baseZ;
   private BigInteger modN;
   private Map<URN, BaseRepresentation> encodedEdges;
   private Map<URN, BaseRepresentation> encodedBases;
@@ -36,16 +36,23 @@ public class GSSignature {
   private BigInteger eInverse;
 
   public GSSignature(
-      final ExtendedPublicKey extendedPublicKey,
+	  final ExtendedPublicKey extendedPublicKey,
       GSCommitment U,
       Map<URN, BaseRepresentation> encodedBases,
       KeyGenParameters keyGenParameters) {
+	  this.extendedPublicKey = extendedPublicKey;
     this.U = U;
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;
+    this.baseS = this.extendedPublicKey.getPublicKey().getBaseS();
+    this.baseZ = this.extendedPublicKey.getPublicKey().getBaseZ();
   }
 
-  public GSSignature(GroupElement A, BigInteger e, BigInteger v) {
+  public GSSignature(final ExtendedPublicKey extendedPublicKey, 
+		  GroupElement A, BigInteger e, BigInteger v) {
+	  this.extendedPublicKey = extendedPublicKey;
+	  this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+	  this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
     this.A = A;
     this.e = e;
     this.v = v;
@@ -72,6 +79,7 @@ public class GSSignature {
     BigInteger vPrime = v.subtract(e.multiply(r_A));
     BigInteger ePrime =
         e.subtract(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1));
-    return new GSSignature(APrime, ePrime, vPrime);
+    return new GSSignature(this.extendedPublicKey,
+    		APrime, ePrime, vPrime);
   }
 }
