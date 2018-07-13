@@ -24,7 +24,7 @@ public class GSProver { // implements IProver {
   private BigInteger n_3;
   private final ProofStore<Object> proofStore;
   private final KeyGenParameters keyGenParameters;
-  private BigInteger r;
+//  private BigInteger r;
   private Map<URN, GSCommitment> commitmentMap;
   private GSSignature blindedSignature;
   private BigInteger r_i;
@@ -76,7 +76,7 @@ public class GSProver { // implements IProver {
       /** TODO check lenght of randomness r */
       r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
       m_i = vertexRepresentation.getExponent();
-      C_i = R_i.modPow(m_i).multiply(baseS.modPow(r));
+      C_i = R_i.modPow(m_i).multiply(baseS.modPow(r_i));
       commitment = new GSCommitment(R_i, m_i, r_i, baseS, modN);
       String commitmentURN = "prover.commitments.C_" + i;
       commitmentMap.put(
