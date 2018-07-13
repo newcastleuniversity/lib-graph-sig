@@ -22,7 +22,6 @@ public class GraphEncoding {
   private final SignerPublicKey signerPublicKey;
   private BigInteger vertexPrimeRepresentative;
   private List<BigInteger> vertexPrimes;
-  private SignerPublicKey publicKey;
   private Map<BigInteger, GSSignature> signatureMap;
   private ExtendedPublicKey ePublicKey;
   private ExtendedPrivateKey ePrivateKey;
@@ -49,13 +48,13 @@ public class GraphEncoding {
   public GraphEncoding(
       final Map<URN, BaseRepresentation> bases,
       final Map<URN, BigInteger> vertexPrimeRepresentatives,
-      final SignerPublicKey signerPublicKey,
+      SignerPublicKey publicKey,
       final KeyGenParameters keyGenParameters,
       final GraphEncodingParameters graphEncodingParameters) {
 
     this.bases = bases;
     this.vertexPrimeRepresentatives = vertexPrimeRepresentatives;
-    this.signerPublicKey = signerPublicKey;
+    this.signerPublicKey = publicKey;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
   }
@@ -134,12 +133,12 @@ public class GraphEncoding {
     GSSignature gsSignature;
 
     for (BigInteger vertexPrime : vertexPrimeRepresentatives.values()) {
-      gsSignature = CryptoUtilsFacade.generateSignature(vertexPrime, baseV, publicKey);
+      gsSignature = CryptoUtilsFacade.generateSignature(vertexPrime, baseV, signerPublicKey);
       signatureMap.put(vertexPrime, gsSignature);
     }
 
     for (BigInteger label : labelRepresenatives.values()) {
-      gsSignature = CryptoUtilsFacade.generateSignature(label, baseL, publicKey);
+      gsSignature = CryptoUtilsFacade.generateSignature(label, baseL, signerPublicKey);
       signatureMap.put(label, gsSignature);
     }
   }

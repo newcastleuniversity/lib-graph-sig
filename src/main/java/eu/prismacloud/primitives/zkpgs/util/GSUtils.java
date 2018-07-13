@@ -618,7 +618,7 @@ public class GSUtils implements INumberUtils {
     Q = baseZ.multiply(invertible.modInverse());
     A = Q.modPow(e.modInverse(modN));
 
-    return new GSSignature(A, e, v);
+    return new GSSignature(signerPublicKey, A, e, v);
   }
 
   /**

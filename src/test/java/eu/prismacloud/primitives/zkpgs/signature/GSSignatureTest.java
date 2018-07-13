@@ -238,7 +238,7 @@ class GSSignatureTest {
 
     calculateSignature();
 
-    gsSignature = new GSSignature(A, e, vCommRandomness);
+    gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vCommRandomness);
   }
 
   void calculateSignature() throws Exception {
