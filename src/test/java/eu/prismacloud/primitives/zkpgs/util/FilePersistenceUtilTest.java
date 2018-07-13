@@ -22,6 +22,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 class FilePersistenceUtilTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
+  // set flag to true to generate a new signer key pair
+  private Boolean generateKeyPair = false;
   private FilePersistenceUtil persistenceUtil;
   private KeyGenParameters keyGenParameters;
   private String signerKeyPairFileName;
@@ -38,7 +40,7 @@ class FilePersistenceUtilTest {
   @Test
   void writeSignerKeyPair() throws IOException {
 
-    if (!checkFileExists(signerKeyPairFileName)) {
+    if (generateKeyPair) {
       log.info("Test writeSignerKeyPair: generating new SignerKeyPair...");
 
       SignerKeyPair gsk = new SignerKeyPair();
@@ -48,14 +50,6 @@ class FilePersistenceUtilTest {
     }
   }
 
-  private Boolean checkFileExists(String filename) {
-    File f = new File(filename);
-    if (f.exists() && !f.isDirectory()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   @Test
   void readSignerKeyPair() throws IOException, ClassNotFoundException {
