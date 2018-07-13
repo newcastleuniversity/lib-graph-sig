@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
@@ -8,7 +9,9 @@ import java.io.File;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.GraphImporter;
+import org.jgrapht.io.GraphMLImporter;
 import org.jgrapht.io.ImportException;
+import org.jgrapht.io.VertexProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,5 +41,7 @@ class GraphMLProviderTest {
     importer.importGraph(graph, file);
 
     assertNotNull(graph);
+    assertTrue(!graph.vertexSet().isEmpty());
+    assertTrue(!graph.edgeSet().isEmpty());
   }
 }
