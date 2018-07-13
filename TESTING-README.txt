@@ -13,3 +13,9 @@ Steps for generating a new signer's keypair:
 2. Execute the writeSignerKeyPair test case in the same file.
 
 3. Set generateKeyPair flag to false so that generation of the keypair is not executed when we have already generated a new keypair.
+
+
+Testing with Maven
+------------------
+Tests can be executed using Maven from command line:
+mvn clean test
