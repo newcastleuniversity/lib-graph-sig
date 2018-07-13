@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.logging.Logger;
@@ -10,6 +11,8 @@ import java.util.logging.Logger;
  * is known.
  */
 public class QRElementPQ extends QRElement {
+
+  private static final long serialVersionUID = 6659291010231881173L;
   private final QRGroupPQ qrGroupPQ;
   private final BigInteger value;
   private BigInteger order;
