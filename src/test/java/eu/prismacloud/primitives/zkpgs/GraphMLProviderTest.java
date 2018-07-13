@@ -9,9 +9,7 @@ import java.io.File;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.GraphImporter;
-import org.jgrapht.io.GraphMLImporter;
 import org.jgrapht.io.ImportException;
-import org.jgrapht.io.VertexProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
