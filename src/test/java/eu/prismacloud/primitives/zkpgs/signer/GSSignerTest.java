@@ -1,9 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.signer;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.hamcrest.Matchers.*;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
@@ -80,7 +78,8 @@ class GSSignerTest {
   void computeNonce() {
     BigInteger nonce = signer.computeNonce();
     assertNotNull(nonce);
-    assertThat(nonce.bitLength(), lessThanOrEqualTo(keyGenParameters.getL_H()));
+    Boolean bitLengthRange = nonce.bitLength() <= keyGenParameters.getL_H();
+    assertTrue(bitLengthRange);
   }
 
   @Test
