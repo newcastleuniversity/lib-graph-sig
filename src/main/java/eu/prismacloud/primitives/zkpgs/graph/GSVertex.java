@@ -1,38 +1,27 @@
 package eu.prismacloud.primitives.zkpgs.graph;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /** A graph vertex for graph representation. */
 public class GSVertex {
-  public String label;
+  private List<String> labels;
   private String id;
   private String country;
   private BigInteger vertexPrimeRepresentative;
-  private BigInteger labelPrimeRepresentative;
+  private List<BigInteger> labelPrimeRepresentatives;
 
-  public GSVertex(final String id) {
-    this(id, "");
-  }
-
-  public GSVertex(final String id, final String country) {
+  public GSVertex(final String id, final List<String> labels) {
     this.id = id;
-    this.country = country;
+    this.labels = labels;
   }
 
-  public String getLabel() {
-    return label;
+  public List<String> getLabels() {
+    return labels;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
-  }
-
-  public String getCountry() {
-    return country;
-  }
-
-  public void setCountry(String country) {
-    this.country = country;
+  public void setLabels(List<String> labels) {
+    this.labels = labels;
   }
 
   public String getId() {
@@ -43,12 +32,12 @@ public class GSVertex {
     this.id = id;
   }
 
-  public BigInteger getLabelPrimeRepresentative() {
-    return labelPrimeRepresentative;
+  public List<BigInteger> getLabelPrimeRepresentatives() {
+    return labelPrimeRepresentatives;
   }
 
-  public void setLabelPrimeRepresentative(BigInteger labelPrimeRepresentative) {
-    this.labelPrimeRepresentative = labelPrimeRepresentative;
+  public void setLabelPrimeRepresentatives(List<BigInteger> labelPrimeRepresentatives) {
+    this.labelPrimeRepresentatives = labelPrimeRepresentatives;
   }
 
   public BigInteger getVertexPrimeRepresentative() {
@@ -68,33 +57,34 @@ public class GSVertex {
   //      return false;
   //    }
   //    GSVertex gsVertex = (GSVertex) o;
-  //    return Objects.equals(this.getLabel(), gsVertex.getLabel())
+  //    return Objects.equals(this.getLabels(), gsVertex.getLabels())
   //        && Objects.equals(this.getId(), gsVertex.getId())
   //        && Objects.equals(this.getCountry(), gsVertex.getCountry())
   //        && Objects.equals(
   //            this.getVertexPrimeRepresentative(), gsVertex.getVertexPrimeRepresentative())
   //        && Objects.equals(
-  //            this.getLabelPrimeRepresentative(), gsVertex.getLabelPrimeRepresentative());
+  //            this.getLabelPrimeRepresentatives(), gsVertex.getLabelPrimeRepresentatives());
   //  }
   //
   //  @Override
   //  public int hashCode() {
-  //    int result = this.getLabel().hashCode();
+  //    int result = this.getLabels().hashCode();
   //    result = 31 * result + this.getId().hashCode();
   //    result = 31 * result + this.getCountry().hashCode();
   //    result = 31 * result + this.getVertexPrimeRepresentative().hashCode();
-  //    result = 31 * result + this.getLabelPrimeRepresentative().hashCode();
+  //    result = 31 * result + this.getLabelPrimeRepresentatives().hashCode();
   //    return result;
   //  }
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.graph.GSVertex{");
-    sb.append("label='").append(label).append('\'');
+    final StringBuilder sb = new StringBuilder(
+        "eu.prismacloud.primitives.zkpgs.graph.GSVertex{");
+    sb.append("labels=").append(labels);
     sb.append(", id='").append(id).append('\'');
     sb.append(", country='").append(country).append('\'');
     sb.append(", vertexPrimeRepresentative=").append(vertexPrimeRepresentative);
-    sb.append(", labelPrimeRepresentative=").append(labelPrimeRepresentative);
+    sb.append(", labelPrimeRepresentatives=").append(labelPrimeRepresentatives);
     sb.append('}');
     return sb.toString();
   }
