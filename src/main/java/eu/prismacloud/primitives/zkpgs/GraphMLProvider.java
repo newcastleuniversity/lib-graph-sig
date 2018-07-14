@@ -43,9 +43,8 @@ public class GraphMLProvider {
           if (attributes.containsKey("Country")) {
             String label = attributes.get("Country").getValue();
             labels.add(label);
-            gv.setLabels(labels);
           }
-
+          gv.setLabels(labels);
           return gv;
         };
 
@@ -54,10 +53,12 @@ public class GraphMLProvider {
           GSEdge ge = new GSEdge(from, to);
           List<String> labels = new ArrayList<String>();
           if (!EMPTY_LABEL.equals(label)) {
-            labels.add(label);
+            if (attributes.containsKey("Country")) {
+              label = attributes.get("Country").getValue();
+              labels.add(label);
+            }
             ge.setLabels(labels);
           }
-
           return ge;
         };
 

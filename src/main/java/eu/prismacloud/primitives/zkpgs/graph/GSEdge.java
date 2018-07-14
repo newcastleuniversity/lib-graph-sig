@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.graph;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -9,8 +10,8 @@ public class GSEdge extends DefaultEdge {
 
   private GSVertex e_i;
   private GSVertex e_j;
-  private List<BigInteger> labelRepresentatives;
-  private List<String> labels;
+  private List<BigInteger> labelRepresentatives = new ArrayList<>();
+  private List<String> labels = new ArrayList<>();
 
   public GSEdge(GSVertex e_i, GSVertex e_j) {
     this.e_i = e_i;

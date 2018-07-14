@@ -5,13 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.ImportException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Test graphs */
@@ -41,7 +38,7 @@ class GSGraphTest {
     g = graph.createGraph(SIGNER_GRAPH_FILE);
     assertNotNull(g);
 
-    graph.encodeGraph(g, graphEncodingParameters);
+    graph.encodeGraph(graphEncodingParameters);
     Set<GSEdge> edges = g.edgeSet();
     Set<GSVertex> vertices = g.vertexSet();
 

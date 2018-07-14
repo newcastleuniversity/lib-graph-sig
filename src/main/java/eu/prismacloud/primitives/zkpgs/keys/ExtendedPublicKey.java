@@ -37,7 +37,7 @@ public class ExtendedPublicKey {
    * @param keygenParams the keygen params
    * @param bases the bases
    * @param vertexRepresentatives the vertex representatives
-   * @param labelRepresentatives the label representatives
+   * @param labelRepresentatives the labels representatives
    * @param graphEncodingParameters the graph encoding parameters
    */
   public ExtendedPublicKey(
@@ -52,7 +52,7 @@ public class ExtendedPublicKey {
     Assert.notNull(keygenParams, "keygen parameters must not be null");
     Assert.notNull(bases, "bases must not be null");
     Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
-    Assert.notNull(labelRepresentatives,"label representatives must not be null");
+    Assert.notNull(labelRepresentatives,"labels representatives must not be null");
     Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
 
     this.signerPublicKey = signerPublicKey;
@@ -82,7 +82,7 @@ public class ExtendedPublicKey {
   }
 
   /**
-   * Gets label representatives.
+   * Gets labels representatives.
    *
    * @return the country labels
    */

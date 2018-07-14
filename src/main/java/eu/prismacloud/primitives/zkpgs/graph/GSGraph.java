@@ -24,7 +24,6 @@ public class GSGraph<
   private static GraphMLProvider graphMLProvider;
   private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
-  /** The Graph. */
   Graph<
           eu.prismacloud.primitives.zkpgs.graph.GSVertex,
           eu.prismacloud.primitives.zkpgs.graph.GSEdge>
@@ -39,7 +38,7 @@ public class GSGraph<
    * @param graph the graph
    */
   public GSGraph(
-        Graph<
+      Graph<
               eu.prismacloud.primitives.zkpgs.graph.GSVertex,
               eu.prismacloud.primitives.zkpgs.graph.GSEdge>
           graph) {
@@ -68,39 +67,43 @@ public class GSGraph<
    * prime representative for a vertex and its prime representatives for the labels. The edge prime
    * representative is selected and its prime representatives for the labels.
    *
-   * @param graph the graph which includes the vertices, edges and associated labels
    * @param graphEncodingParameters the graph encoding parameters
    */
-  public void encodeGraph(
-      Graph<GSVertex, GSEdge> graph, GraphEncodingParameters graphEncodingParameters) {
+  public void encodeGraph(GraphEncodingParameters graphEncodingParameters) {
     JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
     BigInteger vertexPrimeRepresentative;
+    BigInteger labelPrimeRepresentative;
 
-    Set<GSVertex> vertexSet = graph.vertexSet();
-    List<BigInteger> labelRepresentatives = new ArrayList<>();
+    Set<eu.prismacloud.primitives.zkpgs.graph.GSVertex> vertexSet = this.graph.vertexSet();
+    List<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
+    List<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
 
-    for (GSVertex vertex : vertexSet) {
+    for (eu.prismacloud.primitives.zkpgs.graph.GSVertex vertex : vertexSet) {
+      vertexLabelRepresentatives = new ArrayList<>();
 
       if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
         for (String label : vertex.getLabels()) {
-          labelRepresentatives.add(BigInteger.valueOf(jsonIsoCountries.getIndex(label)));
+          labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
+          vertexLabelRepresentatives.add(labelPrimeRepresentative);
         }
       }
-      vertex.setLabelPrimeRepresentatives(labelRepresentatives);
+
       vertexPrimeRepresentative =
           CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_L());
       vertex.setVertexPrimeRepresentative(vertexPrimeRepresentative);
+      vertex.setLabelPrimeRepresentatives(vertexLabelRepresentatives);
     }
 
-    Set<GSEdge> edgeSet = graph.edgeSet();
-    
-    for (GSEdge edge : edgeSet) {
+    Set<eu.prismacloud.primitives.zkpgs.graph.GSEdge> edgeSet = graph.edgeSet();
+
+    for (eu.prismacloud.primitives.zkpgs.graph.GSEdge edge : edgeSet) {
 
       if ((edge.getLabels() != null) && (!edge.getLabels().isEmpty())) {
         for (String label : edge.getLabels()) {
-          labelRepresentatives.add(BigInteger.valueOf(jsonIsoCountries.getIndex(label)));
+          labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
+          edgeLabelRepresentatives.add(labelPrimeRepresentative);
         }
-        edge.setLabelRepresentatives(labelRepresentatives);
+        edge.setLabelRepresentatives(edgeLabelRepresentatives);
       }
     }
   }

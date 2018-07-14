@@ -1,15 +1,15 @@
 package eu.prismacloud.primitives.zkpgs.graph;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 /** A graph vertex for graph representation. */
 public class GSVertex {
-  private List<String> labels;
+  private List<String> labels = new ArrayList<>();
   private String id;
-  private String country;
   private BigInteger vertexPrimeRepresentative;
-  private List<BigInteger> labelPrimeRepresentatives;
+  private List<BigInteger> labelPrimeRepresentatives = new ArrayList<>();
 
   public GSVertex(final String id, final List<String> labels) {
     this.id = id;
@@ -78,11 +78,9 @@ public class GSVertex {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder(
-        "eu.prismacloud.primitives.zkpgs.graph.GSVertex{");
+    final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.graph.GSVertex{");
     sb.append("labels=").append(labels);
     sb.append(", id='").append(id).append('\'');
-    sb.append(", country='").append(country).append('\'');
     sb.append(", vertexPrimeRepresentative=").append(vertexPrimeRepresentative);
     sb.append(", labelPrimeRepresentatives=").append(labelPrimeRepresentatives);
     sb.append('}');

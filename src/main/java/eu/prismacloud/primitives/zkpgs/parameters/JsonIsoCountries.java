@@ -20,7 +20,6 @@ public class JsonIsoCountries {
   private static final int COUNTRY_JSON_INDEX = 0;
   private static final int COUNTRY_CODE_START = 0;
   private static final int COUNTRY_CODE_END = 2;
-
   private static final String GS_ISO_COUNTRIES_FILE = "iso_3166_alpha_2.json";
   private final Logger gslog = GSLoggerConfiguration.getGSlog();
 
@@ -34,7 +33,6 @@ public class JsonIsoCountries {
   private JsonString countryCodeJson;
   private String countryCode;
 
-  /** Json parameters. */
   public JsonIsoCountries() {
     this.countriesLabel = new HashMap<URN, BigInteger>();
     this.reader = parseParamFile();
@@ -60,15 +58,13 @@ public class JsonIsoCountries {
   };
 
   /**
-   * Parse param file.
+   * Parse json file that holds the name of the countries and their codes from the ISO-3166.
    *
    * @return the json reader
    */
   public JsonReader parseParamFile() {
-
     this.paramStream =
         JsonIsoCountries.class.getClassLoader().getResourceAsStream(GS_ISO_COUNTRIES_FILE);
-
     return Json.createReader(paramStream);
   }
 
@@ -78,17 +74,17 @@ public class JsonIsoCountries {
   }
 
   /**
-   * Get countries list.
+   * Returns the map of countries that includes a URN name as key and the country's prime
+   * representative as value.
    *
-   * @return the list
+   * @return a map containing the country's prime representative
    */
   public Map<URN, BigInteger> getCountryMap() {
     if (this.jsonArray != null) {
       for (int i = 0; i < this.jsonArray.size(); i++) {
         country = jsonArray.get(i);
         countryCodeJson = country.asJsonArray().getJsonString(COUNTRY_JSON_INDEX);
-        countryCode = countryCodeJson.getString().substring(COUNTRY_CODE_START,COUNTRY_CODE_END);
-//        gslog.log(Level.INFO, "countrycode: " + countryCode);
+        countryCode = countryCodeJson.getString().substring(COUNTRY_CODE_START, COUNTRY_CODE_END);
         countriesLabel.put(
             URN.createZkpgsURN("countries.i_" + String.valueOf(i) + "_" + countryCode),
             BigInteger.valueOf(primeNumbers[i]));
@@ -98,14 +94,13 @@ public class JsonIsoCountries {
   }
 
   /**
-   * Gets index of the country code from the ISO-3166 list of countries.
+   * Returns index of the country code from the ISO-3166 list of countries.
    *
    * @param countryCode the country code according to the ISO-3166 standard
    * @return the index of the country code
    */
   public int getIndex(String countryCode) {
     Assert.notNull(countryCode, "Country code must not be null");
-    //    Assert.notEmpty(countryCodeJson, "Country code must not be empty");
 
     int index = 0;
     for (int i = 0; i < this.jsonArray.size(); i++) {
@@ -113,11 +108,14 @@ public class JsonIsoCountries {
       JsonString cCode = (JsonString) jsonObject.asJsonArray().get(0);
       if (countryCode.equals(cCode.getString())) {
         index = i;
-//        gslog.info("index: " + i);
-//        gslog.info("json value: " + jsonObject.asJsonArray().get(0));
       }
     }
 
     return index;
+  }
+
+  public BigInteger getCountryPrime(String countryCode) {
+    int index = getIndex(countryCode);
+    return BigInteger.valueOf(primeNumbers[index]);
   }
 }

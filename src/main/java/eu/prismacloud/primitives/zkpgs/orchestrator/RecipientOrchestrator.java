@@ -210,7 +210,7 @@ public class RecipientOrchestrator {
 
     g = graph.createGraph(RECIPIENT_GRAPH_FILE);
 
-    graph.encodeGraph(g, this.graphEncodingParameters);
+    graph.encodeGraph(this.graphEncodingParameters);
     GraphMLProvider.createImporter();
     GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 
