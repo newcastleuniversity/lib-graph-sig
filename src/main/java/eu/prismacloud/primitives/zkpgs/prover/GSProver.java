@@ -111,7 +111,7 @@ public class GSProver { // implements IProver {
     }
   }
 
-  public void sendMessage(GSMessage signerMessageToRecipient, Object target) {
+  public void sendMessage(GSMessage signerMessageToRecipient) {
     messageGateway.send( signerMessageToRecipient);
   }
 }
