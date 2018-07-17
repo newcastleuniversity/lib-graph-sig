@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.prover;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessage;
 import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
@@ -111,6 +112,6 @@ public class GSProver { // implements IProver {
   }
 
   public void sendMessage(GSMessage signerMessageToRecipient, Object target) {
-    messageGateway.sendMessage(signerMessageToRecipient, target);
+    messageGateway.send( signerMessageToRecipient);
   }
 }
