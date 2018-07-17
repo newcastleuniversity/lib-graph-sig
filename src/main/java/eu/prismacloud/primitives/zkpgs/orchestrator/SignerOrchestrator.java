@@ -48,16 +48,16 @@ import org.jgrapht.io.GraphImporter;
 /** Signing orchestrator */
 public class SignerOrchestrator {
 
-  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
+  private final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   private final ExtendedKeyPair extendedKeyPair;
   private final ProofStore<Object> proofStore;
   private final GroupElement baseS;
   private final BigInteger modN;
   private final GroupElement baseZ;
   private final Map<URN, BaseRepresentation> baseRepresentationMap;
-  private KeyGenParameters keyGenParameters;
+  private final KeyGenParameters keyGenParameters;
   private final GraphEncodingParameters graphEncodingParameters;
-  private GSSigner signer;
+  private final GSSigner signer;
   private BigInteger n_1;
   private BigInteger n_2;
   private ProofSignature P_1;
@@ -120,14 +120,13 @@ public class SignerOrchestrator {
     n_1 = signer.computeNonce();
     messageElements = new HashMap<URN, Object>();
     messageElements.put(URN.createZkpgsURN("nonces.n_1"), n_1);
-    signer.sendMessage(new GSMessage(messageElements), recipient);
+    signer.sendMessage(new GSMessage(messageElements));
 
     /** TODO send message to recipient for the n_1 */
     /** TODO signer send n_1 to recipient */
   }
 
   public void round2() throws Exception {
-    //    gsGraph = signer.initGraph();
     GraphRepresentation graphRepresentation = new GraphRepresentation();
 
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
@@ -149,7 +148,7 @@ public class SignerOrchestrator {
     // TODO needs to receive input message (U, P_1, n_2)
     // TODO value store needs to be populated (note this is on a different computer...)
 
-    GSMessage msg = signer.getMessage();
+    GSMessage msg = signer.receiveMessage();
     extractMessageElements(msg);
 
     CommitmentVerifier commitmentVerifier =
@@ -215,7 +214,7 @@ public class SignerOrchestrator {
 
     GSMessage correctnessMsg = new GSMessage(correctnessMessageElements);
 
-    signer.sendMessage(correctnessMsg, recipient);
+    signer.sendMessage(correctnessMsg);
 
     //    v = vPrimePrime.add(vPrime);
   }
@@ -408,8 +407,6 @@ public class SignerOrchestrator {
 //  R_0multi = R_0.modPow(m_0);
     
     // Compute exponents for vertices and edges
-    
-    
 
     Sv = baseS.modPow(vPrimePrime);
 
@@ -448,7 +445,6 @@ public class SignerOrchestrator {
     // TODO Remove logging of values that can break security (secret key or modInverse mod order;
 
     A = Q.modPow(d);
-    gslog.info("signer A: " + A);
     return A;
   }
 }

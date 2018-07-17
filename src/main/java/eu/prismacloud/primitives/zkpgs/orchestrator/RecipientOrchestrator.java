@@ -13,6 +13,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
@@ -74,6 +75,8 @@ public class RecipientOrchestrator {
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private List<String> contextList;
+  private MessageGatewayProxy messageGatewayProxy;
+  private static final String SERVER= "server";
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -102,7 +105,8 @@ public class RecipientOrchestrator {
     }
 
     // TODO needs to receive message n_1
-    GSMessage msg = recipient.getMessage();
+    GSMessage msg = recipient.receiveMessage();
+    
     n_1 = (BigInteger) msg.getMessageElements().get(URN.createZkpgsURN("nonces.n_1"));
 
     vPrime = recipient.generatevPrime();
@@ -145,7 +149,7 @@ public class RecipientOrchestrator {
 
     messageElements.put(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "recipient.n_2"), n_2);
 
-    recipient.sendMessage(new GSMessage(messageElements), signer);
+    recipient.sendMessage(new GSMessage(messageElements));
 
     /** TODO store context and randomness vPrime */
   }
@@ -249,7 +253,7 @@ public class RecipientOrchestrator {
 
   public void round3() throws VerificationException, ProofStoreException {
 
-    GSMessage correctnessMsg = recipient.getMessage();
+    GSMessage correctnessMsg = recipient.receiveMessage();
     P_2 = extractMessageElements(correctnessMsg);
 
 

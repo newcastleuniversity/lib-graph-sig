@@ -29,6 +29,7 @@ import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -138,7 +139,9 @@ public class ProverOrchestrator implements ProofOperation {
     }
     proofSignatureP = groupSetupProver.outputProofSignature();
 
-    prover.sendMessage(new GSMessage(proofSignatureP), verifier);
+    Map<URN, Object> messageElements = new HashMap<>();
+    messageElements.put(URN.createZkpgsURN("proofSignature.P"), proofSignatureP );
+    prover.sendMessage(new GSMessage(messageElements));
   }
 
   public GSSignature getRandomizedGraphSignature(final GSSignature graphSignature) {
