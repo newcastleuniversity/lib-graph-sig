@@ -3,11 +3,13 @@ package eu.prismacloud.primitives.zkpgs.commitment;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Map;
 
-public class GSCommitment {
+public class GSCommitment implements Serializable {
 
+  private static final long serialVersionUID = -6253701534775989050L;
   private BigInteger m_i;
   private BigInteger r_i1;
   private GroupElement baseS;

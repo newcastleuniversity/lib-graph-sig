@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent.Type;
+import java.io.Serializable;
 
 /**
  * Class represents a Uniform Resource Name (URN)
@@ -9,11 +10,12 @@ import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent.Type;
  * @see <a href="https://tools.ietf.org/html/rfc1737">Functional Requirements for Uniform Resource
  *     Names</a>
  */
-public final class URN {
+public final class URN implements Serializable {
 
   private static final String zkpgsNameSpaceIdentifier = "zkpgs";
   private static final String URN_SCHEME = "urn";
   private static final String COLON = ":";
+  private static final long serialVersionUID = -3082747487978142725L;
   private final NamespaceComponent namespaceIdentifier;
   private final NamespaceComponent namespaceSpecific;
 

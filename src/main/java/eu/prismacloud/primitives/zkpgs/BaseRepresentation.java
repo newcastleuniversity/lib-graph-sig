@@ -1,10 +1,13 @@
 package eu.prismacloud.primitives.zkpgs;
 
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /** */
-public class BaseRepresentation {
+public class BaseRepresentation implements Serializable {
+
+  private static final long serialVersionUID = 8542984504573091475L;
 
   public enum BASE {
     VERTEX,

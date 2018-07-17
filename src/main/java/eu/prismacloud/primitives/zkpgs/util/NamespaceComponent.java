@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
+import java.io.Serializable;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -10,7 +11,9 @@ import java.util.regex.Pattern;
  * @see <a href="https://tools.ietf.org/html/rfc1737">Functional Requirements for Uniform Resource
  *     Names</a>
  */
-public class NamespaceComponent {
+public class NamespaceComponent implements Serializable {
+
+  private static final long serialVersionUID = 3696359233528942468L;
   private static Logger gslog = GSLoggerConfiguration.getGSlog();
   private String content;
   /** regular expression for namespace identifier */
