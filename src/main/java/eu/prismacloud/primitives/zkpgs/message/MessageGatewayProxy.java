@@ -5,17 +5,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** */
-public class MessageGatewayProxy implements IMessageGateway {
+public class MessageGatewayProxy  {
   private IMessageGateway messageGateway;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  public MessageGatewayProxy(String type) {
 
-  public MessageGatewayProxy() {
-    messageGateway = new MessageGatewayImpl();
+    messageGateway = new SocketMessageGatewayImpl(type);
   }
 
-  @Override
-  public void sendMessage(IMessage message, Object target) {
+  public void send(GSMessage message) {
     gslog.log(Level.INFO, "send proxy message" + message);
-    messageGateway.sendMessage(message, target);
+    messageGateway.send(message);
+  }
+
+  public GSMessage receive() {
+    GSMessage message = messageGateway.receive();
+    gslog.log(Level.INFO, "receive proxy message" + message);
+    return message;
   }
 }
