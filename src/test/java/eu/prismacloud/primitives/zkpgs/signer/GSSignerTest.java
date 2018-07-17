@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.signer;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
@@ -35,6 +36,7 @@ class GSSignerTest {
   private QRGroupPQ qrGroup;
   private ExtendedKeyPair extendedKeyPair;
   private GSSigner signer;
+  private GSRecipient recipient;
 
   @BeforeAll
   void setupKey() throws IOException, ClassNotFoundException {
@@ -49,6 +51,7 @@ class GSSignerTest {
     extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.createExtendedKeyPair();
     signer = new GSSigner(extendedKeyPair, keyGenParameters);
+    recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
   }
 
   @Test
@@ -62,16 +65,15 @@ class GSSignerTest {
   void sendMessage() {
     GSMessage msg = new GSMessage();
     msg.addCommitment(
-            new GSCommitment(
-                new QRElement(qrGroup, BigInteger.valueOf(10)),
-                BigInteger.valueOf(11),
-                BigInteger.valueOf(23),
-                new QRElement(qrGroup, BigInteger.valueOf(10)),
-                BigInteger.valueOf(32)));
+        new GSCommitment(
+            new QRElement(qrGroup, BigInteger.valueOf(10)),
+            BigInteger.valueOf(11),
+            BigInteger.valueOf(23),
+            new QRElement(qrGroup, BigInteger.valueOf(10)),
+            BigInteger.valueOf(32)));
 
-    signer.sendMessage(
-        msg, new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters));
-//   assertNotNull(signer.getMessage());
+    signer.sendMessage(msg);
+    assertNotNull(signer.receiveMessage());
   }
 
   @Test
@@ -85,36 +87,35 @@ class GSSignerTest {
   @Test
   void receiveMessage() {
     GSMessage msg = new GSMessage();
-        msg.addCommitment(
-                new GSCommitment(
-                    new QRElement(qrGroup, BigInteger.valueOf(10)),
-                    BigInteger.valueOf(11),
-                    BigInteger.valueOf(23),
-                    new QRElement(qrGroup, BigInteger.valueOf(10)),
-                    BigInteger.valueOf(32)));
+    msg.addCommitment(
+        new GSCommitment(
+            new QRElement(qrGroup, BigInteger.valueOf(10)),
+            BigInteger.valueOf(11),
+            BigInteger.valueOf(23),
+            new QRElement(qrGroup, BigInteger.valueOf(10)),
+            BigInteger.valueOf(32)));
 
-        signer.sendMessage(
-            msg, new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters));
-        GSSigner.receiveMessage(msg);
-       assertNotNull(signer.getMessage());
+    signer.sendMessage(
+        msg);
+    signer.receiveMessage();
+    assertNotNull(signer.receiveMessage());
   }
 
   @Test
   void getMessage() {
     GSMessage msg = new GSMessage();
-            msg.addCommitment(
-                    new GSCommitment(
-                        new QRElement(qrGroup, BigInteger.valueOf(10)),
-                        BigInteger.valueOf(11),
-                        BigInteger.valueOf(23),
-                        new QRElement(qrGroup, BigInteger.valueOf(10)),
-                        BigInteger.valueOf(32)));
+    msg.addCommitment(
+        new GSCommitment(
+            new QRElement(qrGroup, BigInteger.valueOf(10)),
+            BigInteger.valueOf(11),
+            BigInteger.valueOf(23),
+            new QRElement(qrGroup, BigInteger.valueOf(10)),
+            BigInteger.valueOf(32)));
 
-            signer.sendMessage(
-                msg, new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters));
-            GSSigner.receiveMessage(msg);
-            GSMessage recMsg = signer.getMessage();
-           assertNotNull(recMsg);
-           
+    signer.sendMessage(
+        msg);
+    signer.receiveMessage();
+    GSMessage recMsg = signer.receiveMessage();
+    assertNotNull(recMsg);
   }
 }
