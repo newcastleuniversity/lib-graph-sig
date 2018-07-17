@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.signature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -14,12 +15,12 @@ import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -30,8 +31,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
@@ -67,7 +66,6 @@ class GSSignatureTest {
   private GSSignature gsSignature;
   private SignerKeyPair signerKeyPair;
 
-
   @BeforeAll
   void setupKey() throws IOException, ClassNotFoundException {
     BaseTest baseTest = new BaseTest();
@@ -78,7 +76,6 @@ class GSSignatureTest {
     privateKey = signerKeyPair.getPrivateKey();
   }
 
-
   @BeforeEach
   void setUp()
       throws NoSuchAlgorithmException, ProofStoreException, IOException, ClassNotFoundException {
@@ -86,8 +83,6 @@ class GSSignatureTest {
     keyGenParameters = parameters.getKeyGenParameters();
     graphEncodingParameters = parameters.getGraphEncodingParameters();
   }
-
-  
 
   @Test
   @RepeatedTest(10)
@@ -102,25 +97,19 @@ class GSSignatureTest {
     baseZ = publicKey.getBaseZ();
 
     R_0 = publicKey.getBaseR_0();
+    QRGroupPQ qrGroupPQ = (QRGroupPQ) signerKeyPair.getQRGroup();
 
-    //        assertTrue(CryptoUtilsFacade.isElementOfQR(baseS.getValue(), modN), "S is not a
-    // Quadratic Residue.");
-    //        assertTrue(checkQRGenerator(baseS.getValue()), "S not a generator!");
-    //        assertTrue(CryptoUtilsFacade.isElementOfQR(baseZ.getValue(), modN), "Z is not a
-    // Quadratic Residue.");
-    //        assertTrue(checkQRGenerator(baseZ.getValue()), "Z not a generator!");
-    //        assertTrue(CryptoUtilsFacade.isElementOfQR(R_0.getValue(), modN), "R_0 is not a
-    // Quadratic Residue.");
-    //        assertTrue(checkQRGenerator(R_0.getValue()), "R_0 not a generator!");
+    assertTrue(qrGroupPQ.isElement(baseS.getValue()), "S is not a Quadratic Residue.");
+    assertTrue(checkQRGenerator(baseS.getValue()), "S not a generator!");
+    assertTrue(qrGroupPQ.isElement(baseZ.getValue()), "Z is not a Quadratic Residue.");
+    assertTrue(checkQRGenerator(baseZ.getValue()), "Z not a generator!");
+    assertTrue(qrGroupPQ.isElement(R_0.getValue()), "R_0 is not a Quadratic Residue.");
+    assertTrue(checkQRGenerator(R_0.getValue()), "R_0 not a generator!");
 
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
     R_0com = R_0.modPow(m_0);
     baseScom = baseS.modPow(vbar);
     commitment = R_0com.multiply(baseScom);
-
-    //    log.info("recipient R_0:  " + R_0);
-    //    log.info("recipient m_0: " + m_0);
-    //    log.info("commitment: " + commitment);
 
     calculateSignatureRandom(commitment);
   }
