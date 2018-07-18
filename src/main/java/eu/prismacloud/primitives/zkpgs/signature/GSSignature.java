@@ -131,8 +131,9 @@ public class GSSignature {
    * Signer Public Key and a message m.
    */
   public boolean verify(SignerPublicKey pk, BigInteger m) {
-	  throw new NotImplementedException("Graph Signature verification on Extended Public Keys "
-	  		+ "and Graph Encodings is not implemented, yet.");
+	  GroupElement msgR = pk.getBaseR_0().modPow(m);
+	  // Delegates verification to verify() on group element Y.
+	  return verify(pk, msgR);
   }
   
   /**
