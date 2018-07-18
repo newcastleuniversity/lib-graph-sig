@@ -55,6 +55,11 @@ public class GSCommitment implements Serializable {
     this.modN = modN;
   }
 
+  public GSCommitment(GroupElement commitmentValue){
+    this.commitmentValue = commitmentValue;
+  }
+  
+
 //  public BigInteger commit() {
 //
 //    BigInteger baseResult = CryptoUtilsFacade.computeMultiBaseExMap(basesR, exponents, modN);

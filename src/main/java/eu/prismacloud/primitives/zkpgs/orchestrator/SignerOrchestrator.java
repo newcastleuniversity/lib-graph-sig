@@ -90,7 +90,6 @@ public class SignerOrchestrator {
   private Map<URN, Object> p2ProofSignatureElements;
   private ProofSignature P_2;
   private Map<URN, Object> correctnessMessageElements;
-  private List<String> contextList;
   private Graph<GSVertex, GSEdge> graph;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private GroupElement R_0;
@@ -99,6 +98,7 @@ public class SignerOrchestrator {
   private GroupElement Sv;
   private GroupElement R_0multi;
   private GroupElement Sv1;
+  private List<String> contextList;
 
   public SignerOrchestrator(
       ExtendedKeyPair extendedKeyPair,
@@ -163,7 +163,7 @@ public class SignerOrchestrator {
             keyGenParameters,
             STAGE.ISSUING);
 
-    computeChallenge();
+    hatc = computeChallenge();
 
     if (!verifyChallenge()) {
       throw new VerificationException("challenge verification failed");
@@ -188,7 +188,8 @@ public class SignerOrchestrator {
         n_2,
         proofStore,
         extendedKeyPair.getExtendedPublicKey(),
-        keyGenParameters);
+        keyGenParameters,
+        graphEncodingParameters);
 
     cPrime = correctnessProver.computeChallenge();
 
@@ -203,7 +204,7 @@ public class SignerOrchestrator {
 
     correctnessMessageElements = new HashMap<URN, Object>();
 
-//    verifySignature();
+    //    verifySignature();
 
     correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.A"), A);
     correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.e"), e);
@@ -249,9 +250,9 @@ public class SignerOrchestrator {
   }
 
   /** Compute challenge. */
-  public void computeChallenge() throws NoSuchAlgorithmException {
+  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
-    hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
 
   public Boolean verifyChallenge() {
@@ -265,23 +266,29 @@ public class SignerOrchestrator {
         GSContext.computeChallengeContext(
             extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
 
-    //    challengeList.addAll(contextList);
+    challengeList.addAll(contextList);
 
+    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
+    GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
+    
     /** TODO add context to list of elements in challenge */
     challengeList.add(String.valueOf(modN));
-    challengeList.add(String.valueOf(baseS.getValue()));
-    challengeList.add(String.valueOf(baseZ.getValue()));
-    //    challengeList.add(R_0);
+    challengeList.add(String.valueOf(baseS));
+    challengeList.add(String.valueOf(baseZ));
+    challengeList.add(String.valueOf(R));
+    challengeList.add(String.valueOf(R_0));
+
 
     //    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
     //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
     //    }
     String uCommitmentURN = "recipient.U";
     U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
-    gslog.info("commitment U: " + U.getCommitmentValue());
-    gslog.info("hatU: " + hatU);
-    challengeList.add(String.valueOf(U.getCommitmentValue()));
-    //    challengeList.add(String.valueOf(hatU));
+    GroupElement commitmentU = U.getCommitmentValue();
+
+    challengeList.add(String.valueOf(commitmentU));
+    /** TODO fix hatU computation */
+    challengeList.add(String.valueOf(hatU));
     challengeList.add(String.valueOf(n_1));
 
     return challengeList;
@@ -321,7 +328,6 @@ public class SignerOrchestrator {
     //    proofStore.store("recipient.n_2", n_2);
 
     storeMessageElements(P_1);
-
   }
 
   private void storeMessageElements(ProofSignature P_1) throws Exception {
@@ -402,10 +408,10 @@ public class SignerOrchestrator {
     // modN).multiply(R_i).multiply(R_i_j).mod(modN));
 
     // TODO Signer must not assume knowledge of m_0
-//    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
-//    BigInteger m_0 = U.getExponents().get(URN.createZkpgsURN("recipient.exponent.m_0"));
-//  R_0multi = R_0.modPow(m_0);
-    
+    //    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
+    //    BigInteger m_0 = U.getExponents().get(URN.createZkpgsURN("recipient.exponent.m_0"));
+    //  R_0multi = R_0.modPow(m_0);
+
     // Compute exponents for vertices and edges
 
     Sv = baseS.modPow(vPrimePrime);
@@ -414,20 +420,21 @@ public class SignerOrchestrator {
 
     Q = baseZ.multiply(Sv1.modInverse());
 
-//    QRElement R_0multi =
-//        extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0().modPow(m_0, modN);
-//    BigInteger Uvalue = U.getCommitmentValue();
-//
-//    //    BigInteger numerator = pk.getGeneratorS().modPow(v, n).multiply(R).multiply(U).mod(n);
-//    BigInteger invertible =
-//        baseS.modPow(vPrimePrime, modN).multiply(R_0multi).multiply(Uvalue).mod(modN);
+    //    QRElement R_0multi =
+    //        extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0().modPow(m_0, modN);
+    //    BigInteger Uvalue = U.getCommitmentValue();
+    //
+    //    //    BigInteger numerator = pk.getGeneratorS().modPow(v,
+    // n).multiply(R).multiply(U).mod(n);
+    //    BigInteger invertible =
+    //        baseS.modPow(vPrimePrime, modN).multiply(R_0multi).multiply(Uvalue).mod(modN);
 
     //    BigInteger invertible =
     //        U.getCommitmentValue().multiply(baseS.modPow(vPrimePrime, modN).getValue());
 
     gslog.info("signer U commitment: " + U.getCommitmentValue());
 
-//    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
+    //    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
     gslog.info("signer Q: " + Q);
     gslog.info("signer e: " + e);
     gslog.info("signer Z: " + baseZ);

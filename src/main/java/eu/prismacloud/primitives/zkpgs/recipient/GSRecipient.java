@@ -62,7 +62,7 @@ public class GSRecipient { // implements IRecipient {
   public GSCommitment commit(Map<URN, BaseRepresentation> encodedBases, BigInteger rnd) {
     baseRepresentationR_0 = encodedBases.get(URN.createZkpgsURN("bases.R_0"));
     R_0 = baseRepresentationR_0.getBase();
-    m_0 = BigInteger.valueOf(3); // baseRepresentationR_0.getExponent();
+    m_0 =  baseRepresentationR_0.getExponent();
     R_0com = R_0.modPow(m_0);
     GroupElement baseScom = baseS.modPow(rnd);
 

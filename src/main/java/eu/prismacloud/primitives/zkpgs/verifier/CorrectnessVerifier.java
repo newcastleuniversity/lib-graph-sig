@@ -45,12 +45,11 @@ public class CorrectnessVerifier implements IVerifier {
   private GroupElement Q;
   private GroupElement R_i;
   private GroupElement R_i_j;
-  private BigInteger hatQ;
+  private GroupElement hatQ;
   private GroupElement hatA;
   private BigInteger hatc;
   private List<String> challengeList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private List<String> contextList;
   private ProofStore<Object> proofStore;
   private GroupElement Ae;
   private GroupElement baseSmulti;
@@ -77,82 +76,58 @@ public class CorrectnessVerifier implements IVerifier {
   }
 
   public void computeQ() {
-//    for (BaseRepresentation encodedBase : encodedBases.values()) {
-//      if (encodedBase.getExponent() != null) {
-//        if (encodedBase.getBaseType() == BASE.VERTEX) {
-//          if (R_i == null) {
-//            R_i = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
-//          } else {
-//            R_i = R_i.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
-//          }
-//
-//        } else if (encodedBase.getBaseType() == BASE.EDGE) {
-//
-//          if (R_i_j == null) {
-//
-//            R_i_j = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
-//
-//          } else {
-//            R_i_j = R_i_j.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
-//          }
-//        }
-//      }
-//    }
+    //    for (BaseRepresentation encodedBase : encodedBases.values()) {
+    //      if (encodedBase.getExponent() != null) {
+    //        if (encodedBase.getBaseType() == BASE.VERTEX) {
+    //          if (R_i == null) {
+    //            R_i = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
+    //          } else {
+    //            R_i = R_i.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
+    //          }
+    //
+    //        } else if (encodedBase.getBaseType() == BASE.EDGE) {
+    //
+    //          if (R_i_j == null) {
+    //
+    //            R_i_j = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
+    //
+    //          } else {
+    //            R_i_j = R_i_j.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(),
+    // modN));
+    //          }
+    //        }
+    //      }
+    //    }
 
-//    R_0 = (BaseRepresentation) proofStore.retrieve("bases.R_0");//encodedBases.get(URN.createZkpgsURN("bases.R_0"));
     R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
     vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
-//    vPrimePrime = (BigInteger) P_2.get("proofsignature.vPrimePrime");
+    //    vPrimePrime = (BigInteger) P_2.get("proofsignature.vPrimePrime");
     vPrimePrime = (BigInteger) proofStore.retrieve("recipient.vPrimePrime");
     m_0 = (BigInteger) proofStore.retrieve("bases.exponent.m_0");
 
     gslog.info("signer vPrime: " + vPrime);
     gslog.info("signer vPrimePrime: " + vPrimePrime);
 
-       v = vPrimePrime.add(vPrime);
+    v = vPrimePrime.add(vPrime);
 
-       gslog.info("recipient.R_0: " + R_0);
+    gslog.info("recipient.R_0: " + R_0);
 
-       gslog.info("recipient.m_0: " + m_0);
+    gslog.info("recipient.m_0: " + m_0);
 
-       GroupElement R_0multi = R_0.modPow(m_0);
-        Ae = A.modPow(e);
-        baseSmulti = baseS.modPow(v);
-       ZPrime = A.modPow(e).multiply(baseS.modPow(vPrimePrime));
+    GroupElement R_0multi = R_0.modPow(m_0);
+    GroupElement Svmulti = baseS.modPow(v);
+    GroupElement result = R_0multi.multiply(Svmulti);
+    Q = baseZ.multiply(result.modInverse());
 
-       hatZ = ZPrime.multiply(R_0multi);
-
-       gslog.info("correctness verifier hatZ: " + hatZ);
-       gslog.info("correctness verifier baseZ: " + baseZ);
-       
-
-//    BigInteger invertible =
-//        baseS.modPow(v, modN)
-//            .multiply(R_0.getBase().modPow(R_0.getExponent(), modN).getValue())
-//            .multiply(R_i.getValue())
-//            .multiply(R_i_j.getValue())
-//            .mod(modN);
-
-//    BigInteger invertible =
-//            baseS.modPow(v, modN)
-//                .multiply(R_0.getBase().modPow(R_0.getExponent(), modN).getValue()).getValue();
-//    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
     gslog.info("recipient Q: " + Q);
-    gslog.info("recipient Z: " + baseZ);
-    gslog.info("recipient S: " + baseS);
-    
   }
 
   public void computehatQ() throws VerificationException {
-//    hatQ = A.modPow(e, modN);
-//
-//    gslog.info("hatQ: " + hatQ);
-//
-//    gslog.info("recipient e: "  + e);
+    hatQ = A.modPow(e);
+    gslog.info("hatQ: " + hatQ);
 
-
-    if (hatZ.compareTo(baseZ) != 0) {
+    if (hatQ.compareTo(Q) != 0) {
       throw new VerificationException("Q cannot be verified");
     }
   }
@@ -167,8 +142,7 @@ public class CorrectnessVerifier implements IVerifier {
       final Map<URN, BaseRepresentation> encodedBases,
       final ProofStore<Object> proofStore,
       final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters)
-      throws VerificationException {
+      final GraphEncodingParameters graphEncodingParameters) {
     this.e = e;
     this.v = v;
     this.P_2 = P_2;
@@ -191,7 +165,7 @@ public class CorrectnessVerifier implements IVerifier {
   private void verifyP2() {
     cPrime = (BigInteger) P_2.get("P_2.cPrime");
     hatd = (BigInteger) P_2.get("P_2.hatd");
-    
+
     hatA = A.modPow(cPrime.add(hatd.multiply(e)));
   }
 
@@ -207,7 +181,7 @@ public class CorrectnessVerifier implements IVerifier {
   public void computeChallenge() throws NoSuchAlgorithmException {
 
     challengeList = populateChallengeList();
-    hatc = CryptoUtilsFacade.computeHash(populateChallengeList(), keyGenParameters.getL_H());
+    hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
 
   public Boolean verifyChallenge() {
@@ -217,9 +191,11 @@ public class CorrectnessVerifier implements IVerifier {
   public List<String> populateChallengeList() {
     challengeList = new ArrayList<String>();
     /** TODO add context in challenge list */
-    contextList =
+    List<String> contextList =
         GSContext.computeChallengeContext(
             extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    gslog.info("contextlist length: " + contextList.size());
+    challengeList.addAll(contextList);
     challengeList.add(String.valueOf(Q));
     challengeList.add(String.valueOf(A));
     challengeList.add(String.valueOf(hatA));

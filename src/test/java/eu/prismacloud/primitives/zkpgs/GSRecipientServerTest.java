@@ -60,6 +60,6 @@ public class GSRecipientServerTest {
 
     recipientOrchestrator.round3();
 
-    assertNotNull(extendedKeyPair);
+    assertNotNull(extendedPublicKey);
   }
 }

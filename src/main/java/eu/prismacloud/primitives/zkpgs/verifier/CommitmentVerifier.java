@@ -6,11 +6,11 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +67,7 @@ public class CommitmentVerifier implements IVerifier {
     this.baseRepresentationMap = extendedPublicKey.getBases();
     this.keyGenParameters = keyGenParameters;
     this.proofStage = proofStage;
+    this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
     if (STAGE.ISSUING == proofStage) {
 
@@ -114,25 +115,37 @@ public class CommitmentVerifier implements IVerifier {
   /** Computehat U. */
   public GroupElement computehatUIssuing() {
 
-    Map<URN, BigInteger> exponentsU = new HashMap<>();
-    Map<URN, GroupElement> basesU = new HashMap<>();
+    Map<URN, BigInteger> exponentsMap = new HashMap<>();
+    Map<URN, GroupElement> baseMap = new HashMap<>();
+
+//    BigInteger R_0hatm_0 = R_0.modPow(hatm_0).getValue();
+    baseMap.put(URN.createZkpgsURN("commitment.R_0"), R_0);
+    exponentsMap.put(URN.createZkpgsURN("commitment.hatm_0"), hatm_0);
 
     String uCommitmentURN = "recipient.U";
     U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
+    gslog.info("commitment U:  " + U.getCommitmentValue());
     cChallenge = (BigInteger) proofStore.retrieve("proofsignature.P_1.c");
+    gslog.info("c challenge: " + cChallenge);
+    //    populateExponents(exponentsMap);
 
-    populateExponents(exponentsU);
-
-    populateBases(basesU);
+    //    populateBases(baseMap);
 
     GroupElement valueU = U.getCommitmentValue();
 
     gslog.info("valueU: " + valueU);
+    baseMap.put(URN.createZkpgsURN("commitment.S"), baseS);
+    exponentsMap.put(URN.createZkpgsURN("commitments.hatvPrime"), hatvPrime);
+    baseMap.put(URN.createZkpgsURN("recipient.U"), U.getCommitmentValue());
+    exponentsMap.put(URN.createZkpgsURN("recipient.c"), cChallenge);
+    
+//    QRElement qr1 = new QRElementN(baseS.getGroup(), BigInteger.ONE);
+//    GroupElement multiBaseResult = qr1.multiBaseExpMap(baseMap, exponentsMap);
+    GroupElement  negU = valueU.modPow(cChallenge.negate());
 
-    hatU =
-        valueU
-            .modPow(cChallenge.negate())
-            .multiply(new QRElement(baseS.getGroup(), CryptoUtilsFacade.computeMultiBaseExMap(basesU, exponentsU, modN)));
+    hatU = negU.multiply(baseS.modPow(hatvPrime)).multiply(R_0.modPow(hatm_0));
+    //qr1.multiBaseExpMap(baseMap, exponentsMap); // valueU.modPow(cChallenge.negate()).multiply(multiBaseResult);
+    gslog.info("hatU: " + hatU);
     return hatU;
   }
 

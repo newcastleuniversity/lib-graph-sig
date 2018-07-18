@@ -1,7 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -34,6 +36,7 @@ public class CorrectnessProver implements IProver {
   private QRElement Q;
   private QRElement A;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private GraphEncodingParameters graphEncodingParameters;
 
   public QRElement preChallengePhase(
       final GSSignature gsSignature,
@@ -41,7 +44,8 @@ public class CorrectnessProver implements IProver {
       final BigInteger n_2,
       final ProofStore<Object> proofStore,
       final ExtendedPublicKey extendedPublicKey,
-      final KeyGenParameters keyGenParameters)
+      final KeyGenParameters keyGenParameters,
+      final GraphEncodingParameters graphEncodingParameters)
       throws Exception {
 
     this.gsSignature = gsSignature;
@@ -50,6 +54,7 @@ public class CorrectnessProver implements IProver {
     this.proofStore = proofStore;
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
+    this.graphEncodingParameters = graphEncodingParameters;
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.tilded =
         CryptoUtilsFacade.computeRandomNumber(
@@ -81,12 +86,12 @@ public class CorrectnessProver implements IProver {
 
   private List<String> populateChallengeList() {
     challengeList = new ArrayList<String>();
-    //    this.Q = (BigInteger) proofStore.retrieve("issuing.signer.Q");
-    //    this.A = (BigInteger) proofStore.retrieve("issuing.signer.A");
-    //    gslog.info("Q: " + Q);
-    //    gslog.info("A: " + A);
-
+    List<String> contextList =
+        GSContext.computeChallengeContext(
+            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    gslog.info("contextlist length: " + contextList.size());
     // TODO add context list
+    challengeList.addAll(contextList);
     challengeList.add(String.valueOf(Q));
     challengeList.add(String.valueOf(A));
     challengeList.add(String.valueOf(tildeA));

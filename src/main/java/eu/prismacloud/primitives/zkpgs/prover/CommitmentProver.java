@@ -11,6 +11,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -172,25 +174,33 @@ public class CommitmentProver implements IProver {
     Map<URN, BigInteger> exponentsMap = new HashMap<>();
 
     baseRepresentationR_0 = baseRepresentationMap.get(URN.createZkpgsURN("bases.R_0"));
-    GroupElement R_0 = baseRepresentationR_0.getBase();
+    GroupElement R_0 = extendedPublicKey.getPublicKey().getBaseR_0();////baseRepresentationR_0.getBase();
 
     if (proofStage == STAGE.ISSUING) {
 
-      BigInteger R_0tildem_0 = R_0.modPow(tildem_0).getValue();
+//      GroupElement R_0tildem_0 = R_0.modPow(tildem_0);
       baseMap.put(URN.createZkpgsURN("commitment.R_0"), R_0);
-      exponentsMap.put(URN.createZkpgsURN("commitment.m_0"), tildem_0);
-      for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
-        baseMap.put(
-            URN.createZkpgsURN("commitment.R_i_" + baseRepresentation.getBaseIndex()),
-            baseRepresentation.getBase());
-        exponentsMap.put(
-            URN.createZkpgsURN("commitment.m_i_" + baseRepresentation.getBaseIndex()),
-            baseRepresentation.getExponent());
-      }
+      exponentsMap.put(URN.createZkpgsURN("commitment.tildem_0"), tildem_0);
+      //      for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
+      //        baseMap.put(
+      //            URN.createZkpgsURN("commitment.R_i_" + baseRepresentation.getBaseIndex()),
+      //            baseRepresentation.getBase());
+      //        exponentsMap.put(
+      //            URN.createZkpgsURN("commitment.m_i_" + baseRepresentation.getBaseIndex()),
+      //            baseRepresentation.getExponent());
+      //      }
       baseMap.put(URN.createZkpgsURN("commitment.S"), baseS);
       exponentsMap.put(URN.createZkpgsURN("commitments.tildevPrime"), tildevPrime);
-      witness = new GSCommitment(baseMap, exponentsMap, tildevPrime, baseS, modN);
-      GroupElement tildeU = witness.getCommitmentValue();
+//      QRElement qr1 = new QRElementN(baseS.getGroup(), BigInteger.ONE);
+      GroupElement sMulti= baseS.modPow(tildevPrime);
+      GroupElement tildeU = sMulti.multiply(R_0.modPow(tildem_0));
+          //R_0.modPow(tildem_0).multiply(baseS.modPow(tildevPrime));
+
+      // qr1.multiBaseExpMap(baseMap, exponentsMap);
+
+      witness = new GSCommitment(tildeU);
+
+      gslog.info("witness U: " + witness.getCommitmentValue());
 
     } else {
 
