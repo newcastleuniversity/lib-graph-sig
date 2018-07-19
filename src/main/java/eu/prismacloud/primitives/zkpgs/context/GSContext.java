@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -13,14 +14,24 @@ import java.util.Map;
 
 /** Represents the public knowledge before the proof */
 public class GSContext {
-  private static final List<String> ctxList = new ArrayList<String>();
+  private final List<String> ctxList = new ArrayList<String>();
+  private final ExtendedPublicKey extendedPublicKey;
+  private final KeyGenParameters keyGenParameters;
+  private final GraphEncodingParameters graphEncodingParameters;
 
-  private GSContext() {}
-
-  public static List<String> computeChallengeContext(
+  public GSContext(
       final ExtendedPublicKey extendedPublicKey,
       final KeyGenParameters keyGenParameters,
       final GraphEncodingParameters graphEncodingParameters) {
+    Assert.notNull(extendedPublicKey, "extended public key must not be null");
+    Assert.notNull(keyGenParameters, "keyGen parameters must not be null");
+    Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
+    this.extendedPublicKey = extendedPublicKey;
+    this.keyGenParameters = keyGenParameters;
+    this.graphEncodingParameters = graphEncodingParameters;
+  }
+
+  public List<String> computeChallengeContext() {
 
     SignerPublicKey publicKey = extendedPublicKey.getPublicKey();
     Map<URN, BaseRepresentation> bases = extendedPublicKey.getBases();
@@ -47,17 +58,17 @@ public class GSContext {
     return ctxList;
   }
 
-  public static void computeWitnessContext(List<String> witnesses) {
+  public void computeWitnessContext(List<String> witnesses) {
     for (String element : witnesses) {
       ctxList.add(element);
     }
   }
 
-  public static void clearContext() {
+  public void clearContext() {
     ctxList.clear();
   }
 
-  private static void addKeyGenParameters(KeyGenParameters keyGenParameters) {
+  private void addKeyGenParameters(KeyGenParameters keyGenParameters) {
     ctxList.add(String.valueOf(keyGenParameters.getL_n()));
     ctxList.add(String.valueOf(keyGenParameters.getL_gamma()));
     ctxList.add(String.valueOf(keyGenParameters.getL_rho()));
@@ -72,7 +83,7 @@ public class GSContext {
     ctxList.add(String.valueOf(keyGenParameters.getL_pt()));
   }
 
-  private static void addGraphEncodingParameters(GraphEncodingParameters graphEncodingParameters) {
+  private void addGraphEncodingParameters(GraphEncodingParameters graphEncodingParameters) {
     ctxList.add(String.valueOf(graphEncodingParameters.getL_V()));
     ctxList.add(String.valueOf(graphEncodingParameters.getlPrime_V()));
     ctxList.add(String.valueOf(graphEncodingParameters.getL_E()));
