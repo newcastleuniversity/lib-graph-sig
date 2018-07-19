@@ -1,50 +1,74 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
-/** */
+/** Creates a blocking server socket that waits until it receives a message from a client */
 public class GSServer {
-  private final ServerSocket welcomeSocket;
+  private final ServerSocket serverSocket;
   private static final int PORT = 9999;
   private Socket clientSocket;
   private Logger log = GSLoggerConfiguration.getGSlog();
   private ObjectOutputStream outToClient;
   private ObjectInputStream inFromClient;
 
+  /**
+   * Creates a new instance of the server socket with a specific port number.
+   *
+   * @throws IOException When an I/O error occurs, while creating a new ServerSocket.
+   */
   public GSServer() throws IOException {
-    welcomeSocket = new ServerSocket(PORT);
+    serverSocket = new ServerSocket(PORT);
   }
 
+  /**
+   * Blocks for a connection to be made to the server socket until a connection is made and accepts
+   * it. Creates input and output streams to the client socket.
+   *
+   * @throws IOException If an I/O error occurs, when blocking for a connection or creating the I/O
+   *     stream for the client.
+   */
   public void setup() throws IOException {
-    // Create the Client Socket
-    clientSocket = welcomeSocket.accept();
+    clientSocket = serverSocket.accept();
     log.info("Server Socket Established...");
-    // Create input and output streams to client
     outToClient = new ObjectOutputStream(clientSocket.getOutputStream());
     inFromClient = new ObjectInputStream(clientSocket.getInputStream());
-
   }
 
+  /**
+   * Sends a message to the client.
+   *
+   * @param msg the message send to the client
+   * @throws IOException If an I/O error occurs, when writing the message to the client output
+   *     stream.
+   */
   public void send(GSMessage msg) throws IOException {
     outToClient.writeObject(msg);
   }
 
+  /**
+   * Receives a message from the client.
+   *
+   * @return the message from the client
+   * @throws IOException If an I/O error occurs, when reading the message from the client input stream.
+   * @throws ClassNotFoundException Class of serialized GSMessage cannot be found.
+   */
   public GSMessage receive() throws IOException, ClassNotFoundException {
     GSMessage inMsg = (GSMessage) inFromClient.readObject();
     return inMsg;
   }
 
+  /**
+   * Closes the server socket.
+   *
+   * @throws IOException If an I/O error occurs, when closing the server socket.
+   */
   public void close() throws IOException {
-    welcomeSocket.close();
+    serverSocket.close();
   }
 }
