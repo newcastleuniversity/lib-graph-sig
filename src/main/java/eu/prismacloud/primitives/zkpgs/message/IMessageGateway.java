@@ -7,5 +7,6 @@ public interface IMessageGateway {
   void send(GSMessage message);
 
    GSMessage receive();
+   void close();
 
 }
