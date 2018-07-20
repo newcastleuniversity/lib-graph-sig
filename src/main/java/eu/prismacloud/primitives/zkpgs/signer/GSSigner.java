@@ -43,14 +43,6 @@ public class GSSigner { // implements ISigner {
     this.messageGateway = new MessageGatewayProxy(CLIENT);
   }
 
-  public void bootStrap() {
-    Map<URN, Object> elements = new HashMap<>();
-    elements.put(
-        URN.createZkpgsURN("signer.ExtendedPublicKey"), extendedKeyPair.getExtendedPublicKey());
-    GSMessage bootStrapMsg = new GSMessage(elements);
-    messageGateway.send(bootStrapMsg);
-  }
-
   /**
    * Init graph gs graph.
    *
@@ -89,5 +81,10 @@ public class GSSigner { // implements ISigner {
   /** Receive message. */
   public GSMessage receiveMessage() {
     return messageGateway.receive();
+  }
+
+
+  public void close() {
+    messageGateway.close();
   }
 }
