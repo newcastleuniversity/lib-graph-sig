@@ -348,7 +348,8 @@ public class SignerOrchestrator {
     computeQ();
     computeA();
 
-    gsSignature = new GSSignature(extendedPublicKey, U, this.encodedBases, keyGenParameters);
+    gsSignature = new GSSignature(extendedPublicKey, U, this.encodedBases, keyGenParameters,
+    		this.A, this.e, this.vPrimePrime);
   }
 
   public void computeRandomness() {
