@@ -140,7 +140,7 @@ public class ProverOrchestrator implements ProofOperation {
     proofSignatureP = groupSetupProver.outputProofSignature();
 
     Map<URN, Object> messageElements = new HashMap<>();
-    messageElements.put(URN.createZkpgsURN("proofSignature.P"), proofSignatureP );
+    messageElements.put(URN.createZkpgsURN("proofSignature.P"), proofSignatureP);
     prover.sendMessage(new GSMessage(messageElements));
   }
 
@@ -236,9 +236,9 @@ public class ProverOrchestrator implements ProofOperation {
 
   private List<String> populateChallengeList() {
     /** TODO populate context list */
-    contextList =
-        GSContext.computeChallengeContext(
-            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    GSContext gsContext =
+        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    contextList = gsContext.computeChallengeContext();
 
     challengeList.addAll(contextList);
     challengeList.add(String.valueOf(randomizedGraphSignature.getA()));
