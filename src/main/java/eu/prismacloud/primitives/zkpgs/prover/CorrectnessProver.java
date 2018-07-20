@@ -86,9 +86,9 @@ public class CorrectnessProver implements IProver {
 
   private List<String> populateChallengeList() {
     challengeList = new ArrayList<String>();
-    List<String> contextList =
-        GSContext.computeChallengeContext(
-            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    GSContext gsContext =
+                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        List<String> contextList = gsContext.computeChallengeContext();
     gslog.info("contextlist length: " + contextList.size());
     // TODO add context list
     challengeList.addAll(contextList);

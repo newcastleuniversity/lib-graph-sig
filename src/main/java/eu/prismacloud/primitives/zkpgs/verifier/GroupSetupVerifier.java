@@ -205,9 +205,9 @@ public class GroupSetupVerifier implements IVerifier {
 
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
-    contextList =
-        GSContext.computeChallengeContext(
-            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    GSContext gsContext =
+                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        List<String> contextList = gsContext.computeChallengeContext();
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS));
     challengeList.add(String.valueOf(baseZ));

@@ -177,7 +177,7 @@ public class CorrectnessVerifier implements IVerifier {
       gslog.log(Level.SEVERE, ve.getMessage());
     }
   }
-
+  
   public void computeChallenge() throws NoSuchAlgorithmException {
 
     challengeList = populateChallengeList();
@@ -191,9 +191,9 @@ public class CorrectnessVerifier implements IVerifier {
   public List<String> populateChallengeList() {
     challengeList = new ArrayList<String>();
     /** TODO add context in challenge list */
-    List<String> contextList =
-        GSContext.computeChallengeContext(
-            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    GSContext gsContext =
+                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        List<String> contextList = gsContext.computeChallengeContext();
     gslog.info("contextlist length: " + contextList.size());
     challengeList.addAll(contextList);
     challengeList.add(String.valueOf(Q));
