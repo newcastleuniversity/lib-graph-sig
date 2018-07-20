@@ -6,8 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Creates a socket based server and client according to a type, while implementing the message
- * gateway interface
+ * Creates either a socket-based server or client, while implementing the message gateway interface.
+ * The type of the socket-based message gateway is specified during construction of the object.
  */
 public class SocketMessageGatewayImpl implements IMessageGateway {
   private Logger log = GSLoggerConfiguration.getGSlog();
@@ -29,7 +29,7 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
     try {
       setup(type);
     } catch (IOException e) {
-      log.log(Level.SEVERE, e.getMessage());
+      log.log(Level.SEVERE, e.getMessage() + " for " + type);
     }
   }
 
@@ -53,13 +53,12 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
 
   @Override
   public void send(GSMessage msg) {
-
     if (CLIENT.equals(type)) {
       try {
         clientGateway.send(msg);
         log.info("send message to server: ");
       } catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
       }
 
     } else if (SERVER.equals(type)) {
@@ -67,7 +66,7 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
         serverGateway.send(msg);
         log.info("send message to client: ");
       } catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
       }
     }
   }
@@ -80,9 +79,9 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
         message = clientGateway.receive();
         log.info("receive message from server:");
       } catch (ClassNotFoundException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
       } catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
       }
 
     } else if (SERVER.equals(type)) {
@@ -90,9 +89,9 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
         message = serverGateway.receive();
         log.info("receive message from client:");
       } catch (ClassNotFoundException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
       } catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
       }
     }
 
@@ -106,14 +105,15 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
         clientGateway.close();
         log.info("closed connection for client ");
       } catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
       }
     } else if (SERVER.equals(type)) {
       try {
+
         serverGateway.close();
         log.info("closed connection for server ");
       } catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage());
+        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
       }
     }
   }
