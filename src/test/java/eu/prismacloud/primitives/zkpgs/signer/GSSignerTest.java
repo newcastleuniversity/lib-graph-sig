@@ -1,10 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.signer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
-import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
+import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
@@ -15,19 +17,25 @@ import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 import org.jgrapht.io.ImportException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
+@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
 @TestInstance(Lifecycle.PER_CLASS)
-class GSSignerTest {
+public class GSSignerTest {
 
   private SignerKeyPair signerKeyPair;
   private GraphEncodingParameters graphEncodingParameters;
@@ -37,9 +45,10 @@ class GSSignerTest {
   private ExtendedKeyPair extendedKeyPair;
   private GSSigner signer;
   private GSRecipient recipient;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException {
+  void setupKey() throws IOException, ClassNotFoundException, InterruptedException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -50,8 +59,8 @@ class GSSignerTest {
     qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
     extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.createExtendedKeyPair();
+
     signer = new GSSigner(extendedKeyPair, keyGenParameters);
-    recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
   }
 
   @Test
@@ -61,19 +70,28 @@ class GSSignerTest {
     assertNotNull(gsGraph.getGraph());
   }
 
+  @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
   @Test
-  void sendMessage() {
-    GSMessage msg = new GSMessage();
-    msg.addCommitment(
-        new GSCommitment(
-            new QRElement(qrGroup, BigInteger.valueOf(10)),
-            BigInteger.valueOf(11),
-            BigInteger.valueOf(23),
-            new QRElement(qrGroup, BigInteger.valueOf(10)),
-            BigInteger.valueOf(32)));
+  void testSignerMessaging() {
+
+    gslog.info("test send message to recipient");
+    Map<URN, Object> msgList = new HashMap<>();
+    msgList.put(URN.createZkpgsURN("test1"), BigInteger.valueOf(999999));
+    GSMessage msg = new GSMessage(msgList);
 
     signer.sendMessage(msg);
-    assertNotNull(signer.receiveMessage());
+
+    gslog.info("test receive message from recipient");
+    GSMessage recMsg = signer.receiveMessage();
+    assertNotNull(recMsg);
+
+    //    assertNotNull(signer.receiveMessage());
+    Map<URN, Object> msgElements = recMsg.getMessageElements();
+
+    for (Object value : msgElements.values()) {
+      assertEquals(BigInteger.valueOf(888888), value);
+      gslog.info("received message from recipient: " + value);
+    }
   }
 
   @Test
@@ -84,38 +102,8 @@ class GSSignerTest {
     assertTrue(bitLengthRange);
   }
 
-  @Test
-  void receiveMessage() {
-    GSMessage msg = new GSMessage();
-    msg.addCommitment(
-        new GSCommitment(
-            new QRElement(qrGroup, BigInteger.valueOf(10)),
-            BigInteger.valueOf(11),
-            BigInteger.valueOf(23),
-            new QRElement(qrGroup, BigInteger.valueOf(10)),
-            BigInteger.valueOf(32)));
-
-    signer.sendMessage(
-        msg);
-    signer.receiveMessage();
-    assertNotNull(signer.receiveMessage());
-  }
-
-  @Test
-  void getMessage() {
-    GSMessage msg = new GSMessage();
-    msg.addCommitment(
-        new GSCommitment(
-            new QRElement(qrGroup, BigInteger.valueOf(10)),
-            BigInteger.valueOf(11),
-            BigInteger.valueOf(23),
-            new QRElement(qrGroup, BigInteger.valueOf(10)),
-            BigInteger.valueOf(32)));
-
-    signer.sendMessage(
-        msg);
-    signer.receiveMessage();
-    GSMessage recMsg = signer.receiveMessage();
-    assertNotNull(recMsg);
+  @AfterAll
+  void tearDown() {
+    signer.close();
   }
 }
