@@ -306,9 +306,9 @@ public class GroupSetupProver implements IProver {
 
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
-    contextList =
-        GSContext.computeChallengeContext(
-            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    GSContext gsContext =
+                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        List<String> contextList = gsContext.computeChallengeContext();
 
     //    baseR = extendedPublicKey.getPublicKey().getBaseR();
     //    baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
