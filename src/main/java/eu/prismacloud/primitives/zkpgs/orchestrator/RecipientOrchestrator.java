@@ -162,9 +162,9 @@ public class RecipientOrchestrator {
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
     challengeList = new ArrayList<>();
-    List<String> contextList =
-        GSContext.computeChallengeContext(
-            extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    GSContext gsContext =
+            new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    List<String> contextList = gsContext.computeChallengeContext();
 
     challengeList.addAll(contextList);
     challengeList.add(String.valueOf(modN));
@@ -312,5 +312,8 @@ public class RecipientOrchestrator {
             correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
 
     return P_2;
+  }
+  public void close(){
+    recipient.close();
   }
 }
