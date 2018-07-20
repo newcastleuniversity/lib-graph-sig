@@ -108,4 +108,7 @@ public class GSRecipient { // implements IRecipient {
   public BigInteger generateN_2() {
     return CryptoUtilsFacade.computeRandomNumber(this.keyGenParameters.getL_H());
   }
+  public void close() {
+    messageGateway.close();
+  }
 }
