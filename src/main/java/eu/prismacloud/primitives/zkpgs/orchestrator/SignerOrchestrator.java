@@ -113,7 +113,8 @@ public class SignerOrchestrator {
     this.modN = extendedKeyPair.getPublicKey().getModN();
     this.baseRepresentationMap = extendedKeyPair.getExtendedPublicKey().getBases();
     this.signer = new GSSigner(extendedKeyPair, keyGenParameters);
-    this.recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
+    //    this.recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(),
+    // keyGenParameters);
   }
 
   public void round0() {
@@ -164,8 +165,10 @@ public class SignerOrchestrator {
             STAGE.ISSUING);
 
     hatc = computeChallenge();
-
+    gslog.info("challenge hatc: " + hatc);
     if (!verifyChallenge()) {
+      gslog.info("throws verification exception");
+      signer.close();
       throw new VerificationException("challenge verification failed");
     }
 
@@ -260,24 +263,23 @@ public class SignerOrchestrator {
   }
 
   private List<String> populateChallengeList() {
-
     challengeList = new ArrayList<String>();
-    contextList =
-        GSContext.computeChallengeContext(
+    GSContext gsContext =
+        new GSContext(
             extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
+    contextList = gsContext.computeChallengeContext();
 
     challengeList.addAll(contextList);
 
     R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
     GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
-    
+
     /** TODO add context to list of elements in challenge */
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS));
     challengeList.add(String.valueOf(baseZ));
     challengeList.add(String.valueOf(R));
     challengeList.add(String.valueOf(R_0));
-
 
     //    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
     //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
@@ -454,5 +456,9 @@ public class SignerOrchestrator {
 
     A = Q.modPow(d);
     return A;
+  }
+
+  public void close() {
+    signer.close();
   }
 }
