@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Logger;
 
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 public class GSClient {
   private static final String HOST = "127.0.0.1";
   private static final int PORT = 9999;
+  private static final int TIMEOUT = 1000;
   private final Socket clientSocket;
   private Logger log = GSLoggerConfiguration.getGSlog();
   private ObjectInputStream inFromServer;
@@ -23,7 +25,19 @@ public class GSClient {
    * @throws IOException If an I/O error occurs, when creating a new client socket.
    */
   public GSClient() throws IOException {
-    clientSocket = new Socket(HOST, PORT);
+    clientSocket = new Socket();
+    clientSocket.connect(new InetSocketAddress(HOST, PORT), TIMEOUT);
+  }
+
+  /**
+   * Creates a new client stream socket in the input port number and connects it to the specified
+   * port number on the server host.
+   *
+   * @throws IOException If an I/O error occurs, when creating a new client socket.
+   */
+  public GSClient(int port) throws IOException {
+    clientSocket = new Socket();
+    clientSocket.connect(new InetSocketAddress(HOST, port), TIMEOUT);
   }
 
   /**

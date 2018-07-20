@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Logger;
@@ -24,6 +25,17 @@ public class GSServer {
    */
   public GSServer() throws IOException {
     serverSocket = new ServerSocket(PORT);
+//    serverSocket.setSoTimeout(1000);
+  }
+
+  /**
+   * Creates a new instance of the server socket with a input port number.
+   *
+   * @throws IOException When an I/O error occurs, while creating a new ServerSocket.
+   */
+  public GSServer(int port) throws IOException {
+    serverSocket = new ServerSocket(port);
+    serverSocket.setSoTimeout(100);
   }
 
   /**
@@ -44,8 +56,7 @@ public class GSServer {
    * Sends a message to the client.
    *
    * @param msg the message send to the client
-   * @throws IOException If an I/O error occurs, when writing the message to the client output
-   *     stream.
+   * @throws IOException If an I/O error occurs, when writing the message to the client output stream.
    */
   public void send(GSMessage msg) throws IOException {
     outToClient.writeObject(msg);
@@ -55,7 +66,7 @@ public class GSServer {
    * Receives a message from the client.
    *
    * @return the message from the client
-   * @throws IOException If an I/O error occurs, when reading the message from the client input stream.
+   * @throws IOException If an I/O error occurs, when reading the message from the input stream.
    * @throws ClassNotFoundException Class of serialized GSMessage cannot be found.
    */
   public GSMessage receive() throws IOException, ClassNotFoundException {
@@ -69,6 +80,9 @@ public class GSServer {
    * @throws IOException If an I/O error occurs, when closing the server socket.
    */
   public void close() throws IOException {
-    serverSocket.close();
+    if (!serverSocket.isClosed()) {
+      serverSocket.close();
+    }
+
   }
 }
