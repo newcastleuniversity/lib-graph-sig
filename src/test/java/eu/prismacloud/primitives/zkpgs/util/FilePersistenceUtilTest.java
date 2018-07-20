@@ -11,7 +11,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,11 +21,12 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 class FilePersistenceUtilTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
-  // set flag to true to generate a new signer key pair
-  private Boolean generateKeyPair = false;
+  // set flag to true to generate a new signer key pair and a new signer public key
+  private Boolean generateKey = false;
   private FilePersistenceUtil persistenceUtil;
   private KeyGenParameters keyGenParameters;
   private String signerKeyPairFileName;
+  private String signerPublicKeyFileName;
 
   @BeforeAll
   void setUp() {
@@ -35,21 +35,25 @@ class FilePersistenceUtilTest {
     GraphEncodingParameters graphEncodingParameters = parameters.getGraphEncodingParameters();
     persistenceUtil = new FilePersistenceUtil();
     signerKeyPairFileName = "SignerKeyPair-" + keyGenParameters.getL_n() + ".ser";
+    signerPublicKeyFileName = "SignerPublicKey-" + keyGenParameters.getL_n() + ".ser";
   }
 
   @Test
-  void writeSignerKeyPair() throws IOException {
+  void writeSignerKeyPairAndPublicKey() throws IOException {
 
-    if (generateKeyPair) {
+    if (generateKey) {
       log.info("Test writeSignerKeyPair: generating new SignerKeyPair...");
 
       SignerKeyPair gsk = new SignerKeyPair();
       gsk.keyGen(keyGenParameters);
 
+      log.info("Test writeSignerPublicKey: writing new SignerKeyPair...");
       persistenceUtil.write(gsk, signerKeyPairFileName);
+
+      log.info("Test writeSignerPublicKey: writing new SignerPublicKey...");
+      persistenceUtil.write(gsk.getPublicKey(), signerPublicKeyFileName);
     }
   }
-
 
   @Test
   void readSignerKeyPair() throws IOException, ClassNotFoundException {
@@ -74,5 +78,16 @@ class FilePersistenceUtilTest {
     assertTrue(qrGroup.isElement(signerPublicKey.getBaseZ().getValue()));
     assertTrue(qrGroup.isElement(signerPublicKey.getBaseR().getValue()));
     assertTrue(qrGroup.isElement(signerPublicKey.getBaseR_0().getValue()));
+  }
+
+  @Test
+  void readSignerPublidKey() throws IOException, ClassNotFoundException {
+    SignerPublicKey signerPublicKey =
+        (SignerPublicKey) persistenceUtil.read(signerPublicKeyFileName);
+    assertNotNull(signerPublicKey);
+    assertNotNull(signerPublicKey.getBaseR());
+    assertNotNull(signerPublicKey.getBaseR_0());
+    assertNotNull(signerPublicKey.getBaseS());
+    assertNotNull(signerPublicKey.getBaseZ());
   }
 }
