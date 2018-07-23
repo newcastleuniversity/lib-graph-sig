@@ -10,6 +10,7 @@ public class BaseRepresentation implements Serializable {
   private static final long serialVersionUID = 8542984504573091475L;
 
   public enum BASE {
+    ALL,
     VERTEX,
     EDGE,
     BASE0
