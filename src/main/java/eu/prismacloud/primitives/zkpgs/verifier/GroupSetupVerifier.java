@@ -3,12 +3,15 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -20,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /** Class represents the verification stage for the group setup. */
@@ -55,6 +57,9 @@ public class GroupSetupVerifier implements IVerifier {
   private List<String> contextList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private GroupElement hatR_i_j;
+  private BaseCollection baseCollection;
+  private BaseIterator vertexIterator;
+  private BaseIterator edgeIterator;
 
   /**
    * Pre challenge phase.
@@ -88,6 +93,9 @@ public class GroupSetupVerifier implements IVerifier {
     this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
     this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
     this.graphEncodingParameters = graphEncodingParameters;
+    this.baseCollection = extendedPublicKey.getBaseCollection();
+    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
   }
 
   /** Check lengths. */
@@ -105,25 +113,21 @@ public class GroupSetupVerifier implements IVerifier {
     BigInteger vertexResponse;
     BigInteger edgeResponse;
 
-    BaseRepresentation baseR;
-    for (Entry<URN, BaseRepresentation> baseRepresentation :
-        extendedPublicKey.getBases().entrySet()) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      vertexResponse =
+          this.vertexResponses.get(
+              URN.createZkpgsURN(
+                  "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()));
+      Assert.checkBitLength(
+          vertexResponse, bitLength, "length for vertex response is not correct ");
+    }
 
-//      gslog.info("key: " + baseRepresentation.getKey());
-      baseR = baseRepresentation.getValue();
-      if (baseR.getBaseType() == BASE.VERTEX) {
-        vertexResponse =
-            this.vertexResponses.get(
-                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_" + baseR.getBaseIndex()));
-        Assert.checkBitLength(
-            vertexResponse, bitLength, "length for vertex response is not correct ");
-
-      } else if (baseR.getBaseType() == BASE.EDGE) {
-        edgeResponse =
-            this.edgeResponses.get(
-                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_j_" + baseR.getBaseIndex()));
-        Assert.checkBitLength(edgeResponse, bitLength, "length for edge response is not correct ");
-      }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      edgeResponse =
+          this.edgeResponses.get(
+              URN.createZkpgsURN(
+                  "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
+      Assert.checkBitLength(edgeResponse, bitLength, "length for edge response is not correct ");
     }
   }
 
@@ -143,52 +147,46 @@ public class GroupSetupVerifier implements IVerifier {
     BigInteger hatEdgeResponse;
     GroupElement hatR_i;
     GroupElement hatR_j;
-   
+
     hatVertexBases = new HashMap<URN, GroupElement>();
     hatEdgeBases = new HashMap<URN, GroupElement>();
-    
+
     // Compute the negation of the challenge once.
     BigInteger negChallenge = c.negate();
-    
-//    GroupElement checkHatZ =
-//            baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
-//    // What is checkHatZ used for?
 
     /** TODO check computation if it is computed correctly according to spec. */
     hatZ = baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
     hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
     hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
 
-    BaseRepresentation baseR;
-    for (Entry<URN, BaseRepresentation> baseRepresentation :
-        extendedPublicKey.getBases().entrySet()) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      hatVertexResponse =
+          vertexResponses.get(
+              URN.createZkpgsURN(
+                  "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()));
+      hatR_i =
+          baseRepresentation
+              .getBase()
+              .modPow(negChallenge)
+              .multiply(baseS.modPow(hatVertexResponse));
 
-//      gslog.info("key: " + baseRepresentation.getKey());
-      baseR = baseRepresentation.getValue();
-      if (baseR.getBaseType() == BASE.VERTEX) {
-        hatVertexResponse =
-            vertexResponses.get(
-                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_" + baseR.getBaseIndex()));
-        hatR_i =
-            baseR
-                .getBase()
-                .modPow(negChallenge)
-                .multiply(baseS.modPow(hatVertexResponse));
+      hatVertexBases.put(
+          URN.createZkpgsURN(
+              "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()),
+          hatR_i);
+    }
 
-        hatVertexBases.put(
-            URN.createZkpgsURN("groupsetupverifier.vertex.hatR_i_" + baseR.getBaseIndex()),
-            hatR_i);
-
-      } else if (baseR.getBaseType() == BASE.EDGE) {
-        hatEdgeResponse =
-            edgeResponses.get(
-                URN.createZkpgsURN("groupsetupprover.responses.hatr_i_j_" + baseR.getBaseIndex()));
-        hatR_i_j =
-            baseR.getBase().modPow(negChallenge).multiply(baseS.modPow(hatEdgeResponse));
-        hatEdgeBases.put(
-            URN.createZkpgsURN("groupsetupverifier.edge.hatR_i_j_" + baseR.getBaseIndex()),
-            hatR_i_j);
-      }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      hatEdgeResponse =
+          edgeResponses.get(
+              URN.createZkpgsURN(
+                  "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
+      hatR_i_j =
+          baseRepresentation.getBase().modPow(negChallenge).multiply(baseS.modPow(hatEdgeResponse));
+      hatEdgeBases.put(
+          URN.createZkpgsURN(
+              "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()),
+          hatR_i_j);
     }
   }
 
@@ -206,15 +204,19 @@ public class GroupSetupVerifier implements IVerifier {
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
     GSContext gsContext =
-                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-        List<String> contextList = gsContext.computeChallengeContext();
+        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    List<String> contextList = gsContext.computeChallengeContext();
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS));
     challengeList.add(String.valueOf(baseZ));
     challengeList.add(String.valueOf(baseR));
     challengeList.add(String.valueOf(baseR_0));
 
-    for (BaseRepresentation baseRepresentation : extendedPublicKey.getBases().values()) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+    }
+
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
       challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
     }
 
@@ -222,22 +224,20 @@ public class GroupSetupVerifier implements IVerifier {
     challengeList.add(String.valueOf(hatR));
     challengeList.add(String.valueOf(hatR_0));
 
-    for (BaseRepresentation baseRepresentation : extendedPublicKey.getBases().values()) {
-      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      challengeList.add(
+          String.valueOf(
+              hatVertexBases.get(
+                  URN.createZkpgsURN(
+                      "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()))));
+    }
 
-        challengeList.add(
-            String.valueOf(
-                hatVertexBases.get(
-                    URN.createZkpgsURN(
-                        "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()))));
-
-      } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
-        challengeList.add(
-            String.valueOf(
-                hatEdgeBases.get(
-                    URN.createZkpgsURN(
-                        "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()))));
-      }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      challengeList.add(
+          String.valueOf(
+              hatEdgeBases.get(
+                  URN.createZkpgsURN(
+                      "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()))));
     }
 
     return challengeList;
@@ -245,9 +245,9 @@ public class GroupSetupVerifier implements IVerifier {
 
   /** Verify challenge. */
   //  @Override
-  public void verifyChallenge() {
+  public void verifyChallenge() throws VerificationException {
     if (!hatc.equals(c)) {
-      throw new IllegalArgumentException("Challenge is rejected ");
+      throw new VerificationException("Challenge is rejected ");
     }
   }
 }
