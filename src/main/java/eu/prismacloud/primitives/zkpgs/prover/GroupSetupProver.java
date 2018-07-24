@@ -9,6 +9,8 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -19,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +58,7 @@ public class GroupSetupProver implements IProver {
   private Map<String, BigInteger> edgeWitnessBases;
   private HashMap<URN, BigInteger> vertexResponses;
   private HashMap<URN, BigInteger> edgeResponses;
-  private Map<URN, BaseRepresentation> baseRepresentationMap;
+  private BaseCollection baseRepresentationMap;
   private Map<String, BigInteger> edgeBases;
   private List<String> contextList;
   private ExtendedPublicKey extendedPublicKey;
@@ -66,6 +67,9 @@ public class GroupSetupProver implements IProver {
   private BigInteger tilder_j;
   private BigInteger hatr_j;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private BaseCollection baseCollection;
+  private BaseIterator vertexIterator;
+  private BaseIterator edgeIterator;
 
   /**
    * Pre challenge phase.
@@ -91,7 +95,9 @@ public class GroupSetupProver implements IProver {
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-    this.baseRepresentationMap = extendedKeyPair.getExtendedPublicKey().getBases();
+    this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
+    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
 
     try {
       createWitnessRandomness();
@@ -114,7 +120,9 @@ public class GroupSetupProver implements IProver {
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-    this.baseRepresentationMap = extendedKeyPair.getExtendedPublicKey().getBases();
+    this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
+    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
 
     try {
       createWitnessRandomness();
@@ -141,26 +149,18 @@ public class GroupSetupProver implements IProver {
     BigInteger vWitnessRandomness;
     BigInteger eWitnessRandomness;
 
-    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
-      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      vWitnessRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
+      proofStore.store(
+          "groupsetupprover.witnesses.randomness.tilder_i_" + baseRepresentation.getBaseIndex(),
+          vWitnessRandomness);
+    }
 
-        vWitnessRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
-        //        vertexWitnessRandomNumbers.put(
-        //            "tilder_" + baseRepresentation.getBaseIndex(), vWitnessRandomness);
-
-        proofStore.store(
-            "groupsetupprover.witnesses.randomness.tilder_i_" + baseRepresentation.getBaseIndex(),
-            vWitnessRandomness);
-
-      } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
-
-        eWitnessRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
-        //        edgeWitnessRandomNumbers.put(
-        //            "tilder_" + baseRepresentation.getBaseIndex(), eWitnessRandomness);
-        proofStore.store(
-            "groupsetupprover.witnesses.randomness.tilder_j_" + baseRepresentation.getBaseIndex(),
-            eWitnessRandomness);
-      }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      eWitnessRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(bitLength);
+      proofStore.store(
+          "groupsetupprover.witnesses.randomness.tilder_j_" + baseRepresentation.getBaseIndex(),
+          eWitnessRandomness);
     }
   }
 
@@ -181,37 +181,27 @@ public class GroupSetupProver implements IProver {
     BigInteger vWitnessRandomNumber;
     BigInteger eWitnessRandomNumber;
 
-    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
-      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      vWitnessRandomNumber =
+          (BigInteger)
+              proofStore.retrieve(
+                  "groupsetupprover.witnesses.randomness.tilder_i_"
+                      + baseRepresentation.getBaseIndex());
 
-        vWitnessRandomNumber =
-            (BigInteger)
-                proofStore.retrieve(
-                    "groupsetupprover.witnesses.randomness.tilder_i_"
-                        + baseRepresentation.getBaseIndex());
+      vWitnessBase = baseS.modPow(vWitnessRandomNumber).getValue();
+      proofStore.store(
+          "groupsetupprover.witnesses.tildeR_i_" + baseRepresentation.getBaseIndex(), vWitnessBase);
+    }
 
-        vWitnessBase = baseS.modPow(vWitnessRandomNumber).getValue();
-        //        vertexWitnessRandomNumbers.put("tildeR_" + baseRepresentation.getBaseIndex(),
-        // vWitnessBase);
-
-        proofStore.store(
-            "groupsetupprover.witnesses.tildeR_i_" + baseRepresentation.getBaseIndex(),
-            vWitnessBase);
-
-      } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
-
-        eWitnessRandomNumber =
-            (BigInteger)
-                proofStore.retrieve(
-                    "groupsetupprover.witnesses.randomness.tilder_j_"
-                        + baseRepresentation.getBaseIndex());
-        eWitnessBase = baseS.modPow(eWitnessRandomNumber).getValue();
-        //        vertexWitnessRandomNumbers.put("tildeR_" + baseRepresentation.getBaseIndex(),
-        // eWitnessBase);
-        proofStore.store(
-            "groupsetupprover.witnesses.tildeR_j_" + baseRepresentation.getBaseIndex(),
-            eWitnessBase);
-      }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      eWitnessRandomNumber =
+          (BigInteger)
+              proofStore.retrieve(
+                  "groupsetupprover.witnesses.randomness.tilder_j_"
+                      + baseRepresentation.getBaseIndex());
+      eWitnessBase = baseS.modPow(eWitnessRandomNumber).getValue();
+      proofStore.store(
+          "groupsetupprover.witnesses.tildeR_j_" + baseRepresentation.getBaseIndex(), eWitnessBase);
     }
   }
 
@@ -255,48 +245,46 @@ public class GroupSetupProver implements IProver {
     proofStore.store("groupsetupprover.responses.hatr_0", hatr_0);
 
     /** TODO check r_i, r_j computations */
-    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
-      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      r_i =
+          discLogs.get(
+              URN.createZkpgsURN("discretelogs.vertex.R_i_" + baseRepresentation.getBaseIndex()));
+      tilder_i =
+          (BigInteger)
+              proofStore.retrieve(
+                  "groupsetupprover.witnesses.randomness.tilder_i_"
+                      + baseRepresentation.getBaseIndex());
 
-        r_i =
-            discLogs.get(
-                URN.createZkpgsURN("discretelogs.vertex.R_i_" + baseRepresentation.getBaseIndex()));
-        tilder_i =
-            (BigInteger)
-                proofStore.retrieve(
-                    "groupsetupprover.witnesses.randomness.tilder_i_"
-                        + baseRepresentation.getBaseIndex());
+      hatr_i = tilder_i.add(cChallenge.multiply(r_i));
 
-        hatr_i = tilder_i.add(cChallenge.multiply(r_i));
+      vertexResponses.put(
+          URN.createZkpgsURN(
+              "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()),
+          hatr_i);
 
-        vertexResponses.put(
-            URN.createZkpgsURN(
-                "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()),
-            hatr_i);
+      proofStore.store(
+          "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex(), hatr_i);
+    }
 
-        proofStore.store(
-            "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex(), hatr_i);
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      r_j =
+          discLogs.get(
+              URN.createZkpgsURN("discretelogs.edge.R_i_j_" + baseRepresentation.getBaseIndex()));
+      tilder_j =
+          (BigInteger)
+              proofStore.retrieve(
+                  "groupsetupprover.witnesses.randomness.tilder_j_"
+                      + baseRepresentation.getBaseIndex());
 
-      } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
-        r_j =
-            discLogs.get(
-                URN.createZkpgsURN("discretelogs.edge.R_i_j_" + baseRepresentation.getBaseIndex()));
-        tilder_j =
-            (BigInteger)
-                proofStore.retrieve(
-                    "groupsetupprover.witnesses.randomness.tilder_j_"
-                        + baseRepresentation.getBaseIndex());
+      hatr_j = tilder_j.add(cChallenge.multiply(r_j));
 
-        hatr_j = tilder_j.add(cChallenge.multiply(r_j));
+      edgeResponses.put(
+          URN.createZkpgsURN(
+              "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()),
+          hatr_j);
 
-        edgeResponses.put(
-            URN.createZkpgsURN(
-                "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()),
-            hatr_j);
-
-        proofStore.store(
-            "groupsetupprover.responses.hatr_j_" + baseRepresentation.getBaseIndex(), hatr_j);
-      }
+      proofStore.store(
+          "groupsetupprover.responses.hatr_j_" + baseRepresentation.getBaseIndex(), hatr_j);
     }
   }
 
@@ -307,12 +295,8 @@ public class GroupSetupProver implements IProver {
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
     GSContext gsContext =
-                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-        List<String> contextList = gsContext.computeChallengeContext();
-
-    //    baseR = extendedPublicKey.getPublicKey().getBaseR();
-    //    baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
-    baseRepresentationMap = extendedPublicKey.getBases();
+        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    List<String> contextList = gsContext.computeChallengeContext();
 
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS.getValue()));
@@ -320,7 +304,11 @@ public class GroupSetupProver implements IProver {
     challengeList.add(String.valueOf(baseR.getValue()));
     challengeList.add(String.valueOf(baseR_0.getValue()));
 
-    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+    }
+
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
       challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
     }
 
@@ -328,24 +316,20 @@ public class GroupSetupProver implements IProver {
     challengeList.add(String.valueOf(basetildeR));
     challengeList.add(String.valueOf(basetildeR_0));
 
-    for (BaseRepresentation baseRepresentation : baseRepresentationMap.values()) {
-      if (baseRepresentation.getBaseType() == BASE.VERTEX) {
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      tilder_i =
+          (BigInteger)
+              proofStore.retrieve(
+                  "groupsetupprover.witnesses.tildeR_i_" + baseRepresentation.getBaseIndex());
+      challengeList.add(String.valueOf(tilder_i));
+    }
 
-        tilder_i =
-            (BigInteger)
-                proofStore.retrieve(
-                    "groupsetupprover.witnesses.tildeR_i_"
-                        + baseRepresentation.getBaseIndex());
-        challengeList.add(String.valueOf(tilder_i));
-
-      } else if (baseRepresentation.getBaseType() == BASE.EDGE) {
-        tilder_j =
-            (BigInteger)
-                proofStore.retrieve(
-                    "groupsetupprover.witnesses.tildeR_j_"
-                        + baseRepresentation.getBaseIndex());
-        challengeList.add(String.valueOf(tilder_j));
-      }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      tilder_j =
+          (BigInteger)
+              proofStore.retrieve(
+                  "groupsetupprover.witnesses.tildeR_j_" + baseRepresentation.getBaseIndex());
+      challengeList.add(String.valueOf(tilder_j));
     }
 
     return challengeList;
@@ -366,17 +350,16 @@ public class GroupSetupProver implements IProver {
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.baseR"), this.baseR);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.baseR_0"), this.baseR_0);
     BaseRepresentation baseR;
-    for (Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
 
-//      gslog.info("key: " + baseRepresentation.getKey());
-      baseR = baseRepresentation.getValue();
-      if (baseR.getBaseType() == BASE.VERTEX) {
-        proofSignatureElements.put(
-            URN.createZkpgsURN("proofsignature.P.R_i_" + baseR.getBaseIndex()), baseR);
-      } else if (baseR.getBaseType() == BASE.EDGE) {
-        proofSignatureElements.put(
-            URN.createZkpgsURN("proofsignature.P.R_i_j_" + baseR.getBaseIndex()), baseR);
-      }
+    for (BaseRepresentation baseRepresentation : vertexIterator) {
+      proofSignatureElements.put(
+          URN.createZkpgsURN("proofsignature.P.R_i_" + baseRepresentation.getBaseIndex()),
+          baseRepresentation);
+    }
+    for (BaseRepresentation baseRepresentation : edgeIterator) {
+      proofSignatureElements.put(
+          URN.createZkpgsURN("proofsignature.P.R_i_j_" + baseRepresentation.getBaseIndex()),
+          baseRepresentation);
     }
 
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr_Z"), this.hatr_Z);
