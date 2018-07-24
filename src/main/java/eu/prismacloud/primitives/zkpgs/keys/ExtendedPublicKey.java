@@ -5,10 +5,11 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Map;
 
 /** The type Extended public key. */
@@ -29,6 +30,7 @@ public class ExtendedPublicKey {
   private int index = 0;
   private Map<URN, BigInteger> vertexRepresentatives;
   private BigInteger vertexPrimeRepresentative;
+  private BaseCollectionImpl baseCollection;
 
   /**
    * Instantiates a new Extended public key.
@@ -48,11 +50,11 @@ public class ExtendedPublicKey {
       final Map<URN, BigInteger> labelRepresentatives,
       final GraphEncodingParameters graphEncodingParameters) {
 
-    Assert.notNull(signerPublicKey,"public key must not be null" );
+    Assert.notNull(signerPublicKey, "public key must not be null");
     Assert.notNull(keygenParams, "keygen parameters must not be null");
     Assert.notNull(bases, "bases must not be null");
     Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
-    Assert.notNull(labelRepresentatives,"labels representatives must not be null");
+    Assert.notNull(labelRepresentatives, "labels representatives must not be null");
     Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
 
     this.signerPublicKey = signerPublicKey;
@@ -61,6 +63,7 @@ public class ExtendedPublicKey {
     this.vertexRepresentatives = vertexRepresentatives;
     this.labelRepresentatives = labelRepresentatives;
     this.graphEncodingParameters = graphEncodingParameters;
+    this.baseCollection = new BaseCollectionImpl();
   }
 
   /**
@@ -82,6 +85,16 @@ public class ExtendedPublicKey {
   }
 
   /**
+   * Gets base collection.
+   *
+   * @return the base collection
+   */
+  public BaseCollection getBaseCollection() {
+    baseCollection.setBases(new ArrayList<BaseRepresentation>(bases.values()));
+    return baseCollection;
+  }
+
+  /**
    * Gets labels representatives.
    *
    * @return the country labels
@@ -96,6 +109,6 @@ public class ExtendedPublicKey {
    * @return the vertex representatives
    */
   public Map<URN, BigInteger> getVertexRepresentatives() {
-      return this.vertexRepresentatives;
-    }
+    return this.vertexRepresentatives;
+  }
 }
