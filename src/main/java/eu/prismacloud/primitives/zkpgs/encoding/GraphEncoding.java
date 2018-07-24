@@ -41,7 +41,7 @@ public class GraphEncoding {
    *
    * @param bases the bases
    * @param vertexPrimeRepresentatives the vertex prime representatives
-   * @param signerPublicKey the country labels
+   * @param publicKey the country labels
    * @param keyGenParameters the key gen parameters
    * @param graphEncodingParameters the graph encoding parameters
    */
