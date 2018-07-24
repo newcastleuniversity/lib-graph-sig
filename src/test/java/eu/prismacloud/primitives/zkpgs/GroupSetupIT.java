@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -54,7 +55,7 @@ public class GroupSetupIT {
 
   @Test
   void testGroupSetup()
-      throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException {
+      throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException, VerificationException {
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();
@@ -99,7 +100,7 @@ public class GroupSetupIT {
   }
 
   private void testGroupSetupVerifier(ProofSignature proofSignature)
-      throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException, VerificationException {
     GroupSetupVerifier groupSetupVerifier = new GroupSetupVerifier();
 
     groupSetupVerifier.preChallengePhase(

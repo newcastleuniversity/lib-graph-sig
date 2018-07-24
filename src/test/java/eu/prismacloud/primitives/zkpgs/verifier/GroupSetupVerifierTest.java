@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -185,7 +186,7 @@ class GroupSetupVerifierTest {
   }
 
   @Test
-  void verifyChallenge() throws NoSuchAlgorithmException {
+  void verifyChallenge() throws NoSuchAlgorithmException, VerificationException {
 
     groupSetupVerifier.preChallengePhase(
         extendedKeyPair.getExtendedPublicKey(),
