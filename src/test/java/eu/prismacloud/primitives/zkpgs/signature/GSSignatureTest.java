@@ -27,7 +27,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -85,17 +84,14 @@ class GSSignatureTest {
   }
 
   @Test
-  @RepeatedTest(10)
-  void testGRSignatureRandom() throws IOException, ClassNotFoundException {
+  //  @RepeatedTest(10)
+  void testSignatureRandom() throws IOException, ClassNotFoundException {
     // TODO Ioannis: The computations should be done by QRElement in the actual implementation.
     // Not on externalized BigIntegers.
-
     modN = publicKey.getModN();
     m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     baseS = publicKey.getBaseS();
-
     baseZ = publicKey.getBaseZ();
-
     R_0 = publicKey.getBaseR_0();
     QRGroupPQ qrGroupPQ = (QRGroupPQ) signerKeyPair.getQRGroup();
 
@@ -111,87 +107,30 @@ class GSSignatureTest {
     baseScom = baseS.modPow(vbar);
     commitment = R_0com.multiply(baseScom);
 
-    calculateSignatureRandom(commitment);
-  }
-
-  private boolean checkQRGenerator(BigInteger candidate) {
-    return (modN.gcd(candidate.subtract(BigInteger.ONE))).equals(BigInteger.ONE);
-  }
-
-  private void calculateSignatureRandom(GroupElement commitment) {
-    computeQRandom(commitment);
-    computeARandom();
-    verifySignatureRandom();
-  }
-
-  private void computeQRandom(GroupElement commitment) {
     int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
-    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-
+    log.info("eBitLength: " + eBitLength);
+    log.info("l_e length: " + keyGenParameters.getL_e());
+    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e()-1, eBitLength);
     log.info("e bitlength: " + e.bitLength());
-    log.info("vbar bitlength: " + vbar.bitLength());
-
+    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
     vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
 
-    log.info("vPrimePrime bitlength: " + vPrimePrime.bitLength());
-
-    //    log.info("vbar: " + vbar);
-    //    log.info("vPrimePrime: " + vPrimePrime);
-
     Sv = baseS.modPow(vPrimePrime);
-    // TODO The Signer must not assume knowledge of m_0!
-    // R_0multi = R_0.modPow(m_0, modN);
-
     GroupElement Sv1 = (Sv.multiply(commitment));
-
     Q = (baseZ.multiply(Sv1.modInverse()));
 
-    log.info(" Q bitlength: " + Q.bitLength());
-    log.info(" e bitlength: " + e.bitLength());
-    log.info(" Z bitlength: " + baseZ.bitLength());
-    log.info(" S bitlegth: " + baseS.bitLength());
-
-    //    log.info("signer Q: " + Q);
-    //     log.info("signer e: " + e);
-    //     log.info("signer Z: " + baseZ);
-    //     log.info("signer S: " + baseS);
-  }
-
-  private void computeARandom() {
     BigInteger order = privateKey.getpPrime().multiply(privateKey.getqPrime());
-
     BigInteger d = e.modInverse(order);
     A = Q.modPow(d);
     GroupElement sigma = A.modPow(e);
     assertEquals(sigma, Q, "Signature A not reverting to Q.");
 
-    //    log.info("d: " + d);
-
-    //    log.info("A: " + A);
+    gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
+    assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));
   }
 
-  private void verifySignatureRandom() {
-
-    //    log.info("recipient.R_0: " + R_0);
-    //
-    //    log.info("recipient.m_0: " + m_0);
-
-    GroupElement blindingPrime = baseS.modPow(vPrimePrime);
-    assertEquals(Sv, blindingPrime, "Blinding of proof and verification unequal.");
-
-    GroupElement sigmaPrime = A.modPow(e);
-
-    ZPrime = (sigmaPrime.multiply(blindingPrime));
-
-    GroupElement hatZ = (ZPrime.multiply(commitment));
-    log.info("Z:" + baseZ);
-
-    log.info("hatZ: " + hatZ);
-    log.info("hatZ bitlength: " + hatZ.bitLength());
-    log.info("Z bitlength:" + baseZ.bitLength());
-
-    assertEquals(baseZ, hatZ);
+  private boolean checkQRGenerator(BigInteger candidate) {
+    return (modN.gcd(candidate.subtract(BigInteger.ONE))).equals(BigInteger.ONE);
   }
 
   @Test
@@ -208,7 +147,7 @@ class GSSignatureTest {
 
     modN = BigInteger.valueOf(77);
     QRGroupN group = new QRGroupN(modN);
-    m_0 = BigInteger.valueOf(3);
+    m_0 = BigInteger.valueOf(2);
     baseS = new QRElementN(group, BigInteger.valueOf(60));
 
     x_Z = CryptoUtilsFacade.computeRandomNumber(BigInteger.valueOf(2), BigInteger.valueOf(14));
@@ -216,33 +155,14 @@ class GSSignatureTest {
 
     R_0 = new QRElementN(group, BigInteger.valueOf(58));
 
-    vCommRandomness = BigInteger.valueOf(2);
+    vCommRandomness = BigInteger.valueOf(1);
     R_0com = R_0.modPow(m_0);
     baseScom = baseS.modPow(vCommRandomness);
     commitment = R_0com.multiply(baseScom);
 
-    log.info("recipient R_0:  " + R_0);
-    log.info("recipient m_0: " + m_0);
-    log.info("commitment: " + commitment);
-
-    calculateSignature();
-
-    gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vCommRandomness);
-  }
-
-  void calculateSignature() throws Exception {
-    computeQ();
-    computeA();
-    verifySignature();
-  }
-
-  void computeQ() {
-    e = BigInteger.valueOf(13);
+    e = BigInteger.valueOf(11);
     vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(429 - 1);
     vPrimePrime = NumberConstants.TWO.getValue().pow(429 - 1).add(vbar);
-
-    log.info("vbar: " + vbar);
-    log.info("vPrimePrime: " + vPrimePrime);
 
     Sv = baseS.modPow(vPrimePrime);
     R_0multi = R_0.modPow(m_0);
@@ -250,64 +170,36 @@ class GSSignatureTest {
 
     Q = baseZ.multiply(Sv1.modInverse());
 
-    log.info("signer Q: " + Q);
-    log.info("signer e: " + e);
-    log.info("signer Z: " + baseZ);
-    log.info("signer S: " + baseS);
-  }
-
-  void computeA() {
     d = e.modInverse(BigInteger.valueOf(15));
     A = Q.modPow(d);
-
-    log.info("d: " + d);
-
-    log.info("A: " + A);
-  }
-
-  void verifySignature() throws Exception {
-
-    BigInteger vPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(87);
-    log.info("signer vPrime: " + vPrime);
-
-    BigInteger v = vPrimePrime.add(vPrime);
-
-    log.info("recipient.R_0: " + R_0);
-
-    log.info("recipient.m_0: " + m_0);
-
-    GroupElement R_0multi = R_0.modPow(m_0);
-    //    BigInteger Ae = A.modPow(e, modN);
-    //    BigInteger baseSmulti = baseS.modPow(v, modN);
-    ZPrime = A.modPow(e).multiply(baseS.modPow(vPrimePrime));
-
-    GroupElement hatZ = ZPrime.multiply(R_0multi);
-
-    log.info("signer hatZ: " + hatZ);
+    // verify signature
+    GroupElement hatZ = baseS.modPow(vPrimePrime);
+    GroupElement hatA = this.A.modPow(this.e);
+    hatZ = hatZ.multiply(hatA).multiply(R_0multi);
+    hatZ.equals(baseZ);
 
     assertEquals(baseZ, hatZ);
   }
 
   @Test
   void getA() throws Exception {
-    testSignatureGeneration();
+    testSignatureRandom();
     assertNotNull(gsSignature.getA());
     assertEquals(A, gsSignature.getA());
-    //    assertEquals(, );
   }
 
   @Test
   void getE() throws Exception {
-    testSignatureGeneration();
+    testSignatureRandom();
     assertNotNull(gsSignature.getE());
     assertEquals(e, gsSignature.getE());
   }
 
   @Test
   void getV() throws Exception {
-    testSignatureGeneration();
+    testSignatureRandom();
     assertNotNull(gsSignature.getV());
-    assertEquals(vCommRandomness, gsSignature.getV());
+    assertEquals(vPrimePrime, gsSignature.getV());
   }
 
   @Test
