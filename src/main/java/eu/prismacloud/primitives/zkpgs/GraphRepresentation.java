@@ -6,6 +6,8 @@ import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -141,6 +143,17 @@ public class GraphRepresentation {
    */
   public Map<URN, BaseRepresentation> getEncodedBases() {
     return bases;
+  }
+
+  /**
+   * Return encoded base collection.
+   *
+   * @return the encoded base collection
+   */
+  public BaseCollection getEncodedBaseCollection() {
+    BaseCollectionImpl baseCollection = new BaseCollectionImpl();
+    baseCollection.setBases(new ArrayList<BaseRepresentation>(bases.values()));
+    return baseCollection;
   }
 
   /*
