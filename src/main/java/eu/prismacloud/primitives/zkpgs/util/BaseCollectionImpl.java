@@ -2,17 +2,20 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /** Base service class for the iterator. */
-public class BaseCollectionImpl implements BaseCollection {
+public class BaseCollectionImpl implements BaseCollection, Serializable {
+
+  private static final long serialVersionUID = 4214821047875971751L;
   private List<BaseRepresentation> bases;
 
   @Override
   public BaseIterator createIterator(BASE type) {
-    return new BaseIteratorImpl(type, this.bases);
+    return new BaseIteratorImpl(type, bases);
   }
 
   @Override
@@ -55,6 +58,8 @@ public class BaseCollectionImpl implements BaseCollection {
       position++;
       return ba;
     }
+
+   
 
     @Override
     public Iterator<BaseRepresentation> iterator() {
