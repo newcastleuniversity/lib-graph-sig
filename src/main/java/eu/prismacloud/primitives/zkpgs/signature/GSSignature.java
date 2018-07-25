@@ -4,8 +4,6 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
-import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
-import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -16,14 +14,22 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
-import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * The GSSignature class encapsulates the algebraic structure a graph signature along
+ * with methods to verify itself as well as to blind itself, returning an unlinkably
+ * randomized version of the same graph signature.
+ * 
+ * While a graph signature itself is a triple of <code>(A, e, v)</code>,
+ * the graph signature is valid with respect to a SignerPublicKey and a
+ * GraphRepresentation with an encoding specified in the signer's
+ * ExtendedPublicKey.
+ * 
+ */
 public class GSSignature {
 	private static Logger gslog = GSLoggerConfiguration.getGSlog();
 	private final SignerPublicKey signerPublicKey;
@@ -89,11 +95,11 @@ public class GSSignature {
 
 	/** 
 	 * Computes a blinding on this graph signature, which will yield a new uniformly at random chosen
-	 * A' and corresponding signature components e and v.
+	 * A' and corresponding signature components <code>e</code> and <code>v</code>.
 	 * 
 	 *  The blinded signature is a signature on the same graph as the original signature.
 	 * 
-	 * @return a GraphSignature with blinded public base A'. 
+	 * @return GraphSignature with blinded public base <code>A'</code>. 
 	 */
 	public GSSignature blind() {
 		int r_ALength = keyGenParameters.getL_n() + keyGenParameters.getL_statzk();
@@ -111,13 +117,13 @@ public class GSSignature {
 	 * and graph encoding.
 	 * 
 	 * The method checks that this graph signature fulfills all 
-	 * requirements on its tuple (A, e, v)
-	 * and verifies correctly as Z = R_i^enc[G] A^e S^v (mod N).
+	 * requirements on its tuple <code>(A, e, v)</code>
+	 * and verifies correctly as <code>Z = R_i^enc[G] A^e S^v (mod N)</code>.
 	 * 
 	 * @param ExtendedPublicKey epk
 	 * @param GraphEncoding enc
 	 * 
-	 * @return true if this graph signature verifies correctly for the given Extended Public Key 
+	 * @return <code>true</code> if this graph signature verifies correctly for the given Extended Public Key 
 	 * and Graph Encoding
 	 */
 	public boolean verify(ExtendedPublicKey epk, GraphRepresentation gr) {
@@ -132,17 +138,17 @@ public class GSSignature {
 
 	/**
 	 * Verifies that this graph signature is valid with respect to a given signer public key 
-	 * and a single message m to be encoded on base R_0.
+	 * and a single message <code>m</code> to be encoded on base <code>R_0</code>.
 	 * 
 	 * The method checks that this graph signature fulfills all 
-	 * requirements on its tuple (A, e, v)
-	 * and verifies correctly as Z = R_0^m A^e S^v (mod N).
+	 * requirements on its tuple <code>(A, e, v)</code>
+	 * and verifies correctly as <code>Z = R_0^m A^e S^v (mod N)</code>.
 	 * 
 	 * @param SignerPublicKey pk
 	 * @param BigInteger m
 	 * 
-	 * @return true if this graph signature verifies correctly for the given 
-	 * Signer Public Key and a message m.
+	 * @return <code>true</code> if this graph signature verifies correctly for the given 
+	 * Signer Public Key and a message <code>m</code>.
 	 */
 	public boolean verify(SignerPublicKey pk, BigInteger m) {
 		GroupElement msgR = pk.getBaseR_0().modPow(m);
@@ -152,18 +158,18 @@ public class GSSignature {
 
 	/**
 	 * Verifies that this graph signature is valid with respect to a given signer public key 
-	 * and a group element Y. The idea is that another method provides Y as encoding of
+	 * and a group element <code>Y</code>. The idea is that another method provides Y as encoding of
 	 * one or multiple messages with bases R_i chosen internally.
 	 * 
 	 * The method checks that this graph signature fulfills all 
-	 * requirements on its tuple (A, e, v)
-	 * and verifies correctly as Z = Y A^e S^v (mod N).
+	 * requirements on its tuple <code>(A, e, v)</code>
+	 * and verifies correctly as <code>Z = Y A^e S^v (mod N)</code>.
 	 * 
 	 * @param SignerPublicKey pk
 	 * @param GroupElement Y
 	 * 
-	 * @return true if this graph signature verifies correctly for the given 
-	 * Signer Public Key and a message-encoding group element Y.
+	 * @return <code>true</code> if this graph signature verifies correctly for the given 
+	 * Signer Public Key and a message-encoding group element <code>Y</code>.
 	 */
 	public boolean verify(SignerPublicKey pk, GroupElement Y) {
 		// Check components of the signature for appropriate values.
@@ -185,7 +191,7 @@ public class GSSignature {
 	 * Checks whether the prime number e included in this graph signature is valid,
 	 * that is, is a prime number of appropriate length.
 	 * 
-	 * @return true if e is likely a prime of appropriate length.
+	 * @return <code>true</code> if <code>e</code> is likely a prime of appropriate length.
 	 */
 	public boolean hasValidE() {
 		return (this.e != null)
@@ -194,9 +200,9 @@ public class GSSignature {
 	}
 
 	/**
-	 * Checks that the prime number component of the graph signature e has the specified length.
+	 * Checks that the prime number component of the graph signature <code>e</code> has the specified length.
 	 * 
-	 * @return true if e has the correct length
+	 * @return <code>true</code> if <code>e</code> has the correct length
 	 */
 	public boolean hasValidLengthE() {
 		
@@ -205,9 +211,9 @@ public class GSSignature {
 	}
 
 	/**
-	 * Checks that the blinding randomness v has the correct length.
+	 * Checks that the blinding randomness <code>v</code> has the correct length.
 	 * 
-	 * @return true if the bit length of v is as specified.
+	 * @return true if the bit length of <code>v</code> is as specified.
 	 */
 	public boolean hasValidLengthV() {
 		return (this.v.compareTo(this.keyGenParameters.getLowerBoundV()) > 0) &&
