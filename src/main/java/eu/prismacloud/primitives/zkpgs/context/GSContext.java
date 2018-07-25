@@ -1,11 +1,14 @@
 package eu.prismacloud.primitives.zkpgs.context;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -34,7 +37,8 @@ public class GSContext {
   public List<String> computeChallengeContext() {
 
     SignerPublicKey publicKey = extendedPublicKey.getPublicKey();
-    Map<URN, BaseRepresentation> bases = extendedPublicKey.getBases();
+    BaseCollection bases = extendedPublicKey.getBaseCollection();
+    BaseIterator baseIterator = bases.createIterator(BASE.ALL);
     Map<URN, BigInteger> labels = extendedPublicKey.getLabelRepresentatives();
 
     addKeyGenParameters(keyGenParameters);
@@ -42,7 +46,16 @@ public class GSContext {
     ctxList.add(String.valueOf(publicKey.getModN()));
     ctxList.add(String.valueOf(publicKey.getBaseS().getValue()));
     ctxList.add(String.valueOf(publicKey.getBaseZ().getValue()));
+    ctxList.add(String.valueOf(publicKey.getBaseR().getValue()));
     ctxList.add(String.valueOf(publicKey.getBaseR_0().getValue()));
+
+//    for (BaseRepresentation baseRepresentation : baseIterator) {
+//      ctxList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+//    }
+//
+//    for (BigInteger label : labels.values()) {
+//      ctxList.add(String.valueOf(label));
+//    }
 
     /** TODO add context for bases and labels */
     //    for (BaseRepresentation base : bases.values()) {
