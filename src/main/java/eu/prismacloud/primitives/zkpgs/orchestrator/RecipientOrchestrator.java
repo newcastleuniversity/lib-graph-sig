@@ -23,6 +23,8 @@ import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -67,13 +69,15 @@ public class RecipientOrchestrator {
   private List<String> challengeList;
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
-  private Map<URN, BaseRepresentation> correctnessEncodedBases;
+  private BaseCollection encodedBasesCollection;
   private GroupElement A;
   private BigInteger e;
   private BigInteger vPrimePrime;
   private ProofSignature P_2;
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private BaseIterator vertexIterator;
+  private BaseIterator edgeIterator;
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -82,7 +86,7 @@ public class RecipientOrchestrator {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-    proofStore = new ProofStore<Object>();
+    this.proofStore = new ProofStore<Object>();
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
@@ -163,7 +167,7 @@ public class RecipientOrchestrator {
     /** TODO add context to list of elements in challenge */
     challengeList = new ArrayList<>();
     GSContext gsContext =
-            new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
     List<String> contextList = gsContext.computeChallengeContext();
 
     challengeList.addAll(contextList);
@@ -172,7 +176,8 @@ public class RecipientOrchestrator {
     challengeList.add(String.valueOf(baseZ));
     challengeList.add(String.valueOf(R));
     challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseR_0()));
-
+    
+    /** TODO recipient graph is encoded */
     //    for (BaseRepresentation baseRepresentation : encodedBases.values()) {
     //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
     //    }
@@ -271,7 +276,7 @@ public class RecipientOrchestrator {
         A,
         extendedPublicKey,
         n_2,
-        correctnessEncodedBases,
+        encodedBasesCollection,
         proofStore,
         keyGenParameters,
         graphEncodingParameters);
@@ -307,13 +312,17 @@ public class RecipientOrchestrator {
         (BigInteger)
             correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.vPrimePrime"));
     P_2 = (ProofSignature) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.P_2"));
-    correctnessEncodedBases =
-        (Map<URN, BaseRepresentation>)
+    encodedBasesCollection =
+        (BaseCollection)
             correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
+    // create iterator for vertex and edge encoded bases
+    vertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
+    edgeIterator = encodedBasesCollection.createIterator(BASE.EDGE);
 
     return P_2;
   }
-  public void close(){
+
+  public void close() {
     recipient.close();
   }
 }
