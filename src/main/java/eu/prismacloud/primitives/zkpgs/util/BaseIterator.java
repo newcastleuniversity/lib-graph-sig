@@ -5,7 +5,7 @@ import eu.prismacloud.primitives.zkpgs.store.Base;
 
 /** Iterator for bases */
 public interface BaseIterator extends Iterable<BaseRepresentation> {
-  public boolean hasNext();
+  boolean hasNext();
 
-  public BaseRepresentation next();
+  BaseRepresentation next();
 }
