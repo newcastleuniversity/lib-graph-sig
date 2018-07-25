@@ -86,4 +86,12 @@ public abstract class Group implements Serializable {
 	 * @return if the order is known or efficiently derivable.
 	 */
 	public abstract boolean isKnownOrder();
+	
+	/**
+	 * Returns the identity element with respect to multiplication, one, of this particular group.
+	 * 
+	 * @return the multiplicative identity.
+	 */
+	public abstract GroupElement getOne();
+	
 }

@@ -1,6 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -8,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -17,6 +20,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -116,9 +120,14 @@ public class GSSignature {
 	 * @return true if this graph signature verifies correctly for the given Extended Public Key 
 	 * and Graph Encoding
 	 */
-	public boolean verify(ExtendedPublicKey epk, GraphEncoding enc) {
-		throw new NotImplementedException("Graph Signature verification on Extended Public Keys "
-				+ "and Graph Encodings is not implemented, yet.");
+	public boolean verify(ExtendedPublicKey epk, GraphRepresentation gr) {
+		GroupElement Y = epk.getPublicKey().getQRGroup().getOne();
+		BaseIterator baseIter = gr.getEncodedBaseCollection().createIterator(BASE.ALL);
+		for (BaseRepresentation baseRepresentation : baseIter) {
+			Y = Y.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+		}
+		
+		return verify(epk.getPublicKey(), Y);
 	}
 
 	/**
