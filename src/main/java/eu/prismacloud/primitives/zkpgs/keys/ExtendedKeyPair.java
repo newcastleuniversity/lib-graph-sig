@@ -56,7 +56,7 @@ public final class ExtendedKeyPair {
     this.keyGenParameters = keyGenParameters;
     this.baseS = signerKeyPair.getPublicKey().getBaseS();
     this.modN = signerKeyPair.getPublicKey().getModN();
-    this.qrGroup = signerKeyPair.getQRGroup();
+    this.qrGroup = publicKey.getQRGroup();
     this.baseRepresentationMap = new HashMap<URN, BaseRepresentation>();
     this.vertexRepresentatives = new HashMap<URN, BigInteger>();
     this.labelRepresentatives = new HashMap<URN, BigInteger>();
@@ -142,7 +142,7 @@ public final class ExtendedKeyPair {
 
   /** Certify prime representatives. */
   public void certifyPrimeRepresentatives() {
-    Group qrGroup = signerKeyPair.getQRGroup();
+    Group qrGroup = publicKey.getQRGroup();
     BigInteger x_R_V = qrGroup.createRandomElement().getValue();
 
     GroupElement R_V = baseS.modPow(x_R_V);

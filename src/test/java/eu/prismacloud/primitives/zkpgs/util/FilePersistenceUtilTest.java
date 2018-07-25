@@ -63,11 +63,12 @@ class FilePersistenceUtilTest {
     assertNotNull(signerKeyPair);
     assertNotNull(signerKeyPair.getPrivateKey());
     assertNotNull(signerKeyPair.getPublicKey());
-    assertNotNull(signerKeyPair.getQRGroup());
+
     SignerPublicKey signerPublicKey = signerKeyPair.getPublicKey();
     SignerPrivateKey signerPrivateKey = signerKeyPair.getPrivateKey();
-
-    QRGroupPQ qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
+    assertNotNull(signerPublicKey.getQRGroup());
+    assertNotNull(signerPrivateKey.getQrGroup());
+    QRGroupPQ qrGroup = (QRGroupPQ) signerPublicKey.getQRGroup();
     GroupElement baseS = signerPublicKey.getBaseS();
 
     assertTrue(

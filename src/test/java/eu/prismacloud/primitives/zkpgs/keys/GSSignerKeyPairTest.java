@@ -57,7 +57,7 @@ class SignerKeyPairTest {
     log.info("@Test: baseS");
     baseS = (QRElementPQ) signerPublicKey.getBaseS();
     assertNotNull(baseS);
-    QRGroupPQ qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
+    QRGroupPQ qrGroup = (QRGroupPQ) signerPublicKey.getQRGroup();
 
     assertTrue(qrGroup.isElement(baseS.getValue()));
     assertTrue(

@@ -2,20 +2,18 @@ package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.logging.Logger;
 
 /** Generates key pair for the Signer */
 public class SignerKeyPair implements Serializable {
 
   private static final long serialVersionUID = -5396481186679228018L;
-  
   private SignerPrivateKey privateKey;
   private SignerPublicKey publicKey;
   private KeyGenParameters keyGenParameters;
@@ -29,7 +27,7 @@ public class SignerKeyPair implements Serializable {
   private GroupElement Z;
   private Group cg;
 //  private final Logger log = GSLoggerConfiguration.getGSlog();
-  private Group qrGroup;
+  private QRGroup qrGroup;
 
 
   /**
@@ -66,9 +64,9 @@ public class SignerKeyPair implements Serializable {
             specialRSAMod.getqPrime(),
             x_R,
             x_R0,
-            x_Z);
+            x_Z, (QRGroup) qrGroup);
     
-    publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z, keyGenParameters);
+    publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z, qrGroup, keyGenParameters);
 
   }
 
@@ -80,12 +78,4 @@ public class SignerKeyPair implements Serializable {
     return publicKey;
   }
 
-  /**
-   * Gets qr group.
-   *
-   * @return the qr group
-   */
-  public Group getQRGroup() {
-    return qrGroup;
-  }
 }

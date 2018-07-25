@@ -1,48 +1,44 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import java.io.Serializable;
 import java.math.BigInteger;
 
 public class SignerPrivateKey implements Serializable {
   private static final long serialVersionUID = -9134821806862114638L;
   private final BigInteger p;
-  private BigInteger bigInteger;
   /** Safe prime <tt>q = 2*q' + 1</tt>. */
   private final BigInteger q;
 
-  private BigInteger integer;
-  private BigInteger x_r;
-  private BigInteger x_r0;
-  //    /**
-  //     * Modulus <tt>n = p*q</tt>.
-  //     */
-  //    private  BigInteger n;
+  private final BigInteger x_r;
+  private final BigInteger x_r0;
   /** Safe prime <tt>p'</tt>. */
-  private BigInteger pPrime;
+  private final BigInteger pPrime;
   /** Safe prime <tt>q'</tt>. */
-  private BigInteger qPrime;
+  private final BigInteger qPrime;
 
-  private BigInteger x_r_0;
-  private BigInteger x_Z;
+  private final BigInteger x_Z;
+  private final QRGroup qrGroup;
 
   public SignerPrivateKey(
       final BigInteger p,
       final BigInteger p_prime,
       final BigInteger q,
-      final BigInteger q_prime,
+      final BigInteger q_Prime,
       final BigInteger x_R,
       final BigInteger x_R0,
-      final BigInteger x_Z) {
+      final BigInteger x_Z,
+      final QRGroup qrGroup) {
 
     this.p = p;
     this.pPrime = p_prime;
     this.q = q;
-    this.qPrime = q_prime;
+    this.qPrime = q_Prime;
     this.x_r = x_R;
     this.x_r0 = x_R0;
     this.x_Z = x_Z;
+    this.qrGroup = qrGroup;
   }
-
 
   public BigInteger getpPrime() {
     return pPrime;
@@ -62,5 +58,9 @@ public class SignerPrivateKey implements Serializable {
 
   public BigInteger getX_rZ() {
     return x_Z;
+  }
+
+  public QRGroup getQrGroup() {
+    return qrGroup;
   }
 }

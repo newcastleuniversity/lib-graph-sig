@@ -32,7 +32,7 @@ class SignerPublicKeyTest {
     signerKeyPair = baseTest.getSignerKeyPair();
     keyGenParameters = baseTest.getKeyGenParameters();
     signerPublicKey = signerKeyPair.getPublicKey();
-    qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
+    qrGroup = (QRGroupPQ) signerPublicKey.getQRGroup();
   }
 
   @Test

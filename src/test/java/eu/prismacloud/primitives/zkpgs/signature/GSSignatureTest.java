@@ -93,7 +93,7 @@ class GSSignatureTest {
     baseS = publicKey.getBaseS();
     baseZ = publicKey.getBaseZ();
     R_0 = publicKey.getBaseR_0();
-    QRGroupPQ qrGroupPQ = (QRGroupPQ) signerKeyPair.getQRGroup();
+    QRGroupPQ qrGroupPQ = (QRGroupPQ) publicKey.getQRGroup();
 
     assertTrue(qrGroupPQ.isElement(baseS.getValue()), "S is not a Quadratic Residue.");
     assertTrue(checkQRGenerator(baseS.getValue()), "S not a generator!");

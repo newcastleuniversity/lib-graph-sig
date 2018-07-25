@@ -49,7 +49,7 @@ public class GSRecipientTest {
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
     privateKey = signerKeyPair.getPrivateKey();
-    qrGroup = (QRGroupPQ) signerKeyPair.getQRGroup();
+    qrGroup = (QRGroupPQ) privateKey.getQrGroup();
     extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.createExtendedKeyPair();
 
