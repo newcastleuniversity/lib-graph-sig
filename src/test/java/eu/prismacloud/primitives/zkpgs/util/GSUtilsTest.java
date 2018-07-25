@@ -565,7 +565,7 @@ class GSUtilsTest {
   void generateRandomSafePrime() {
     if (!BaseTest.EXECUTE_INTENSIVE_TESTS) {
       // test generating a random safe prime with 512 modulus bitlength
-      keyGenParameters = KeyGenParameters.createKeyGenParameters(512, 0, 0, 0, 0, 0, 0 ,0, 0,0,0,0);
+      keyGenParameters = KeyGenParameters.createKeyGenParameters(512, 1632, 80, 256, 1, 597, 120 ,2724, 80,256,80,80);
     }
     
     SafePrime prime = classUnderTest.generateRandomSafePrime(keyGenParameters);

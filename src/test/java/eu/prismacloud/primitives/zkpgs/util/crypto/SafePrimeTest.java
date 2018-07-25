@@ -48,8 +48,7 @@ class SafePrimeTest {
     log.info("@Test: generateSafePrime()");
     if (!BaseTest.EXECUTE_INTENSIVE_TESTS) {
       // execute test with 512 bitlength
-      keyGenParameters =
-          KeyGenParameters.createKeyGenParameters(512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      keyGenParameters = KeyGenParameters.createKeyGenParameters(512, 1632, 80, 256, 1, 597, 120 ,2724, 80,256,80,80);
     }
     assertNotNull(classUnderTest);
     SafePrime sf = classUnderTest.generateRandomSafePrime(keyGenParameters);
