@@ -15,6 +15,7 @@ import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -30,7 +31,11 @@ import java.util.logging.Logger;
  * ExtendedPublicKey.
  * 
  */
-public class GSSignature {
+public class GSSignature implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4811571232342405043L;
 	private static Logger gslog = GSLoggerConfiguration.getGSlog();
 	private final SignerPublicKey signerPublicKey;
 	private GSCommitment U;
