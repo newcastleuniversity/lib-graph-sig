@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -8,6 +9,8 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -27,7 +30,7 @@ public class CorrectnessVerifier implements IVerifier {
   private BigInteger e;
   private BigInteger hatd;
   private BigInteger n_2;
-  private Map<URN, BaseRepresentation> encodedBases;
+  private BaseCollection encodedBasesCollection;
   private BigInteger v;
   private ProofSignature P_2;
   private ExtendedPublicKey extendedPublicKey;
@@ -57,6 +60,8 @@ public class CorrectnessVerifier implements IVerifier {
   private GroupElement hatZ;
   private BigInteger vPrime;
   private BigInteger vPrimePrime;
+  private BaseIterator encodedVertexIterator;
+  private BaseIterator encodedEdgeIterator;
 
   private void checkE(BigInteger e) {
     if (!e.isProbablePrime(80)) {
@@ -76,7 +81,30 @@ public class CorrectnessVerifier implements IVerifier {
   }
 
   public void computeQ() {
-    //    for (BaseRepresentation encodedBase : encodedBases.values()) {
+
+    for (BaseRepresentation baseRepresentation : encodedVertexIterator) {
+         if (baseRepresentation.getExponent() != null) {
+           if (R_i == null) {
+             R_i = baseRepresentation.getBase().modPow(baseRepresentation.getExponent());
+           } else {
+             R_i = R_i.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+           }
+         }
+       }
+
+       for (BaseRepresentation baseRepresentation : encodedEdgeIterator) {
+         if (baseRepresentation.getExponent() != null) {
+           if (R_i_j == null) {
+             R_i_j = baseRepresentation.getBase().modPow(baseRepresentation.getExponent());
+           } else {
+             R_i_j =
+                 R_i_j.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+           }
+         }
+       }
+
+
+    //    for (BaseRepresentation encodedBase : encodedBasesCollection.values()) {
     //      if (encodedBase.getExponent() != null) {
     //        if (encodedBase.getBaseType() == BASE.VERTEX) {
     //          if (R_i == null) {
@@ -117,7 +145,7 @@ public class CorrectnessVerifier implements IVerifier {
 
     GroupElement R_0multi = R_0.modPow(m_0);
     GroupElement Svmulti = baseS.modPow(v);
-    GroupElement result = R_0multi.multiply(Svmulti);
+    GroupElement result = R_0multi.multiply(Svmulti).multiply(R_i).multiply(R_i_j);
     Q = baseZ.multiply(result.modInverse());
 
     gslog.info("recipient Q: " + Q);
@@ -139,7 +167,7 @@ public class CorrectnessVerifier implements IVerifier {
       final GroupElement A,
       final ExtendedPublicKey extendedPublicKey,
       final BigInteger n_2,
-      final Map<URN, BaseRepresentation> encodedBases,
+      final BaseCollection encodedBasesCollection,
       final ProofStore<Object> proofStore,
       final KeyGenParameters keyGenParameters,
       final GraphEncodingParameters graphEncodingParameters) {
@@ -149,13 +177,15 @@ public class CorrectnessVerifier implements IVerifier {
     this.A = A;
     this.extendedPublicKey = extendedPublicKey;
     this.n_2 = n_2;
-    this.encodedBases = encodedBases;
+    this.encodedBasesCollection = encodedBasesCollection;
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
+    this.encodedVertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
+    this.encodedEdgeIterator = encodedBasesCollection.createIterator(BASE.EDGE);
 
     checkE(this.e);
     verifySignature();
