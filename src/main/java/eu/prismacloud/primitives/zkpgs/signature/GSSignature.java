@@ -14,12 +14,11 @@ import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import org.apache.commons.lang3.NotImplementedException;
 
 public class GSSignature {
 	private static Logger gslog = GSLoggerConfiguration.getGSlog();
