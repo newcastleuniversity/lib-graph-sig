@@ -24,8 +24,8 @@ public class GSTestSuite {
 
   @Test
   @DisplayName("Test the Issuing protocol using a parallel execution of Recipient and Signer")
-  void testRecipientSigner() {
-
+  void testRecipientSigner() throws InterruptedException {
+    Thread.sleep(1000);
     System.setProperty("GSSuite", GSSuite.RECIPIENT_SIGNER.name());
     String property = System.getProperty("GSSuite");
     gslog.info("property: " + property);
