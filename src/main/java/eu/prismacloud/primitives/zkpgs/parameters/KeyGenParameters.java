@@ -40,6 +40,8 @@ public class KeyGenParameters implements Serializable {
   
   private final BigInteger upperBoundE;
   private final BigInteger lowerBoundE;
+  private final BigInteger upperBoundV;
+  private final BigInteger lowerBoundV;
 
   /**
    * Instantiates a new Key gen parameters.
@@ -103,6 +105,8 @@ public class KeyGenParameters implements Serializable {
     
     this.lowerBoundE = NumberConstants.TWO.getValue().pow(this.l_e-1);
     this.upperBoundE = this.lowerBoundE.add(NumberConstants.TWO.getValue().pow(this.l_prime_e-1));
+    this.lowerBoundV = NumberConstants.TWO.getValue().pow(l_v-1);
+    this.upperBoundV = NumberConstants.TWO.getValue().pow(l_v);
   }
 
   public static KeyGenParameters getKeyGenParameters() {
@@ -184,5 +188,13 @@ public class KeyGenParameters implements Serializable {
 	  
   public BigInteger getLowerBoundE() {
 	  return this.lowerBoundE;
+  }
+  
+  public BigInteger getUpperBoundV() {
+	  return this.upperBoundV;
+  }
+	  
+  public BigInteger getLowerBoundV() {
+	  return this.lowerBoundV;
   }
 }

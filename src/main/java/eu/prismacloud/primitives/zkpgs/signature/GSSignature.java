@@ -161,13 +161,13 @@ public class GSSignature {
 		if (this.A == null || this.e == null || this.v == null) return false;
 		
 		// The following line temporarily deactivated to ensure length-checks work smoothly.
-		// (!hasValidLengthV()
-		if (!hasValidE()) return false;
+		if (!hasValidLengthV() || !hasValidE()) return false;
 		
 		// Computes hatZ = Y A^e S^v (mod N)
 		GroupElement hatZ = pk.getBaseS().modPow(this.v);
 		GroupElement hatA = this.A.modPow(this.e);
 		hatZ = hatZ.multiply(hatA).multiply(Y);
+		
 		// Checks that hatZ
 		return hatZ.equals(pk.getBaseZ());
 	}
@@ -201,6 +201,7 @@ public class GSSignature {
 	 * @return true if the bit length of v is as specified.
 	 */
 	public boolean hasValidLengthV() {
-		return this.v.bitLength() == keyGenParameters.getL_v();
+		return (this.v.compareTo(this.keyGenParameters.getLowerBoundV()) > 0) &&
+		   (this.v.compareTo(this.keyGenParameters.getUpperBoundV()) < 0);
 	}
 }
