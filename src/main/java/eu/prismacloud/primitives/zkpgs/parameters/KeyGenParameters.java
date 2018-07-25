@@ -1,7 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.parameters;
 
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+
 import java.io.Serializable;
+import java.math.BigInteger;
 
 /** Class for key generation parameters displayed in table:params of the topocert documentation. */
 public class KeyGenParameters implements Serializable {
@@ -34,6 +37,9 @@ public class KeyGenParameters implements Serializable {
    * \frac{1}{2}^{l_{pt}} \)
    */
   private final int l_pt;
+  
+  private final BigInteger upperBoundE;
+  private final BigInteger lowerBoundE;
 
   /**
    * Instantiates a new Key gen parameters.
@@ -94,6 +100,9 @@ public class KeyGenParameters implements Serializable {
     this.l_H = l_H;
     this.l_r = l_r;
     this.l_pt = l_pt;
+    
+    this.lowerBoundE = NumberConstants.TWO.getValue().pow(this.l_e-1);
+    this.upperBoundE = this.lowerBoundE.add(NumberConstants.TWO.getValue().pow(this.l_prime_e-1));
   }
 
   public static KeyGenParameters getKeyGenParameters() {
@@ -167,5 +176,13 @@ public class KeyGenParameters implements Serializable {
 
   public int getL_pt() {
     return this.l_pt;
+  }
+  
+  public BigInteger getUpperBoundE() {
+	  return this.upperBoundE;
+  }
+	  
+  public BigInteger getLowerBoundE() {
+	  return this.lowerBoundE;
   }
 }
