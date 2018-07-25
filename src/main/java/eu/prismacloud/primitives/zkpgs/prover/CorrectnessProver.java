@@ -62,7 +62,7 @@ public class CorrectnessProver implements IProver {
     this.Q = (QRElement) proofStore.retrieve("issuing.signer.Q");
     this.A = (QRElement) proofStore.retrieve("issuing.signer.A");
     this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
-    ;
+    
     proofStore.store("correctnessprover.randomness.tilded", tilded);
     tildeA = Q.modPow(tilded);
 
