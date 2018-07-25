@@ -47,13 +47,6 @@ public class GSRecipient { // implements IRecipient {
     this.messageGateway = new MessageGatewayProxy(SERVER);
   }
 
-  public void bootStrap() {
-    GSMessage msg = messageGateway.receive();
-    Map<URN, Object> elements = msg.getMessageElements();
-    extendedPublicKey =
-        (ExtendedPublicKey) elements.get(URN.createZkpgsURN("signer.ExtendedPublicKey"));
-  }
-
   public BigInteger generatevPrime() {
     return CryptoUtilsFacade.computeRandomNumberMinusPlus(
         this.keyGenParameters.getL_n() + this.keyGenParameters.getL_statzk());
