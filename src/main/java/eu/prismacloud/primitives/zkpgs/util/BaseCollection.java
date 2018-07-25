@@ -9,4 +9,6 @@ public interface BaseCollection {
   boolean add(BaseRepresentation base);
 
   boolean remove(BaseRepresentation base);
+
+  int size();
 }
