@@ -7,6 +7,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -35,17 +36,16 @@ public class GSSignature {
 	private final GroupElement baseZ;
 	private BigInteger modN;
 	private Map<URN, BaseRepresentation> encodedEdges;
-	private Map<URN, BaseRepresentation> encodedBases;
+	private BaseCollection encodedBases;
 	private GroupElement R_i;
 	private GroupElement R_i_j;
 	private BigInteger d;
 	private BigInteger eInverse;
 
-
 	public GSSignature(
 			final ExtendedPublicKey extendedPublicKey,
 			GSCommitment U,
-			Map<URN, BaseRepresentation> encodedBases,
+			BaseCollection encodedBases,
 			KeyGenParameters keyGenParameters,
 			GroupElement A, BigInteger e, BigInteger v) {
 		this.signerPublicKey = extendedPublicKey.getPublicKey();
@@ -162,14 +162,13 @@ public class GSSignature {
 		if (this.A == null || this.e == null || this.v == null) return false;
 		
 		// The following line temporarily deactivated to ensure length-checks work smoothly.
-		// if (!hasValidLengthV() || !hasValidE()) return false;
+		 //if (!hasValidLengthV() || !hasValidE()) return false;
 		
 		// Computes hatZ = Y A^e S^v (mod N)
 		GroupElement hatZ = pk.getBaseS().modPow(this.v);
 		GroupElement hatA = this.A.modPow(this.e);
 		hatZ = hatZ.multiply(hatA).multiply(Y);
-
-		// Checks that hatZ 
+		// Checks that hatZ
 		return hatZ.equals(pk.getBaseZ());
 	}
 
