@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import java.math.BigInteger;
 
@@ -76,12 +77,16 @@ public final class CommitmentGroup extends Group {
 
 @Override
 public GroupElement createElement(BigInteger value) throws IllegalArgumentException, UnsupportedOperationException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new NotImplementedException("create Element not implemented");
 }
 
 @Override
 public boolean isKnownOrder() {
 	return true;
 }
+
+  @Override
+  public GroupElement getOne() {
+    return new CommitmentGroupElement(this, BigInteger.ONE);
+  }
 }
