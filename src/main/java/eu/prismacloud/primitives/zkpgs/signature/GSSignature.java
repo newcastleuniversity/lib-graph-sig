@@ -31,11 +31,13 @@ import java.util.logging.Logger;
  * ExtendedPublicKey.
  * 
  */
-public class GSSignature implements Serializable {
+public class GSSignature {
+	// implements Serializable 
+	// TODO We need to clean up the class in terms of variables that belong to the class.
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4811571232342405043L;
+//	private static final long serialVersionUID = 4811571232342405043L;
 	private static Logger gslog = GSLoggerConfiguration.getGSlog();
 	private final SignerPublicKey signerPublicKey;
 	private GSCommitment U;
