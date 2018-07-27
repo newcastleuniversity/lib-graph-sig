@@ -18,7 +18,7 @@ public class CRT {
    * @param p prime factor of N
    * @param xq positive integer number \( xq \gt 0 \)
    * @param q prime factor of N
-   * @pre xp != null && p != null && xq != null && q != null && p != q && p.gcd(q) != 1
+   * @pre \( xp != null \and p != null \and xq != null \and q != null \and p != q \and p.gcd(q) != 1 \)
    * @return x solution for representation \( \bmod modN \)
    */
   public static BigInteger computeCRT(

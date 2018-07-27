@@ -40,7 +40,7 @@ public final class URN implements Serializable {
    * @param namespaceIdentifier the namespace identifier
    * @param namespaceSpecific the namespace specific
    * @return the urn
-   * @pre namespaceIdentifier != null && namespaceSpecific != null
+   * @pre \( namespaceIdentifier != null \and namespaceSpecific != null \)
    * @post
    */
   public static URN createURN(
@@ -58,8 +58,8 @@ public final class URN implements Serializable {
    * @param namespaceIdentifier the namespace identifier
    * @param namespaceSpecific the namespace specific
    * @return the urn
-   * @pre namespaceIdentifier != null && namespaceIdentifier != "" && namespaceSpecific != null &&
-   *     namespaceSpecific != ""
+   * @pre \( namespaceIdentifier != null \and namespaceIdentifier != "" \and namespaceSpecific != null \and
+   *     namespaceSpecific != "" \)
    * @post
    */
   public static URN createURN(final String namespaceIdentifier, final String namespaceSpecific) {

@@ -36,7 +36,7 @@ public abstract class GroupElement implements Serializable {
   /**
    * Computes an exponentiation with a specified exponent within the group.
    * 
-   * @param exponent
+   * @param exponent specifies the exponent within the group
    * @return this.modPow(exponent, this.getGroup().getModulus()
    */
   public abstract GroupElement modPow(BigInteger exponent);
@@ -53,9 +53,9 @@ public abstract class GroupElement implements Serializable {
   
   /**
    * 
-   * @param bases
-   * @param exponents
-   * @return
+   * @param bases the bases for the multibase exponentiation
+   * @param exponents the exponents for the multibase exponentation
+   * @return a GroupElement result of the multibase exponentiation
    */
   public abstract GroupElement multiBaseExp(List<GroupElement> bases, List<BigInteger> exponents);
 

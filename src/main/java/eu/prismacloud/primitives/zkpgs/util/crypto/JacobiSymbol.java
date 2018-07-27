@@ -19,7 +19,7 @@ public class JacobiSymbol {
    *
    * @param alpha candidate integer
    * @param modN positive odd integer
-   * @pre alpha != null && modN != null
+   * @pre \( alpha != null \and modN != null \)
    * @return jacobi symbol (a|N)
    */
   public static int computeJacobiSymbol(BigInteger alpha, BigInteger modN) {

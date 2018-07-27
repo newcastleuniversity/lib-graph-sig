@@ -40,7 +40,7 @@ public class NamespaceComponent implements Serializable {
    * @param textContent the text content
    * @param ncType the nc type
    * @return the namespace component
-   * @pre textContent != null && textContent != ""
+   * @pre \( textContent != null \and textContent != "" \)
    * @post
    */
   public static NamespaceComponent fromString(final String textContent, final Type ncType) {

@@ -30,7 +30,7 @@ public class GraphEncodingParameters {
    * @param l_E the maximal number of edges to be encoded
    * @param l_L the maximal number of labels to be encoded
    * @param lPrime_L the reserved bit length for label encoding
-   * @pre l_V != null && lPrime_V != null && l_E != null && l_L != null && lPrime_L != null
+   * @pre \( l_V != null \and lPrime_V != null \and l_E != null \and l_L != null \and lPrime_L != null\)
    * @post
    */
   public GraphEncodingParameters(int l_V, int lPrime_V, int l_E, int l_L, int lPrime_L) {

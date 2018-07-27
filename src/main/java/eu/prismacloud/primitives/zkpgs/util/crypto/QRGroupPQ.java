@@ -23,7 +23,7 @@ public final class QRGroupPQ extends QRGroup {
 	 *
 	 * @param pPrime the p prime
 	 * @param qPrime the q prime
-	 * @pre pPrime != null && qPrime != null
+	 * @pre \( pPrime != null \and qPrime != null \)
 	 * @post
 	 */
 	public QRGroupPQ(final BigInteger pPrime, final BigInteger qPrime) {

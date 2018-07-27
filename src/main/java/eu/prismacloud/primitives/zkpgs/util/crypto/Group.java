@@ -42,8 +42,8 @@ public abstract class Group implements Serializable {
 	 * Note that for some group setups it is intractable to decide whether a BigInteger is
 	 * a group element. Then this method will throw an exception.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the value to check if it is a member of this group
+	 * @return true if the value is a member of this group
 	 */
 	public abstract boolean isElement(BigInteger value) throws UnsupportedOperationException;
 
@@ -71,12 +71,12 @@ public abstract class Group implements Serializable {
 	 * is a group element or not.
 	 * 
 	 * @throws IllegalArgumentException when the argument BigInteger is not a valid group element
-	 * @throws UnknownOperationException when it is intractable to decide whether the group element 
+	 * @throws UnsupportedOperationException when it is intractable to decide whether the group element
 	 *    is valid or not.
 	 * 
 	 * @param value BigInteger candidate for a group element.
 	 * 
-	 * @return
+	 * @return a group element
 	 */
 	public abstract GroupElement createElement(BigInteger value) throws IllegalArgumentException, UnsupportedOperationException;
 
