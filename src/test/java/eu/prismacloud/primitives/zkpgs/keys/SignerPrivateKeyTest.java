@@ -48,6 +48,7 @@ class SignerPrivateKeyTest {
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
     privateKey = signerKeyPair.getPrivateKey();
+    publicKey = signerKeyPair.getPublicKey();
     qrGroup = (QRGroupPQ) publicKey.getQRGroup();
   }
 
