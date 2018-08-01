@@ -107,13 +107,10 @@ class GSSignatureTest {
     baseScom = baseS.modPow(vbar);
     commitment = R_0com.multiply(baseScom);
 
-    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    log.info("eBitLength: " + eBitLength);
-    log.info("l_e length: " + keyGenParameters.getL_e());
-    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e()-1, eBitLength);
-    log.info("e bitlength: " + e.bitLength());
-    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-    vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
+    e = CryptoUtilsFacade.computePrimeInRange(keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
+
+    vPrimePrime = CryptoUtilsFacade.computePrimeInRange(keyGenParameters.getLowerBoundV(),keyGenParameters.getUpperBoundV() );
+
 
     Sv = baseS.modPow(vPrimePrime);
     GroupElement Sv1 = (Sv.multiply(commitment));
