@@ -45,6 +45,10 @@ public class CryptoUtilsFacade {
     return CryptoUtilsFactory.getInstance(GS).generatePrimeWithLength(minBitLength, maxBitLength);
   }
 
+  public static BigInteger computePrimeInRange(BigInteger min, BigInteger max) {
+    return CryptoUtilsFactory.getInstance(GS).generatePrimeInRange(min, max);
+  }
+
   public static BigInteger computeRandomNumber(int bitLength) {
     return CryptoUtilsFactory.getInstance(GS).createRandomNumber(bitLength);
   }

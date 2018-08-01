@@ -160,6 +160,26 @@ public class GSUtils implements INumberUtils {
   }
 
   /**
+   * Generates a prime number in range of a minimum integer number and maximum integer number. The
+   * probability to return a number that is not prime but a composite number is not more than 2^-100.
+   *
+   * @param min the minimum integer number
+   * @param max the maximum integer number
+   * @return prime number in range of [min, max]
+   */
+  @Override
+  public BigInteger generatePrimeInRange(BigInteger min, BigInteger max) {
+
+    BigInteger prime;
+
+    do {
+      prime = min.nextProbablePrime();
+    } while ((prime.compareTo(min) < 0) || (prime.compareTo(max) > 0) || !isPrime(prime));
+    
+    return prime;
+  }
+
+  /**
    * Algorithm <tt>alg:generateSpecialRSAModulus</tt> - topocert-doc Computes a special RSA modulus.
    * Generates random safe primes p and q. The modulus N is computed by multiplying p and q.
    *

@@ -55,4 +55,6 @@ Boolean elementOfQRN(BigInteger value, BigInteger modulus);
   BigInteger createElementOfZNS(BigInteger modN);
   
   boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN);
+
+  BigInteger generatePrimeInRange(BigInteger min, BigInteger max);
 }
