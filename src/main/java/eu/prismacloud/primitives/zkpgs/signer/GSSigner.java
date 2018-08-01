@@ -63,7 +63,6 @@ public class GSSigner { // implements ISigner {
    * Send message gs message.
    *
    * @param signerMessageToRecipient the signer message to recipient
-   * @return the gs message
    */
   public void sendMessage(GSMessage signerMessageToRecipient) {
     messageGateway.send(signerMessageToRecipient);
@@ -78,12 +77,16 @@ public class GSSigner { // implements ISigner {
     return CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
   }
 
-  /** Receive message. */
+  /**
+   * Receive message gs message.
+   *
+   * @return the gs message
+   */
   public GSMessage receiveMessage() {
     return messageGateway.receive();
   }
 
-
+  /** Close. */
   public void close() {
     messageGateway.close();
   }
