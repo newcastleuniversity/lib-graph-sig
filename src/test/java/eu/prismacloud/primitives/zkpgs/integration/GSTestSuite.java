@@ -33,7 +33,7 @@ public class GSTestSuite {
     LauncherDiscoveryRequest request =
         LauncherDiscoveryRequestBuilder.request()
             .selectors(
-                selectClass(GSRecipientServerTest.class), selectClass(GSSignerClientTest.class))
+                selectClass(GSSignerClientTest.class), selectClass(GSRecipientServerTest.class))
             .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")
             .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "fixed")
             .configurationParameter("junit.extensions.autodetection.enabled", "true")
