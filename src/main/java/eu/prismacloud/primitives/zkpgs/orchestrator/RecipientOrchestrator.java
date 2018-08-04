@@ -21,6 +21,7 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
 import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
@@ -47,7 +48,6 @@ import org.jgrapht.io.ImportException;
 
 /** Recipient orchestrator */
 public class RecipientOrchestrator {
-
   private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
   private final ExtendedPublicKey extendedPublicKey;
   private final ProofStore<Object> proofStore;
@@ -58,7 +58,7 @@ public class RecipientOrchestrator {
   private final KeyGenParameters keyGenParameters;
   private final GraphEncodingParameters graphEncodingParameters;
   private final GroupElement R;
-  private GSRecipient recipient;
+  private final GSRecipient recipient;
   private BigInteger n_1;
   private BigInteger n_2;
   private GSCommitment U;
@@ -76,8 +76,7 @@ public class RecipientOrchestrator {
   private ProofSignature P_2;
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private BaseIterator vertexIterator;
-  private BaseIterator edgeIterator;
+  private BaseRepresentation baseR_0;
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -115,8 +114,6 @@ public class RecipientOrchestrator {
     proofStore.store("issuing.recipient.vPrime", vPrime);
 
     U = recipient.commit(encodedBases, vPrime);
-    gslog.info("recipient U: " + U.getCommitmentValue());
-    gslog.info("recipient vPrime: " + U.getRandomness());
 
     /** TODO generalize commit prover */
     /** TODO add commitment factory */
@@ -128,7 +125,6 @@ public class RecipientOrchestrator {
         encodedBases, proofStore, extendedPublicKey, keyGenParameters, STAGE.ISSUING);
 
     tildeU = commitmentProver.getWitness();
-    gslog.info("tildeU : " + tildeU.getCommitmentValue());
 
     try {
       cChallenge = computeChallenge();
@@ -146,11 +142,8 @@ public class RecipientOrchestrator {
     n_2 = recipient.generateN_2();
 
     Map<URN, Object> messageElements = new HashMap<>();
-    gslog.info("U: " + U.getCommitmentValue());
     messageElements.put(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "recipient.U"), U);
-
     messageElements.put(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "recipient.P_1"), P_1);
-
     messageElements.put(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "recipient.n_2"), n_2);
 
     recipient.sendMessage(new GSMessage(messageElements));
@@ -174,13 +167,12 @@ public class RecipientOrchestrator {
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS));
     challengeList.add(String.valueOf(baseZ));
-    challengeList.add(String.valueOf(R));
     challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseR_0()));
-    
-    /** TODO recipient graph is encoded */
-    //    for (BaseRepresentation baseRepresentation : encodedBases.values()) {
-    //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    //    }
+
+//    BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
+//    for (BaseRepresentation baseRepresentation : baseIterator) {
+//      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+//    }
 
     GroupElement commitmentU = U.getCommitmentValue();
 
@@ -192,11 +184,8 @@ public class RecipientOrchestrator {
   }
 
   private void encodeR_0() {
-    BaseRepresentation baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
-
+    baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
     encodedBases.put(URN.createZkpgsURN("bases.R_0"), baseR_0);
-
-    //    gslog.info("recipient msk" + recipientMSK);
 
     try {
       proofStore.store("bases.R_0", baseR_0);
@@ -215,9 +204,7 @@ public class RecipientOrchestrator {
     Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
     GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
-
     g = graph.createGraph(RECIPIENT_GRAPH_FILE);
-
     graph.encodeGraph(this.graphEncodingParameters);
     GraphMLProvider.createImporter();
     GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
@@ -243,7 +230,6 @@ public class RecipientOrchestrator {
     String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
 
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.c"), cChallenge);
-    gslog.info("c challenge: " + cChallenge);
     hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
     hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
 
@@ -291,8 +277,18 @@ public class RecipientOrchestrator {
       throw new VerificationException("challenge cannot be verified");
     }
 
-    gslog.info("recipient: store signature A,e,v");
+    gslog.info("verify graph signature ");
 
+    GSSignature gsSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+
+    encodedBasesCollection.add(baseR_0);
+    Boolean isValidSignature = gsSignature.verify(extendedPublicKey, encodedBasesCollection);
+
+    if (!isValidSignature) {
+      throw new VerificationException("graph signature is not valid");
+    }
+
+    gslog.info("recipient: store signature A,e,v");
     proofStore.store("recipient.graphsignature.A", A);
     proofStore.store("recipient.graphsignature.e", e);
     proofStore.store("recipient.graphsignature.v", v);
@@ -315,9 +311,7 @@ public class RecipientOrchestrator {
     encodedBasesCollection =
         (BaseCollection)
             correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
-    // create iterator for vertex and edge encoded bases
-    vertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
-    edgeIterator = encodedBasesCollection.createIterator(BASE.EDGE);
+    
 
     return P_2;
   }
