@@ -132,7 +132,7 @@ public class QRElementPQ extends QRElement {
     Assert.notNull(exponents, "exponents must not be null");
     Assert.checkSize(bases.size(), exponents.size(), "bases and exponents must have the same size");
 
-    QRElementPQ result = this.qrGroupPQ.getOne();
+    QRElementPQ result = (QRElementPQ) this.qrGroupPQ.getOne();
     for (int i = 0; i < bases.size(); i++) {
       result = result.multiply(bases.get(i).modPow(exponents.get(i)));
     }

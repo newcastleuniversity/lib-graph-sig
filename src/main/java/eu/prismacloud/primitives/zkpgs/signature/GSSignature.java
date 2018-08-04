@@ -130,7 +130,7 @@ public class GSSignature {
    */
   public boolean verify(ExtendedPublicKey epk, BaseCollection bc) {
     QRGroup qrGroup = (QRGroup) epk.getPublicKey().getQRGroup();
-    QRElement Y = qrGroup.getOne();
+    QRElement Y = (QRElement) qrGroup.getOne();
     BaseIterator baseIter = bc.createIterator(BASE.ALL);
     for (BaseRepresentation baseRepresentation : baseIter) {
       Y = Y.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));

@@ -234,8 +234,8 @@ public final class QRGroupPQ extends QRGroup {
 	}
 	
 	@Override
-	public QRElementPQ getOne() {
-		return (QRElementPQ) super.getOne();
+	public QRElement getOne() {
+		return (QRElement) super.getOne();
 	}
 
 	@Override
