@@ -8,13 +8,14 @@ import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Map;
 
 /** The type Extended public key. */
-public class ExtendedPublicKey {
-
+public class ExtendedPublicKey implements Serializable {
+  private static final long serialVersionUID = 603738248933483649L;
   private final SignerPublicKey signerPublicKey;
   private ExtendedPublicKey ePublicKey;
   private ExtendedPrivateKey ePrivateKey;
@@ -23,7 +24,7 @@ public class ExtendedPublicKey {
   private Map<URN, BigInteger> discLogOfEdgeBases;
   private final KeyGenParameters keygenParams;
   private final Map<URN, BigInteger> labelRepresentatives;
-  private final GraphEncodingParameters graphEncodingParameters;
+  private final transient GraphEncodingParameters graphEncodingParameters;
   private JsonIsoCountries jsonIsoCountries;
   private Map<URN, BigInteger> countryLabels;
   private BaseRepresentation base;
