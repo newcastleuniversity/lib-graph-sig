@@ -32,7 +32,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
@@ -51,7 +51,6 @@ import org.jgrapht.io.GraphImporter;
 
 /** Signing orchestrator */
 public class SignerOrchestrator {
-
   private final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   private final ExtendedKeyPair extendedKeyPair;
   private final ProofStore<Object> proofStore;
@@ -62,7 +61,7 @@ public class SignerOrchestrator {
   private final KeyGenParameters keyGenParameters;
   private final GraphEncodingParameters graphEncodingParameters;
   private final GSSigner signer;
-  private final BaseIterator basesIterator;
+  private BaseIterator basesIterator;
   private final SignerPublicKey signerPublicKey;
   private BigInteger n_1;
   private BigInteger n_2;
@@ -101,12 +100,8 @@ public class SignerOrchestrator {
   private GroupElement R_0;
   private BigInteger pPrime;
   private BigInteger qPrime;
-  private GroupElement Sv;
-  private GroupElement R_0multi;
-  private GroupElement Sv1;
   private List<String> contextList;
-  private BaseIterator encodedVertexIterator;
-  private BaseIterator encodedEdgeIterator;
+  private GroupElement basesProduct;
 
   public SignerOrchestrator(
       ExtendedKeyPair extendedKeyPair,
@@ -157,7 +152,7 @@ public class SignerOrchestrator {
             STAGE.ISSUING);
 
     hatc = computeChallenge();
-    gslog.info("challenge hatc: " + hatc);
+
     if (!verifyChallenge()) {
       gslog.info("throws verification exception");
       signer.close();
@@ -165,7 +160,6 @@ public class SignerOrchestrator {
     }
 
     computeRandomness();
-    computevPrimePrime();
     createPartialSignature(extendedKeyPair.getExtendedPublicKey());
     store();
 
@@ -191,17 +185,12 @@ public class SignerOrchestrator {
     hatd = correctnessProver.postChallengePhase();
 
     p2ProofSignatureElements = new HashMap<URN, Object>();
-
     p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.hatd"), hatd);
     p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.cPrime"), cPrime);
 
     P_2 = new ProofSignature(p2ProofSignatureElements);
 
     correctnessMessageElements = new HashMap<URN, Object>();
-
-    
-    
-
     correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.A"), A);
     correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.e"), e);
     correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
@@ -212,8 +201,6 @@ public class SignerOrchestrator {
     GSMessage correctnessMsg = new GSMessage(correctnessMessageElements);
 
     signer.sendMessage(correctnessMsg);
-
-    //    v = vPrimePrime.add(vPrime);
   }
 
   private void encodeSignerGraph() throws org.jgrapht.io.ImportException {
@@ -223,48 +210,15 @@ public class SignerOrchestrator {
 
     graph = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
     GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
-
     importer.importGraph(graph, file);
-
     gsGraph = new GSGraph<>(graph);
-
     graph = gsGraph.createGraph(SIGNER_GRAPH_FILE);
 
     graphRepresentation.encode(
         gsGraph, graphEncodingParameters, extendedKeyPair.getExtendedPublicKey());
 
     this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
-    this.encodedVertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
-    this.encodedEdgeIterator = encodedBasesCollection.createIterator(BASE.EDGE);
-  }
-
-  private void verifySignature() throws Exception {
-    BigInteger vPrime = U.getRandomness();
-    gslog.info("signer vPrime: " + vPrime);
-
-    BigInteger v = vPrimePrime.add(vPrime);
-    R_0 = U.getBasesR().get(URN.createZkpgsURN("recipient.bases.R_0"));
-
-    gslog.info("recipient.R_0: " + R_0);
-
-    BigInteger m_0 = U.getExponents().get(URN.createZkpgsURN("recipient.exponent.m_0"));
-
-    gslog.info("recipient.m_0: " + m_0);
-
-    GroupElement R_0multi = R_0.modPow(m_0);
-    GroupElement Ae = A.modPow(e);
-    GroupElement baseSmulti = baseS.modPow(v);
-
-    GroupElement hatZ = Ae.multiply(R_0multi).multiply(baseSmulti);
-    //        R_0multi
-    //            .multiply(A.modPow(e, modN).multiply(baseS.modPow(v, modN).getValue()))
-    //            .getValue();
-
-    gslog.info("signer hatZ: " + hatZ);
-    BigInteger modZ = baseZ.getValue().mod(modN);
-    gslog.info("signer base Z:" + modZ);
-
-    if (!baseZ.equals(hatZ)) throw new Exception("wrong signature A");
+    this.basesIterator = encodedBasesCollection.createIterator(BASE.ALL);
   }
 
   /** Compute challenge. */
@@ -293,13 +247,11 @@ public class SignerOrchestrator {
     challengeList.add(String.valueOf(modN));
     challengeList.add(String.valueOf(baseS));
     challengeList.add(String.valueOf(baseZ));
-    challengeList.add(String.valueOf(R));
     challengeList.add(String.valueOf(R_0));
-    
-    /** TODO recipient graph is encoded */
-    //    for (BaseRepresentation baseRepresentation : basesIterator) {
-    //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    //    }
+
+//    for (BaseRepresentation baseRepresentation : basesIterator) {
+//      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+//    }
 
     String uCommitmentURN = "recipient.U";
     U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
@@ -317,7 +269,6 @@ public class SignerOrchestrator {
     Map<URN, Object> messageElements = msg.getMessageElements();
 
     commitmentU = (GSCommitment) messageElements.get(URN.createZkpgsURN("recipient.U"));
-
     //    proofStore.store("recipient.U", commitmentU );
 
     P_1 = (ProofSignature) messageElements.get(URN.createZkpgsURN("recipient.P_1"));
@@ -329,21 +280,18 @@ public class SignerOrchestrator {
 
     hatvPrime =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatvPrime"));
-
     //    proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
+
     hatm_0 =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatm_0"));
-
     //    proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
 
     responses =
         (Map<URN, BigInteger>)
             proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses"));
-
     //    proofStore.store("proofsignature.P_1.responses", responses);
 
     n_2 = (BigInteger) messageElements.get(URN.createZkpgsURN("recipient.n_2"));
-
     //    proofStore.store("recipient.n_2", n_2);
 
     storeMessageElements(P_1);
@@ -363,28 +311,23 @@ public class SignerOrchestrator {
   }
 
   public void createPartialSignature(ExtendedPublicKey extendedPublicKey) {
-
     computeQ();
     computeA();
 
+    /** TODO check if we need to verify pre-signature */
     gsSignature =
         new GSSignature(
             extendedPublicKey, U, encodedBasesCollection, keyGenParameters, A, e, vPrimePrime);
+    Boolean isValidSignature = gsSignature.verify(signerPublicKey, basesProduct);
+
+    gslog.info("signer isValidSignature: " + isValidSignature);
   }
 
   public void computeRandomness() {
-
-    //    BigInteger min = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
-    //       BigInteger max =
-    //           min.add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_prime_e() - 1));
-
-    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
-
+    e =
+        CryptoUtilsFacade.computePrimeInRange(
+            keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
     vbar = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
-  }
-
-  public void computevPrimePrime() {
     vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
   }
 
@@ -397,82 +340,31 @@ public class SignerOrchestrator {
   }
 
   public GroupElement computeQ() {
-    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
-    vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-    vPrimePrime = (NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1)).add(vbar);
+    gslog.info("compute Q");
 
-    for (BaseRepresentation baseRepresentation : encodedVertexIterator) {
-      if (baseRepresentation.getExponent() != null) {
-        if (R_i == null) {
-          R_i = baseRepresentation.getBase().modPow(baseRepresentation.getExponent());
-        } else {
-          R_i = R_i.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-        }
-      }
+    basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
+    for (BaseRepresentation baseRepresentation : encodedBasesCollection.createIterator(BASE.ALL)) {
+      basesProduct =
+          basesProduct.multiply(
+              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
     }
-
-    for (BaseRepresentation baseRepresentation : encodedEdgeIterator) {
-      if (baseRepresentation.getExponent() != null) {
-        if (R_i_j == null) {
-          R_i_j = baseRepresentation.getBase().modPow(baseRepresentation.getExponent());
-        } else {
-          R_i_j =
-              R_i_j.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-        }
-      }
-    }
-
-    //    for (BaseRepresentation encodedBase : encodedBasesCollection.values()) {
-    //      if (encodedBase.getExponent() != null) {
-    //        if (encodedBase.getBaseType() == BASE.VERTEX) {
-    //          if (R_i == null) {
-    //            R_i = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
-    //          } else {
-    //            R_i = R_i.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
-    //          }
-    //
-    //        } else if (encodedBase.getBaseType() == BASE.EDGE) {
-    //
-    //          if (R_i_j == null) {
-    //
-    //            R_i_j = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
-    //
-    //          } else {
-    //            R_i_j = R_i_j.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(),
-    // modN));
-    //          }
-    //        }
-    //      }
-    //    }
 
     // TODO Signer must not assume knowledge of m_0
+    basesProduct = basesProduct.multiply(U.getCommitmentValue());
+    GroupElement Sv = baseS.modPow(vPrimePrime);
 
-    // Compute exponents for vertices and edges
+    GroupElement result = Sv.multiply(basesProduct);
 
-    Sv = baseS.modPow(vPrimePrime);
-
-    Sv1 = Sv.multiply(U.getCommitmentValue()).multiply(R_i).multiply(R_i_j);
-
-    Q = baseZ.multiply(Sv1.modInverse());
-
-    gslog.info("signer U commitment: " + U.getCommitmentValue());
-
-    //    Q = baseZ.multiply(invertible.modInverse(modN)).mod(modN);
-    gslog.info("signer Q: " + Q);
-    gslog.info("signer e: " + e);
-    gslog.info("signer Z: " + baseZ);
-    gslog.info("signer S: " + baseS);
-
+    Q = baseZ.multiply(result.modInverse());
     return Q;
   }
 
   public GroupElement computeA() {
+    gslog.info("compute A");
     pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getpPrime();
     qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getqPrime();
 
     d = e.modInverse(pPrime.multiply(qPrime));
-
     // TODO Remove logging of values that can break security (secret key or modInverse mod order;
 
     A = Q.modPow(d);
