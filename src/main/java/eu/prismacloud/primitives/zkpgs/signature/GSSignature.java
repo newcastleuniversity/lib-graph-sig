@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.signature;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
@@ -14,6 +13,8 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -123,17 +124,17 @@ public class GSSignature {
    * (A, e, v)} and verifies correctly as {@code Z = R_i^enc[G] A^e S^v (mod N)}.
    *
    * @param epk extended public key
-   * @param gr graph representation
+   * @param bc collection of bases representing a graph
    * @return {@code true} if this graph signature verifies correctly for the given Extended Public
    *     Key and Graph Encoding
    */
-  public boolean verify(ExtendedPublicKey epk, GraphRepresentation gr) {
-    GroupElement Y = epk.getPublicKey().getQRGroup().getOne();
-    BaseIterator baseIter = gr.getEncodedBaseCollection().createIterator(BASE.ALL);
+  public boolean verify(ExtendedPublicKey epk, BaseCollection bc) {
+    QRGroup qrGroup = (QRGroup) epk.getPublicKey().getQRGroup();
+    QRElement Y = qrGroup.getOne();
+    BaseIterator baseIter = bc.createIterator(BASE.ALL);
     for (BaseRepresentation baseRepresentation : baseIter) {
       Y = Y.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
     }
-
     return verify(epk.getPublicKey(), Y);
   }
 
