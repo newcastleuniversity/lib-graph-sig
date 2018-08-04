@@ -21,18 +21,17 @@ import java.util.logging.Logger;
 
 public class GSRecipient { // implements IRecipient {
 
-  private ExtendedPublicKey extendedPublicKey;
+  private final ExtendedPublicKey extendedPublicKey;
   private final KeyGenParameters keyGenParameters;
   private final BigInteger modN;
   private final GroupElement baseS;
   private final ProofStore<Object> recipientStore;
-  private MessageGatewayProxy messageGateway;
+  private final MessageGatewayProxy messageGateway;
   private BigInteger n_1;
-  //  private BigInteger vPrime;
   private GroupElement R_0;
   private BigInteger m_0;
   private GSGraph<GSVertex, GSEdge> recipientGraph; // = new GSGraph();
-  private static GSMessage receiveMessage;
+  private GSMessage receiveMessage;
   private BaseRepresentation baseRepresentationR_0;
   private GroupElement R_0com;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
@@ -41,9 +40,9 @@ public class GSRecipient { // implements IRecipient {
   public GSRecipient(ExtendedPublicKey extendedPublicKey, KeyGenParameters keyGenParameters) {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
-    modN = extendedPublicKey.getPublicKey().getModN();
-    baseS = extendedPublicKey.getPublicKey().getBaseS();
-    recipientStore = new ProofStore<Object>();
+    this.modN = extendedPublicKey.getPublicKey().getModN();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.recipientStore = new ProofStore<Object>();
     this.messageGateway = new MessageGatewayProxy(SERVER);
   }
 
@@ -55,19 +54,11 @@ public class GSRecipient { // implements IRecipient {
   public GSCommitment commit(Map<URN, BaseRepresentation> encodedBases, BigInteger rnd) {
     baseRepresentationR_0 = encodedBases.get(URN.createZkpgsURN("bases.R_0"));
     R_0 = baseRepresentationR_0.getBase();
-    m_0 =  baseRepresentationR_0.getExponent();
+    m_0 = baseRepresentationR_0.getExponent();
     R_0com = R_0.modPow(m_0);
     GroupElement baseScom = baseS.modPow(rnd);
 
-    gslog.info("recipient R_0:  " + R_0);
-    gslog.info("recipient m_0: " + m_0);
-
-    //    BigInteger commitment = R_0.modPow(m_0, modN).multiply(baseS.modPow(rnd,
-    // modN)).getValue();
-
     GroupElement commitment = R_0com.multiply(baseScom);
-
-    gslog.info("recipient commitment value:  " + commitment);
 
     Map<URN, GroupElement> bases = new HashMap<>();
     bases.put(URN.createZkpgsURN("recipient.bases.R_0"), R_0);
@@ -77,8 +68,6 @@ public class GSRecipient { // implements IRecipient {
     GSCommitment gsCommitment = new GSCommitment(bases, messages, rnd, this.baseS, this.modN);
     gsCommitment.setCommitmentValue(commitment);
 
-    //    gsCommitment.commit();
-    gslog.info("recipient commit: " + gsCommitment.getCommitmentValue());
     return gsCommitment;
   }
 
@@ -101,6 +90,7 @@ public class GSRecipient { // implements IRecipient {
   public BigInteger generateN_2() {
     return CryptoUtilsFacade.computeRandomNumber(this.keyGenParameters.getL_H());
   }
+
   public void close() {
     messageGateway.close();
   }
