@@ -13,9 +13,9 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 
 /** */
 public class CorrectnessVerifier implements IVerifier {
-
   private BigInteger e;
   private BigInteger hatd;
   private BigInteger n_2;
@@ -62,98 +61,48 @@ public class CorrectnessVerifier implements IVerifier {
   private BigInteger vPrimePrime;
   private BaseIterator encodedVertexIterator;
   private BaseIterator encodedEdgeIterator;
+  private GroupElement basesProduct;
 
   private void checkE(BigInteger e) {
-    if (!e.isProbablePrime(80)) {
+    if (!e.isProbablePrime(keyGenParameters.getL_pt())) {
       throw new IllegalArgumentException("e is not prime");
     }
-    int maxBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    BigInteger min = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
-    BigInteger max = min.add(NumberConstants.TWO.getValue().pow(maxBitLength));
 
-    //    BigInteger min = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
-    //    BigInteger max =
-    //        min.add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_prime_e() - 1));
-
-    if ((e.compareTo(min) < 0) || (e.compareTo(max) > 0)) {
+    if ((e.compareTo(keyGenParameters.getLowerBoundE()) < 0)
+        || (e.compareTo(keyGenParameters.getUpperBoundE()) > 0)) {
       throw new IllegalArgumentException("e is not within range");
     }
   }
 
   public void computeQ() {
+    gslog.info("compute Q");
+    basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
-    for (BaseRepresentation baseRepresentation : encodedVertexIterator) {
-         if (baseRepresentation.getExponent() != null) {
-           if (R_i == null) {
-             R_i = baseRepresentation.getBase().modPow(baseRepresentation.getExponent());
-           } else {
-             R_i = R_i.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-           }
-         }
-       }
-
-       for (BaseRepresentation baseRepresentation : encodedEdgeIterator) {
-         if (baseRepresentation.getExponent() != null) {
-           if (R_i_j == null) {
-             R_i_j = baseRepresentation.getBase().modPow(baseRepresentation.getExponent());
-           } else {
-             R_i_j =
-                 R_i_j.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-           }
-         }
-       }
-
-
-    //    for (BaseRepresentation encodedBase : encodedBasesCollection.values()) {
-    //      if (encodedBase.getExponent() != null) {
-    //        if (encodedBase.getBaseType() == BASE.VERTEX) {
-    //          if (R_i == null) {
-    //            R_i = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
-    //          } else {
-    //            R_i = R_i.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(), modN));
-    //          }
-    //
-    //        } else if (encodedBase.getBaseType() == BASE.EDGE) {
-    //
-    //          if (R_i_j == null) {
-    //
-    //            R_i_j = encodedBase.getBase().modPow(encodedBase.getExponent(), modN);
-    //
-    //          } else {
-    //            R_i_j = R_i_j.multiply(encodedBase.getBase().modPow(encodedBase.getExponent(),
-    // modN));
-    //          }
-    //        }
-    //      }
-    //    }
+    BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
+    for (BaseRepresentation baseRepresentation : baseIterator) {
+      basesProduct =
+          basesProduct.multiply(
+              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+    }
 
     R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
     vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
-    //    vPrimePrime = (BigInteger) P_2.get("proofsignature.vPrimePrime");
     vPrimePrime = (BigInteger) proofStore.retrieve("recipient.vPrimePrime");
     m_0 = (BigInteger) proofStore.retrieve("bases.exponent.m_0");
 
-    gslog.info("signer vPrime: " + vPrime);
-    gslog.info("signer vPrimePrime: " + vPrimePrime);
-
     v = vPrimePrime.add(vPrime);
 
-    gslog.info("recipient.R_0: " + R_0);
-
-    gslog.info("recipient.m_0: " + m_0);
-
     GroupElement R_0multi = R_0.modPow(m_0);
-    GroupElement Svmulti = baseS.modPow(v);
-    GroupElement result = R_0multi.multiply(Svmulti).multiply(R_i).multiply(R_i_j);
-    Q = baseZ.multiply(result.modInverse());
+    basesProduct = basesProduct.multiply(R_0multi);
 
-    gslog.info("recipient Q: " + Q);
+    GroupElement Sv = baseS.modPow(v);
+    GroupElement result = Sv.multiply(basesProduct);
+    Q = baseZ.multiply(result.modInverse());
   }
 
   public void computehatQ() throws VerificationException {
     hatQ = A.modPow(e);
-    gslog.info("hatQ: " + hatQ);
 
     if (hatQ.compareTo(Q) != 0) {
       throw new VerificationException("Q cannot be verified");
@@ -207,9 +156,8 @@ public class CorrectnessVerifier implements IVerifier {
       gslog.log(Level.SEVERE, ve.getMessage());
     }
   }
-  
-  public void computeChallenge() throws NoSuchAlgorithmException {
 
+  public void computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();
     hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
@@ -222,9 +170,8 @@ public class CorrectnessVerifier implements IVerifier {
     challengeList = new ArrayList<String>();
     /** TODO add context in challenge list */
     GSContext gsContext =
-                new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-        List<String> contextList = gsContext.computeChallengeContext();
-    gslog.info("contextlist length: " + contextList.size());
+        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+    List<String> contextList = gsContext.computeChallengeContext();
     challengeList.addAll(contextList);
     challengeList.add(String.valueOf(Q));
     challengeList.add(String.valueOf(A));
