@@ -1,19 +1,18 @@
 package eu.prismacloud.primitives.zkpgs.context;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /** Represents the public knowledge before the proof */
 public class GSContext {
@@ -21,6 +20,7 @@ public class GSContext {
   private final ExtendedPublicKey extendedPublicKey;
   private final KeyGenParameters keyGenParameters;
   private final GraphEncodingParameters graphEncodingParameters;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public GSContext(
       final ExtendedPublicKey extendedPublicKey,
@@ -37,8 +37,7 @@ public class GSContext {
   public List<String> computeChallengeContext() {
 
     SignerPublicKey publicKey = extendedPublicKey.getPublicKey();
-    BaseCollection bases = extendedPublicKey.getBaseCollection();
-    BaseIterator baseIterator = bases.createIterator(BASE.ALL);
+    Map<URN, BaseRepresentation> bases = extendedPublicKey.getBases();
     Map<URN, BigInteger> labels = extendedPublicKey.getLabelRepresentatives();
 
     addKeyGenParameters(keyGenParameters);
@@ -49,25 +48,15 @@ public class GSContext {
     ctxList.add(String.valueOf(publicKey.getBaseR().getValue()));
     ctxList.add(String.valueOf(publicKey.getBaseR_0().getValue()));
 
-//    for (BaseRepresentation baseRepresentation : baseIterator) {
-//      ctxList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-//    }
-//
-//    for (BigInteger label : labels.values()) {
-//      ctxList.add(String.valueOf(label));
-//    }
+    for (BaseRepresentation baseRepresentation : bases.values()) {
+      ctxList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+    }
 
-    /** TODO add context for bases and labels */
-    //    for (BaseRepresentation base : bases.values()) {
-    //      ctxList.add(String.valueOf(base.getBase().getValue()));
-    //    }
-    //
-    //    for (BigInteger label : labels.values()) {
-    //      ctxList.add(String.valueOf(label));
-    //    }
+    for (BigInteger label : labels.values()) {
+      ctxList.add(String.valueOf(label));
+    }
 
     addGraphEncodingParameters(graphEncodingParameters);
-
     return ctxList;
   }
 
