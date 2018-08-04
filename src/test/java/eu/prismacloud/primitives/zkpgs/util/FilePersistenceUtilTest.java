@@ -14,6 +14,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import java.io.IOException;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 class FilePersistenceUtilTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
   // set flag to true to generate a new signer key pair and a new signer public key
-  private Boolean generateKey = false;
+  private Boolean generateKeys = false;
   private FilePersistenceUtil persistenceUtil;
   private KeyGenParameters keyGenParameters;
   private String signerKeyPairFileName;
@@ -39,9 +40,10 @@ class FilePersistenceUtilTest {
   }
 
   @Test
-  void writeSignerKeyPairAndPublicKey() throws IOException {
+  @DisplayName("Generate a new signer key pair and signer public key")
+  void writeKeyPairAndPublicKey() throws IOException {
 
-    if (generateKey) {
+    if (generateKeys) {
       log.info("Test writeSignerKeyPair: generating new SignerKeyPair...");
 
       SignerKeyPair gsk = new SignerKeyPair();
