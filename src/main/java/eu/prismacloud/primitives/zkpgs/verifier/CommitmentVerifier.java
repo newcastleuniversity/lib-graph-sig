@@ -96,8 +96,6 @@ public class CommitmentVerifier implements IVerifier {
     hatvPrime = (BigInteger) proofStore.retrieve("proofsignature.P_1.hatvPrime");
     hatm_0 = (BigInteger) proofStore.retrieve("proofsignature.P_1.hatm_0");
 
-    gslog.info("hatm_0 bitlength: " + hatm_0.bitLength());
-    gslog.info("messageLength: " + messageLength);
     Assert.checkBitLength(hatm_0, messageLength - 1, "length of hatm_0 is not correct ");
     Assert.checkBitLength(hatvPrime, hatvPrimeLength - 1, "length of hatvPrime is not correct ");
 
