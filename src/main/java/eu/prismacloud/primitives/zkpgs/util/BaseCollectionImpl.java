@@ -59,16 +59,20 @@ public class BaseCollectionImpl implements BaseCollection, Serializable {
       return ba;
     }
 
-   
-
     @Override
     public Iterator<BaseRepresentation> iterator() {
       List<BaseRepresentation> result = new ArrayList<BaseRepresentation>();
       if (type.equals(BASE.ALL)) {
-        return listOfBases.iterator();
+        for (BaseRepresentation baseRepresentation : listOfBases) {
+          if (baseRepresentation.getExponent() != null) {
+            result.add(baseRepresentation);
+          }
+        }
+        return result.iterator();
       } else {
         for (BaseRepresentation baseRepresentation : listOfBases) {
-          if (type.equals(baseRepresentation.getBaseType())) {
+          if (type.equals(baseRepresentation.getBaseType())
+              && baseRepresentation.getExponent() != null) {
             result.add(baseRepresentation);
           }
         }
