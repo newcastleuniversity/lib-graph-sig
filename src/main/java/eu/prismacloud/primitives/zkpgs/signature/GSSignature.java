@@ -41,18 +41,9 @@ public class GSSignature {
   private final GroupElement A;
   private final BigInteger e;
   private final BigInteger v;
-  private GroupElement Q;
-  private BigInteger vbar;
-  private BigInteger vPrimePrime;
   private final GroupElement baseS;
   private final GroupElement baseZ;
-  private BigInteger modN;
-  private Map<URN, BaseRepresentation> encodedEdges;
   private BaseCollection encodedBases;
-  private GroupElement R_i;
-  private GroupElement R_i_j;
-  private BigInteger d;
-  private BigInteger eInverse;
 
   public GSSignature(
       final ExtendedPublicKey extendedPublicKey,
