@@ -18,7 +18,7 @@ public class ProverFactory {
     } else if (type == ProverType.CorectnessProver) {
       return new CorrectnessProver();
     } else if (type == ProverType.PossessionProver) {
-      return new GSPossessionProver();
+      return new PossessionProver();
     } else if (type == ProverType.PairWiseDifferenceProver) {
       return new PairWiseDifferenceProver();
     } else {
