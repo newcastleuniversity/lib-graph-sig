@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
@@ -10,6 +11,8 @@ import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -51,8 +54,13 @@ public class GSRecipient { // implements IRecipient {
         this.keyGenParameters.getL_n() + this.keyGenParameters.getL_statzk());
   }
 
-  public GSCommitment commit(Map<URN, BaseRepresentation> encodedBases, BigInteger rnd) {
-    baseRepresentationR_0 = encodedBases.get(URN.createZkpgsURN("bases.R_0"));
+  public GSCommitment commit(BaseCollection encodedBases, BigInteger rnd) {
+    BaseIterator base0Iterator = encodedBases.createIterator(BASE.BASE0);
+    
+    if (base0Iterator.hasNext()){
+      baseRepresentationR_0 = encodedBases.createIterator(BASE.BASE0).next();
+    }
+
     R_0 = baseRepresentationR_0.getBase();
     m_0 = baseRepresentationR_0.getExponent();
     R_0com = R_0.modPow(m_0);
