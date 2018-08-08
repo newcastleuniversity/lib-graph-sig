@@ -43,6 +43,25 @@ public class GSTestSuite {
   }
 
   @Test
+  @DisplayName(
+      "Test the Geo-Location separation proof using a parallel execution of Prover and Verifier")
+  void testProverVerifier() throws InterruptedException {
+    Thread.sleep(1000);
+    System.setProperty("GSSuite", GSSuite.PROVER_VERIFIER.name());
+    String property = System.getProperty("GSSuite");
+    gslog.info("property: " + property);
+
+    LauncherDiscoveryRequest request =
+        LauncherDiscoveryRequestBuilder.request()
+            .selectors(
+                selectClass(GSProverServerTest.class), selectClass(GSVerifierClientTest.class))
+            .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")
+            .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "fixed")
+            .configurationParameter("junit.extensions.autodetection.enabled", "true")
+            .build();
+  }
+
+  @Test
   @DisplayName("Test the socket message interactions of the low level GSClient and GSServer")
   void testClientServer() throws InterruptedException {
     Thread.sleep(1000);
