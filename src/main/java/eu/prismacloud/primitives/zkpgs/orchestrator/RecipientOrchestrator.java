@@ -16,7 +16,6 @@ import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
-import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver.STAGE;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
 import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
@@ -25,6 +24,7 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -37,7 +37,6 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -63,7 +62,7 @@ public class RecipientOrchestrator {
   private BigInteger n_2;
   private GSCommitment U;
   private GSSigner signer;
-  private Map<URN, BaseRepresentation> encodedBases;
+  private BaseCollection encodedBases;
   private BigInteger recipientMSK;
   private GSCommitment tildeU;
   private List<String> challengeList;
@@ -77,6 +76,7 @@ public class RecipientOrchestrator {
   private BigInteger vPrime;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private BaseRepresentation baseR_0;
+  private GSSignature gsSignature;
 
   public RecipientOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -95,7 +95,7 @@ public class RecipientOrchestrator {
   }
 
   public void round1() throws ProofStoreException {
-    encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
+    encodedBases = new BaseCollectionImpl();
 
     generateRecipientMSK();
 
@@ -121,10 +121,9 @@ public class RecipientOrchestrator {
     CommitmentProver commitmentProver =
         (CommitmentProver) ProverFactory.newProver(ProverType.CommitmentProver);
 
-    commitmentProver.preChallengePhase(
-        encodedBases, proofStore, extendedPublicKey, keyGenParameters, STAGE.ISSUING);
-
-    tildeU = commitmentProver.getWitness();
+    tildeU =
+        commitmentProver.preChallengePhase(
+            encodedBases, proofStore, extendedPublicKey, keyGenParameters);
 
     try {
       cChallenge = computeChallenge();
@@ -169,10 +168,10 @@ public class RecipientOrchestrator {
     challengeList.add(String.valueOf(baseZ));
     challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseR_0()));
 
-//    BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
-//    for (BaseRepresentation baseRepresentation : baseIterator) {
-//      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-//    }
+    //    BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
+    //    for (BaseRepresentation baseRepresentation : baseIterator) {
+    //      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+    //    }
 
     GroupElement commitmentU = U.getCommitmentValue();
 
@@ -185,7 +184,7 @@ public class RecipientOrchestrator {
 
   private void encodeR_0() {
     baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
-    encodedBases.put(URN.createZkpgsURN("bases.R_0"), baseR_0);
+    encodedBases.add(baseR_0);
 
     try {
       proofStore.store("bases.R_0", baseR_0);
@@ -211,7 +210,7 @@ public class RecipientOrchestrator {
 
     if (!gsGraph.getGraph().vertexSet().isEmpty()) {
       graphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
-      encodedBases = graphRepresentation.getEncodedBases();
+      encodedBases = graphRepresentation.getEncodedBaseCollection();
     }
 
     encodeR_0();
@@ -279,7 +278,7 @@ public class RecipientOrchestrator {
 
     gslog.info("verify graph signature ");
 
-    GSSignature gsSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+    gsSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
 
     encodedBasesCollection.add(baseR_0);
     Boolean isValidSignature = gsSignature.verify(extendedPublicKey, encodedBasesCollection);
@@ -293,10 +292,30 @@ public class RecipientOrchestrator {
     proofStore.store("recipient.graphsignature.e", e);
     proofStore.store("recipient.graphsignature.v", v);
 
-    /** TODO save all the bases in proof store */
-    //    for (Map.Entry<URN, BaseRepresentation> base : encodedBases.entrySet()) {
-    //      proofStore.save(base.getKey(), base.getValue());
-    //    }
+    gslog.info("recipient: save encoded bases");
+    BaseIterator baseRepresentations = encodedBasesCollection.createIterator(BASE.ALL);
+    String baseURN = "";
+    for (BaseRepresentation baseRepresentation : baseRepresentations) {
+      baseURN = createBaseURN(baseRepresentation);
+      proofStore.store(baseURN, baseRepresentation);
+    }
+  }
+
+  private String createBaseURN(BaseRepresentation baseRepresentation) {
+    if (BASE.VERTEX == baseRepresentation.getBaseType()) {
+      return "encoded.base.vertex.R_i_" + baseRepresentation.getBaseIndex();
+    } else if (BASE.EDGE == baseRepresentation.getBaseType()) {
+      return "encoded.base.edge.R_i_j_" + baseRepresentation.getBaseIndex();
+    }
+    return "encoded.base";
+  }
+
+  public GSSignature getGraphSignature() {
+    return this.gsSignature;
+  }
+
+  public BaseCollection getEncodedBasesCollection() {
+    return this.encodedBasesCollection;
   }
 
   private ProofSignature extractMessageElements(GSMessage correctnessMsg) {
@@ -311,7 +330,6 @@ public class RecipientOrchestrator {
     encodedBasesCollection =
         (BaseCollection)
             correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
-    
 
     return P_2;
   }
