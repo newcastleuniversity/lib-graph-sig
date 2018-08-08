@@ -56,8 +56,8 @@ public class GroupSetupProver implements IProver {
   private Map<String, BigInteger> vertexWitnessBases;
   private Map<String, BigInteger> edgeWitnessRandomNumbers;
   private Map<String, BigInteger> edgeWitnessBases;
-  private HashMap<URN, BigInteger> vertexResponses;
-  private HashMap<URN, BigInteger> edgeResponses;
+  private Map<URN, BigInteger> vertexResponses;
+  private Map<URN, BigInteger> edgeResponses;
   private BaseCollection baseRepresentationMap;
   private Map<String, BigInteger> edgeBases;
   private List<String> contextList;
