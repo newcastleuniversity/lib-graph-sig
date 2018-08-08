@@ -2,12 +2,14 @@ package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
-import eu.prismacloud.primitives.zkpgs.message.IMessage;
-import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.Base;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -18,72 +20,58 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GSProver { // implements IProver {
-
-  private final BigInteger modN;
-  private final GroupElement baseS;
+public class GSProver {
+  private GroupElement baseR;
+  private BigInteger modN;
+  private GroupElement baseS;
+  private ExtendedPublicKey extendedPublicKey;
   private BigInteger n_3;
-  private final ProofStore<Object> proofStore;
+  private ProofStore<Object> proofStore;
   private final KeyGenParameters keyGenParameters;
-//  private BigInteger r;
   private Map<URN, GSCommitment> commitmentMap;
   private GSSignature blindedSignature;
   private BigInteger r_i;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private IMessageGateway messageGateway;
+  private MessageGatewayProxy messageGateway;
+  private static final String SERVER = "server";
 
   public GSProver(
-      final BigInteger modN,
-      final GroupElement baseS,
-      final BigInteger n_3,
-      final ProofStore<Object> proofStore,
-      final KeyGenParameters keyGenParameters) {
-
-    this.modN = modN;
-    this.baseS = baseS;
-    this.n_3 = n_3;
-    this.proofStore = proofStore;
+      final ExtendedPublicKey extendedPublicKey, final KeyGenParameters keyGenParameters) {
+    this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
-  }
-
-  public GSProver(
-      final BigInteger modN,
-      final GroupElement baseS,
-      final ProofStore<Object> proofStore,
-      final KeyGenParameters keyGenParameters) {
-
-    this.modN = modN;
-    this.baseS = baseS;
-    this.proofStore = proofStore;
-    this.keyGenParameters = keyGenParameters;
+    this.modN = extendedPublicKey.getPublicKey().getModN();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.baseR = extendedPublicKey.getPublicKey().getBaseR();
+    this.proofStore = new ProofStore<Object>();
+    //this.messageGateway = new MessageGatewayProxy(SERVER);
   }
 
   public Map<URN, GSCommitment> getCommitmentMap() {
     return this.commitmentMap;
   }
 
-  public void computeCommitments(Map<URN, BaseRepresentation> vertexRepresentations)
+  public void computeCommitments(BaseIterator vertexRepresentations)
       throws Exception {
     GSCommitment commitment;
     GroupElement R_i;
     BigInteger m_i;
     GroupElement C_i;
 
-    this.commitmentMap = new HashMap<>();
+    this.commitmentMap = new HashMap<URN, GSCommitment>();
 
     int i = 0;
-    for (BaseRepresentation vertexRepresentation : vertexRepresentations.values()) {
+    for (BaseRepresentation vertexRepresentation : vertexRepresentations) {
       R_i = vertexRepresentation.getBase();
       /** TODO check lenght of randomness r */
       r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
       m_i = vertexRepresentation.getExponent();
-      C_i = R_i.modPow(m_i).multiply(baseS.modPow(r_i));
+      C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
       commitment = new GSCommitment(R_i, m_i, r_i, baseS, modN);
+      commitment.setCommitmentValue(C_i);
       String commitmentURN = "prover.commitments.C_" + i;
       commitmentMap.put(
           URN.createURN(URN.getZkpgsNameSpaceIdentifier(), commitmentURN), commitment);
       proofStore.store(commitmentURN, commitment);
-
       i++;
     }
 
@@ -92,8 +80,7 @@ public class GSProver { // implements IProver {
   }
 
   public void computeBlindedSignature(GSSignature gsSignature) {
-    blindedSignature =
-        gsSignature.blind();
+    blindedSignature = gsSignature.blind();
     storeBlindedGS();
   }
 
@@ -111,7 +98,15 @@ public class GSProver { // implements IProver {
     }
   }
 
-  public void sendMessage(GSMessage signerMessageToRecipient) {
-    messageGateway.send( signerMessageToRecipient);
+  public void sendMessage(GSMessage messageToVerifier) {
+    messageGateway.send(messageToVerifier);
+  }
+
+  public GSMessage receiveMessage() {
+    return new GSMessage(); //messageGateway.receive();
+  }
+
+  public void close() {
+    messageGateway.close();
   }
 }
