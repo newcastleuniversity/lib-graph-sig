@@ -9,9 +9,13 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.orchestrator.RecipientOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,20 +27,20 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
  * and serialised extendedPublicKey to perform computations.
  */
 @TestInstance(Lifecycle.PER_CLASS)
-@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
+//@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
 public class GSRecipientServerTest {
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
   private RecipientOrchestrator recipientOrchestrator;
   private ExtendedPublicKey extendedPublicKey;
-  private FilePersistenceUtil persistenceUtil;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private FilePersistenceUtil persistenceUtil;
 
   @BeforeAll
   void setup1Key() throws IOException, ClassNotFoundException, InterruptedException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
-    FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
+     persistenceUtil = new FilePersistenceUtil();
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
 
@@ -46,7 +50,7 @@ public class GSRecipientServerTest {
     extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
   }
 
-  @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
+//  @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
   @Test
   void test1RecipientSide() throws Exception {
 
@@ -56,6 +60,21 @@ public class GSRecipientServerTest {
     recipientOrchestrator.round1();
     recipientOrchestrator.round3();
     recipientOrchestrator.close();
+    GSSignature gsSignature = recipientOrchestrator.getGraphSignature();
+
+    // persist graph signature for testing the geo-location separation proof
+    gslog.info("persist graph signature");
+    GroupElement A = gsSignature.getA();
+    persistenceUtil.write(A, "A.ser");
+    BigInteger e = gsSignature.getE();
+    persistenceUtil.write(e, "e.ser");
+    BigInteger v = gsSignature.getV();
+    persistenceUtil.write(v, "v.ser");
+
+    // persist encoded base collection to be used in subsequent proofs
+    gslog.info("persist encoded base collection");
+    BaseCollection baseCollection = recipientOrchestrator.getEncodedBasesCollection();
+    persistenceUtil.write(baseCollection, "baseCollection.ser");
 
     assertNotNull(extendedPublicKey);
   }
