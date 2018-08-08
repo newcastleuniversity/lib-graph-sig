@@ -8,19 +8,23 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -34,39 +38,52 @@ class GSProverTest {
   private KeyGenParameters keyGenParameters;
   private ExtendedKeyPair extendedKeyPair;
   private ProofStore<Object> proofStore;
-  private SignerPublicKey publicKey;
   private GSProver prover;
   private BigInteger testMessage;
+  private ExtendedPublicKey extendedPublicKey;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private BaseCollection baseCollection;
+  private BigInteger v;
+  private BigInteger e;
+  private GroupElement A;
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException {
+  void setupKey() throws IOException, ClassNotFoundException, InterruptedException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
+    FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
     signerKeyPair = baseTest.getSignerKeyPair();
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
-    extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
-    publicKey = signerKeyPair.getPublicKey();
+    Thread.sleep(3000);
 
-  }
+    gslog.info("reading extended public key");
+    String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
+    extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
 
-  @BeforeEach
-  void setup(){
     proofStore = new ProofStore<Object>();
-        prover = new GSProver(publicKey.getModN(), publicKey.getBaseS(), proofStore, keyGenParameters);
+    prover = new GSProver(extendedPublicKey, keyGenParameters);
+
+    gslog.info("read persisted graph signature");
+    A = (GroupElement) persistenceUtil.read("A.ser");
+    e = (BigInteger) persistenceUtil.read("e.ser");
+    v = (BigInteger) persistenceUtil.read("v.ser");
+
+    gslog.info("read encoded base collection");
+    baseCollection = (BaseCollection) persistenceUtil.read("baseCollection.ser");
   }
 
   @Test
   void getCommitmentMap() throws Exception {
     BaseRepresentation baseRepresentation =
-        new BaseRepresentation(publicKey.getBaseR(), 0, BASE.VERTEX);
+        new BaseRepresentation(extendedPublicKey.getPublicKey().getBaseR_0(), 0, BASE.VERTEX);
     testMessage = CryptoUtilsFacade.generateRandomPrime(keyGenParameters.getL_m());
     baseRepresentation.setExponent(testMessage);
     Map<URN, BaseRepresentation> baseRepresentationMap = new HashMap<>();
     baseRepresentationMap.put(URN.createZkpgsURN("base.test"), baseRepresentation);
 
-    prover.computeCommitments(baseRepresentationMap);
+    prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
     Map<URN, GSCommitment> cMap = prover.getCommitmentMap();
 
     assertNotNull(cMap);
@@ -76,14 +93,18 @@ class GSProverTest {
   @Test
   void computeCommitments() throws Exception {
     BaseRepresentation baseRepresentation =
-        new BaseRepresentation(publicKey.getBaseR(), 0, BASE.VERTEX);
+        new BaseRepresentation(extendedPublicKey.getPublicKey().getBaseR_0(), 0, BASE.VERTEX);
     testMessage = CryptoUtilsFacade.generateRandomPrime(keyGenParameters.getL_m());
-        baseRepresentation.setExponent(testMessage);
+    baseRepresentation.setExponent(testMessage);
     Map<URN, BaseRepresentation> baseRepresentationMap = new HashMap<>();
     baseRepresentationMap.put(URN.createZkpgsURN("base.test"), baseRepresentation);
 
-    prover.computeCommitments(baseRepresentationMap);
+    prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
     Map<URN, GSCommitment> cMap = prover.getCommitmentMap();
+    assertNotNull(cMap);
+    assertEquals(1, cMap.size());
+    String commitmentURN = "prover.commitments.C_0";
+    GSCommitment gsCommitment = cMap.get(URN.createZkpgsURN(commitmentURN));
   }
 
   @Test

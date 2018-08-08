@@ -7,6 +7,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -38,29 +39,25 @@ public class GSPossessionProver implements IProver {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private BigInteger c;
   private int baseIndex;
+  private BaseCollection baseCollection;
 
-  public GSPossessionProver(
+  public GroupElement preChallengePhase(
       GSSignature blindedSignature,
       ExtendedPublicKey extendedPublicKey,
-      BigInteger R_0,
-      BigInteger tildem_0,
-      BigInteger tildevPrime,
-      GraphRepresentation graphRepresentation,
+      BaseCollection baseCollection,
       ProofStore<Object> proverStore,
       KeyGenParameters keyGenParameters) {
 
     this.blindedSignature = blindedSignature;
     this.extendedPublicKey = extendedPublicKey;
-    this.R_0 = R_0;
-    this.tildem_0 = tildem_0;
-    this.tildevPrime = tildevPrime;
-    this.graphRepresentation = graphRepresentation;
+    this.baseCollection = baseCollection;
     this.proverStore = proverStore;
-    //    this.vertexBase = graphRepresentation.
     this.keyGenParameters = keyGenParameters;
-  }
 
+    
+  }
   public GSPossessionProver() {}
+
 
   public BigInteger getTildeZ() {
     return this.tildeZ;
