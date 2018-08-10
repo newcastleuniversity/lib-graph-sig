@@ -27,7 +27,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
  * and serialised extendedPublicKey to perform computations.
  */
 @TestInstance(Lifecycle.PER_CLASS)
-//@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
+@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
 public class GSRecipientServerTest {
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
@@ -50,7 +50,7 @@ public class GSRecipientServerTest {
     extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
   }
 
-//  @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
+  @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
   @Test
   void test1RecipientSide() throws Exception {
 

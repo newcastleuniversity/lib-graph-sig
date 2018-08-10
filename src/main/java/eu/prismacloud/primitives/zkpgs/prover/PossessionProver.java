@@ -13,6 +13,7 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -31,7 +32,7 @@ public class PossessionProver implements IProver {
   private KeyGenParameters keyGenParameters;
   //  private Map<URN, BaseRepresentation> bases;
   //  private Map<URN, BaseRepresentation> edges;
-  private BigInteger tildeZ;
+  private GroupElement tildeZ;
   private BigInteger tildee;
   //  private Map<URN, BigInteger> vertexWitnesses;
   //  private Map<URN, BigInteger> edgeWitnesses;
@@ -79,10 +80,6 @@ public class PossessionProver implements IProver {
     }
 
     return computetildeZ();
-  }
-
-  public BigInteger getTildeZ() {
-    return this.tildeZ;
   }
 
   public void createWitnessRandomness() throws ProofStoreException {
@@ -147,44 +144,47 @@ public class PossessionProver implements IProver {
   //  @Override
   public GroupElement computetildeZ() {
 
+    gslog.info("aPrime: " + blindedSignature.getA());
     GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
+
+    gslog.info("ePrime + 2^le-1: " + blindedSignature.getE().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
+    
     /** TODO check if tildev or tildevprime */
     GroupElement sTildeVPrime = baseS.modPow(tildev);
     GroupElement baseProduct = extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
-    String tildemURN = "";
-    BigInteger vertexWitness = BigInteger.ONE;
-    BigInteger edgeWitness = BigInteger.ONE;
+    String tildemURN;
+    BigInteger vertexWitness;
+    BigInteger edgeWitness;
 
-    for (BaseRepresentation baseRepresentation : vertexIterator) {
-      tildemURN =
-          "possessionprover.witnesses.randomness.vertex.tildem_i_"
-              + baseRepresentation.getBaseIndex();
-      vertexWitness = (BigInteger) proverStore.retrieve(tildemURN);
-      //      vertexWitness = vertexWitnesses.get(URN.createZkpgsURN(baseURN));
-      baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
-    }
-
-    for (BaseRepresentation baseRepresentation : edgeIterator) {
-      tildemURN =
-          "possessionprover.witnesses.randomness.edge.tildem_i_j_"
-              + baseRepresentation.getBaseIndex();
-      //      edgeWitness = edgeWitnesses.get(URN.createZkpgsURN(baseURN));
-      edgeWitness = (BigInteger) proverStore.retrieve(tildemURN);
-      baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
-    }
+    //    for (BaseRepresentation baseRepresentation : vertexIterator) {
+    //      tildemURN =
+    //          "possessionprover.witnesses.randomness.vertex.tildem_i_"
+    //              + baseRepresentation.getBaseIndex();
+    //      vertexWitness = (BigInteger) proverStore.retrieve(tildemURN);
+    //      //      vertexWitness = vertexWitnesses.get(URN.createZkpgsURN(baseURN));
+    //      baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
+    //    }
+    //
+    //    for (BaseRepresentation baseRepresentation : edgeIterator) {
+    //      tildemURN =
+    //          "possessionprover.witnesses.randomness.edge.tildem_i_j_"
+    //              + baseRepresentation.getBaseIndex();
+    //      //      edgeWitness = edgeWitnesses.get(URN.createZkpgsURN(baseURN));
+    //      edgeWitness = (BigInteger) proverStore.retrieve(tildemURN);
+    //      baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
+    //    }
 
     String tildem_0URN = "possessionprover.witnesses.randomness.tildem_0";
     tildem_0 = (BigInteger) proverStore.retrieve(tildem_0URN);
 
+    gslog.info("aPrimeEtilde bitlength: " + aPrimeEtilde.bitLength());
     GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
-    baseProduct =
-        baseProduct.multiply(aPrimeEtilde).multiply(sTildeVPrime).multiply(baseR_0tildem_0);
+    tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0);
 
-    //    tildeZ =
-    //        CryptoUtilsFacade.computeMultiBaseExMap(
-    //            bases, exponents, extendedPublicKey.getPublicKey().getModN());
-    return baseProduct;
+    gslog.info("tildeZ: " + tildeZ);
+    gslog.info("tildeZ bitlength: " + tildeZ.bitLength());
+    return tildeZ;
   }
 
   @Override
@@ -202,6 +202,7 @@ public class PossessionProver implements IProver {
 
     String ePrimeURN = "prover.blindedgs.ePrime";
     BigInteger ePrime = (BigInteger) proverStore.retrieve(ePrimeURN);
+    gslog.info("e prime bitlength: " + ePrime.bitLength());
 
     String vPrimeURN = "prover.blindedgs.vPrime";
     BigInteger vPrime = (BigInteger) proverStore.retrieve(vPrimeURN);
@@ -219,7 +220,7 @@ public class PossessionProver implements IProver {
     for (BaseRepresentation vertexBase : vertexIterator) {
       baseIndex = vertexBase.getBaseIndex();
       tildem_iURN = tildem_iPath + baseIndex;
-      gslog.info("vertex m urn: " + tildem_iURN);
+      //      gslog.info("vertex m urn: " + tildem_iURN);
       m_i = vertexBase.getExponent();
       tildem_i = (BigInteger) proverStore.retrieve(tildem_iURN);
       hatm_i = tildem_i.add(this.c.multiply(m_i));
@@ -254,7 +255,8 @@ public class PossessionProver implements IProver {
         gslog.log(Level.SEVERE, e.getMessage());
       }
     }
-
+    gslog.info("tildee bitlength: " + tildee.bitLength());
+    gslog.info("c bitlength: " + c.bitLength());
     BigInteger hate = tildee.add(this.c.multiply(ePrime));
     /** TODO check if it is tildev or tildevPrime */
     BigInteger hatvPrime = tildev.add(this.c.multiply(vPrime));

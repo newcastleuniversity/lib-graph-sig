@@ -3,6 +3,8 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
+import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
+@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 class GSVerifierTest {
 
   private SignerKeyPair signerKeyPair;
@@ -46,14 +49,14 @@ class GSVerifierTest {
     verifier = new GSVerifier(extendedPublicKey, keyGenParameters);
   }
 
-  @Test
-  void getBarV() {
-    Map<URN, BigInteger> barV = verifier.getBarV();
-    assertNotNull(barV);
-  }
-
-  @Test
-  void checkLengths() {
-    verifier.checkLengths(new ProofSignature(new HashMap<>()));
-  }
+//  @Test
+//  void getBarV() {
+//    Map<URN, BigInteger> barV = verifier.getBarV();
+//    assertNotNull(barV);
+//  }
+//
+//  @Test
+//  void checkLengths() {
+//    verifier.checkLengths(new ProofSignature(new HashMap<>()));
+//  }
 }

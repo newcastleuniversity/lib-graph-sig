@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
+import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
+@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
 class GSProverTest {
 
@@ -75,6 +78,7 @@ class GSProverTest {
   }
 
   @Test
+  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
   void getCommitmentMap() throws Exception {
     BaseRepresentation baseRepresentation =
         new BaseRepresentation(extendedPublicKey.getPublicKey().getBaseR_0(), 0, BASE.VERTEX);
