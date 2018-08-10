@@ -9,8 +9,6 @@ import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +27,6 @@ public class CommitmentVerifier implements IVerifier {
   private GroupElement baseR_0;
   private GroupElement S;
   private GroupElement Z;
-  private GroupElement R_0;
   private BigInteger n_1;
   private BigInteger modN;
   private STAGE proofStage;
@@ -41,9 +38,14 @@ public class CommitmentVerifier implements IVerifier {
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
   private ProofStore<Object> proofStore;
+  private ExtendedPublicKey extendedPublicKey;
   private GSCommitment gscommitment;
   private GroupElement witness;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  private BaseRepresentation vertex;
+  private BigInteger hatr_i;
+  private BigInteger hatm_i;
+  private GroupElement baseR;
 
   public enum STAGE {
     ISSUING,
@@ -67,7 +69,7 @@ public class CommitmentVerifier implements IVerifier {
     this.baseRepresentationMap = extendedPublicKey.getBases();
     this.keyGenParameters = keyGenParameters;
     this.proofStage = proofStage;
-    this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
+    this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
     if (STAGE.ISSUING == proofStage) {
 
@@ -76,10 +78,57 @@ public class CommitmentVerifier implements IVerifier {
       witness = computehatUIssuing();
 
     } else if (STAGE.VERIFYING == proofStage) {
-      /** TODO finish implementation for verifying stage */
+
+      witness = computeHatCVerifying();
     }
 
     return witness;
+  }
+
+  public GroupElement computeWitness(
+      BaseRepresentation vertex,
+      ProofStore<Object> proofStore,
+      ExtendedPublicKey extendedPublicKey,
+      KeyGenParameters keyGenParameters) {
+    this.vertex = vertex;
+    this.proofStore = proofStore;
+    this.extendedPublicKey = extendedPublicKey;
+    this.keyGenParameters = keyGenParameters;
+    this.baseR = extendedPublicKey.getPublicKey().getBaseR();
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+
+    checkLengthsVerifying();
+    witness = computeHatCVerifying();
+    return witness;
+  }
+
+  private GroupElement computeHatCVerifying() {
+    String commitmentURN = "prover.commitments.C_" + vertex.getBaseIndex();
+    GroupElement baseRHatm_i = baseR.modPow(hatm_i);
+    GroupElement baseSHatr_i = baseS.modPow(hatr_i);
+
+    GSCommitment commitment = (GSCommitment) proofStore.retrieve(commitmentURN);
+    GroupElement hatC_i =
+        commitment
+            .getCommitmentValue()
+            .modPow(cChallenge.negate())
+            .multiply(baseRHatm_i)
+            .multiply(baseSHatr_i);
+    return hatC_i;
+  }
+
+  private void checkLengthsVerifying() {
+
+    int hatr_iLength =
+        keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+    int hatm_iLength =
+        keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 2;
+
+    hatr_i = (BigInteger) proofStore.retrieve("verifier.hatr_i_" + vertex.getBaseIndex());
+    Assert.checkBitLength(hatr_i, hatr_iLength, " hat r_i length is not correct");
+
+    hatm_i = (BigInteger) proofStore.retrieve("verifier.hatm_i_" + vertex.getBaseIndex());
+    Assert.checkBitLength(hatm_i, hatm_iLength, "hat m_i length is not correct");
   }
 
   private void checkLengthsIssuing(
@@ -106,18 +155,14 @@ public class CommitmentVerifier implements IVerifier {
     }
   }
 
-  private void checkLengthsVerifying() {
-    /** TODO finish implementation for checkLengths when in verifying stage */
-  }
-
   /** Computehat U. */
   public GroupElement computehatUIssuing() {
 
     Map<URN, BigInteger> exponentsMap = new HashMap<>();
     Map<URN, GroupElement> baseMap = new HashMap<>();
 
-//    BigInteger R_0hatm_0 = R_0.modPow(hatm_0).getValue();
-    baseMap.put(URN.createZkpgsURN("commitment.R_0"), R_0);
+    //    BigInteger R_0hatm_0 = baseR_0.modPow(hatm_0).getValue();
+    baseMap.put(URN.createZkpgsURN("commitment.baseR_0"), baseR_0);
     exponentsMap.put(URN.createZkpgsURN("commitment.hatm_0"), hatm_0);
 
     String uCommitmentURN = "recipient.U";
@@ -136,20 +181,21 @@ public class CommitmentVerifier implements IVerifier {
     exponentsMap.put(URN.createZkpgsURN("commitments.hatvPrime"), hatvPrime);
     baseMap.put(URN.createZkpgsURN("recipient.U"), U.getCommitmentValue());
     exponentsMap.put(URN.createZkpgsURN("recipient.c"), cChallenge);
-    
-//    QRElement qr1 = new QRElementN(baseS.getGroup(), BigInteger.ONE);
-//    GroupElement multiBaseResult = qr1.multiBaseExpMap(baseMap, exponentsMap);
-    GroupElement  negU = valueU.modPow(cChallenge.negate());
 
-    hatU = negU.multiply(baseS.modPow(hatvPrime)).multiply(R_0.modPow(hatm_0));
-    //qr1.multiBaseExpMap(baseMap, exponentsMap); // valueU.modPow(cChallenge.negate()).multiply(multiBaseResult);
+    //    QRElement qr1 = new QRElementN(baseS.getGroup(), BigInteger.ONE);
+    //    GroupElement multiBaseResult = qr1.multiBaseExpMap(baseMap, exponentsMap);
+    GroupElement negU = valueU.modPow(cChallenge.negate());
+
+    hatU = negU.multiply(baseS.modPow(hatvPrime)).multiply(baseR_0.modPow(hatm_0));
+    // qr1.multiBaseExpMap(baseMap, exponentsMap); //
+    // valueU.modPow(cChallenge.negate()).multiply(multiBaseResult);
     gslog.info("hatU: " + hatU);
     return hatU;
   }
 
   private void populateBases(Map<URN, GroupElement> basesMap) {
     basesMap.put(URN.createZkpgsURN("baseRepresentationMap.S"), baseS);
-    //    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.R_0"),R_0);
+    //    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.baseR_0"),baseR_0);
 
     for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
       basesMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getBase());
