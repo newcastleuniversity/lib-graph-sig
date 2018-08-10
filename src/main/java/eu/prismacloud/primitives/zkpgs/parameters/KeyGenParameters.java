@@ -105,7 +105,7 @@ public class KeyGenParameters implements Serializable {
     
     this.lowerBoundE = NumberConstants.TWO.getValue().pow(this.l_e-1);
     this.upperBoundE = this.lowerBoundE.add(NumberConstants.TWO.getValue().pow(this.l_prime_e-1));
-    this.lowerBoundV = NumberConstants.TWO.getValue().pow(this.l_v-1);
+    this.lowerBoundV = NumberConstants.TWO.getValue().pow(this.l_v).negate().add(BigInteger.ONE);
     this.upperBoundV = NumberConstants.TWO.getValue().pow(this.l_v);
   }
 
