@@ -43,7 +43,7 @@ public class GSProver {
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseR = extendedPublicKey.getPublicKey().getBaseR();
     this.proofStore = new ProofStore<Object>();
-    //this.messageGateway = new MessageGatewayProxy(SERVER);
+    this.messageGateway = new MessageGatewayProxy(SERVER);
   }
 
   public Map<URN, GSCommitment> getCommitmentMap() {
@@ -103,7 +103,7 @@ public class GSProver {
   }
 
   public GSMessage receiveMessage() {
-    return new GSMessage(); //messageGateway.receive();
+    return messageGateway.receive();
   }
 
   public void close() {
