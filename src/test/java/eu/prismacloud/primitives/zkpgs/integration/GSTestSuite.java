@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.signer.GSSignerTest;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.launcher.Launcher;
@@ -45,6 +46,7 @@ public class GSTestSuite {
   @Test
   @DisplayName(
       "Test the Geo-Location separation proof using a parallel execution of Prover and Verifier")
+  @Disabled
   void testProverVerifier() throws InterruptedException {
     Thread.sleep(1000);
     System.setProperty("GSSuite", GSSuite.PROVER_VERIFIER.name());
@@ -63,6 +65,7 @@ public class GSTestSuite {
 
   @Test
   @DisplayName("Test the socket message interactions of the low level GSClient and GSServer")
+  @Disabled
   void testClientServer() throws InterruptedException {
     Thread.sleep(1000);
     System.setProperty("GSSuite", GSSuite.GSCLIENT_GSSERVER.name());
@@ -82,7 +85,7 @@ public class GSTestSuite {
 
   @Test
   @DisplayName("Test the signer socket message interactions with the recipient")
-  //      @Disabled
+  @Disabled
   //  @RepeatedTest(4)
   void testSignerMessages() throws InterruptedException {
     Thread.sleep(10000); // wait for sockets to close
