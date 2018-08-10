@@ -7,6 +7,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.orchestrator.ProverOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** Testing the prover side of the geo-location separation proof */
 @TestInstance(Lifecycle.PER_CLASS)
-//@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 public class GSProverServerTest {
 
   private KeyGenParameters keyGenParameters;
@@ -37,7 +38,7 @@ public class GSProverServerTest {
   private BaseCollection baseCollection;
 
   @BeforeAll
-  void setup1Key() throws IOException, ClassNotFoundException, InterruptedException {
+  void setupKey() throws IOException, ClassNotFoundException, InterruptedException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
@@ -49,7 +50,6 @@ public class GSProverServerTest {
 
     String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
     extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
-    extendedPublicKey.getBaseCollection();
 
     gslog.info("read persisted graph signature");
     A = (GroupElement) persistenceUtil.read("A.ser");
@@ -61,9 +61,10 @@ public class GSProverServerTest {
   }
 
 
-//  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
   @Test
   void testProverSide() throws Exception {
+//    GSSignature gsSignature = new GSSignature();
 
     ProofStore<Object> proofStore = new ProofStore<>();
     proofStore.store("graphsignature.A", A);
