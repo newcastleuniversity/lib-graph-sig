@@ -116,6 +116,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
     BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
     BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
+    gslog.info("graph sig e: " + e);
 
     this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
     this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
@@ -190,7 +191,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     Map<URN, Object> proofSignatureElements = new HashMap<>();
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.c"), cChallenge);
     proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P_3.Aprime"), blindedGraphSignature.getA());
+        URN.createZkpgsURN("proofsignature.P_3.APrime"), blindedGraphSignature.getA());
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hate"), hate);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"), hatvPrime);
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatm_0"), hatm_0);
@@ -224,7 +225,6 @@ public class ProverOrchestrator { // implements ProofOperation {
     }
 
     /** TODO add proof signature elements from pair wise difference prover */
-
     return new ProofSignature(proofSignatureElements);
   }
 
@@ -241,35 +241,46 @@ public class ProverOrchestrator { // implements ProofOperation {
     for (CommitmentProver commitmentProver : commitmentProverList) {
       commitmentProver.postChallengePhase(cChallenge);
     }
+
+    ProofSignature P_3 = createProofSignature();
+
+    Map<URN, Object> messageElements = new HashMap<>();
+    messageElements.put(URN.createZkpgsURN("prover.P_3"), P_3);
+
+    // add public values
+    messageElements.put(URN.createZkpgsURN("prover.APrime"), blindedGraphSignature.getA());
+    messageElements.put(URN.createZkpgsURN("prover.C_i"), commitments);
+
+    prover.sendMessage(new GSMessage(messageElements));
   }
 
   private List<String> populateChallengeList() {
     /** TODO populate context list */
     GSContext gsContext =
         new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-    contextList = gsContext.computeChallengeContext();
-
-    challengeList.addAll(contextList);
-    challengeList.add(String.valueOf(blindedGraphSignature.getA()));
+    //    contextList = gsContext.computeChallengeContext();
+    //
+    //    challengeList.addAll(contextList);
+    //    challengeList.add(String.valueOf(blindedGraphSignature.getA()));
     challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
-    for (GSCommitment gsCommitment : commitments.values()) {
-      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
-    }
+    //    for (GSCommitment gsCommitment : commitments.values()) {
+    //      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
+    //    }
 
     challengeList.add(String.valueOf(tildeZ));
 
-    String tildeC_iURN;
-    for (BaseRepresentation vertex : vertexIterator) {
-      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
-      commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
-      challengeList.add(String.valueOf(commitment.getCommitmentValue()));
-    }
-
+    //    String tildeC_iURN;
+    //    for (BaseRepresentation vertex : vertexIterator) {
+    //      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
+    //      commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
+    //      challengeList.add(String.valueOf(commitment.getCommitmentValue()));
+    //    }
+    /** TODO add pair-wise elements for challenge */
     //    for (GroupElement witness : pairWiseWitnesses.values()) {
     //      challengeList.add(String.valueOf(witness));
     //    }
-
-    challengeList.add(String.valueOf(n_3));
+    gslog.info("n3: " + n_3);
+    //    challengeList.add(String.valueOf(n_3));
 
     return challengeList;
   }
