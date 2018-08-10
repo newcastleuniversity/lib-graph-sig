@@ -40,7 +40,8 @@ public class CommitmentProver implements IProver {
 
   public static final String POSSESSIONPROVER_WITNESSES_VERTEX_RANDOMNESS_TILDEM =
       "possessionprover.witnesses.randomness.vertex.tildem_i_";
-  private static final String RANDOMNESS_TILDEVPRIME = "possessionprover.witnesses.randomness.tildevPrime";
+  private static final String RANDOMNESS_TILDEVPRIME =
+      "possessionprover.witnesses.randomness.tildevPrime";
 
   private BaseCollection baseCollection;
   private ProofStore<Object> proofStore;
@@ -89,7 +90,7 @@ public class CommitmentProver implements IProver {
     this.keyGenParameters = keyGenParameters;
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.proofStage = STAGE.PROVING;
-    
+
     createWitnessRandomness();
     computeWitness();
     return witness;
@@ -104,24 +105,24 @@ public class CommitmentProver implements IProver {
    * Pre challenge phase for commitment prover in the issuing stage.
    *
    * @param baseCollection the base collection
-   * @param pStore the proof store
+   * @param proofStore the proof store
    * @param extendedPublicKey the extended public key
    * @param keyGenParameters the key generation parameters
    * @return the gs outputs a commitment
    */
   public GSCommitment preChallengePhase(
       final BaseCollection baseCollection,
-      final ProofStore<Object> pStore,
+      final ProofStore<Object> proofStore,
       final ExtendedPublicKey extendedPublicKey,
       final KeyGenParameters keyGenParameters) {
 
     Assert.notNull(baseCollection, "baseCollection must not be null");
-    Assert.notNull(pStore, "proof store must not be null");
+    Assert.notNull(proofStore, "proof store must not be null");
     Assert.notNull(extendedPublicKey, "extended public key must not be null");
     Assert.notNull(keyGenParameters, "keygen parameters must not be null");
 
     this.baseCollection = baseCollection;
-    this.proofStore = pStore;
+    this.proofStore = proofStore;
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.modN = extendedPublicKey.getPublicKey().getModN();
@@ -131,9 +132,9 @@ public class CommitmentProver implements IProver {
     if (baseCollection.size() > 1) {
       this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
       this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
-    } else {
-      this.baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
     }
+    this.baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
+
     createWitnessRandomness();
     computeWitness();
     return witness;
@@ -244,10 +245,11 @@ public class CommitmentProver implements IProver {
     } else {
 
       /** TODO retrieve witness randomness of committed messages from the common store */
-      String tildem_iURN = POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM;// + base.getBaseIndex();
+      String tildem_iURN = POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM; // + base.getBaseIndex();
       Map<URN, BigInteger> witnesses = (Map<URN, BigInteger>) proofStore.retrieve(tildem_iURN);
 
-      String tildem_i_iURN = POSSESSIONPROVER_WITNESSES_VERTEX_RANDOMNESS_TILDEM + base.getBaseIndex();
+      String tildem_i_iURN =
+          POSSESSIONPROVER_WITNESSES_VERTEX_RANDOMNESS_TILDEM + base.getBaseIndex();
       tildem_i = witnesses.get(URN.createZkpgsURN(tildem_i_iURN));
       GroupElement baseR = extendedPublicKey.getPublicKey().getBaseR();
       GroupElement tildeC_i = baseR.modPow(tildem_i).multiply(baseS.modPow(tilder_i));
@@ -297,9 +299,14 @@ public class CommitmentProver implements IProver {
   }
 
   private void computeResponsesIssuing() throws Exception {
+    BigInteger m_0 = null;
     BaseRepresentation baseRepresentation;
     BigInteger vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
-    BigInteger m_0 = baseRepresentationR_0.getExponent();
+
+    if (baseR0Iterator.hasNext()){
+      m_0 = baseR0Iterator.next().getExponent();
+    }
+
     BigInteger hatvPrime = tildevPrime.add(cChallenge.multiply(vPrime));
     BigInteger hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
     String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
@@ -355,5 +362,4 @@ public class CommitmentProver implements IProver {
     responses.put(URN.createZkpgsURN(hatr_iURN), hatr_i);
     proofStore.store(hatr_iURN, hatr_i);
   }
-
 }
