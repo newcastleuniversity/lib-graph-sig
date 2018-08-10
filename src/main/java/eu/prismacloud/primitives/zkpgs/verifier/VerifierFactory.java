@@ -18,7 +18,7 @@ public class VerifierFactory {
     } else if (type == VerifierType.CorrectnessVerifier) {
       return new CorrectnessVerifier();
     } else if (type == VerifierType.PossessionVerifier) {
-      return new GSPossessionVerifier();
+      return new PossessionVerifier();
     } else if (type == VerifierType.PairWiseDifferenceVerifier) {
       return new PairWiseDifferenceVerifier();
     } else {
