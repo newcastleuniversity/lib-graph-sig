@@ -3,7 +3,6 @@ package eu.prismacloud.primitives.zkpgs.util;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -225,42 +224,42 @@ class GSUtilsTest {
     }
   }
 
-//  @Test
-//  @DisplayName("Test if an integer a is an element of QRN")
-//  void elementOfQRN() {
-//
-//    BigInteger qrn = BigInteger.valueOf(15);
-//    BigInteger modN = BigInteger.valueOf(77);
-//
-//    Boolean isQRN = classUnderTest.elementOfQRN(qrn, modN);
-//
-//    log.info("element of qrn: " + isQRN);
-//
-//    assertTrue(isQRN);
-//
-//    qrn = BigInteger.valueOf(14);
-//    modN = BigInteger.valueOf(77);
-//
-//    isQRN = classUnderTest.elementOfQRN(qrn, modN);
-//
-//    log.info("element of qrn: " + isQRN);
-//
-//    Assert.assertThat(isQRN, is(true));
-//  }
+  //  @Test
+  //  @DisplayName("Test if an integer a is an element of QRN")
+  //  void elementOfQRN() {
+  //
+  //    BigInteger qrn = BigInteger.valueOf(15);
+  //    BigInteger modN = BigInteger.valueOf(77);
+  //
+  //    Boolean isQRN = classUnderTest.elementOfQRN(qrn, modN);
+  //
+  //    log.info("element of qrn: " + isQRN);
+  //
+  //    assertTrue(isQRN);
+  //
+  //    qrn = BigInteger.valueOf(14);
+  //    modN = BigInteger.valueOf(77);
+  //
+  //    isQRN = classUnderTest.elementOfQRN(qrn, modN);
+  //
+  //    log.info("element of qrn: " + isQRN);
+  //
+  //    Assert.assertThat(isQRN, is(true));
+  //  }
 
-//  @Test
-//  @DisplayName("Test if S is a generator of QRN")
-//  void verifySGeneratorOfQRN() {
-//
-//    BigInteger generatorS = BigInteger.valueOf(60);
-//    BigInteger modN = BigInteger.valueOf(77);
-//
-//    Boolean isGenerator = classUnderTest.verifySGeneratorOfQRN(generatorS, modN);
-//
-//    log.info("is generator of QRN " + isGenerator);
-//
-//    assertTrue(isGenerator);
-//  }
+  //  @Test
+  //  @DisplayName("Test if S is a generator of QRN")
+  //  void verifySGeneratorOfQRN() {
+  //
+  //    BigInteger generatorS = BigInteger.valueOf(60);
+  //    BigInteger modN = BigInteger.valueOf(77);
+  //
+  //    Boolean isGenerator = classUnderTest.verifySGeneratorOfQRN(generatorS, modN);
+  //
+  //    log.info("is generator of QRN " + isGenerator);
+  //
+  //    assertTrue(isGenerator);
+  //  }
 
   @Test
   @DisplayName("generate random number with factors")
@@ -296,8 +295,8 @@ class GSUtilsTest {
 
     log.info("@Test: m: " + m);
 
-//    log.info("@Test: m+1: " + m.add(BigInteger.ONE));
-//    log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
+    //    log.info("@Test: m+1: " + m.add(BigInteger.ONE));
+    //    log.info("@Test: m+1 length: " + m.add(BigInteger.ONE).bitLength());
   }
 
   // TODO The random prime with factors test does not seem to terminate.
@@ -561,13 +560,15 @@ class GSUtilsTest {
   void multiBaseExpMap() {}
 
   @Test
-//  @RepeatedTest(10)
+  //  @RepeatedTest(10)
   void generateRandomSafePrime() {
     if (!BaseTest.EXECUTE_INTENSIVE_TESTS) {
       // test generating a random safe prime with 512 modulus bitlength
-      keyGenParameters = KeyGenParameters.createKeyGenParameters(512, 1632, 80, 256, 1, 597, 120 ,2724, 80,256,80,80);
+      keyGenParameters =
+          KeyGenParameters.createKeyGenParameters(
+              512, 1632, 80, 256, 1, 597, 120, 2724, 80, 256, 80, 80);
     }
-    
+
     SafePrime prime = classUnderTest.generateRandomSafePrime(keyGenParameters);
     log.info("prime bitlength: " + prime.getSafePrime().bitLength());
     assertEquals(keyGenParameters.getL_n() / 2, prime.getSafePrime().bitLength());
@@ -578,12 +579,26 @@ class GSUtilsTest {
   void isPrime() {}
 
   @Test
-//  @RepeatedTest(10)
+  //  @RepeatedTest(10)
   void generateRandomPrime() {
 
     BigInteger prime = classUnderTest.generateRandomPrime(128);
     log.info("prime bitlength: " + prime.bitLength());
     assertEquals(128, prime.bitLength());
     assertTrue(prime.isProbablePrime(80));
+  }
+
+  @Test
+  @RepeatedTest(10)
+  void generateRandomPrimeInRange() {
+    log.info("generate random prime in range");
+    BigInteger min = keyGenParameters.getLowerBoundV();
+    BigInteger max = keyGenParameters.getUpperBoundV();
+    BigInteger prime = classUnderTest.generatePrimeInRange(min, max);
+
+    assertNotNull(prime);
+    assertTrue(prime.isProbablePrime(80));
+    assertTrue(min.compareTo(prime) < 0);
+    assertTrue(max.compareTo(prime) > 0);
   }
 }

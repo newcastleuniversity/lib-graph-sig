@@ -160,22 +160,23 @@ public class GSUtils implements INumberUtils {
   }
 
   /**
-   * Generates a prime number in range of a minimum integer number and maximum integer number. The
-   * probability to return a number that is not prime but a composite number is not more than 2^-100.
+   * Generates a prime number in range of a minimum positive or negative integer number and a maximum positive integer number.
    *
    * @param min the minimum integer number
    * @param max the maximum integer number
-   * @return prime number in range of [min, max]
+   * @return prime number in range of [-+min, +max]
    */
   @Override
   public BigInteger generatePrimeInRange(BigInteger min, BigInteger max) {
-
     BigInteger prime;
+    SecureRandom secureRandom = new SecureRandom();
 
     do {
-      prime = min.nextProbablePrime();
-    } while ((prime.compareTo(min) < 0) || (prime.compareTo(max) > 0) || !isPrime(prime));
-    
+      prime = generateRandomPrime(min.bitLength());
+    } while ((prime.compareTo(min) < 0)
+        || (prime.compareTo(max) > 0)
+        || !isPrime(prime));
+
     return prime;
   }
 
