@@ -50,27 +50,23 @@ public class GSUtils implements INumberUtils {
   @Override
   public BigInteger randomMinusPlusNumber(int bitlength) {
     SecureRandom secureRandom = new SecureRandom();
+    log.info("generate minus plus number");
 
     /** TODO check if the computations for generating a +- random number are correct */
-
     /** TODO range is -2^bitlength+1 , + 2^bitlength -1 */
     BigInteger max = NumberConstants.TWO.getValue().pow(bitlength).subtract(BigInteger.ONE);
-    BigInteger min = NumberConstants.TWO.getValue().pow(bitlength).add(BigInteger.ONE).negate();
+    BigInteger positiveMin = NumberConstants.TWO.getValue().pow(bitlength);
+    BigInteger negativeMin = positiveMin.add(BigInteger.ONE).negate();
+    BigInteger maxPlusMin = max.add(positiveMin);
+    BigInteger number;
 
-    BigInteger maxWithoutSign = max.multiply(NumberConstants.TWO.getValue());
-
-    BigInteger number = maxWithoutSign.add(BigInteger.ONE);
-
-    while ((number.compareTo(max) > 0)
-        || (number.subtract(max).compareTo(BigInteger.ZERO) == 0)
-        || ((number.bitLength() + 1) != bitlength)) {
-
-      number = new BigInteger(bitlength + 1, secureRandom);
-    }
-
-    BigInteger result = number.subtract(max);
-
-    return result;
+    do {
+      number = new BigInteger(maxPlusMin.bitLength(), secureRandom);
+      number = number.subtract(positiveMin);
+    } while ((number.compareTo(max) > 0)
+        || (number.compareTo(negativeMin) < 0)
+        || (number.bitLength() != bitlength));
+    return number;
   }
 
   /**
@@ -160,22 +156,53 @@ public class GSUtils implements INumberUtils {
   }
 
   /**
-   * Generates a prime number in range of a minimum positive or negative integer number and a maximum positive integer number.
+   * Generates a prime number in range of a minimum negative integer number and a maximum positive
+   * integer number.
    *
    * @param min the minimum integer number
    * @param max the maximum integer number
-   * @return prime number in range of [-+min, +max]
+   * @return prime number in range of [-min, +max]
    */
   @Override
   public BigInteger generatePrimeInRange(BigInteger min, BigInteger max) {
+
+    log.info("generate prime in range: ");
+    BigInteger prime;
+    if (min.compareTo(BigInteger.ZERO) < 0) {
+      prime = generatePrimeWithNegativeMin(min, max);
+
+    } else {
+      prime = generatePrimeWithPositiveMin(min, max);
+    }
+
+    return prime;
+  }
+
+  private BigInteger generatePrimeWithNegativeMin(BigInteger min, BigInteger max) {
+    max = max.subtract(BigInteger.ONE);
+    BigInteger positiveMin = min.add(BigInteger.ONE).negate();
+    BigInteger negativeMin = min;
+    BigInteger maxPlusMin = max.add(positiveMin);
     BigInteger prime;
     SecureRandom secureRandom = new SecureRandom();
 
     do {
-      prime = generateRandomPrime(min.bitLength());
-    } while ((prime.compareTo(min) < 0)
-        || (prime.compareTo(max) > 0)
-        || !isPrime(prime));
+      prime = new BigInteger(maxPlusMin.bitLength(), secureRandom);
+      prime = generateRandomPrime(prime.subtract(positiveMin).bitLength());
+    } while ((prime.compareTo(min) < 0) || (prime.compareTo(max) > 0) || !isPrime(prime));
+
+    return prime;
+  }
+
+  private BigInteger generatePrimeWithPositiveMin(BigInteger min, BigInteger max) {
+    BigInteger prime;
+    BigInteger difference = max.subtract(min).add(BigInteger.ONE);
+    SecureRandom secureRandom = new SecureRandom();
+
+    do {
+      BigInteger temp = new BigInteger(difference.bitLength(), secureRandom);
+      prime = temp.add(min);
+    } while ((prime.compareTo(min) < 0) || (prime.compareTo(max) > 0) || !isPrime(prime));
 
     return prime;
   }
