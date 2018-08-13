@@ -45,13 +45,13 @@ public class SignerKeyPair implements Serializable {
     S = qrGroup.createGenerator();
 
     // ** TODO check if the computations with the group elements are correct
-    x_Z = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+    x_Z = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
     Z = S.modPow(x_Z);
 
-    x_R = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+    x_R = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
     R = S.modPow(x_R);
 
-    x_R0 = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+    x_R0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
     R_0 = S.modPow(x_R0);
 
     cg = CryptoUtilsFacade.commitmentGroupSetup(keyGenParameters);
