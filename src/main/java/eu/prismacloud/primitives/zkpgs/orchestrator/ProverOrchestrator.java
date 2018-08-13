@@ -93,6 +93,7 @@ public class ProverOrchestrator { // implements ProofOperation {
   private BaseIterator vertexIterator;
   private PossessionProver possessionProver;
   private List<CommitmentProver> commitmentProverList;
+  private BaseIterator edgeIterator;
 
   public ProverOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -103,13 +104,13 @@ public class ProverOrchestrator { // implements ProofOperation {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-    this.baseCollection = extendedPublicKey.getBaseCollection();
+//    this.baseCollection = extendedPublicKey.getBaseCollection();
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
     this.proofStore = proofStore;
     this.prover = new GSProver(extendedPublicKey, keyGenParameters);
-    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+//    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
   }
 
   public void init() throws Exception {
@@ -120,7 +121,9 @@ public class ProverOrchestrator { // implements ProofOperation {
 
     this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
     this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
-
+    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
+    
     GSMessage msg = prover.receiveMessage();
     Map<URN, Object> messageElements = msg.getMessageElements();
     n_3 = (BigInteger) messageElements.get(URN.createZkpgsURN("verifier.n_3"));
@@ -158,7 +161,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     //      index++;
     //    }
 
-    computeCommitmentProvers();
+//    computeCommitmentProvers();
 
     //    computePairWiseProvers(pairWiseDifferenceProvers);
   }
@@ -211,7 +214,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
     String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
     String hatr_iURN;
-    for (BaseRepresentation edgeBase : vertexIterator) {
+    for (BaseRepresentation edgeBase : edgeIterator) {
       baseIndex = edgeBase.getBaseIndex();
       hatm_i_jURN = hatm_i_jPath + baseIndex;
       proofSignatureElements.put(
@@ -238,9 +241,9 @@ public class ProverOrchestrator { // implements ProofOperation {
     gslog.info("compute post challlenge phase");
     possessionProver.postChallengePhase(cChallenge);
 
-    for (CommitmentProver commitmentProver : commitmentProverList) {
-      commitmentProver.postChallengePhase(cChallenge);
-    }
+//    for (CommitmentProver commitmentProver : commitmentProverList) {
+//      commitmentProver.postChallengePhase(cChallenge);
+//    }
 
     ProofSignature P_3 = createProofSignature();
 
@@ -261,8 +264,8 @@ public class ProverOrchestrator { // implements ProofOperation {
     //    contextList = gsContext.computeChallengeContext();
     //
     //    challengeList.addAll(contextList);
-    //    challengeList.add(String.valueOf(blindedGraphSignature.getA()));
-    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
+        challengeList.add(String.valueOf(blindedGraphSignature.getA()));
+   // challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
     //    for (GSCommitment gsCommitment : commitments.values()) {
     //      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
     //    }
@@ -280,7 +283,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     //      challengeList.add(String.valueOf(witness));
     //    }
     gslog.info("n3: " + n_3);
-    //    challengeList.add(String.valueOf(n_3));
+        challengeList.add(String.valueOf(n_3));
 
     return challengeList;
   }
