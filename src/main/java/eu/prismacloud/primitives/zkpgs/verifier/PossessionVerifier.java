@@ -61,26 +61,28 @@ public class PossessionVerifier implements IVerifier {
     //          basesProduct.multiply(
     //              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
     //    }
-        GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
+    GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
     gslog.info("Aprime: " + APrime);
     GroupElement aPrimeMulti =
-        APrime.modPow(
-            NumberConstants.TWO
-                .getValue()
-                .pow(keyGenParameters.getL_e() - 1)); // keyGenParameters.getLowerBoundE());
+        APrime.modPow(keyGenParameters.getLowerBoundE());
 
     GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
     GroupElement result = divide.modPow(cChallenge.negate());
     GroupElement aPrimeHate = APrime.modPow(hate);
     GroupElement baseShatvPrime = baseS.modPow(hatvPrime);
 
-    gslog.info("aPrimehate bitlength: " + aPrimeHate.bitLength());
     hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0);
-        //basesProduct
-//            .multiply(result)
-            //            .multiply(baseR0hatm_0)
-//            .multiply(aPrimeHate)
-//            .multiply(baseShatvPrime);
+
+    // alternative calculation of hatZ
+
+//    hatZ = baseZ.modPow(cChallenge.negate()).multiply(aPrimeHate).multiply(baseShatvPrime);
+//    hatZ = hatZ.multiply(baseR0hatm_0);//.modInverse();
+
+    // basesProduct
+    //            .multiply(result)
+    //            .multiply(baseR0hatm_0)
+    //            .multiply(aPrimeHate)
+    //            .multiply(baseShatvPrime);
 
     gslog.info("hatZ: " + hatZ);
     gslog.info("hatZ bitlength: " + hatZ.bitLength());
