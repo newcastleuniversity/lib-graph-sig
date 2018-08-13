@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -84,7 +85,7 @@ class GSSignatureTest {
   }
 
   @Test
-  //  @RepeatedTest(10)
+  @RepeatedTest(10)
   void testSignatureRandom() throws IOException, ClassNotFoundException {
     // TODO Ioannis: The computations should be done by QRElement in the actual implementation.
     // Not on externalized BigIntegers.
@@ -107,10 +108,18 @@ class GSSignatureTest {
     baseScom = baseS.modPow(vbar);
     commitment = R_0com.multiply(baseScom);
 
-    e = CryptoUtilsFacade.computePrimeInRange(keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
+    e =
+        CryptoUtilsFacade.computePrimeInRange(
+            keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
 
-    vPrimePrime = CryptoUtilsFacade.computePrimeInRange(keyGenParameters.getLowerBoundV(),keyGenParameters.getUpperBoundV() );
+    vPrimePrime =
+        CryptoUtilsFacade.computePrimeInRange(
+            keyGenParameters.getLowerBoundV(), keyGenParameters.getUpperBoundV());
 
+
+    assertTrue(
+        (vPrimePrime.compareTo(this.keyGenParameters.getLowerBoundV()) > 0)
+            && (vPrimePrime.compareTo(this.keyGenParameters.getUpperBoundV()) < 0));
 
     Sv = baseS.modPow(vPrimePrime);
     GroupElement Sv1 = (Sv.multiply(commitment));
