@@ -404,20 +404,18 @@ class GSUtilsTest {
   }
 
   @Test
+  //  @RepeatedTest(10)
   void randomMinusPlusNumber() {
+    int bitlength = 128;
+    BigInteger max = NumberConstants.TWO.getValue().pow(bitlength).subtract(BigInteger.ONE);
+    BigInteger min = NumberConstants.TWO.getValue().pow(bitlength).add(BigInteger.ONE).negate();
+    BigInteger numb = classUnderTest.randomMinusPlusNumber(bitlength);
+    log.info("number: " + numb);
+    log.info("number bitlength: " + numb.bitLength());
 
-    for (int i = 0; i < 100; i++) {
-      BigInteger numb = classUnderTest.randomMinusPlusNumber(24);
-      log.info("number: " + numb);
-      log.info("number bitlength: " + numb.bitLength());
-
-      assertNotNull(numb);
-      assertTrue(numb.bitLength() == 24);
-
-      //      assertTrue(
-      //          numb.compareTo(BigInteger.valueOf(-16)) > 0
-      //              && numb.compareTo(BigInteger.valueOf(16)) < 0);
-    }
+    assertNotNull(numb);
+    assertTrue(numb.compareTo(min) > 0 && numb.compareTo(max) < 0);
+    assertTrue(numb.bitLength() == bitlength);
   }
 
   @Test
@@ -582,23 +580,43 @@ class GSUtilsTest {
   //  @RepeatedTest(10)
   void generateRandomPrime() {
 
-    BigInteger prime = classUnderTest.generateRandomPrime(128);
+    int bitlength = 128;
+    BigInteger prime = classUnderTest.generateRandomPrime(bitlength);
     log.info("prime bitlength: " + prime.bitLength());
     assertEquals(128, prime.bitLength());
-    assertTrue(prime.isProbablePrime(80));
+    assertTrue(prime.isProbablePrime(keyGenParameters.getL_pt()));
   }
 
   @Test
   @RepeatedTest(10)
-  void generateRandomPrimeInRange() {
+  @DisplayName("Test generate a prime in range when min is a negative number")
+  void generateRandomPrimeInRangeWithNegativeMin() {
     log.info("generate random prime in range");
     BigInteger min = keyGenParameters.getLowerBoundV();
     BigInteger max = keyGenParameters.getUpperBoundV();
-    BigInteger prime = classUnderTest.generatePrimeInRange(min, max);
+    BigInteger primeV = classUnderTest.generatePrimeInRange(min, max);
 
-    assertNotNull(prime);
-    assertTrue(prime.isProbablePrime(80));
-    assertTrue(min.compareTo(prime) < 0);
-    assertTrue(max.compareTo(prime) > 0);
+    assertNotNull(primeV);
+    log.info("prime number: " + primeV);
+    assertTrue(primeV.isProbablePrime(keyGenParameters.getL_pt()));
+    assertTrue(
+        (primeV.compareTo(this.keyGenParameters.getLowerBoundV()) > 0)
+            && (primeV.compareTo(this.keyGenParameters.getUpperBoundV()) < 0));
+  }
+
+  @Test
+  @RepeatedTest(10)
+  @DisplayName("Test generate a prime in range when min is a positive number")
+  void generateRandomPrimeInRangeWithPositiveMin() {
+    BigInteger min = keyGenParameters.getLowerBoundE();
+    BigInteger max = keyGenParameters.getUpperBoundE();
+    BigInteger primeE = classUnderTest.generatePrimeInRange(min, max);
+
+    assertNotNull(primeE);
+    log.info("prime number: " + primeE);
+    assertTrue(primeE.isProbablePrime(keyGenParameters.getL_pt()));
+
+    assertTrue((primeE.compareTo(this.keyGenParameters.getLowerBoundE()) > 0)
+            && (primeE.compareTo(this.keyGenParameters.getUpperBoundE()) < 0));
   }
 }
