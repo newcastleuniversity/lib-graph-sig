@@ -65,7 +65,7 @@ public class GSSignature {
   }
 
   public GSSignature(
-      final SignerPublicKey signerPublicKey, GroupElement A, BigInteger e, BigInteger v) {
+      final SignerPublicKey signerPublicKey, final GroupElement A, final BigInteger e, final BigInteger v) {
     this.signerPublicKey = signerPublicKey;
     this.keyGenParameters = signerPublicKey.getKeyGenParameters();
     this.baseS = signerPublicKey.getBaseS();
