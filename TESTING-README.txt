@@ -8,7 +8,7 @@ We can use a pre-generated serialized keypair to facilitate in the rapid testing
 Steps for generating a new signer's keypair and a new signer public key:
 ------------------------------------------------------------------------
 
-1. In file FilePersistenceUtilTest set the generateKey flag to true.
+1. In file FilePersistenceUtilTest in test package util set the generateKey flag to true.
 
 2. Execute the writeSignerKeyPairAndPublicKey test case in the same file.
 
