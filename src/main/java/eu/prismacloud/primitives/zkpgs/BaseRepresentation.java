@@ -67,4 +67,10 @@ public class BaseRepresentation implements Serializable {
     sb.append('}');
     return sb.toString();
   }
+  
+
+  @Override
+  public BaseRepresentation clone() {
+	  return new BaseRepresentation(this.base, this.exponent, this.baseIndex, this.baseType);
+  }
 }

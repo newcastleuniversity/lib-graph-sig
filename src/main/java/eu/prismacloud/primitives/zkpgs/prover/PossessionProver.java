@@ -14,9 +14,13 @@ import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,8 +38,9 @@ public class PossessionProver implements IProver {
   //  private Map<URN, BaseRepresentation> edges;
   private GroupElement tildeZ;
   private BigInteger tildee;
-  //  private Map<URN, BigInteger> vertexWitnesses;
-  //  private Map<URN, BigInteger> edgeWitnesses;
+//  private Map<URN, BigInteger> vertexWitnesses;
+//  private Map<URN, BigInteger> edgeWitnesses;
+  private Vector<BaseRepresentation> graphResponses = new Vector<BaseRepresentation>();
   private BigInteger tildem_i;
   private BigInteger tildem_i_j;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
@@ -45,9 +50,12 @@ public class PossessionProver implements IProver {
   private BaseIterator vertexIterator;
   private BaseIterator edgeIterator;
   private BaseIterator baseIterator;
-  private BigInteger tildev;
   private GroupElement baseS;
   private GroupElement baseR_0;
+  
+  private BigInteger hate;
+  private BigInteger hatvPrime;
+  private BigInteger hatm_0;
 
   public GroupElement preChallengePhase(
       GSSignature blindedSignature,
@@ -93,7 +101,7 @@ public class PossessionProver implements IProver {
 
     int tildevLength =
         keyGenParameters.getL_v() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
-    tildev = CryptoUtilsFacade.computeRandomNumber(tildevLength);
+    tildevPrime = CryptoUtilsFacade.computeRandomNumber(tildevLength);
 
     int messageLength =
         keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
@@ -125,9 +133,8 @@ public class PossessionProver implements IProver {
     String tildeeURN = "possessionprover.witnesses.randomness.tildee";
     proverStore.store(tildeeURN, tildee);
 
-    /** TODO check if it is tildev or tildevPrime */
-    String tildevURN = "possessionprover.witnesses.randomness.tildev";
-    proverStore.store(tildevURN, tildev);
+    String tildevURN = "possessionprover.witnesses.randomness.tildevprime";
+    proverStore.store(tildevURN, tildevPrime);
 
     String tildem_0URN = "possessionprover.witnesses.randomness.tildem_0";
     proverStore.store(tildem_0URN, tildem_0);
@@ -139,7 +146,9 @@ public class PossessionProver implements IProver {
     //    proverStore.store(tildem_i_jURN, edgeWitnesses);
   }
 
-  public void computeWitness() {}
+  public void computeWitness() {
+	  computetildeZ();
+  }
 
   //  @Override
   public GroupElement computetildeZ() {
@@ -149,8 +158,8 @@ public class PossessionProver implements IProver {
 
     gslog.info("ePrime + 2^le-1: " + blindedSignature.getE().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
     
-    /** TODO check if tildev or tildevprime */
-    GroupElement sTildeVPrime = baseS.modPow(tildev);
+
+    GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
     GroupElement baseProduct = extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
     String tildemURN;
@@ -224,6 +233,10 @@ public class PossessionProver implements IProver {
       m_i = vertexBase.getExponent();
       tildem_i = (BigInteger) proverStore.retrieve(tildem_iURN);
       hatm_i = tildem_i.add(this.c.multiply(m_i));
+      
+      BaseRepresentation vertexResponse = vertexBase.clone();
+      vertexResponse.setExponent(hatm_i);
+      graphResponses.addElement(vertexResponse);
 
       String hatm_iURN = "possessionprover.responses.vertex.hatm_i_" + baseIndex;
 
@@ -246,6 +259,10 @@ public class PossessionProver implements IProver {
       tildem_i_j = (BigInteger) proverStore.retrieve(tildem_i_jURN);
 
       hatm_i_j = tildem_i_j.add(this.c.multiply(m_i_j));
+      
+      BaseRepresentation edgeResponse = edgeBase.clone();
+      edgeResponse.setExponent(hatm_i_j);
+      graphResponses.addElement(edgeResponse);
 
       String hatm_i_jURN = "possessionprover.responses.edge.hatm_i_j_" + baseIndex;
 
@@ -257,10 +274,9 @@ public class PossessionProver implements IProver {
     }
     gslog.info("tildee bitlength: " + tildee.bitLength());
     gslog.info("c bitlength: " + c.bitLength());
-    BigInteger hate = tildee.add(this.c.multiply(ePrime));
-    /** TODO check if it is tildev or tildevPrime */
-    BigInteger hatvPrime = tildev.add(this.c.multiply(vPrime));
-    BigInteger hatm_0 = tildem_0.add(this.c.multiply(m_0));
+    hate = tildee.add(this.c.multiply(ePrime));
+    hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
+    hatm_0 = tildem_0.add(this.c.multiply(m_0));
 
     String hateURN = "possessionprover.responses.hate";
     String hatvPrimeURN = "possessionprover.responses.hatvPrime";
@@ -293,4 +309,37 @@ public class PossessionProver implements IProver {
 
   //  @Override
   public void computeResponses() {}
+  
+  /**
+   * Self-verifies the proof responses of the PossessionProver.
+   * 
+   * It is required that the bases raised to the responses multiplied by 
+   * base Z to the negated challenge yields the witness tildeZ.
+   * 
+   * @return <tt>true</tt> if the response values are computed correctly.
+   *   If verify() is called before the challenge is submitted, the method always returns <tt>false</tt>.
+   */
+  @Override
+  public boolean verify() {
+	  if (this.c == null) return false;
+	  
+	  GroupElement aPrimeHatE = blindedSignature.getA().modPow(hate);
+	  GroupElement baseSHatVPrime = baseS.modPow(hatvPrime);
+	  GroupElement baseR_0HatM_0 = baseR_0.modPow(hatm_0);
+	  
+	  BigInteger offsetExp = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v()-1);
+	  GroupElement aPrimeOffset = blindedSignature.getA().modPow(offsetExp).modInverse();
+	  
+	  GroupElement baseZnegC = (this.extendedPublicKey.getPublicKey().getBaseZ().multiply(aPrimeOffset)).modPow(c.negate());
+	  
+	  GroupElement verifier = baseZnegC.multiply(aPrimeHatE).multiply(baseSHatVPrime).multiply(baseR_0HatM_0);
+	  
+	  Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
+	  while (graphResponseIterator.hasNext()) {
+		BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
+		verifier = verifier.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+	  }
+	  
+	  return verifier.equals(tildeZ);
+  }
 }

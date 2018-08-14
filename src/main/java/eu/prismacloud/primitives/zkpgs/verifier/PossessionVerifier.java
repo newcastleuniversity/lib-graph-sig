@@ -42,10 +42,13 @@ public class PossessionVerifier implements IVerifier {
     this.keyGenParameters = keyGenParameters;
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    // TODO I don't understand how the baseCollection is set. It seems to come from the EPK.
+    // Yet, somehow that iterator below draws upon an exponent, which should not be there.
     this.baseCollection = extendedPublicKey.getBaseCollection();
     this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
     this.baseR0 = extendedPublicKey.getPublicKey().getBaseR_0();
+    // TODO Where do the response exponents come into play?
 
     APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
     cChallenge = (BigInteger) proofStore.retrieve("verifier.c");

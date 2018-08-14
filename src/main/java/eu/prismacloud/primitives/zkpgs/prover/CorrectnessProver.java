@@ -10,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /** */
+// TODO What does the CorrectnessProver do? JavaDoc documentation, please.
 public class CorrectnessProver implements IProver {
 
   private BigInteger n_2;
@@ -102,5 +104,10 @@ public class CorrectnessProver implements IProver {
   public BigInteger postChallengePhase() {
     hatd = tilded.subtract(cPrime.multiply(d).mod(order));
     return hatd;
+  }
+  
+  @Override
+  public boolean verify() {
+	  return false;
   }
 }

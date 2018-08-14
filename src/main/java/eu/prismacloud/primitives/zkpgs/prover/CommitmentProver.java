@@ -362,4 +362,9 @@ public class CommitmentProver implements IProver {
     responses.put(URN.createZkpgsURN(hatr_iURN), hatr_i);
     proofStore.store(hatr_iURN, hatr_i);
   }
+  
+  @Override
+  public boolean verify() {
+	  return false;
+  }
 }

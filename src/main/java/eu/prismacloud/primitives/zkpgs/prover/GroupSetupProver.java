@@ -14,6 +14,7 @@ import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -370,5 +371,10 @@ public class GroupSetupProver implements IProver {
     proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.c"), cChallenge);
 
     return new ProofSignature(proofSignatureElements);
+  }
+  
+  @Override
+  public boolean verify() {
+	  return false;
   }
 }

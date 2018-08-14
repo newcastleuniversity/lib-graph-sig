@@ -337,4 +337,9 @@ public class PairWiseDifferenceProver implements IProver {
   public GroupElement getBasetildeR_BariBarj() {
     return basetildeR_BariBarj;
   }
+  
+  @Override
+  public boolean verify() {
+	  return false;
+  }
 }
