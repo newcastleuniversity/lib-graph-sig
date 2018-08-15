@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -25,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PossessionProver implements IProver {
+	public static final String URNID = "possessionprover";
 
   private GSSignature blindedSignature;
   private ExtendedPublicKey extendedPublicKey;
@@ -350,5 +352,19 @@ public class PossessionProver implements IProver {
 	  
 	  // The result must be equal to the witness tildeZ.
 	  return verifier.equals(this.tildeZ);
+  }
+  
+  public String getProverURN(URNType t) {
+	  if (URNType.isEnumerable(t)) {
+		  throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
+	  }
+	  return this.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+  }
+  
+  public String getProverURN(URNType t, int index) {
+	  if (!URNType.isEnumerable(t)) {
+		  throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
+	  }
+	  return this.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
   }
 }
