@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -15,6 +17,8 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -51,6 +55,8 @@ class PossessionProverTest {
 	private BigInteger testM;
 	private GSSigningOracle oracle;
 	private ProofStore<Object> proofStore;
+	
+	private BaseCollection baseCollection;
 
 	private GroupElement tildeZ;
 	private BigInteger tildee;
@@ -71,6 +77,8 @@ class PossessionProverTest {
 		extendedKeyPair.generateBases();
 		extendedKeyPair.graphEncodingSetup();
 		extendedKeyPair.createExtendedKeyPair();
+		
+		log.info("Initializing GSSigningOracle");
 		oracle = new GSSigningOracle(skp, keyGenParameters, graphEncodingParameters);
 
 		epk = extendedKeyPair.getExtendedPublicKey();
@@ -79,7 +87,16 @@ class PossessionProverTest {
 	void setUp() throws Exception {
 		proofStore = new ProofStore<Object>();
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
 		sigmaM = oracle.sign(testM);
+		
+		BaseRepresentation baseR0 =
+		  new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
+		    baseR0.setExponent(testM);
+
+		baseCollection = new BaseCollectionImpl();
+		baseCollection.add(baseR0);
+		
 		prover = new PossessionProver();
 
 		storeBlindedGS(sigmaM);
@@ -89,7 +106,7 @@ class PossessionProverTest {
 	void testPreChallengePhase() {
 
 		prover.preChallengePhase(sigmaM,
-				epk, epk.getBaseCollection(), 
+				epk, baseCollection, 
 				proofStore, keyGenParameters);
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
@@ -113,7 +130,7 @@ class PossessionProverTest {
 		log.info("bitLength: " + bitLength);
 
 		prover.preChallengePhase(sigmaM,
-				epk, epk.getBaseCollection(), 
+				epk, baseCollection, 
 				proofStore, keyGenParameters);
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
@@ -136,7 +153,7 @@ class PossessionProverTest {
 	@DisplayName("Test computing witnesses")
 	void testComputeWitness() {
 		tildeZ = prover.preChallengePhase(sigmaM,
-				epk, epk.getBaseCollection(), 
+				epk, baseCollection, 
 				proofStore, keyGenParameters);
 
 		assertNotNull(tildeZ);
@@ -160,7 +177,7 @@ class PossessionProverTest {
 	void testComputeChallenge() throws NoSuchAlgorithmException {
 
 		prover.preChallengePhase(sigmaM,
-				epk, epk.getBaseCollection(), 
+				epk, baseCollection, 
 				proofStore, keyGenParameters);
 		BigInteger cChallenge = prover.computeChallenge();
 		assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
@@ -168,10 +185,10 @@ class PossessionProverTest {
 
 	@Test
 	@DisplayName("Test post challenge phase")
-	void testPostChallengePhase() throws ProofStoreException, NoSuchAlgorithmException {
+	void testPostChallengePhase() throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
 		prover.preChallengePhase(sigmaM,
-				epk, epk.getBaseCollection(), 
+				epk, baseCollection, 
 				proofStore, keyGenParameters);
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 
@@ -192,9 +209,8 @@ class PossessionProverTest {
 		log.info("challenge bitlength: " + cChallenge.bitLength());
 
 		prover.postChallengePhase(cChallenge);
-
-		log.info("Calling Prover self-verification.");
-		assertTrue(prover.verify(), "PossessionProver self-verification post-challenge failed.");
+		
+		Thread.sleep(3000);
 
 		hate = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATE));
 		hatvPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
@@ -214,6 +230,10 @@ class PossessionProverTest {
 		//    assertEquals(bitLength, hatr_Z.bitLength()+1);
 		//    assertEquals(bitLength, hatr.bitLength()+1);
 		//    assertEquals(bitLength, hatr_0.bitLength()+1);
+		
+		log.info("Calling Prover self-verification.");
+		assertTrue(prover.verify(), "PossessionProver self-verification post-challenge failed.");
+
 	}
 
 	private void storeBlindedGS(GSSignature sigma) throws Exception {

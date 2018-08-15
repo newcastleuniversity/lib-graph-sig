@@ -284,7 +284,7 @@ public class PossessionProver implements IProver {
     hatm_0 = tildem_0.add(this.c.multiply(m_0));
 
     String hateURN = "possessionprover.responses.hate";
-    String hatvPrimeURN = "possessionprover.responses.hatvPrime";
+    String hatvPrimeURN = "possessionprover.responses.hatvprime";
     String hatm_0URN = "possessionprover.responses.hatm_0";
 
     try {

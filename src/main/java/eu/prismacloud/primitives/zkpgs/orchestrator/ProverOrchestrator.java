@@ -186,7 +186,7 @@ public class ProverOrchestrator { // implements ProofOperation {
   public ProofSignature createProofSignature() {
     String hateURN = "possessionprover.responses.hate";
     BigInteger hate = (BigInteger) proofStore.retrieve(hateURN);
-    String hatvPrimeURN = "possessionprover.responses.hatvPrime";
+    String hatvPrimeURN = "possessionprover.responses.hatvprime";
     BigInteger hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
     String hatm_0URN = "possessionprover.responses.hatm_0";
     BigInteger hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
