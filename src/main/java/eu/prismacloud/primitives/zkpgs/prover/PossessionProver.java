@@ -322,7 +322,7 @@ public class PossessionProver implements IProver {
   @Override
   public boolean verify() {
 	  if (this.c == null) return false;
-	  // This verification uses the verification equation of the Topocert GSPossessionVerifier
+	  // This verification uses the verification equation of the TOPOCERT GSPossessionVerifier
 	  // Modified with the correctness proof of the corresponding proof, that is,
 	  // The equation must be equal to tildeZ.
 	  
@@ -341,7 +341,7 @@ public class PossessionProver implements IProver {
 	  // Establish the initial product to integrate the graph elements subsequently
 	  GroupElement verifier = baseZnegC.multiply(aPrimeHatE).multiply(baseSHatVPrime).multiply(baseR_0HatM_0);
 	  
-	  // Iterate over the graph comenponents as recorded by the PossessionProver
+	  // Iterate over the graph components as recorded by the PossessionProver
 	  Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
 	  while (graphResponseIterator.hasNext()) {
 		BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
