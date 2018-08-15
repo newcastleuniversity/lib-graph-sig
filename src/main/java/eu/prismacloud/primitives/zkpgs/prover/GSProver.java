@@ -91,7 +91,7 @@ public class GSProver {
 
     try {
       proofStore.store(APrimeURN, blindedSignature.getA());
-      proofStore.store(ePrimeURN, blindedSignature.getE());
+      proofStore.store(ePrimeURN, blindedSignature.getEPrime());
       proofStore.store(vPrimeURN, blindedSignature.getV());
     } catch (Exception e) {
       gslog.log(Level.SEVERE, e.getMessage());

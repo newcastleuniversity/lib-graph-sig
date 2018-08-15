@@ -88,7 +88,7 @@ class PossessionProverTest {
 		proofStore = new ProofStore<Object>();
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
-		sigmaM = oracle.sign(testM);
+		sigmaM = oracle.sign(testM).blind();
 		
 		BaseRepresentation baseR0 =
 		  new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
@@ -120,29 +120,48 @@ class PossessionProverTest {
 	@Test
 	@DisplayName("Test witness randomness is in correct range")
 	void testCreateWitnessRandomness() {
-		// TODO establish correct randomness length
-		int bitLength =
-				keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
-		BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
-		BigInteger min = max.negate();
-		log.info("maximum positive random number: " + max);
-		log.info("minimum negative random number: " + min);
-		log.info("bitLength: " + bitLength);
+		int bitLengthM =
+				keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+		int bitLengthEPrime =
+				keyGenParameters.getL_prime_e() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+		int bitLengthV =
+				keyGenParameters.getL_v() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+
+		BigInteger maxM = NumberConstants.TWO.getValue().pow(bitLengthM);
+		BigInteger minM = maxM.negate();
+		log.info("tildeM:"
+				+ "\n  maximum positive random number for m: " + maxM
+				+ "\n  minimum negative random number for m: " + minM
+				+ "\n  bitLength: " + bitLengthM);
+		
+		BigInteger maxE = NumberConstants.TWO.getValue().pow(bitLengthEPrime);
+		BigInteger minE = maxE.negate();
+		log.info("tildeE:"
+				+ "\n  maximum positive random number for e': " + maxE
+				+ "\n  minimum negative random number for e': " + minE
+				+ "\n  bitLength: " + bitLengthEPrime);
+		
+		BigInteger maxV = NumberConstants.TWO.getValue().pow(bitLengthV);
+		BigInteger minV = maxV.negate();
+		log.info("tildeV:"
+				+ "\n  maximum positive random number for v': " + maxV
+				+ "\n  minimum negative random number for v': " + minV
+				+ "\n  bitLength: " + bitLengthM);
 
 		prover.preChallengePhase(sigmaM,
 				epk, baseCollection, 
 				proofStore, keyGenParameters);
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
-		assertTrue(inRange(tildee, min, max));
+		assertTrue(inRange(tildee, minE, maxE));
 
 		tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));
 		assertNotNull(tildem_0);
-		assertTrue(inRange(tildem_0, min, max));
+		assertTrue(inRange(tildem_0, minM, maxM));
 
 		tildevPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEVPRIME));
 		assertNotNull(tildevPrime);
-		assertTrue(inRange(tildevPrime, min, max));
+		assertTrue(inRange(tildevPrime, minV, maxV));
 	}
 
 	boolean inRange(BigInteger number, BigInteger min, BigInteger max) {
@@ -150,8 +169,9 @@ class PossessionProverTest {
 	}
 
 	@Test
-	@DisplayName("Test computing witnesses")
+	@DisplayName("Test computing witness TildeZ")
 	void testComputeWitness() {
+		log.info("PossessionProverTest: Computing witness TildeZ.");
 		tildeZ = prover.preChallengePhase(sigmaM,
 				epk, baseCollection, 
 				proofStore, keyGenParameters);
@@ -169,19 +189,20 @@ class PossessionProverTest {
 
 		GroupElement hatZ = baseSTildevPrime.multiply(aPrimeTildeE).multiply(baseR_0TildeM0);
 
+		log.info("PossessionProverTest: Comparing tildeZ against independent computation.");
 		assertEquals(hatZ, tildeZ, "PossessionProver Witness TildeZ was not computed correctly.");
 	}
 
-	@Test
-	@DisplayName("Test challenge bitLength")
-	void testComputeChallenge() throws NoSuchAlgorithmException {
-
-		prover.preChallengePhase(sigmaM,
-				epk, baseCollection, 
-				proofStore, keyGenParameters);
-		BigInteger cChallenge = prover.computeChallenge();
-		assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
-	}
+//	@Test
+//	@DisplayName("Test challenge bitLength")
+//	void testComputeChallenge() throws NoSuchAlgorithmException {
+//
+//		prover.preChallengePhase(sigmaM,
+//				epk, baseCollection, 
+//				proofStore, keyGenParameters);
+//		BigInteger cChallenge = prover.computeChallenge();
+//		assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
+//	}
 
 	@Test
 	@DisplayName("Test post challenge phase")
@@ -203,15 +224,13 @@ class PossessionProverTest {
 		BigInteger cChallenge = prover.computeChallenge();
 		log.info("challenge: " + cChallenge);
 
-		byte[] result = cChallenge.toByteArray();
-
-		log.info("byte array length: " + result.length);
 		log.info("challenge bitlength: " + cChallenge.bitLength());
 
 		prover.postChallengePhase(cChallenge);
 		
 		Thread.sleep(3000);
 
+		log.info("Checking hat-values");
 		hate = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATE));
 		hatvPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
 		hatm_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATM0));
@@ -219,6 +238,18 @@ class PossessionProverTest {
 		assertNotNull(hate);
 		assertNotNull(hatvPrime);
 		assertNotNull(hatm_0);
+		
+		log.info("Hat Values:"
+				+ "\n   hate = " + hate
+				+ "\n   hatvPrime = " + hatvPrime
+				+ "\n   hatm_0 = " + hatm_0);
+		
+		
+		log.info("Checking correspondence between hat and tilde values");
+		assertEquals(tildevPrime, hatvPrime.subtract(cChallenge.multiply(sigmaM.getV())));
+		assertEquals(tildem_0, hatm_0.subtract(cChallenge.multiply(testM)));
+		assertEquals(tildee, hate.subtract(cChallenge.multiply(sigmaM.getEPrime())));
+		
 
 		//TODO establish the correct bit-lengths
 		//    int bitLength = computeBitLength();

@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 
 public class PossessionProver implements IProver {
 	public static final String URNID = "possessionprover";
+	
+	private Logger log = GSLoggerConfiguration.getGSlog();
 
   private GSSignature blindedSignature;
   private ExtendedPublicKey extendedPublicKey;
@@ -154,11 +156,13 @@ public class PossessionProver implements IProver {
 
   //  @Override
   public GroupElement computetildeZ() {
+	 assert(tildee != null);
+	 assert(tildevPrime != null);
 
     gslog.info("aPrime: " + blindedSignature.getA());
     GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
 
-    gslog.info("ePrime + 2^le-1: " + blindedSignature.getE().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
+    gslog.info("ePrime + 2^le-1: " + blindedSignature.getEPrime().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
     
 
     GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
@@ -218,7 +222,7 @@ public class PossessionProver implements IProver {
 //
 //    String vPrimeURN = "prover.blindedgs.vPrime";
 //    BigInteger vPrime = (BigInteger) proverStore.retrieve(vPrimeURN);
-    BigInteger ePrime = blindedSignature.getE(); // Check that this is actually ePrime.
+    BigInteger ePrime = blindedSignature.getEPrime();
     BigInteger vPrime = blindedSignature.getV();
 
     BaseIterator baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
@@ -336,9 +340,30 @@ public class PossessionProver implements IProver {
 	  GroupElement baseSHatVPrime = baseS.modPow(hatvPrime);
 	  GroupElement baseR_0HatM_0 = baseR_0.modPow(hatm_0);
 	  
+//	  log.info("***** Values Input *****"
+//			  	+ "\n*   hate = " + hate
+//	  			+ "\n*   hatvPrime = " + hatvPrime
+//	  			+ "\n*   hatm_0 = " + hatm_0
+//	  			+ "\n*   APrime = " + blindedSignature.getA()
+//	  			+ "\n*   baseS = " + baseS
+//	  			+ "\n*   baseR_0 = " + baseR_0
+//	  			+ "\n*********************");
+	  
+//	  BigInteger tildee2 = hate.subtract(c.multiply(blindedSignature.getE()));
+//	  BigInteger tildevPrime2 = hatvPrime.subtract(c.multiply(blindedSignature.getV()));
+//	  //BigInteger tildem_0 = hatm_0.subtract(c.multiply(baseCollection.));
+//	  
+//	  log.info("***** Corresponding Randomness *****"
+//			  +"\n*   tildee2 = " + tildee2
+//			  +"\n*   tildee  = " + tildee
+//			  +"\n*   tildevPrime2 = " + tildevPrime2
+//			  +"\n*   tildevPrime  = " + tildevPrime
+//			  +"\n************************************");
+	  
+	  
 	  // Compensate for the offset of e'
-	  BigInteger offsetExp = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v()-1);
-	  GroupElement aPrimeOffset = blindedSignature.getA().modPow(offsetExp).modInverse();
+	  BigInteger offsetExp = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1);
+	  GroupElement aPrimeOffset = (blindedSignature.getA().modPow(offsetExp)).modInverse();
 	  
 	  // Cancel out the challenge c
 	  GroupElement baseZnegC = (this.extendedPublicKey.getPublicKey().getBaseZ().multiply(aPrimeOffset)).modPow(c.negate());
@@ -346,12 +371,18 @@ public class PossessionProver implements IProver {
 	  // Establish the initial product to integrate the graph elements subsequently
 	  GroupElement verifier = baseZnegC.multiply(aPrimeHatE).multiply(baseSHatVPrime).multiply(baseR_0HatM_0);
 	  
+//	  log.info("*   verifier = " + verifier);
+	  
 	  // Iterate over the graph components as recorded by the PossessionProver
 	  Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
 	  while (graphResponseIterator.hasNext()) {
 		BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
+		log.info(" Treating graph element " + baseRepresentation);
 		verifier = verifier.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 	  }
+	  
+//	  log.info("*   hatZ   = " + verifier);
+//	  log.info("*   tildeZ = " + this.tildeZ);
 	  
 	  // The result must be equal to the witness tildeZ.
 	  return verifier.equals(this.tildeZ);
@@ -361,13 +392,13 @@ public class PossessionProver implements IProver {
 	  if (URNType.isEnumerable(t)) {
 		  throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
 	  }
-	  return this.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+	  return PossessionProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
   }
   
   public String getProverURN(URNType t, int index) {
 	  if (!URNType.isEnumerable(t)) {
 		  throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
 	  }
-	  return this.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
+	  return PossessionProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
   }
 }

@@ -38,8 +38,10 @@ public class GSSignature {
   private final SignerPublicKey signerPublicKey;
   private GSCommitment U;
   private final KeyGenParameters keyGenParameters;
+  private final BigInteger ePrimeOffset;
   private final GroupElement A;
   private final BigInteger e;
+  private final BigInteger ePrime; // ePrime is e minus the l_E offset
   private final BigInteger v;
   private final GroupElement baseS;
   private final GroupElement baseZ;
@@ -54,8 +56,10 @@ public class GSSignature {
       BigInteger e,
       BigInteger v) {
     this.signerPublicKey = extendedPublicKey.getPublicKey();
+    this.ePrimeOffset = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
     this.A = A;
     this.e = e;
+    this.ePrime = e.subtract(ePrimeOffset);
     this.v = v;
     this.U = U;
     this.encodedBases = encodedBases;
@@ -68,10 +72,12 @@ public class GSSignature {
       final SignerPublicKey signerPublicKey, final GroupElement A, final BigInteger e, final BigInteger v) {
     this.signerPublicKey = signerPublicKey;
     this.keyGenParameters = signerPublicKey.getKeyGenParameters();
+    this.ePrimeOffset = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
     this.baseS = signerPublicKey.getBaseS();
     this.baseZ = signerPublicKey.getBaseZ();
     this.A = A;
     this.e = e;
+    this.ePrime = e.subtract(ePrimeOffset);
     this.v = v;
   }
 
@@ -81,6 +87,14 @@ public class GSSignature {
 
   public BigInteger getE() {
     return e;
+  }
+  
+  public BigInteger getEPrime() {
+	    return ePrime;
+	  }
+  
+  public BigInteger getEPrimeOffset() {
+	  return ePrimeOffset;
   }
 
   public BigInteger getV() {
@@ -102,9 +116,7 @@ public class GSSignature {
     BigInteger r_A = CryptoUtilsFacade.computeRandomNumber(r_ALength);
     GroupElement APrime = A.multiply(baseS.modPow(r_A));
     BigInteger vPrime = v.subtract(e.multiply(r_A));
-    BigInteger ePrime =
-        e.subtract(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1));
-    return new GSSignature(this.signerPublicKey, APrime, ePrime, vPrime);
+    return new GSSignature(this.signerPublicKey, APrime, e, vPrime);
   }
 
   /**

@@ -177,7 +177,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     proofStore.store(APrimeURN, this.blindedGraphSignature.getA());
 
     String ePrimeURN = "prover.blindedgs.ePrime";
-    proofStore.store(ePrimeURN, this.blindedGraphSignature.getE());
+    proofStore.store(ePrimeURN, this.blindedGraphSignature.getEPrime());
 
     String vPrimeURN = "prover.blindedgs.vPrime";
     proofStore.store(vPrimeURN, this.blindedGraphSignature.getV());
