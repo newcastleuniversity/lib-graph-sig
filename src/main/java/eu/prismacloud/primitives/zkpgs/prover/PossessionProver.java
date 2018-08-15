@@ -322,24 +322,33 @@ public class PossessionProver implements IProver {
   @Override
   public boolean verify() {
 	  if (this.c == null) return false;
+	  // This verification uses the verification equation of the Topocert GSPossessionVerifier
+	  // Modified with the correctness proof of the corresponding proof, that is,
+	  // The equation must be equal to tildeZ.
 	  
+	  // Establish the non-graph elements of the signature
 	  GroupElement aPrimeHatE = blindedSignature.getA().modPow(hate);
 	  GroupElement baseSHatVPrime = baseS.modPow(hatvPrime);
 	  GroupElement baseR_0HatM_0 = baseR_0.modPow(hatm_0);
 	  
+	  // Compensate for the offset of e'
 	  BigInteger offsetExp = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v()-1);
 	  GroupElement aPrimeOffset = blindedSignature.getA().modPow(offsetExp).modInverse();
 	  
+	  // Cancel out the challenge c
 	  GroupElement baseZnegC = (this.extendedPublicKey.getPublicKey().getBaseZ().multiply(aPrimeOffset)).modPow(c.negate());
 	  
+	  // Establish the initial product to integrate the graph elements subsequently
 	  GroupElement verifier = baseZnegC.multiply(aPrimeHatE).multiply(baseSHatVPrime).multiply(baseR_0HatM_0);
 	  
+	  // Iterate over the graph comenponents as recorded by the PossessionProver
 	  Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
 	  while (graphResponseIterator.hasNext()) {
 		BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
 		verifier = verifier.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 	  }
 	  
-	  return verifier.equals(tildeZ);
+	  // The result must be equal to the witness tildeZ.
+	  return verifier.equals(this.tildeZ);
   }
 }
