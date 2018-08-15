@@ -200,7 +200,7 @@ public class PossessionProver implements IProver {
 
   @Override
   public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-    return null;
+    return CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
   }
 
   public void setChallenge(BigInteger challenge) {
@@ -211,12 +211,15 @@ public class PossessionProver implements IProver {
     gslog.info("prover: post challenge phase");
     this.c = cChallenge;
 
-    String ePrimeURN = "prover.blindedgs.ePrime";
-    BigInteger ePrime = (BigInteger) proverStore.retrieve(ePrimeURN);
-    gslog.info("e prime bitlength: " + ePrime.bitLength());
-
-    String vPrimeURN = "prover.blindedgs.vPrime";
-    BigInteger vPrime = (BigInteger) proverStore.retrieve(vPrimeURN);
+    // More reliable to use the GSSignature stored in the state of the class.
+//    String ePrimeURN = "prover.blindedgs.ePrime";
+//    BigInteger ePrime = (BigInteger) proverStore.retrieve(ePrimeURN);
+//    gslog.info("e prime bitlength: " + ePrime.bitLength());
+//
+//    String vPrimeURN = "prover.blindedgs.vPrime";
+//    BigInteger vPrime = (BigInteger) proverStore.retrieve(vPrimeURN);
+    BigInteger ePrime = blindedSignature.getE(); // Check that this is actually ePrime.
+    BigInteger vPrime = blindedSignature.getV();
 
     BaseIterator baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
     BaseRepresentation baseRepR_0 = checkBaseR_0(baseR0Iterator);
