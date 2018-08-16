@@ -1,14 +1,20 @@
 package eu.prismacloud.primitives.zkpgs;
 
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.maven.surefire.testset.TestSetFailedException;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.junit.platform.commons.util.AnnotationUtils;
+import org.opentest4j.TestAbortedException;
 
-class EnabledOnSuiteCondition implements ExecutionCondition {
-
+class EnabledOnSuiteCondition implements ExecutionCondition, TestExecutionExceptionHandler {
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
   private static final ConditionEvaluationResult DISABLED_BY_DEFAULT =
       ConditionEvaluationResult.disabled("Disabled suite is not present");
   private static final ConditionEvaluationResult ENABLED_BY_DEFAULT =
@@ -43,5 +49,14 @@ class EnabledOnSuiteCondition implements ExecutionCondition {
     } else {
       return DISABLED_BY_DEFAULT;
     }
+  }
+
+  @Override
+  public void handleTestExecutionException(ExtensionContext context, Throwable throwable)
+      throws  TestSuiteFailedException {
+    gslog.log(Level.SEVERE, "test exception in " + context.getRequiredTestClass().getName());
+    throwable.printStackTrace(); // display error stack trace for debugging
+    gslog.severe("terminate test");
+    throw new TestSuiteFailedException("failed test", throwable);
   }
 }
