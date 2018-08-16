@@ -7,8 +7,8 @@ import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.signer.GSSignerTest;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.util.logging.Logger;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.launcher.Launcher;
@@ -26,7 +26,7 @@ public class GSTestSuite {
   @Test
   @DisplayName("Test the Issuing protocol using a parallel execution of Recipient and Signer")
   void testRecipientSigner() throws InterruptedException {
-    Thread.sleep(1000);
+    Thread.sleep(5000);
     System.setProperty("GSSuite", GSSuite.RECIPIENT_SIGNER.name());
     String property = System.getProperty("GSSuite");
     gslog.info("property: " + property);
@@ -38,17 +38,19 @@ public class GSTestSuite {
             .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")
             .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "fixed")
             .configurationParameter("junit.extensions.autodetection.enabled", "true")
+            .configurationParameter("junit.platform.output.capture.stdout ", "true")
+            .configurationParameter("junit.platform.output.capture.stderr", "true")
             .build();
 
     executeLauncherTest(request);
+    Thread.sleep(1000); // wait for sockets to close
   }
 
   @Test
   @DisplayName(
       "Test the Geo-Location separation proof using a parallel execution of Prover and Verifier")
-  @Disabled
   void testProverVerifier() throws InterruptedException {
-    Thread.sleep(1000);
+    Thread.sleep(5000);
     System.setProperty("GSSuite", GSSuite.PROVER_VERIFIER.name());
     String property = System.getProperty("GSSuite");
     gslog.info("property: " + property);
@@ -58,16 +60,20 @@ public class GSTestSuite {
             .selectors(
                 selectClass(GSProverServerTest.class), selectClass(GSVerifierClientTest.class))
             .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")
-            .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "fixed")
+            .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "dynamic")
             .configurationParameter("junit.extensions.autodetection.enabled", "true")
+            .configurationParameter("junit.platform.output.capture.stdout ", "true")
+            .configurationParameter("junit.platform.output.capture.stderr", "true")
             .build();
+
+    executeLauncherTest(request);
+    Thread.sleep(1000); // wait for sockets to close
   }
 
   @Test
   @DisplayName("Test the socket message interactions of the low level GSClient and GSServer")
-  @Disabled
   void testClientServer() throws InterruptedException {
-    Thread.sleep(1000);
+    Thread.sleep(5000);
     System.setProperty("GSSuite", GSSuite.GSCLIENT_GSSERVER.name());
     String property = System.getProperty("GSSuite");
     gslog.info("property: " + property);
@@ -78,14 +84,16 @@ public class GSTestSuite {
             .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")
             .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "fixed")
             .configurationParameter("junit.extensions.autodetection.enabled", "true")
+            .configurationParameter("junit.platform.output.capture.stdout ", "true")
+            .configurationParameter("junit.platform.output.capture.stderr", "true")
             .build();
 
     executeLauncherTest(request);
+    Thread.sleep(1000); // wait for sockets to close
   }
 
   @Test
   @DisplayName("Test the signer socket message interactions with the recipient")
-  @Disabled
   //  @RepeatedTest(4)
   void testSignerMessages() throws InterruptedException {
     Thread.sleep(10000); // wait for sockets to close
@@ -99,6 +107,8 @@ public class GSTestSuite {
             .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")
             .configurationParameter("unit.jupiter.execution.parallel.config.strategy", "fixed")
             .configurationParameter("junit.extensions.autodetection.enabled", "true")
+            .configurationParameter("junit.platform.output.capture.stdout ", "true")
+            .configurationParameter("junit.platform.output.capture.stderr", "true")
             .build();
 
     executeLauncherTest(request);
@@ -108,11 +118,16 @@ public class GSTestSuite {
 
   private void executeLauncherTest(LauncherDiscoveryRequest request) {
     Launcher launcher = LauncherFactory.create();
-
     TestPlan testPlan = launcher.discover(request);
     TestExecutionListener listener = new SummaryGeneratingListener();
-    launcher.registerTestExecutionListeners(listener);
-    launcher.execute(request);
+    launcher.execute(request, listener);
+    gslog.info(
+        "failed tests: "
+            + (((SummaryGeneratingListener) listener).getSummary().getTestsFailedCount()));
+    long failedTests = ((SummaryGeneratingListener) listener).getSummary().getTestsFailedCount();
+    if (failedTests > 0) {
+      Assert.fail();
+    }
   }
 
   @AfterAll
