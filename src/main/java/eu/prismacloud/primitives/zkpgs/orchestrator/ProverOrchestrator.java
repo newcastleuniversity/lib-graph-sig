@@ -373,4 +373,8 @@ public class ProverOrchestrator { // implements ProofOperation {
 
     return pairWiseVertices;
   }
+
+  public void close() {
+    prover.close();
+  }
 }

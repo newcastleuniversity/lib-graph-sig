@@ -155,7 +155,7 @@ public class VerifierOrchestrator {
           (BigInteger)
               proofSignatureElements.get(
                   URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
-//      Assert.checkBitLength(hatm_i, hatmLength, "hatm_i length is not correct");
+      //      Assert.checkBitLength(hatm_i, hatmLength, "hatm_i length is not correct");
 
       proofStore.store("verifier.hatm_i_" + baseIndex, hatm_i);
     }
@@ -219,14 +219,14 @@ public class VerifierOrchestrator {
     //    contextList = gsContext.computeChallengeContext();
     //
     //    challengeList.addAll(contextList);
-        challengeList.add(String.valueOf(aPrime));
-   // challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
+    challengeList.add(String.valueOf(aPrime));
+    // challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
 
     //    for (GSCommitment gsCommitment : C_i.values()) {
     //      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
     //    }
 
-   challengeList.add(String.valueOf(hatZ));
+    challengeList.add(String.valueOf(hatZ));
 
     //    BigInteger commitmentValue;
     //    String hatC_iURN;
@@ -293,5 +293,9 @@ public class VerifierOrchestrator {
       GSCommitment commitment = commitmentEntry.getValue();
       proofStore.save(commitmentKey, commitment);
     }
+  }
+
+  public void close() {
+    verifier.close();
   }
 }
