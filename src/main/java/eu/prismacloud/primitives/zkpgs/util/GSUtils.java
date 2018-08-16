@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -35,6 +36,8 @@ public class GSUtils implements INumberUtils {
   private BigInteger h;
   private ArrayList<BigInteger> primeFactors;
   private KeyGenParameters keyGenParameters;
+  
+  private HashMap<Integer, BigInteger> boundMap = new HashMap<Integer, BigInteger>();
 
   /** Instantiates a new Gs utils. */
   public GSUtils() {
@@ -706,5 +709,47 @@ public class GSUtils implements INumberUtils {
    */
   public BigInteger generateRandomPrime(final int bitLength) {
     return BigInteger.probablePrime(bitLength, new SecureRandom());
+  }
+  
+  /**
+   * Returns the upper bound of a plus-minus BigInteger.
+   *  
+   * <p>Internally, the method stores bounds and only computes exponentiations once.
+   * 
+   * @param bitLength a positive int
+   * @return BigInteger upper bound
+   */
+  public BigInteger getUpperPMBound(int bitLength) {
+	  if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
+	  
+	  Integer iBitLength = new Integer(bitLength);
+	  if (boundMap.containsKey(iBitLength)) { 
+		  return boundMap.get(iBitLength);
+	  } else {
+		  BigInteger upperBound = (NumberConstants.TWO.getValue().pow(bitLength)).subtract(BigInteger.ONE);
+		  boundMap.put(iBitLength, upperBound);
+		  return upperBound;
+	  }
+  }
+  
+  /**
+   * Returns the lower bound of a plus-minus BigInteger.
+   * 
+   * <p>Internally, the method stores bounds and only computes exponentiations once.
+   * 
+   * @param bitLength a positive int
+   * @return BigInteger lower bound
+   */
+  public BigInteger getLowerPMBound(int bitLength) {
+	  if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
+	  
+	  Integer iBitLength = new Integer(-bitLength);
+	  if (boundMap.containsKey(iBitLength)) { 
+		  return boundMap.get(iBitLength);
+	  } else {
+		  BigInteger lowerBound = ((NumberConstants.TWO.getValue().pow(bitLength)).negate()).add(BigInteger.ONE);
+		  boundMap.put(iBitLength, lowerBound);
+		  return lowerBound;
+	  }
   }
 }

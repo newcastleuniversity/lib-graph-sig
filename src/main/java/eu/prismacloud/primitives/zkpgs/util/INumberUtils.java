@@ -57,4 +57,8 @@ Boolean elementOfQRN(BigInteger value, BigInteger modulus);
   boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN);
 
   BigInteger generatePrimeInRange(BigInteger min, BigInteger max);
+  
+  BigInteger getUpperPMBound(int bitLength);
+  BigInteger getLowerPMBound(int bitLength);
+  
 }

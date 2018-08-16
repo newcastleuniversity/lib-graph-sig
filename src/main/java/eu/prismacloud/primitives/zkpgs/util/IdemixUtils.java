@@ -214,4 +214,14 @@ public class IdemixUtils extends Utils implements INumberUtils {
   public BigInteger generatePrimeInRange(BigInteger min, BigInteger max) {
     throw new RuntimeException("not currently used from idemix library");
   }
+  
+  @Override
+  public BigInteger getUpperPMBound(int bitLength) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
+  
+  @Override
+  public BigInteger getLowerPMBound(int bitLength) {
+    throw new RuntimeException("not currently used from idemix library");
+  }
 }

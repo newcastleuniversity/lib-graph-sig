@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -618,5 +619,69 @@ class GSUtilsTest {
 
     assertTrue((primeE.compareTo(this.keyGenParameters.getLowerBoundE()) > 0)
             && (primeE.compareTo(this.keyGenParameters.getUpperBoundE()) < 0));
+  }
+  
+  @Test
+  void testGetUpperPMBound() {
+	  BigInteger bound1024 = classUnderTest.getUpperPMBound(1024);
+	  assertEquals(NumberConstants.TWO.getValue().pow(1024).subtract(BigInteger.ONE), bound1024);
+	  
+	  assertSame(bound1024, classUnderTest.getUpperPMBound(1024), 
+			  "A second retrieval of the same bound did not retrieve the very same object.");
+	  
+	  BigInteger bound2048 = classUnderTest.getUpperPMBound(2048);
+	  assertEquals(NumberConstants.TWO.getValue().pow(2048).subtract(BigInteger.ONE), bound2048);
+	  
+	  assertSame(bound2048, classUnderTest.getUpperPMBound(2048), 
+			  "A second retrieval of the same bound did not retrieve the very same object.");
+	  
+	  BigInteger bound2049 = classUnderTest.getUpperPMBound(2049);
+	  assertEquals(NumberConstants.TWO.getValue().pow(2049).subtract(BigInteger.ONE), bound2049);
+	  
+	  assertSame(bound2049, classUnderTest.getUpperPMBound(2049), 
+			  "A second retrieval of the same bound did not retrieve the very same object.");
+  }
+  
+  @Test
+  void testGetLowerPMBound() {
+	  BigInteger nbound1024 = classUnderTest.getLowerPMBound(1024);
+	  assertEquals((NumberConstants.TWO.getValue().pow(1024)).negate().add(BigInteger.ONE), nbound1024);
+	  
+	  assertSame(nbound1024, classUnderTest.getLowerPMBound(1024), 
+			  "A second retrieval of the same bound did not retrieve the very same object.");
+	  
+	  BigInteger nbound2048 = classUnderTest.getLowerPMBound(2048);
+	  assertEquals((NumberConstants.TWO.getValue().pow(2048)).negate().add(BigInteger.ONE), nbound2048);
+	  
+	  assertSame(nbound2048, classUnderTest.getLowerPMBound(2048), 
+			  "A second retrieval of the same bound did not retrieve the very same object.");
+	  
+	  BigInteger nbound2049 = classUnderTest.getLowerPMBound(2049);
+	  assertEquals((NumberConstants.TWO.getValue().pow(2049)).negate().add(BigInteger.ONE), nbound2049);
+	  
+	  assertSame(nbound2049, classUnderTest.getLowerPMBound(2049), 
+			  "A second retrieval of the same bound did not retrieve the very same object.");
+  }
+  
+  @Test
+  void testUpperPMBoundsIllegalBitLength() {
+	  try {
+		 classUnderTest.getUpperPMBound(0);
+		 classUnderTest.getUpperPMBound(-1);
+	  } catch(RuntimeException e) {
+		  return;
+	  }
+	  fail("The getUpperPMBounds method should have thrown a RuntimeException on inputs <= 0");
+  }
+  
+  @Test
+  void testLowerPMBoundsIllegalBitLength() {
+	  try {
+		 classUnderTest.getLowerPMBound(0);
+		 classUnderTest.getLowerPMBound(-1);
+	  } catch(RuntimeException e) {
+		  return;
+	  }
+	  fail("The getLowerPMBounds method should have thrown a RuntimeException on inputs <= 0");
   }
 }

@@ -111,4 +111,12 @@ public class CryptoUtilsFacade {
   public static boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN) {
 	  return CryptoUtilsFactory.getInstance(GS).verifySGeneratorOfQRN(s, modN);
   }
+  
+  public static BigInteger getUpperPMBound(int bitLength) {
+	  return CryptoUtilsFactory.getInstance(GS).getUpperPMBound(bitLength);
+  }
+  
+  public static BigInteger getLowerPMBound(int bitLength) {
+	  return CryptoUtilsFactory.getInstance(GS).getLowerPMBound(bitLength);
+  }
 }
