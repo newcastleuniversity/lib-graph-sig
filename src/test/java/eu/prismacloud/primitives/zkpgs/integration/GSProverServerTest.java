@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
+import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -19,7 +21,6 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -35,8 +36,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** Testing the prover side of the geo-location separation proof */
+@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
-// @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 public class GSProverServerTest {
 
   private KeyGenParameters keyGenParameters;
@@ -56,16 +57,17 @@ public class GSProverServerTest {
   private BigInteger m_0;
   private GSCommitment commitment;
   private Iterator<BaseRepresentation> vertexIterator;
+  private ProofStore<Object> proofStore;
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException, InterruptedException {
+  void setupKey()
+      throws IOException, ClassNotFoundException, InterruptedException, ProofStoreException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
 
-//    Thread.sleep(3000);
     gslog.info("read ExtendedPublicKey...");
 
     String signerKeyPairFileName = "SignerKeyPair-" + keyGenParameters.getL_n() + ".ser";
@@ -83,20 +85,21 @@ public class GSProverServerTest {
     gslog.info("read encoded base collection");
     baseCollection = (BaseCollection) persistenceUtil.read("baseCollection.ser");
     vertexIterator = baseCollection.createIterator(BASE.VERTEX).iterator();
+    proofStore = new ProofStore<>();
+    generateTestSignature(proofStore);
   }
 
-  //  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
   @Test
   void testProverSide() throws Exception {
-    ProofStore<Object> proofStore = new ProofStore<>();
-    generateTestSignature(proofStore);
+
     BaseRepresentation baseR0 =
         new BaseRepresentation(extendedPublicKey.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
     baseR0.setExponent(m_0);
 
     baseCollection = new BaseCollectionImpl();
     baseCollection.add(baseR0);
-    BaseRepresentation baseR1  = (BaseRepresentation) vertexIterator.next();
+    BaseRepresentation baseR1 = (BaseRepresentation) vertexIterator.next();
     BaseRepresentation baseR2 = (BaseRepresentation) vertexIterator.next();
 
     baseCollection.add(baseR1);
@@ -111,6 +114,7 @@ public class GSProverServerTest {
     proverOrchestrator.computePreChallengePhase();
     proverOrchestrator.computeChallenge();
     proverOrchestrator.computePostChallengePhase();
+    proverOrchestrator.close();
   }
 
   void generateTestSignature(ProofStore<Object> proofStore) throws ProofStoreException {
