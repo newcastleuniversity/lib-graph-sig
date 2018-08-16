@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class GSClient {
   private static final String HOST = "127.0.0.1";
   private static final int PORT = 9999;
-  private static final int TIMEOUT = 1000;
+  private static final int TIMEOUT = 5000;
   private final Socket clientSocket;
   private Logger log = GSLoggerConfiguration.getGSlog();
   private ObjectInputStream inFromServer;
