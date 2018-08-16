@@ -712,7 +712,8 @@ public class GSUtils implements INumberUtils {
   }
   
   /**
-   * Returns the upper bound of a plus-minus BigInteger.
+   * Returns the upper bound of a +/- BigInteger, that is,
+   * <tt>+2^(bitLength)-1</tt>.
    *  
    * <p>Internally, the method stores bounds and only computes exponentiations once.
    * 
@@ -733,7 +734,8 @@ public class GSUtils implements INumberUtils {
   }
   
   /**
-   * Returns the lower bound of a plus-minus BigInteger.
+   * Returns the lower bound of a +/- BigInteger, that is,
+   * <tt>-2^(bitLength)+1</tt>.
    * 
    * <p>Internally, the method stores bounds and only computes exponentiations once.
    * 
@@ -751,5 +753,21 @@ public class GSUtils implements INumberUtils {
 		  boundMap.put(iBitLength, lowerBound);
 		  return lowerBound;
 	  }
+  }
+  
+  /**
+   * Checks whether an BigInteger argument is in the correct +/- range.
+   * 
+   * @param number to be tested for correct range
+   * @param bitLength length of the +/- BigInteger
+   * 
+   * @return <tt>true</tt> if the BigInteger number is in the range
+   *   <tt>[-2^(bitLength)+1 ... 2^(bitLength)-1]</tt>
+   */
+  public boolean isInPMRange(BigInteger number, int bitLength) {
+	  BigInteger max = getUpperPMBound(bitLength);
+	  BigInteger min = getLowerPMBound(bitLength);
+	  
+	  return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
   }
 }

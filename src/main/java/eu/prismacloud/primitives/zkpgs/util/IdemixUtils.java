@@ -224,4 +224,9 @@ public class IdemixUtils extends Utils implements INumberUtils {
   public BigInteger getLowerPMBound(int bitLength) {
     throw new RuntimeException("not currently used from idemix library");
   }
+  
+  @Override
+  public boolean isInPMRange(BigInteger number, int bitLength) {
+	  throw new RuntimeException("not currently used from idemix library");
+  }
 }

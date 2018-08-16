@@ -32,6 +32,15 @@ public class PossessionVerifier implements IVerifier {
   private GroupElement hatZ;
   private BigInteger hatm_0;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
+  
+  
+  public void checkLengths() {
+	  hate = (BigInteger) proofStore.retrieve("verifier.hate");
+	  hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
+	  hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+	  
+	  
+  }
 
   public GroupElement computeHatZ(
       final ExtendedPublicKey extendedPublicKey,

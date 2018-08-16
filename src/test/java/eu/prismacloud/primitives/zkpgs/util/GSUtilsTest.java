@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -683,5 +684,31 @@ class GSUtilsTest {
 		  return;
 	  }
 	  fail("The getLowerPMBounds method should have thrown a RuntimeException on inputs <= 0");
+  }
+  
+  
+  @Test 
+  @RepeatedTest(10)
+  void testIsInPMRange() {
+	  BigInteger upperBound = NumberConstants.TWO.getValue().pow(1024).subtract(BigInteger.ONE);
+	  
+	  assertTrue(classUnderTest.isInPMRange(upperBound, 1024), "isInPMRange() did not correctly consider the upper bound in 1024 range.");
+	  
+	  BigInteger lowerBound = (NumberConstants.TWO.getValue().pow(1024)).negate().add(BigInteger.ONE);
+	  
+	  assertTrue(classUnderTest.isInPMRange(lowerBound, 1024), "isInPMRange() did not correctly consider the lower bound in 1024 range.");
+	  
+	  
+	  BigInteger testIn = classUnderTest.createRandomNumber(1023);
+	  
+	  assertTrue(classUnderTest.isInPMRange(testIn, 1024), "isInPMRange() did not correctly consider a 1023-bits number in 1024 range.");
+	  
+      BigInteger testOut = classUnderTest.createRandomNumber(2048).add(NumberConstants.TWO.getValue().pow(1025));
+	  
+	  assertFalse(classUnderTest.isInPMRange(testOut, 1024), "isInPMRange() did not correctly reject a number greater than range.");
+	  
+      BigInteger testOutN = (classUnderTest.createRandomNumber(2048).add(NumberConstants.TWO.getValue().pow(1025)).negate());
+	  
+	  assertFalse(classUnderTest.isInPMRange(testOutN, 1024), "isInPMRange() did not correctly reject a number less than range.");
   }
 }

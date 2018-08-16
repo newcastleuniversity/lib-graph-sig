@@ -119,4 +119,8 @@ public class CryptoUtilsFacade {
   public static BigInteger getLowerPMBound(int bitLength) {
 	  return CryptoUtilsFactory.getInstance(GS).getLowerPMBound(bitLength);
   }
+  
+  public static boolean isInPMRange(BigInteger number, int bitLength) {
+	  return CryptoUtilsFactory.getInstance(GS).isInPMRange(number, bitLength);
+  }
 }
