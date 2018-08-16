@@ -44,9 +44,10 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 class PossessionProverTest {
 
+	private Logger log = GSLoggerConfiguration.getGSlog();
+	
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
-	private Logger log = GSLoggerConfiguration.getGSlog();
 	private SignerKeyPair skp;
 	private ExtendedKeyPair extendedKeyPair;
 	private ExtendedPublicKey epk;
@@ -102,6 +103,12 @@ class PossessionProverTest {
 		storeBlindedGS(sigmaM);
 	}
 
+	/**
+	 * The test case is responsible for checking the computation of the witness 
+	 * randomness (tilde-values). It retrieves these values from the ProofStore.
+	 * The computation of the overall witness tildeZ is done in testComputeWiteness().
+	 * The correct range of the witness randomness is checked by testCreateWitnessRandomness().
+	 */
 	@Test
 	void testPreChallengePhase() {
 
@@ -117,6 +124,9 @@ class PossessionProverTest {
 		// TODO realize iteration over graph elements
 	}
 
+	/**
+	 * The test checks the correct range of the witness randomness.
+	 */
 	@Test
 	@DisplayName("Test witness randomness is in correct range")
 	void testCreateWitnessRandomness() {
@@ -168,6 +178,10 @@ class PossessionProverTest {
 		return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
 	}
 
+	/**
+	 * The test checks whether witness TildeZ is computed correctly.
+	 * It has a dependency on the ProofStore, retrieving the tilde values from it.
+	 */
 	@Test
 	@DisplayName("Test computing witness TildeZ")
 	void testComputeWitness() {
@@ -204,6 +218,22 @@ class PossessionProverTest {
 //		assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
 //	}
 
+	/**
+	 * This test establishes the correctness of the response computation (hat-values).
+	 * The test executes the pre-challenge phase first and computes a random challenge
+	 * subsequently.
+	 * 
+	 * <p>After executing the post-challenge phase, the hat-values are retrieved
+	 * from the ProofStore. It is checked that these hat-values are consistent with 
+	 * witness randomness (tilde-values) and the secrets.
+	 * 
+	 * <p>Finally, the test case calls the self-verification of the PossessionProver
+	 * for a white-box test of the verification equation on the hat values.  
+	 * 
+	 * @throws ProofStoreException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InterruptedException
+	 */
 	@Test
 	@DisplayName("Test post challenge phase")
 	void testPostChallengePhase() throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
@@ -275,7 +305,7 @@ class PossessionProverTest {
 		proofStore.store(APrimeURN, sigma.getA());
 
 		String ePrimeURN = "prover.blindedgs.ePrime";
-		proofStore.store(ePrimeURN, sigma.getE());
+		proofStore.store(ePrimeURN, sigma.getEPrime());
 
 		String vPrimeURN = "prover.blindedgs.vPrime";
 		proofStore.store(vPrimeURN, sigma.getV());

@@ -159,10 +159,10 @@ public class PossessionProver implements IProver {
 	 assert(tildee != null);
 	 assert(tildevPrime != null);
 
-    gslog.info("aPrime: " + blindedSignature.getA());
+    //gslog.info("aPrime: " + blindedSignature.getA());
     GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
 
-    gslog.info("ePrime + 2^le-1: " + blindedSignature.getEPrime().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
+    //gslog.info("ePrime + 2^le-1: " + blindedSignature.getEPrime().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
     
 
     GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
@@ -193,12 +193,12 @@ public class PossessionProver implements IProver {
     String tildem_0URN = "possessionprover.witnesses.randomness.tildem_0";
     tildem_0 = (BigInteger) proverStore.retrieve(tildem_0URN);
 
-    gslog.info("aPrimeEtilde bitlength: " + aPrimeEtilde.bitLength());
+    //gslog.info("aPrimeEtilde bitlength: " + aPrimeEtilde.bitLength());
     GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
     tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0);
 
-    gslog.info("tildeZ: " + tildeZ);
-    gslog.info("tildeZ bitlength: " + tildeZ.bitLength());
+    //gslog.info("tildeZ: " + tildeZ);
+    //gslog.info("tildeZ bitlength: " + tildeZ.bitLength());
     return tildeZ;
   }
 
@@ -212,7 +212,7 @@ public class PossessionProver implements IProver {
   }
 
   public void postChallengePhase(BigInteger cChallenge) {
-    gslog.info("prover: post challenge phase");
+    //gslog.info("prover: post challenge phase");
     this.c = cChallenge;
 
     // More reliable to use the GSSignature stored in the state of the class.
@@ -354,7 +354,7 @@ public class PossessionProver implements IProver {
 	  Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
 	  while (graphResponseIterator.hasNext()) {
 		BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
-		log.info(" Treating graph element " + baseRepresentation);
+		// log.info(" Treating graph element " + baseRepresentation);
 		verifier = verifier.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 	  }
 	  
