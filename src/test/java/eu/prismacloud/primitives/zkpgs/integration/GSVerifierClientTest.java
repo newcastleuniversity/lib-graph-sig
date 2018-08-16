@@ -3,6 +3,8 @@ package eu.prismacloud.primitives.zkpgs.integration;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
+import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.orchestrator.VerifierOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -20,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-// @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
 public class GSVerifierClientTest {
 
@@ -41,7 +43,6 @@ public class GSVerifierClientTest {
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
 
-    Thread.sleep(3000);
     gslog.info("read ExtendedPublicKey...");
 
     String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
@@ -60,9 +61,11 @@ public class GSVerifierClientTest {
     vertexIterator = baseCollection.createIterator(BASE.VERTEX).iterator();
   }
 
-  //  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+  @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
   @Test
-  void testProverSide() throws Exception {
+  void testVerifierSide() throws Exception {
+    Thread.sleep(15000); // wait for server socket
+
     baseCollection = new BaseCollectionImpl();
     BaseRepresentation baseR1 = (BaseRepresentation) vertexIterator.next();
     BaseRepresentation baseR2 = (BaseRepresentation) vertexIterator.next();
@@ -80,5 +83,7 @@ public class GSVerifierClientTest {
     verifierOrchestrator.preChallengePhase();
     verifierOrchestrator.computeChallenge();
     verifierOrchestrator.verifyChallenge();
+    verifierOrchestrator.close();
+
   }
 }
