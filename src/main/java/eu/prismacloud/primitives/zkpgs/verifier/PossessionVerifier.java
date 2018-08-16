@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -34,18 +35,25 @@ public class PossessionVerifier implements IVerifier {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   
   
-  public void checkLengths() {
+  public boolean checkLengths() {
+	  int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
+	  int l_hatvprime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
+	  int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() +1;
+	  
 	  hate = (BigInteger) proofStore.retrieve("verifier.hate");
 	  hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
 	  hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
 	  
-	  
+	  return CryptoUtilsFacade.isInPMRange(hate, l_hate) 
+			&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvprime)
+	  		&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
   }
 
   public GroupElement computeHatZ(
       final ExtendedPublicKey extendedPublicKey,
       final ProofStore<Object> proofStore,
       final KeyGenParameters keyGenParameters) {
+	  
     this.extendedPublicKey = extendedPublicKey;
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
@@ -64,6 +72,9 @@ public class PossessionVerifier implements IVerifier {
     hate = (BigInteger) proofStore.retrieve("verifier.hate");
     hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
     hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+    
+    // Aborting verification with output null, if lengths check rejects hat-values.
+	if (!checkLengths()) return null;
 
     QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
 

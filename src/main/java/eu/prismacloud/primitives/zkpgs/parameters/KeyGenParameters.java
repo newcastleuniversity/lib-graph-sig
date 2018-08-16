@@ -106,7 +106,7 @@ public class KeyGenParameters implements Serializable {
     this.lowerBoundE = NumberConstants.TWO.getValue().pow(this.l_e-1);
     this.upperBoundE = this.lowerBoundE.add(NumberConstants.TWO.getValue().pow(this.l_prime_e-1));
     this.lowerBoundV = NumberConstants.TWO.getValue().pow(this.l_v).negate().add(BigInteger.ONE);
-    this.upperBoundV = NumberConstants.TWO.getValue().pow(this.l_v);
+    this.upperBoundV = NumberConstants.TWO.getValue().pow(this.l_v).subtract(BigInteger.ONE);
   }
 
   public static KeyGenParameters getKeyGenParameters() {
@@ -196,5 +196,14 @@ public class KeyGenParameters implements Serializable {
 	  
   public BigInteger getLowerBoundV() {
 	  return this.lowerBoundV;
+  }
+  
+  /**
+   * Returns the offset of the proof functions, that is,
+   * l_statzk + l_H + 1;
+   * @return l_statzk + l_H + 1;
+   */
+  public int getProofOffset() {
+	  return this.l_statzk + this.l_H + 1;
   }
 }
