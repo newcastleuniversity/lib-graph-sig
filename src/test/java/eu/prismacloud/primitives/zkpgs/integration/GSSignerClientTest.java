@@ -33,7 +33,6 @@ public class GSSignerClientTest {
   private SignerKeyPair gsk;
   private SignerOrchestrator signerOrchestrator;
   private FilePersistenceUtil persistenceUtil;
-  private Boolean generateKeys = true;
 
   @BeforeAll
   void setup2Key() throws IOException, ClassNotFoundException, InterruptedException {
@@ -45,17 +44,10 @@ public class GSSignerClientTest {
     gsk = baseTest.getSignerKeyPair();
     graphEncodingParameters = baseTest.getGraphEncodingParameters();
     keyGenParameters = baseTest.getKeyGenParameters();
-
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
-
-    if (generateKeys) {
-      log.info("Test writeExtendedPublicKey: writing new ExtendedPublicKey...");
-      String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
-      persistenceUtil.write(extendedKeyPair.getExtendedPublicKey(), extendedPublicKeyFileName);
-    }
   }
 
   @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
