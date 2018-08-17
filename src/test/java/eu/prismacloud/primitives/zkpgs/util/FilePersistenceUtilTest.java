@@ -3,6 +3,8 @@ package eu.prismacloud.primitives.zkpgs.util;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
@@ -28,15 +30,19 @@ class FilePersistenceUtilTest {
   private KeyGenParameters keyGenParameters;
   private String signerKeyPairFileName;
   private String signerPublicKeyFileName;
+  private GraphEncodingParameters graphEncodingParameters;
+  private ExtendedKeyPair extendedKeyPair;
+  private String extendedPublicKeyFileName;
 
   @BeforeAll
   void setUp() {
     JSONParameters parameters = new JSONParameters();
     keyGenParameters = parameters.getKeyGenParameters();
-    GraphEncodingParameters graphEncodingParameters = parameters.getGraphEncodingParameters();
+    graphEncodingParameters = parameters.getGraphEncodingParameters();
     persistenceUtil = new FilePersistenceUtil();
     signerKeyPairFileName = "SignerKeyPair-" + keyGenParameters.getL_n() + ".ser";
     signerPublicKeyFileName = "SignerPublicKey-" + keyGenParameters.getL_n() + ".ser";
+    extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
   }
 
   @Test
@@ -54,6 +60,15 @@ class FilePersistenceUtilTest {
 
       log.info("Test writeSignerPublicKey: writing new SignerPublicKey...");
       persistenceUtil.write(gsk.getPublicKey(), signerPublicKeyFileName);
+
+      extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
+      extendedKeyPair.generateBases();
+      extendedKeyPair.graphEncodingSetup();
+      extendedKeyPair.createExtendedKeyPair();
+
+      log.info("Test writeExtendedPublicKey: writing new ExtendedPublicKey...");
+      String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
+      persistenceUtil.write(extendedKeyPair.getExtendedPublicKey(), extendedPublicKeyFileName);
     }
   }
 
@@ -92,5 +107,18 @@ class FilePersistenceUtilTest {
     assertNotNull(signerPublicKey.getBaseR_0());
     assertNotNull(signerPublicKey.getBaseS());
     assertNotNull(signerPublicKey.getBaseZ());
+  }
+
+
+  @Test
+  void readExtendedPublicKey() throws IOException, ClassNotFoundException {
+       ExtendedPublicKey extendedPublicKey =
+           (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
+       assertNotNull(extendedPublicKey);
+       assertNotNull(extendedPublicKey.getPublicKey());
+       assertNotNull(extendedPublicKey.getBaseCollection());
+       assertNotNull(extendedPublicKey.getVertexRepresentatives());
+       assertNotNull(extendedPublicKey.getLabelRepresentatives());
+     
   }
 }
