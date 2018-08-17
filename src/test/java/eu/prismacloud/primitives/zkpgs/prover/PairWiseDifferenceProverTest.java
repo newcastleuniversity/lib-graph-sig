@@ -168,17 +168,20 @@ class PairWiseDifferenceProverTest {
 
 		tildea_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
 		GroupElement C_iTildea_BariBarj = c1.getCommitmentValue().modPow(tildea_BariBarj);
+		log.info("tildea: " + tildea_BariBarj);
 
 		tildeb_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEBBARIBARJ, testIndex));
 		GroupElement C_jTildeb_BariBarj = c2coprime.getCommitmentValue().modPow(tildeb_BariBarj);
+		log.info("tildeb: " + tildeb_BariBarj);
 
 		tilder_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDERBARIBARJ, testIndex));
 		GroupElement blindingAdjustment = epk.getPublicKey().getBaseS().modPow(tilder_BariBarj);
+		log.info("tilder: " + tilder_BariBarj);
 
 		GroupElement hatR = C_iTildea_BariBarj.multiply(C_jTildeb_BariBarj).multiply(blindingAdjustment);
 
 		log.info("PairWiseDifferenceProverTest: Comparing tildeR against independent computation.");
-		assertEquals(hatR, tildeR, "PairWiseDifferenceProver Witness tildeR was not computed correctly.");
+		assertEquals(tildeR, hatR, "PairWiseDifferenceProver Witness tildeR was not computed correctly.");
 	}
 
 

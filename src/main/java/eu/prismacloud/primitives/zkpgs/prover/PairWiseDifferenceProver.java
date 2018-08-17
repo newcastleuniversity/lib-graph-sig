@@ -219,18 +219,18 @@ public class PairWiseDifferenceProver implements IProver {
 	/** Compute eea. */
 	public void computeEEA() {
 		EEAlgorithm.computeEEAlgorithm(m_Bari, m_Barj);
-		System.out.println("EEA Inputs: "
-				+ "\n i : " + m_Bari
-				+ "\n j : " + m_Barj);
+//		System.out.println("EEA Inputs: "
+//				+ "\n i : " + m_Bari
+//				+ "\n j : " + m_Barj);
 		
 		this.d_BariBarj = EEAlgorithm.getD();
 		this.a_BariBarj = EEAlgorithm.getS();
 		this.b_BariBarj = EEAlgorithm.getT();
 		
-		System.out.println("EEA Outputs: "
-				+ "\n d = " + d_BariBarj
-				+ "\n a = " + a_BariBarj
-				+ "\n b = " + b_BariBarj);
+//		System.out.println("EEA Outputs: "
+//				+ "\n d = " + d_BariBarj
+//				+ "\n a = " + a_BariBarj
+//				+ "\n b = " + b_BariBarj);
 	}
 
 	/**
@@ -303,7 +303,8 @@ public class PairWiseDifferenceProver implements IProver {
 		basetildeR_BariBarj =
 				C_Bari.modPow(tildea_BariBarj)
 				.multiply(
-						C_Bari.modPow(tildeb_BariBarj).multiply(baseS.modPow(tilder_BariBarj)));
+						C_Barj.modPow(tildeb_BariBarj)).
+				multiply(baseS.modPow(tilder_BariBarj));
 
 		storeWitness();
 		return basetildeR_BariBarj;
