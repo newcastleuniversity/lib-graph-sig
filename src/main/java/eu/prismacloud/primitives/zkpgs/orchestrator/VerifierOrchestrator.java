@@ -200,7 +200,7 @@ public class VerifierOrchestrator {
     PossessionVerifier possessionVerifier =
         (PossessionVerifier) VerifierFactory.newVerifier(VerifierType.PossessionVerifier);
 
-    hatZ = possessionVerifier.computeHatZ(extendedPublicKey, proofStore, keyGenParameters);
+    hatZ = possessionVerifier.computeHatZ(extendedPublicKey,baseCollection, proofStore, keyGenParameters);
 
     // computeCommitmentVerifiers();
   }
