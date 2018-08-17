@@ -34,18 +34,19 @@ public class PossessionVerifier implements IVerifier {
   private BigInteger hatm_0;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   
-  
   public boolean checkLengths() {
 	  int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
-	  int l_hatvprime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
+	  int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
 	  int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() +1;
 	  
 	  hate = (BigInteger) proofStore.retrieve("verifier.hate");
 	  hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
 	  hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
-	  
+
+	  /** TODO check lengths for hatm_i vertices and hatm_i_j edges */
+
 	  return CryptoUtilsFacade.isInPMRange(hate, l_hate) 
-			&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvprime)
+			&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
 	  		&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
   }
 
