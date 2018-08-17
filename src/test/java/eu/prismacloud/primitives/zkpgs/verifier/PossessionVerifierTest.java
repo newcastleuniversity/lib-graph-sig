@@ -124,7 +124,7 @@ class PossessionVerifierTest {
 	@Test
 	void testComputeHatZ() {
 		log.info("Checking the verifier's computation of hatZ");
-		GroupElement hatZ = verifier.computeHatZ(epk, proofStore, keyGenParameters);
+		GroupElement hatZ = verifier.computeHatZ(epk, baseCollection, proofStore, keyGenParameters);
 		
 		assertEquals(tildeZ, hatZ, "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
 	}
@@ -150,7 +150,7 @@ class PossessionVerifierTest {
 		proofStore.store("verifier.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-		Object output = verifier.computeHatZ(epk, proofStore, keyGenParameters);
+		Object output = verifier.computeHatZ(epk, baseCollection,  proofStore, keyGenParameters);
 
 		assertNull(output, "The PossionVerifier should have aborted outputting null"
 				+ "upon receiving ill-sized inputs, but produced a non-null output.");
