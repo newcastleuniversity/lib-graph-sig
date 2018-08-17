@@ -12,7 +12,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -89,35 +88,51 @@ public class VerifierOrchestrator {
     verifier.sendMessage(new GSMessage(messageElements));
   }
 
-  public void receiveProverMessage() {
+  public void receiveProverMessage() throws VerificationException {
     GSMessage proverMessage = verifier.receiveMessage();
     Map<URN, Object> proverMessageElements = proverMessage.getMessageElements();
 
     P_3 = (ProofSignature) proverMessageElements.get(URN.createZkpgsURN("prover.P_3"));
     aPrime = (GroupElement) proverMessageElements.get(URN.createZkpgsURN("prover.APrime"));
+
     C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.C_i"));
+    Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
+
+   if  (!checkProofSignatureLengths(proofSignatureElements)){
+     /** TODO create a custom exception for lengths or return null */
+     throw new VerificationException("Proof signature elements do not have correct length");
+   };
 
     try {
-      verifyMessageElementsLength(P_3);
+      storePublicValues();
+      storeProofSignature(proofSignatureElements);
     } catch (ProofStoreException e) {
       gslog.log(Level.SEVERE, e.getMessage());
     }
   }
 
-  private void verifyMessageElementsLength(ProofSignature P_3) throws ProofStoreException {
-    int hateLength =
-        keyGenParameters.getL_prime_e()
-            + keyGenParameters.getL_statzk()
-            + keyGenParameters.getL_H()
-            + 1;
-    int hatvLength =
-        keyGenParameters.getL_v() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
-    int hatmLength =
-        keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 2;
-    int hatrLength =
-        keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+  public boolean checkProofSignatureLengths(Map<URN, Object> proofSignatureElements) {
+    int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
+    int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
+    int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
+    int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
-    Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
+    hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
+
+    hatvPrime =
+        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
+
+    hatm_0 =
+        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
+    /** TODO check lengths for vertices, edges, and pair-wise different vertex encodings */
+    return CryptoUtilsFacade.isInPMRange(hate, l_hate)
+        && CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
+        && CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
+  }
+
+  private void storeProofSignature(Map<URN, Object> proofSignatureElements)
+      throws ProofStoreException {
+
     cChallenge =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.c"));
     proofStore.store("verifier.c", cChallenge);
@@ -127,66 +142,57 @@ public class VerifierOrchestrator {
     proofStore.store("verifier.APrime", aPrime);
 
     hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
-    gslog.info("hatelength: " + hateLength);
-    gslog.info("hate bitlenggh: " + hate.bitLength());
-    //    Assert.checkBitLength(hate, hateLength, "hate length is not correct");
     proofStore.store("verifier.hate", hate);
 
     hatvPrime =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
-    gslog.info("hatvlength: " + hatvLength);
-    gslog.info("hatv bitlenggh: " + hatvPrime.bitLength());
-    //    Assert.checkBitLength(hatvPrime, hatvLength-1, "hatvPrime length is not correct");
     proofStore.store("verifier.hatvPrime", hatvPrime);
 
     hatm_0 =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
-    //    Assert.checkBitLength(hatm_0, hatmLength - 1, "hatm_0 bitlength is not correct");
     proofStore.store("verifier.hatm_0", hatm_0);
 
-    int baseIndex;
-    String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
-    String hatm_iURN;
-    BigInteger hatm_i;
-    for (BaseRepresentation vertexBase : vertexIterator) {
-      baseIndex = vertexBase.getBaseIndex();
-      hatm_iURN = hatm_iPath + baseIndex;
-      hatm_i =
-          (BigInteger)
-              proofSignatureElements.get(
-                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
-      //      Assert.checkBitLength(hatm_i, hatmLength, "hatm_i length is not correct");
-
-      proofStore.store("verifier.hatm_i_" + baseIndex, hatm_i);
-    }
-
-    String hatm_i_jURN;
-    String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
-    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
-    String hatr_iURN;
-    BigInteger hatm_i_j;
-    BigInteger hatr_i;
-    for (BaseRepresentation edgeBase : edgeIterator) {
-      baseIndex = edgeBase.getBaseIndex();
-      hatm_i_jURN = hatm_i_jPath + baseIndex;
-      hatm_i_j =
-          (BigInteger)
-              proofSignatureElements.get(
-                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex));
-      Assert.checkBitLength(hatm_i_j, hatmLength, "hatm_i_j length is not correct");
-      proofStore.store("verifier.hatm_i_j_" + baseIndex, hatm_i_j);
-
-      hatr_iURN = hatr_iPath + baseIndex;
-      hatr_i =
-          (BigInteger)
-              proofSignatureElements.get(
-                  URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
-      Assert.checkBitLength(hatr_i, hatrLength, "hatr_i length is not correct");
-      proofStore.store("verifier.hatr_i_" + baseIndex, hatr_i);
-    }
-
-    /** TODO extract proof signature elements from pair wise difference prover */
-    populateStore(P_3);
+    /** TODO store vertices from proof signature */
+    //    int baseIndex;
+    //    String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
+    //    String hatm_iURN;
+    //    BigInteger hatm_i;
+    //    for (BaseRepresentation vertexBase : vertexIterator) {
+    //      baseIndex = vertexBase.getBaseIndex();
+    //      hatm_iURN = hatm_iPath + baseIndex;
+    //      hatm_i =
+    //          (BigInteger)
+    //              proofSignatureElements.get(
+    //                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
+    //
+    //      proofStore.store("verifier.hatm_i_" + baseIndex, hatm_i);
+    //    }
+    /** TODO store edges from proof signature */
+    //    String hatm_i_jURN;
+    //    String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
+    //    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+    //    String hatr_iURN;
+    //    BigInteger hatm_i_j;
+    //    BigInteger hatr_i;
+    //    for (BaseRepresentation edgeBase : edgeIterator) {
+    //      baseIndex = edgeBase.getBaseIndex();
+    //      hatm_i_jURN = hatm_i_jPath + baseIndex;
+    //      hatm_i_j =
+    //          (BigInteger)
+    //              proofSignatureElements.get(
+    //                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex));
+    //      Assert.checkBitLength(hatm_i_j, l_m, "hatm_i_j length is not correct");
+    //      proofStore.store("verifier.hatm_i_j_" + baseIndex, hatm_i_j);
+    //
+    //      hatr_iURN = hatr_iPath + baseIndex;
+    //      hatr_i =
+    //          (BigInteger)
+    //              proofSignatureElements.get(
+    //                  URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
+    //      Assert.checkBitLength(hatr_i, l_hatr, "hatr_i length is not correct");
+    //      proofStore.store("verifier.hatr_i_" + baseIndex, hatr_i);
+    //    }
+    /** TODO store pair-wise different vertex encodings from the proof signature */
   }
 
   public void preChallengePhase() {
@@ -275,14 +281,11 @@ public class VerifierOrchestrator {
     }
   }
 
-  public void populateStore(ProofSignature p_3) throws ProofStoreException {
+  public void storePublicValues() throws ProofStoreException {
     String ZURN = "verifier.Z";
     String APrimeURN = "verifier.APrime";
-    String cURN = "verifier.c";
     //    String C_iURN = "verifier.C_i";
-    String hatvURN = "verifier.hatv";
 
-    verifierStore.store(cURN, P_3.get("proofsignature.P_3.c"));
     verifierStore.store(ZURN, extendedPublicKey.getPublicKey().getBaseZ());
     verifierStore.store(APrimeURN, P_3.get("proofsignature.P_3.APrime"));
     /** TODO check storage of C_i */
