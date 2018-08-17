@@ -61,6 +61,9 @@ public class PossessionProver implements IProver {
   private BigInteger hatvPrime;
   private BigInteger hatm_0;
 
+  @Override
+  public void executePrecomputation() {}
+  
   public GroupElement preChallengePhase(
       GSSignature blindedSignature,
       ExtendedPublicKey extendedPublicKey,
@@ -150,8 +153,8 @@ public class PossessionProver implements IProver {
     //    proverStore.store(tildem_i_jURN, edgeWitnesses);
   }
 
-  public void computeWitness() {
-	  computetildeZ();
+  public GroupElement computeWitness() {
+	  return computetildeZ();
   }
 
   //  @Override

@@ -100,6 +100,9 @@ public class CommitmentProver implements IProver {
     ISSUING,
     PROVING
   }
+  
+  @Override
+  public void executePrecomputation() {}
 
   /**
    * Pre challenge phase for commitment prover in the issuing stage.
@@ -210,7 +213,7 @@ public class CommitmentProver implements IProver {
   }
 
   @Override
-  public void computeWitness() {
+  public GroupElement computeWitness() {
     Map<URN, GroupElement> baseMap = new HashMap<>();
     Map<URN, BigInteger> exponentsMap = new HashMap<>();
 
@@ -260,6 +263,8 @@ public class CommitmentProver implements IProver {
 
       witness = new GSCommitment(tildeC_i);
     }
+    
+    return witness.getCommitmentValue();
   }
 
   @Override

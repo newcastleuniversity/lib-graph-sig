@@ -12,6 +12,12 @@ import java.security.NoSuchAlgorithmException;
  */
 public interface IProver {
 
+	/**
+	 * Enables the prover to execute a precomputation before the pre-challenge phase is called.
+	 * For many provers this step may be a noop.
+	 */
+	public void executePrecomputation() throws ProofStoreException;
+	
 /**
  * Computes the witness randomness with appropriate length and 
  * stores the witness randomness in the ProofStore.
@@ -28,7 +34,7 @@ public interface IProver {
    * 
    * @throws ProofStoreException
    */
-  void computeWitness() throws ProofStoreException;
+  GroupElement computeWitness() throws ProofStoreException;
 
   // TODO Challenge is computed by the Orchestrator, not the prover.
   BigInteger computeChallenge() throws NoSuchAlgorithmException;

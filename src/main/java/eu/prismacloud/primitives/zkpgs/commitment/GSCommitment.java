@@ -1,10 +1,15 @@
 package eu.prismacloud.primitives.zkpgs.commitment;
 
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
 
 public class GSCommitment implements Serializable {
@@ -53,6 +58,15 @@ public class GSCommitment implements Serializable {
     this.r_i = r_i;
     this.baseS = baseS;
     this.modN = modN;
+    this.commitmentValue = (R_i.modPow(m_i)).multiply(baseS.modPow(r_i));
+    
+    this.exponents = new HashMap<URN, BigInteger>();
+    this.exponents.put(URN.createZkpgsURN("commitment.exponent.m"), m_i);
+    
+    this.randomness = r_i;
+    
+    this.basesR = new HashMap<URN, GroupElement>();
+    basesR.put(URN.createZkpgsURN("commitment.base.R"), R_i);
   }
 
   public GSCommitment(GroupElement commitmentValue) {
@@ -67,12 +81,37 @@ public class GSCommitment implements Serializable {
   //
   //    return commitmentValue;
   //  }
+  
+  public static GSCommitment createCommitment(BigInteger m, GroupElement baseR, ExtendedPublicKey epk) {
+	  
+	  KeyGenParameters keyGenParameters = epk.getPublicKey().getKeyGenParameters();
+	  
+	  
+	  // GroupElement message = baseR.modPow(m);
+	  
+	  // Establishing blinding
+	  BigInteger r = CryptoUtilsFacade.computeRandomNumberMinusPlus(
+		        keyGenParameters.getL_n() + keyGenParameters.getL_statzk());
+	  // GroupElement blinding = epk.getPublicKey().getBaseS().modPow(r);
+	  
+	  // GroupElement commitmentValue = message.multiply(blinding);
+	  
+	  return new GSCommitment(baseR, m, r, epk.getPublicKey().getBaseS(), epk.getPublicKey().getModN());
+  }
 
   public void setCommitmentValue(GroupElement commitmentValue) {
     this.commitmentValue = commitmentValue;
   }
 
   public GroupElement getCommitmentValue() {
+	  if (this.commitmentValue == null) {
+		  if (R_i != null && m_i != null && r_i != null && baseS != null) {
+			  this.commitmentValue = (R_i.modPow(m_i)).multiply(baseS.modPow(r_i));
+		  } 
+//		  else if (basesR != null && exponents != null && randomness != null && baseS != null) { 
+//			  
+//		  }
+	  }
     return commitmentValue;
   }
 

@@ -68,6 +68,7 @@ public class ProofStore<T> {
    * @throws ProofStoreException the exception
    */
   public void store(String urnkey, T element) throws ProofStoreException {
+	  gslog.info("Storing under: " + urnkey);
     save(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), urnkey), element);
   }
 
@@ -78,6 +79,7 @@ public class ProofStore<T> {
    * @return the t
    */
   public T retrieve(String urnkey) {
+	  gslog.info("Retrieving from: " + urnkey);
     return get(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), urnkey));
   }
 

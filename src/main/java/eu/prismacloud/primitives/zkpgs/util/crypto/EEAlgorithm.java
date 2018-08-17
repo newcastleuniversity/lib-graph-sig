@@ -3,6 +3,11 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
+
+// TODO This implementation is not thread-safe! 
+// if another EEA is called before s, t, d are retrieved, this implementation ends up in tatters.
+// Much better: Triple-class as return value of EAA.
+
 /** Extended Euclidean Algorithm */
 public class EEAlgorithm {
   private static final Logger log = Logger.getLogger(EEAlgorithm.class.getName());

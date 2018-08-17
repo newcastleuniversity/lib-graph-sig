@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -40,7 +41,10 @@ public class CorrectnessProver implements IProver {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private GraphEncodingParameters graphEncodingParameters;
 
-  public QRElement preChallengePhase(
+  @Override
+  public void executePrecomputation() {}
+  
+  public GroupElement preChallengePhase(
       final GSSignature gsSignature,
       final BigInteger order,
       final BigInteger n_2,
@@ -75,7 +79,9 @@ public class CorrectnessProver implements IProver {
   public void createWitnessRandomness() throws ProofStoreException {}
 
   @Override
-  public void computeWitness() throws ProofStoreException {}
+  public GroupElement computeWitness() throws ProofStoreException { 
+	  throw new NotImplementedException("Does not compute a single witness");
+  }
 
   public BigInteger computeChallenge() throws NoSuchAlgorithmException {
     challengeList = populateChallengeList();

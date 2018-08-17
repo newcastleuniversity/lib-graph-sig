@@ -72,6 +72,9 @@ public class GroupSetupProver implements IProver {
   private BaseIterator vertexIterator;
   private BaseIterator edgeIterator;
 
+  
+  @Override
+  public void executePrecomputation() {}
   /**
    * Pre challenge phase.
    *
@@ -166,7 +169,9 @@ public class GroupSetupProver implements IProver {
   }
 
   //  @Override
-  public void computeWitness() throws ProofStoreException {
+  public GroupElement computeWitness() throws ProofStoreException {
+	  // TODO needs to work on GroupElement not raw BigInteger.
+	GroupElement geTildeZ = baseS.modPow(tilder_Z);
     tildeZ = baseS.modPow(tilder_Z).getValue();
     basetildeR = baseS.modPow(tilder).getValue();
     basetildeR_0 = baseS.modPow(tilder_0).getValue();
@@ -204,6 +209,7 @@ public class GroupSetupProver implements IProver {
       proofStore.store(
           "groupsetupprover.witnesses.tildeR_j_" + baseRepresentation.getBaseIndex(), eWitnessBase);
     }
+    return geTildeZ;
   }
 
   //  @Override
