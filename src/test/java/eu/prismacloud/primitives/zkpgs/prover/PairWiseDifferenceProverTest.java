@@ -95,6 +95,36 @@ class PairWiseDifferenceProverTest {
 		prover = new PairWiseDifferenceProver(c1, c2coprime, epk, testIndex, proofStore, keyGenParameters);
 		prover.executePrecomputation();
 	}
+	
+	/**
+	 * Tests whether the precomputation establishes the coefficients of Bezout's Identity correctly.
+	 */
+	@Test
+	void testEEAPrecomputation() {
+		a_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.ABARIBARJ, testIndex));
+
+		b_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.BBARIBARJ, testIndex));
+
+		BigInteger d = (a_BariBarj.multiply(m1)).add(b_BariBarj.multiply(m2coprime));
+		assertEquals(BigInteger.ONE, d, "EEA did not compute the coefficients of "
+				+ "Bezout's Identity correctly, expected d=1.");
+	}
+	
+	/**
+	 * Tests the correctness of the differential randomness.
+	 */
+	@Test
+	void testDifferentialRandomness() {
+		a_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.ABARIBARJ, testIndex));
+
+		b_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.BBARIBARJ, testIndex));
+
+		r_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.RBARIBARJ, testIndex));
+
+		BigInteger rDiff = a_BariBarj.multiply(c1.getRandomness()).add(b_BariBarj.multiply(c2coprime.getRandomness()));
+		assertEquals(rDiff.negate(), r_BariBarj, "EEA did not compute the coefficients of "
+				+ "Bezout's Identity correctly, expected d=1.");
+	}
 
 	/**
 	 * The test case is responsible for checking the computation of the witness 

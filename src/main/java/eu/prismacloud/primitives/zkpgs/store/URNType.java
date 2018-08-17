@@ -28,7 +28,7 @@ public enum URNType {
 	public static String getSuffix(URNType t) {
 		switch(t) {
 		case ABARIBARJ: return "a_BariBarj_";
-		case BBARIBARJ: return "r_BariBarj_";
+		case BBARIBARJ: return "b_BariBarj_";
 		case RBARIBARJ: return "r_BariBarj_";
 		case TILDEE: return "tildee";
 		case TILDEV: return "tildev";

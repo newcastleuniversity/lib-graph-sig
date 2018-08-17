@@ -47,7 +47,7 @@ public class PairWiseDifferenceProver implements IProver {
 	private BigInteger hatb_BariBarj;
 	private BigInteger hatr_BariBarj;
 	private GroupElement basetildeR_BariBarj;
-	private BigInteger c;
+	private BigInteger cChallenge;
 	private String a_BariBarjURN;
 	private String b_BariBarjURN;
 	private String r_BariBarjURN;
@@ -121,9 +121,9 @@ public class PairWiseDifferenceProver implements IProver {
 		this.epk = extendedPublicKey;
 		this.baseS = epk.getPublicKey().getBaseS();
 		this.baseR = epk.getPublicKey().getBaseR();
-		this.m_Bari = C_i.getExponents().get(URN.createZkpgsURN("commitment.C_i"));
+		this.m_Bari = C_i.getExponents().get(URN.createZkpgsURN("commitment.exponent.m"));
 		this.r_Bari = C_i.getRandomness();
-		this.m_Barj = C_j.getExponents().get(URN.createZkpgsURN("commitment.C_j"));
+		this.m_Barj = C_j.getExponents().get(URN.createZkpgsURN("commitment.exponent.m"));
 		this.r_Barj = C_j.getRandomness();
 		this.index = index;
 		this.proofStore = proverStore;
@@ -134,13 +134,13 @@ public class PairWiseDifferenceProver implements IProver {
 		return computeWitness();
 	}
 	
-	/** Precomputation. @throws Exception the exception */
+
 	@Override
 	public void executePrecomputation() throws ProofStoreException {
 
 		computeEEA();
 		if (!d_BariBarj.equals(BigInteger.ONE)) {
-			throw new IllegalArgumentException("messages are not coprime");
+			throw new IllegalArgumentException("Messages are not coprime");
 		}
 
 		r_BariBarj = computeDifferentialRandomness();
@@ -230,7 +230,8 @@ public class PairWiseDifferenceProver implements IProver {
 //		System.out.println("EEA Outputs: "
 //				+ "\n d = " + d_BariBarj
 //				+ "\n a = " + a_BariBarj
-//				+ "\n b = " + b_BariBarj);
+//				+ "\n b = " + b_BariBarj
+//				+ "\n ai + bj = " + (m_Bari.multiply(a_BariBarj)).add(m_Barj.multiply(b_BariBarj)));
 	}
 
 	/**
@@ -330,7 +331,7 @@ public class PairWiseDifferenceProver implements IProver {
 	 * @param challenge the challenge
 	 */
 	public void setChallenge(BigInteger challenge) {
-		this.c = challenge;
+		this.cChallenge = challenge;
 	}
 	
 	public void postChallengePhase(BigInteger challenge) {
@@ -347,9 +348,9 @@ public class PairWiseDifferenceProver implements IProver {
 		r_BariBarj = (BigInteger) proofStore.retrieve(getProverURN(URNType.RBARIBARJ, index));
 
 		
-		hata_BariBarj = tildea_BariBarj.add(this.c.multiply(a_BariBarj));
-		hatb_BariBarj = tildeb_BariBarj.add(this.c.multiply(b_BariBarj));
-		hatr_BariBarj = tilder_BariBarj.add(this.c.multiply(r_BariBarj));
+		hata_BariBarj = tildea_BariBarj.add(this.cChallenge.multiply(a_BariBarj));
+		hatb_BariBarj = tildeb_BariBarj.add(this.cChallenge.multiply(b_BariBarj));
+		hatr_BariBarj = tilder_BariBarj.add(this.cChallenge.multiply(r_BariBarj));
 		
 		storeResponses();
 	}
@@ -413,10 +414,13 @@ public class PairWiseDifferenceProver implements IProver {
 		GroupElement blindingAdjustment = baseS.modPow(hatr_BariBarj);
 
 		// Cancelling out the challenge
-		GroupElement baseRnegChallenge = baseR.modPow(c.negate());
+		GroupElement baseRnegChallenge = baseR.modPow(cChallenge.negate());
 
 		GroupElement verifier = baseRnegChallenge.multiply(C_iHata).multiply(C_jHatb).multiply(blindingAdjustment);
 
+//		System.out.println("Verifier = " + verifier
+//			   + "\ntildeR   = " + basetildeR_BariBarj);
+		
 		return verifier.equals(this.basetildeR_BariBarj);
 	}
 	
