@@ -8,7 +8,6 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
@@ -33,28 +32,28 @@ public class PossessionVerifier implements IVerifier {
   private GroupElement hatZ;
   private BigInteger hatm_0;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  
+
   public boolean checkLengths() {
-	  int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
-	  int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
-	  int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() +1;
-	  
-	  hate = (BigInteger) proofStore.retrieve("verifier.hate");
-	  hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
-	  hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+    int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
+    int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
+    int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
 
-	  /** TODO check lengths for hatm_i vertices and hatm_i_j edges */
+    hate = (BigInteger) proofStore.retrieve("verifier.hate");
+    hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
+    hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
 
-	  return CryptoUtilsFacade.isInPMRange(hate, l_hate) 
-			&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
-	  		&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
+    /** TODO check lengths for hatm_i vertices and hatm_i_j edges */
+    return CryptoUtilsFacade.isInPMRange(hate, l_hate)
+        && CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
+        && CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
   }
 
   public GroupElement computeHatZ(
       final ExtendedPublicKey extendedPublicKey,
+      final BaseCollection baseCollection,
       final ProofStore<Object> proofStore,
       final KeyGenParameters keyGenParameters) {
-	  
+
     this.extendedPublicKey = extendedPublicKey;
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
@@ -62,7 +61,7 @@ public class PossessionVerifier implements IVerifier {
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     // TODO I don't understand how the baseCollection is set. It seems to come from the EPK.
     // Yet, somehow that iterator below draws upon an exponent, which should not be there.
-    this.baseCollection = extendedPublicKey.getBaseCollection();
+    this.baseCollection = baseCollection;
     this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
     this.baseR0 = extendedPublicKey.getPublicKey().getBaseR_0();
@@ -73,9 +72,9 @@ public class PossessionVerifier implements IVerifier {
     hate = (BigInteger) proofStore.retrieve("verifier.hate");
     hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
     hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
-    
+
     // Aborting verification with output null, if lengths check rejects hat-values.
-	if (!checkLengths()) return null;
+    if (!checkLengths()) return null;
 
     QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
@@ -87,8 +86,7 @@ public class PossessionVerifier implements IVerifier {
     //    }
     GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
     gslog.info("Aprime: " + APrime);
-    GroupElement aPrimeMulti =
-        APrime.modPow(keyGenParameters.getLowerBoundE());
+    GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
 
     GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
     GroupElement result = divide.modPow(cChallenge.negate());
@@ -96,17 +94,6 @@ public class PossessionVerifier implements IVerifier {
     GroupElement baseShatvPrime = baseS.modPow(hatvPrime);
 
     hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0);
-
-    // alternative calculation of hatZ
-
-//    hatZ = baseZ.modPow(cChallenge.negate()).multiply(aPrimeHate).multiply(baseShatvPrime);
-//    hatZ = hatZ.multiply(baseR0hatm_0);//.modInverse();
-
-    // basesProduct
-    //            .multiply(result)
-    //            .multiply(baseR0hatm_0)
-    //            .multiply(aPrimeHate)
-    //            .multiply(baseShatvPrime);
 
     gslog.info("hatZ: " + hatZ);
     gslog.info("hatZ bitlength: " + hatZ.bitLength());
