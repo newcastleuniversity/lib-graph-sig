@@ -156,8 +156,8 @@ public class PossessionProver implements IProver {
 
   //  @Override
   public GroupElement computetildeZ() {
-	 assert(tildee != null);
-	 assert(tildevPrime != null);
+	  Assert.notNull(tildee, "TildeE must not be null.");
+	  Assert.notNull(tildevPrime, "tildevPrime must not be null.");
 
     //gslog.info("aPrime: " + blindedSignature.getA());
     GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
