@@ -720,7 +720,7 @@ public class GSUtils implements INumberUtils {
    * @param bitLength a positive int
    * @return BigInteger upper bound
    */
-  public BigInteger getUpperPMBound(int bitLength) {
+  public BigInteger getUpperPMBound(final int bitLength) {
 	  if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
 	  
 	  Integer iBitLength = new Integer(bitLength);
@@ -742,7 +742,7 @@ public class GSUtils implements INumberUtils {
    * @param bitLength a positive int
    * @return BigInteger lower bound
    */
-  public BigInteger getLowerPMBound(int bitLength) {
+  public BigInteger getLowerPMBound(final int bitLength) {
 	  if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
 	  
 	  Integer iBitLength = new Integer(-bitLength);
@@ -764,7 +764,7 @@ public class GSUtils implements INumberUtils {
    * @return <tt>true</tt> if the BigInteger number is in the range
    *   <tt>[-2^(bitLength)+1 ... 2^(bitLength)-1]</tt>
    */
-  public boolean isInPMRange(BigInteger number, int bitLength) {
+  public boolean isInPMRange(final BigInteger number, final int bitLength) {
 	  BigInteger max = getUpperPMBound(bitLength);
 	  BigInteger min = getLowerPMBound(bitLength);
 	  
