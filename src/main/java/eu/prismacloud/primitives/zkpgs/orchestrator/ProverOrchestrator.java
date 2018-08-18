@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -37,7 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** Orchestrate provers */
-public class ProverOrchestrator { // implements ProofOperation {
+public class ProverOrchestrator {
 
   private BaseCollection baseCollection;
   private GroupElement baseZ;
@@ -94,6 +95,8 @@ public class ProverOrchestrator { // implements ProofOperation {
   private PossessionProver possessionProver;
   private List<CommitmentProver> commitmentProverList;
   private BaseIterator edgeIterator;
+  private Map<URN, BigInteger> response;
+  private Map<URN, BigInteger> responses;
 
   public ProverOrchestrator(
       final ExtendedPublicKey extendedPublicKey,
@@ -104,13 +107,13 @@ public class ProverOrchestrator { // implements ProofOperation {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-//    this.baseCollection = extendedPublicKey.getBaseCollection();
+    //    this.baseCollection = extendedPublicKey.getBaseCollection();
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
     this.proofStore = proofStore;
-    this.prover = new GSProver(extendedPublicKey, keyGenParameters);
-//    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+    this.prover = new GSProver(proofStore, extendedPublicKey, keyGenParameters);
+    //    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
   }
 
   public void init() throws Exception {
@@ -123,7 +126,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
     this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
-    
+
     GSMessage msg = prover.receiveMessage();
     Map<URN, Object> messageElements = msg.getMessageElements();
     n_3 = (BigInteger) messageElements.get(URN.createZkpgsURN("verifier.n_3"));
@@ -161,7 +164,7 @@ public class ProverOrchestrator { // implements ProofOperation {
     //      index++;
     //    }
 
-//    computeCommitmentProvers();
+    computeCommitmentProvers();
 
     //    computePairWiseProvers(pairWiseDifferenceProvers);
   }
@@ -202,29 +205,29 @@ public class ProverOrchestrator { // implements ProofOperation {
     int baseIndex;
     String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
     String hatm_iURN;
+    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+    String hatr_iURN;
     for (BaseRepresentation vertexBase : vertexIterator) {
       baseIndex = vertexBase.getBaseIndex();
       hatm_iURN = hatm_iPath + baseIndex;
       proofSignatureElements.put(
           URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex),
           proofStore.retrieve(hatm_iURN));
+      hatr_iURN = hatr_iPath + baseIndex;
+      proofSignatureElements.put(
+          URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex),
+          proofStore.retrieve(hatr_iURN));
     }
 
     String hatm_i_jURN;
     String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
-    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
-    String hatr_iURN;
+
     for (BaseRepresentation edgeBase : edgeIterator) {
       baseIndex = edgeBase.getBaseIndex();
       hatm_i_jURN = hatm_i_jPath + baseIndex;
       proofSignatureElements.put(
           URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex),
           proofStore.retrieve(hatm_i_jURN));
-
-      hatr_iURN = hatr_iPath + baseIndex;
-      proofSignatureElements.put(
-          URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex),
-          proofStore.retrieve(hatr_iURN));
     }
 
     /** TODO add proof signature elements from pair wise difference prover */
@@ -237,13 +240,15 @@ public class ProverOrchestrator { // implements ProofOperation {
     cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
   }
 
-  public void computePostChallengePhase() {
+  public void computePostChallengePhase() throws ProofStoreException {
     gslog.info("compute post challlenge phase");
     possessionProver.postChallengePhase(cChallenge);
+    responses = new HashMap<>();
+    for (CommitmentProver commitmentProver : commitmentProverList) {
+      response = commitmentProver.postChallengePhase(cChallenge);
 
-//    for (CommitmentProver commitmentProver : commitmentProverList) {
-//      commitmentProver.postChallengePhase(cChallenge);
-//    }
+      responses.putAll(response);
+    }
 
     ProofSignature P_3 = createProofSignature();
 
@@ -254,6 +259,10 @@ public class ProverOrchestrator { // implements ProofOperation {
     messageElements.put(URN.createZkpgsURN("prover.APrime"), blindedGraphSignature.getA());
     messageElements.put(URN.createZkpgsURN("prover.C_i"), commitments);
 
+    //    for (Entry<URN, BigInteger> entry : responses.entrySet()) {
+    //      proofStore.save(entry.getKey(), entry.getValue() );
+    //    }
+
     prover.sendMessage(new GSMessage(messageElements));
   }
 
@@ -261,29 +270,28 @@ public class ProverOrchestrator { // implements ProofOperation {
     /** TODO populate context list */
     GSContext gsContext =
         new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-    //    contextList = gsContext.computeChallengeContext();
-    //
-    //    challengeList.addAll(contextList);
-        challengeList.add(String.valueOf(blindedGraphSignature.getA()));
-   // challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
-    //    for (GSCommitment gsCommitment : commitments.values()) {
-    //      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
-    //    }
+    contextList = gsContext.computeChallengeContext();
+    challengeList.addAll(contextList);
+    challengeList.add(String.valueOf(blindedGraphSignature.getA()));
+    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
+    for (GSCommitment gsCommitment : commitments.values()) {
+      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
+    }
 
     challengeList.add(String.valueOf(tildeZ));
 
-    //    String tildeC_iURN;
-    //    for (BaseRepresentation vertex : vertexIterator) {
-    //      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
-    //      commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
-    //      challengeList.add(String.valueOf(commitment.getCommitmentValue()));
-    //    }
+    String tildeC_iURN;
+    for (BaseRepresentation vertex : vertexIterator) {
+      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
+      commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
+      challengeList.add(String.valueOf(commitment.getCommitmentValue()));
+    }
     /** TODO add pair-wise elements for challenge */
     //    for (GroupElement witness : pairWiseWitnesses.values()) {
     //      challengeList.add(String.valueOf(witness));
     //    }
     gslog.info("n3: " + n_3);
-        challengeList.add(String.valueOf(n_3));
+    challengeList.add(String.valueOf(n_3));
 
     return challengeList;
   }
@@ -339,39 +347,6 @@ public class ProverOrchestrator { // implements ProofOperation {
     tildeZ =
         possessionProver.preChallengePhase(
             blindedGraphSignature, extendedPublicKey, baseCollection, proofStore, keyGenParameters);
-  }
-
-  public List<PairWiseCommitments> getPairs(Map<URN, GSCommitment> commitments) {
-    GSCommitment C_i;
-    GSCommitment C_j;
-    BigInteger hatV_i;
-    BigInteger hatV_j;
-    BigInteger r_bari;
-    BigInteger r_barj;
-    int n = vertices.size();
-    int i = 0;
-    int j = i + 1;
-
-    /** TODO improve algorithm for generating distinct pairs */
-    while (true) {
-      C_i = commitments.get(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "commitments.C_" + i));
-      C_j = commitments.get(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "commitments.C_" + j));
-
-      pairWiseVertices.add(new PairWiseCommitments(C_i, C_j));
-
-      j++;
-
-      if (j >= n) {
-        i++;
-        j = i + 1;
-      }
-
-      if (i >= (n - 1)) {
-        break;
-      }
-    }
-
-    return pairWiseVertices;
   }
 
   public void close() {
