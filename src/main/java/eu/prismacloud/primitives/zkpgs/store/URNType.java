@@ -1,5 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.store;
 
+import eu.prismacloud.primitives.zkpgs.prover.IProver;
+import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.verifier.IVerifier;
+import eu.prismacloud.primitives.zkpgs.verifier.PairWiseDifferenceVerifier;
 
 public enum URNType {
   ABARIBARJ,
@@ -96,5 +100,68 @@ public enum URNType {
 		case HATRBARIBARJ: return true;
 		default: return false;
 		}
+	}
+	
+	/** 
+	 * Builds an URN Component for a prover class fulfilling the IProver interface
+	 * or a verifier fulfilling the IVerifier interface.
+	 * 
+	 * @param t URNType
+	 * @param c Class governing the datum
+	 * @return String URN component to identify a datum of that class in the ProofStore.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static String buildURNComponent(URNType t, Class c) {
+		if (URNType.isEnumerable(t)) {
+			  throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
+		  }
+		
+		String proverID;
+		  try {
+			proverID = (String) c.getDeclaredField("URNID").get(null);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
+		}
+		  
+		  
+		return proverID + URN.DOT + URNType.getClass(t) + URN.DOT + URNType.getSuffix(t);
+	}
+	
+	/** 
+	 * Builds an URN Component for a prover class fulfilling the IProver interface.
+	 * 
+	 * @param t URNType
+	 * @param c Class governing the datum
+	 * @param index int index of the datum
+	 * @return String URN component to identify a datum of that class in the ProofStore.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static String buildURNComponent(URNType t, Class c, int index) {
+		if (!URNType.isEnumerable(t)) {
+			  throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
+		}
+		
+		if (!isProverVerifier(c)) {
+			throw new RuntimeException("Class " + c.getName() + " does neither implement the IProver nor the IVerifier interface.");
+		}
+		
+		String proverID;
+		try {
+			proverID = (String) c.getDeclaredField("URNID").get(null);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
+		}
+		  
+		  
+		return proverID + URN.DOT + URNType.getClass(t) + URN.DOT + URNType.getSuffix(t) + index;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static boolean isProverVerifier(Class c) {
+		Class[] implementedInterfaces = c.getInterfaces();
+		for (Class inter : implementedInterfaces) {
+			if (inter.equals(IProver.class) || inter.equals(IVerifier.class)) return true;
+		}
+		return false;
 	}
 }

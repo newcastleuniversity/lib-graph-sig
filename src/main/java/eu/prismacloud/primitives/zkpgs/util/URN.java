@@ -14,7 +14,8 @@ public final class URN implements Serializable {
 
   private static final String zkpgsNameSpaceIdentifier = "zkpgs";
   private static final String URN_SCHEME = "urn";
-  private static final String COLON = ":";
+  public static final String COLON = ":";
+  public static final String DOT = ".";
   private static final long serialVersionUID = -3082747487978142725L;
   private final NamespaceComponent namespaceIdentifier;
   private final NamespaceComponent namespaceSpecific;

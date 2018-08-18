@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 
 /** The type Group setup prover. */
 public class GroupSetupProver implements IProver {
+	
+	public static final String URNID = "groupsetupprover";
 
   private ExtendedKeyPair extendedKeyPair;
   private ExtendedPublicKey ePublicKey;

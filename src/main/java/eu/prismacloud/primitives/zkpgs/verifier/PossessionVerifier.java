@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 /** */
 public class PossessionVerifier implements IVerifier {
+	public static final String URNID = "possessionverifier";
 
   private ExtendedPublicKey extendedPublicKey;
   private ProofStore<Object> proofStore;

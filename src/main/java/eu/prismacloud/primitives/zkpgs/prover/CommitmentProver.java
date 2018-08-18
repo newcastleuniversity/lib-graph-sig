@@ -22,6 +22,8 @@ import java.util.logging.Logger;
 
 /** The type Commitment prover. */
 public class CommitmentProver implements IProver {
+	
+	public static final String URNID = "commitmentprover";
 
   public static final String RANDOMNESS_TILDEM_I =
       "issuing.commitmentprover.witnesses.randomness.vertex.tildem_i_";

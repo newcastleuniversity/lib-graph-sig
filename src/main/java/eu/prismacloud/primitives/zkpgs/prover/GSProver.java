@@ -21,6 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GSProver {
+	public static final String URNID = "prover";
+	
   private GroupElement baseR;
   private BigInteger modN;
   private GroupElement baseS;
