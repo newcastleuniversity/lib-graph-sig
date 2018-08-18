@@ -58,11 +58,11 @@ public class PairWiseDifferenceVerifier implements IVerifier{
 	    hatb_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATBBARIBARJ, index));
 	    hatr_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATRBARIBARJ, index));
 	    
-	    log.info("Desired BL for ab = " + l_hatab
-	    		+ "\n  hata (BL = " + hata_BariBarj.bitLength() + ") = " + hata_BariBarj
-	    		+ "\n  hatb (BL = " + hatb_BariBarj.bitLength() + ") = " + hatb_BariBarj
-	    		+ "\nDesired BL for v = " + l_hatr
-	    		+ "\n  hatr (BL = " + hatr_BariBarj.bitLength() + ") = " + hatr_BariBarj);
+//	    log.info("Desired BL for ab = " + l_hatab
+//	    		+ "\n  hata (BL = " + hata_BariBarj.bitLength() + ") = " + hata_BariBarj
+//	    		+ "\n  hatb (BL = " + hatb_BariBarj.bitLength() + ") = " + hatb_BariBarj
+//	    		+ "\nDesired BL for v = " + l_hatr
+//	    		+ "\n  hatr (BL = " + hatr_BariBarj.bitLength() + ") = " + hatr_BariBarj);
 
 	    return CryptoUtilsFacade.isInPMRange(hata_BariBarj, l_hatab)
 	        && CryptoUtilsFacade.isInPMRange(hatb_BariBarj, l_hatab)

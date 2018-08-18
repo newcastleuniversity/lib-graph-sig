@@ -442,9 +442,6 @@ public class PairWiseDifferenceProver implements IProver {
 		GroupElement baseRnegChallenge = baseR.modPow(cChallenge.negate());
 
 		GroupElement verifier = baseRnegChallenge.multiply(C_iHata).multiply(C_jHatb).multiply(blindingAdjustment);
-
-//		System.out.println("Verifier = " + verifier
-//			   + "\ntildeR   = " + basetildeR_BariBarj);
 		
 		return verifier.equals(this.basetildeR_BariBarj);
 	}
