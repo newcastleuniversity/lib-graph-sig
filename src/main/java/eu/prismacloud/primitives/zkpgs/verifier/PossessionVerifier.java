@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 /** */
 public class PossessionVerifier implements IVerifier {
 
-  private ExtendedPublicKey extendedPublicKey; // implements IVerifier{}
+  private ExtendedPublicKey extendedPublicKey;
   private ProofStore<Object> proofStore;
   private KeyGenParameters keyGenParameters;
   private GroupElement baseZ;
@@ -85,7 +85,7 @@ public class PossessionVerifier implements IVerifier {
     //              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
     //    }
     GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
-    gslog.info("Aprime: " + APrime);
+    // gslog.info("Aprime: " + APrime);
     GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
 
     GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
@@ -95,8 +95,8 @@ public class PossessionVerifier implements IVerifier {
 
     hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0);
 
-    gslog.info("hatZ: " + hatZ);
-    gslog.info("hatZ bitlength: " + hatZ.bitLength());
+//    gslog.info("hatZ: " + hatZ);
+//    gslog.info("hatZ bitlength: " + hatZ.bitLength());
 
     return hatZ;
   }

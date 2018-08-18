@@ -75,8 +75,6 @@ class PairWiseDifferenceProverTest {
 		extendedKeyPair.generateBases();
 		extendedKeyPair.graphEncodingSetup();
 		extendedKeyPair.createExtendedKeyPair();
-		
-		log.info("Initializing GSSigningOracle");
 
 		epk = extendedKeyPair.getExtendedPublicKey();
 	}

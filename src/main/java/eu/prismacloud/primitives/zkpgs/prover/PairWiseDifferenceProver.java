@@ -18,7 +18,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** The type Pair wise difference prover. */
+/** 
+ * The PairWiseDifferenceProver is a component prover, 
+ * which shows that the committed values of a pair of commitments
+ * are coprime.
+ * 
+ * <p>The PairWiseDifferenceProver has a pre-computation phase, called with 
+ * executePrecomputation(), which establishes the coefficients of Bezout's identity.
+ * For messages {@code m_i} and {@code m_j} we will have that
+ * {@code EAA(m_i, m_j) = (d, s, t)}, such that
+ * {@code s*m_i + t*m_j = d}.
+ * 
+ * <p>This equation has a unique solution for {@code d=1} if and only if
+ * {@code m_j} and {@code m_j} are coprime. 
+ * */
 public class PairWiseDifferenceProver implements IProver {
 
 	public static final String URNID = "pairwiseprover";
@@ -54,9 +67,10 @@ public class PairWiseDifferenceProver implements IProver {
 	private String tildea_BariBarjURN;
 	private String tildeb_BariBarjURN;
 	private String tilder_BariBarjURN;
+	@SuppressWarnings("unused")
+	private String basetildeR_BariBarjURN;
 
 	Logger gslog = GSLoggerConfiguration.getGSlog();
-	private String basetildeR_BariBarjURN;
 
 	/**
 	 * Initiates as PairWiseDifferenceProver with two commitments as foundations.
@@ -272,11 +286,16 @@ public class PairWiseDifferenceProver implements IProver {
 
 	@Override
 	public void createWitnessRandomness() {
-		int randomnessLength =
+		int l_tildeab =
 				keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
-		tildea_BariBarj = CryptoUtilsFacade.computeRandomNumber(randomnessLength);
-		tildeb_BariBarj = CryptoUtilsFacade.computeRandomNumber(randomnessLength);
-		tilder_BariBarj = CryptoUtilsFacade.computeRandomNumber(randomnessLength);
+		int l_tilder =
+				keyGenParameters.getL_n() + keyGenParameters.getL_statzk() 	// size of commitment randomness r
+			  + keyGenParameters.getL_m() 									// max size of a Bezout coefficient for a commitment message
+			  + keyGenParameters.getProofOffset();							// offset introduced by the challenge and response computation
+		
+		tildea_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
+		tildeb_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
+		tilder_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
 
 		storeWitnessRandomness();
 	}
@@ -405,6 +424,12 @@ public class PairWiseDifferenceProver implements IProver {
 		return basetildeR_BariBarj;
 	}
 
+	/**
+	 * Executes the self-verification of the PairWiseDifferenceProver, establishing
+	 * that the hat-values produced indeed fulfill the verification equation.
+	 * 
+	 * @return <tt>true</tt> if and only if the hat-values would pass the verification equation.
+	 */
 	@Override
 	public boolean verify() {
 		// Compute the verification equation from the prover's point of view.

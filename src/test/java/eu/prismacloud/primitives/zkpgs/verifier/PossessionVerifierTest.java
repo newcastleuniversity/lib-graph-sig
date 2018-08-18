@@ -1,24 +1,17 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
-import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
-import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.GSProver;
 import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
-import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -32,8 +25,6 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -152,7 +143,7 @@ class PossessionVerifierTest {
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
 		Object output = verifier.computeHatZ(epk, baseCollection,  proofStore, keyGenParameters);
 
-		assertNull(output, "The PossionVerifier should have aborted outputting null"
+		assertNull(output, "The PossionVerifier should have aborted outputting null "
 				+ "upon receiving ill-sized inputs, but produced a non-null output.");
 	}
 
