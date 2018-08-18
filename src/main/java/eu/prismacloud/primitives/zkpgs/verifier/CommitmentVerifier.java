@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -86,10 +87,12 @@ public class CommitmentVerifier implements IVerifier {
   }
 
   public GroupElement computeWitness(
-      BaseRepresentation vertex,
-      ProofStore<Object> proofStore,
-      ExtendedPublicKey extendedPublicKey,
-      KeyGenParameters keyGenParameters) {
+      final BigInteger cChallenge,
+      final BaseRepresentation vertex,
+      final ProofStore<Object> proofStore,
+      final ExtendedPublicKey extendedPublicKey,
+      final KeyGenParameters keyGenParameters) {
+    this.cChallenge = cChallenge;
     this.vertex = vertex;
     this.proofStore = proofStore;
     this.extendedPublicKey = extendedPublicKey;
@@ -97,7 +100,12 @@ public class CommitmentVerifier implements IVerifier {
     this.baseR = extendedPublicKey.getPublicKey().getBaseR();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
 
-    checkLengthsVerifying();
+    if (!checkLengthsVerifying()) {
+      gslog.info("check lengths for commitment verifier: " + checkLengthsVerifying() );
+      return null;
+
+    }
+    
     witness = computeHatCVerifying();
     return witness;
   }
@@ -117,18 +125,23 @@ public class CommitmentVerifier implements IVerifier {
     return hatC_i;
   }
 
-  private void checkLengthsVerifying() {
+  private boolean checkLengthsVerifying() {
 
-    int hatr_iLength =
-        keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
-    int hatm_iLength =
-        keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 2;
+    int l_hatr =
+        keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+    int l_hatm =
+        keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
 
-    hatr_i = (BigInteger) proofStore.retrieve("verifier.hatr_i_" + vertex.getBaseIndex());
-    Assert.checkBitLength(hatr_i, hatr_iLength, " hat r_i length is not correct");
 
-    hatm_i = (BigInteger) proofStore.retrieve("verifier.hatm_i_" + vertex.getBaseIndex());
-    Assert.checkBitLength(hatm_i, hatm_iLength, "hat m_i length is not correct");
+    hatr_i = (BigInteger) proofStore.retrieve("proving.commitmentprover.responses.hatr_i_" + vertex.getBaseIndex());
+
+    hatm_i = (BigInteger) proofStore.retrieve("possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex());
+
+    gslog.info("hatr in range: " + CryptoUtilsFacade.isInPMRange(hatr_i, l_hatr));
+    gslog.info("hatm in range: " + CryptoUtilsFacade.isInPMRange(hatm_i, l_hatm));
+    
+    return CryptoUtilsFacade.isInPMRange(hatr_i, l_hatr) && CryptoUtilsFacade.isInPMRange(hatm_i, l_hatm);
+    
   }
 
   private void checkLengthsIssuing(
