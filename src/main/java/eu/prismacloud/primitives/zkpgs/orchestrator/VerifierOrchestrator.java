@@ -77,7 +77,6 @@ public class VerifierOrchestrator {
   }
 
   public void init() {
-
     this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
     this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
@@ -98,10 +97,10 @@ public class VerifierOrchestrator {
     C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.C_i"));
     Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
 
-   if  (!checkProofSignatureLengths(proofSignatureElements)){
-     /** TODO create a custom exception for lengths or return null */
-     throw new VerificationException("Proof signature elements do not have correct length");
-   };
+    if (!checkProofSignatureLengths(proofSignatureElements)) {
+      /** TODO create a custom exception for lengths or return null */
+      throw new VerificationException("Proof signature elements do not have correct length");
+    }
 
     try {
       storePublicValues();
@@ -118,10 +117,8 @@ public class VerifierOrchestrator {
     int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
     hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
-
     hatvPrime =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
-
     hatm_0 =
         (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
     /** TODO check lengths for vertices, edges, and pair-wise different vertex encodings */
@@ -153,20 +150,29 @@ public class VerifierOrchestrator {
     proofStore.store("verifier.hatm_0", hatm_0);
 
     /** TODO store vertices from proof signature */
-    //    int baseIndex;
-    //    String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
-    //    String hatm_iURN;
-    //    BigInteger hatm_i;
-    //    for (BaseRepresentation vertexBase : vertexIterator) {
-    //      baseIndex = vertexBase.getBaseIndex();
-    //      hatm_iURN = hatm_iPath + baseIndex;
-    //      hatm_i =
-    //          (BigInteger)
-    //              proofSignatureElements.get(
-    //                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
-    //
-    //      proofStore.store("verifier.hatm_i_" + baseIndex, hatm_i);
-    //    }
+    int baseIndex;
+    String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
+    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+    String hatm_iURN;
+    BigInteger hatm_i;
+    BigInteger hatr_i;
+    String hatr_iURN;
+    for (BaseRepresentation vertexBase : vertexIterator) {
+      baseIndex = vertexBase.getBaseIndex();
+      hatm_iURN = hatm_iPath + baseIndex;
+      hatm_i =
+          (BigInteger)
+              proofSignatureElements.get(
+                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
+
+      proofStore.store(hatm_iPath + baseIndex, hatm_i);
+      hatr_iURN = hatr_iPath + baseIndex;
+      hatr_i =
+          (BigInteger)
+              proofSignatureElements.get(
+                  URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
+      proofStore.store(hatr_iPath + baseIndex, hatr_i);
+    }
     /** TODO store edges from proof signature */
     //    String hatm_i_jURN;
     //    String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
@@ -200,9 +206,12 @@ public class VerifierOrchestrator {
     PossessionVerifier possessionVerifier =
         (PossessionVerifier) VerifierFactory.newVerifier(VerifierType.PossessionVerifier);
 
-    hatZ = possessionVerifier.computeHatZ(extendedPublicKey,baseCollection, proofStore, keyGenParameters);
+    hatZ =
+        possessionVerifier.computeHatZ(
+            extendedPublicKey, baseCollection, proofStore, keyGenParameters);
+    gslog.info("hatZ : " + hatZ);
 
-    // computeCommitmentVerifiers();
+    computeCommitmentVerifiers();
   }
 
   public void computeChallenge() throws NoSuchAlgorithmException {
@@ -222,25 +231,24 @@ public class VerifierOrchestrator {
 
     GSContext gsContext =
         new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-    //    contextList = gsContext.computeChallengeContext();
-    //
-    //    challengeList.addAll(contextList);
+    contextList = gsContext.computeChallengeContext();
+    challengeList.addAll(contextList);
     challengeList.add(String.valueOf(aPrime));
-    // challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
+    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
 
-    //    for (GSCommitment gsCommitment : C_i.values()) {
-    //      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
-    //    }
+    for (GSCommitment gsCommitment : C_i.values()) {
+      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
+    }
 
     challengeList.add(String.valueOf(hatZ));
 
-    //    BigInteger commitmentValue;
-    //    String hatC_iURN;
-    //    for (BaseRepresentation vertex : vertexIterator) {
-    //      hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
-    //      commitmentValue = (BigInteger) proofStore.retrieve(hatC_iURN);
-    //      challengeList.add(String.valueOf(commitmentValue));
-    //    }
+    GroupElement commitment;
+    String hatC_iURN;
+    for (BaseRepresentation vertex : vertexIterator) {
+      hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
+      commitment = (GroupElement) proofStore.retrieve(hatC_iURN);
+      challengeList.add(String.valueOf(commitment));
+    }
 
     /** TODO add pair-wise elements for challenge */
     //    for (GroupElement witness : pairWiseWitnesses.values()) {
@@ -259,8 +267,7 @@ public class VerifierOrchestrator {
     String witnessRandomnessURN;
     String hatC_iURN;
     for (BaseRepresentation vertex : vertexIterator) {
-      witnessRandomnessURN =
-          "possessionprover.witnesses.randomness.vertex.tildem_i_" + vertex.getBaseIndex();
+      witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
       tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
       commitmentVerifier =
@@ -268,7 +275,7 @@ public class VerifierOrchestrator {
 
       GroupElement hatCommitment =
           commitmentVerifier.computeWitness(
-              vertex, proofStore, extendedPublicKey, keyGenParameters);
+              cChallenge, vertex, proofStore, extendedPublicKey, keyGenParameters);
 
       commitmentVerifierList.add(commitmentVerifier);
       hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
