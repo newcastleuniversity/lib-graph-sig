@@ -66,7 +66,7 @@ class GSProverTest {
     extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
 
     proofStore = new ProofStore<Object>();
-    prover = new GSProver(extendedPublicKey, keyGenParameters);
+    prover = new GSProver(proofStore, extendedPublicKey, keyGenParameters);
 
     gslog.info("read persisted graph signature");
     A = (GroupElement) persistenceUtil.read("A.ser");
