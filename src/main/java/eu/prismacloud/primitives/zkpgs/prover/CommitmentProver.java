@@ -102,7 +102,7 @@ public class CommitmentProver implements IProver {
     ISSUING,
     PROVING
   }
-  
+
   @Override
   public void executePrecomputation() {}
 
@@ -196,12 +196,7 @@ public class CommitmentProver implements IProver {
   }
 
   private void witnessRandomnessProving() {
-    int tilder_iLength =
-        keyGenParameters.getL_n()
-            + keyGenParameters.getL_statzk()
-            + keyGenParameters.getL_statzk()
-            + keyGenParameters.getL_H()
-            + 1;
+    int tilder_iLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
     tilder_i = CryptoUtilsFacade.computeRandomNumber(tilder_iLength);
 
@@ -250,12 +245,14 @@ public class CommitmentProver implements IProver {
     } else {
 
       /** TODO retrieve witness randomness of committed messages from the common store */
-      String tildem_iURN = POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM; // + base.getBaseIndex();
-      Map<URN, BigInteger> witnesses = (Map<URN, BigInteger>) proofStore.retrieve(tildem_iURN);
+      //      String tildem_iURN = POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM; // +
+      // base.getBaseIndex();
+      //      Map<URN, BigInteger> witnesses = (Map<URN, BigInteger>)
+      // proofStore.retrieve(tildem_iURN);
 
       String tildem_i_iURN =
           POSSESSIONPROVER_WITNESSES_VERTEX_RANDOMNESS_TILDEM + base.getBaseIndex();
-      tildem_i = witnesses.get(URN.createZkpgsURN(tildem_i_iURN));
+      tildem_i = (BigInteger) proofStore.retrieve(tildem_i_iURN);
       GroupElement baseR = extendedPublicKey.getPublicKey().getBaseR();
       GroupElement tildeC_i = baseR.modPow(tildem_i).multiply(baseS.modPow(tilder_i));
 
@@ -265,7 +262,7 @@ public class CommitmentProver implements IProver {
 
       witness = new GSCommitment(tildeC_i);
     }
-    
+
     return witness.getCommitmentValue();
   }
 
@@ -296,7 +293,7 @@ public class CommitmentProver implements IProver {
 
     } else if (this.proofStage == STAGE.PROVING) {
       try {
-        computeResponsesProving();
+        return computeResponsesProving();
       } catch (Exception e) {
         gslog.log(Level.SEVERE, e.getMessage());
       }
@@ -310,7 +307,7 @@ public class CommitmentProver implements IProver {
     BaseRepresentation baseRepresentation;
     BigInteger vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
 
-    if (baseR0Iterator.hasNext()){
+    if (baseR0Iterator.hasNext()) {
       m_0 = baseR0Iterator.next().getExponent();
     }
 
@@ -326,7 +323,7 @@ public class CommitmentProver implements IProver {
     proofStore.store(hatm_0URN, hatm_0);
     proofStore.store(cChallengeURN, cChallenge);
 
-    if (baseCollection.size() > 1) {
+    if (baseCollection.size() > 0) {
 
       for (BaseRepresentation base : vertexIterator) {
         tildem_i = (BigInteger) proofStore.retrieve(RANDOMNESS_TILDEM_I + base.getBaseIndex());
@@ -353,13 +350,15 @@ public class CommitmentProver implements IProver {
    *
    * @throws Exception the exception
    */
-  public void computeResponsesProving() throws Exception {
+  public Map<URN, BigInteger> computeResponsesProving() throws Exception {
     String tilder_iURN =
         "commitmentprover.witnesses.randomness.vertex.tilder_" + base.getBaseIndex();
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
     String C_iURN = "prover.commitments.C_" + base.getBaseIndex();
-    GSCommitment C_i = (GSCommitment) proofStore.retrieve(C_iURN);
+    Map<URN, GSCommitment> commitmentMap =
+        (Map<URN, GSCommitment>) proofStore.retrieve("prover.commitments");
+    GSCommitment C_i = commitmentMap.get(URN.createZkpgsURN(C_iURN));
     BigInteger r_i = C_i.getRandomness();
 
     BigInteger hatr_i = tilder_i.add(this.cChallenge.multiply(r_i));
@@ -367,11 +366,13 @@ public class CommitmentProver implements IProver {
     String hatr_iURN = "proving.commitmentprover.responses.hatr_i_" + base.getBaseIndex();
 
     responses.put(URN.createZkpgsURN(hatr_iURN), hatr_i);
+    gslog.info("store hatr_i " + hatr_i);
     proofStore.store(hatr_iURN, hatr_i);
+    return responses;
   }
-  
+
   @Override
   public boolean verify() {
-	  return false;
+    return false;
   }
 }
