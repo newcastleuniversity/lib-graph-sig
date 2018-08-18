@@ -7,7 +7,6 @@ import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
-import eu.prismacloud.primitives.zkpgs.store.Base;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -38,13 +37,15 @@ public class GSProver {
   private static final String SERVER = "server";
 
   public GSProver(
-      final ExtendedPublicKey extendedPublicKey, final KeyGenParameters keyGenParameters) {
+      final ProofStore<Object> proofStore,
+      final ExtendedPublicKey extendedPublicKey,
+      final KeyGenParameters keyGenParameters) {
     this.extendedPublicKey = extendedPublicKey;
     this.keyGenParameters = keyGenParameters;
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseR = extendedPublicKey.getPublicKey().getBaseR();
-    this.proofStore = new ProofStore<Object>();
+    this.proofStore = proofStore;
     this.messageGateway = new MessageGatewayProxy(SERVER);
   }
 
@@ -52,8 +53,7 @@ public class GSProver {
     return this.commitmentMap;
   }
 
-  public void computeCommitments(BaseIterator vertexRepresentations)
-      throws Exception {
+  public void computeCommitments(BaseIterator vertexRepresentations) throws Exception {
     GSCommitment commitment;
     GroupElement R_i;
     BigInteger m_i;
@@ -70,7 +70,7 @@ public class GSProver {
       C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
       commitment = new GSCommitment(R_i, m_i, r_i, baseS, modN);
       commitment.setCommitmentValue(C_i);
-      String commitmentURN = "prover.commitments.C_" + i;
+      String commitmentURN = "prover.commitments.C_" + vertexRepresentation.getBaseIndex();
       commitmentMap.put(
           URN.createURN(URN.getZkpgsNameSpaceIdentifier(), commitmentURN), commitment);
       proofStore.store(commitmentURN, commitment);
