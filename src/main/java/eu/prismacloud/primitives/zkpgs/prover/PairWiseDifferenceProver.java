@@ -499,7 +499,7 @@ public class PairWiseDifferenceProver implements IProver {
 				  ));
 		}
 		if (governedURNs == null) {
-			governedURNs = URNType.buildURNList(urnTypes, enumeratedTypes, this.getClass());
+			governedURNs = Collections.unmodifiableList(URNType.buildURNList(urnTypes, enumeratedTypes, this.getClass()));
 		}
 		  return governedURNs;
 	  }

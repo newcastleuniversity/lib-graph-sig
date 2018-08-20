@@ -432,7 +432,7 @@ public class PossessionProver implements IProver {
 		}
 		// TODO iterate over vertices and edges.
 		if (governedURNs == null) {
-			governedURNs = URNType.buildURNList(urnTypes, this.getClass());
+			governedURNs = Collections.unmodifiableList(URNType.buildURNList(urnTypes, this.getClass()));
 		}
 		return governedURNs;
 	}
