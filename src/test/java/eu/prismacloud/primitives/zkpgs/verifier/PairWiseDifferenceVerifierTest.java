@@ -89,7 +89,7 @@ class PairWiseDifferenceVerifierTest {
 		testIndex = 0;
 		
 		log.info("Computing a PairWiseDifferenceProof to be verified.");
-		prover = new PairWiseDifferenceProver(c1, c2coprime, epk, testIndex, proofStore, keyGenParameters);
+		prover = new PairWiseDifferenceProver(c1, c2coprime, testIndex, epk, proofStore);
 		prover.executePrecomputation();
 		
 		tildeR = prover.preChallengePhase(c1, c2coprime, epk, testIndex,

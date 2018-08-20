@@ -92,7 +92,7 @@ class PossessionVerifierTest {
 		baseCollection.add(baseR0);
 
 		log.info("Computing a PossessionProof to be verified.");
-		prover = new PossessionProver();
+		prover = new PossessionProver(sigmaM, epk, proofStore);
 		tildeZ = prover.preChallengePhase(sigmaM,
 				epk, baseCollection, 
 				proofStore, keyGenParameters);

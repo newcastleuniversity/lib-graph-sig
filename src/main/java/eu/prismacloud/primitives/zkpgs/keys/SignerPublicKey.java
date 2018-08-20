@@ -7,7 +7,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-public class SignerPublicKey implements Serializable {
+public class SignerPublicKey implements Serializable, IPublicKey {
 
   private static final long serialVersionUID = 7953446087582080777L;
   private final KeyGenParameters keyGenParameters;

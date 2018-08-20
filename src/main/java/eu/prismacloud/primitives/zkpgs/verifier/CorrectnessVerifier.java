@@ -3,6 +3,8 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -179,5 +181,17 @@ public class CorrectnessVerifier implements IVerifier {
     challengeList.add(String.valueOf(n_2));
 
     return challengeList;
+  }
+  
+  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

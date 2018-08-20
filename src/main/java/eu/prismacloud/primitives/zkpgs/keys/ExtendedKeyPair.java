@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Class representing the extended key pair */
-public final class ExtendedKeyPair {
+public final class ExtendedKeyPair implements IKeyPair {
 
   private final SignerPublicKey publicKey;
   private final SignerPrivateKey privateKey;
@@ -77,7 +77,6 @@ public final class ExtendedKeyPair {
     this.extendedPublicKey =
         new ExtendedPublicKey(
             signerKeyPair.getPublicKey(),
-            keyGenParameters,
             baseRepresentationMap,
             vertexRepresentatives,
             labelRepresentatives,
@@ -239,5 +238,9 @@ public final class ExtendedKeyPair {
 
   private void createExtendedPrivateKey() {
     this.extendedPrivateKey = new ExtendedPrivateKey(privateKey, discLogOfBases);
+  }
+  
+  public KeyGenParameters getKeyGenParameters() {
+	  return this.keyGenParameters;
   }
 }

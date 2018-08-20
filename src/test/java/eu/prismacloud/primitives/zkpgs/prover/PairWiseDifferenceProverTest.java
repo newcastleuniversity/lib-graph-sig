@@ -90,7 +90,7 @@ class PairWiseDifferenceProverTest {
 		c2coprime = GSCommitment.createCommitment(m2coprime, epk.getPublicKey().getBaseR(), epk);
 
 		testIndex = 0;
-		prover = new PairWiseDifferenceProver(c1, c2coprime, epk, testIndex, proofStore, keyGenParameters);
+		prover = new PairWiseDifferenceProver(c1, c2coprime, testIndex, epk, proofStore);
 		prover.executePrecomputation();
 	}
 	

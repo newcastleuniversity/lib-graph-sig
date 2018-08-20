@@ -2,6 +2,8 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -222,5 +224,17 @@ public class CommitmentVerifier implements IVerifier {
     for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
       exponentsMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getExponent());
     }
+  }
+  
+  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

@@ -11,12 +11,14 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /** */
@@ -42,7 +44,17 @@ public class CorrectnessProver implements IProver {
   private GraphEncodingParameters graphEncodingParameters;
 
   @Override
-  public void executePrecomputation() {}
+  public void executePrecomputation() {
+	  // NO PRE-COMPUTATION IS NEEDED: NO-OP.
+  }
+  
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
   
   public GroupElement preChallengePhase(
       final GSSignature gsSignature,
@@ -112,8 +124,16 @@ public class CorrectnessProver implements IProver {
     return hatd;
   }
   
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
   @Override
   public boolean verify() {
 	  return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

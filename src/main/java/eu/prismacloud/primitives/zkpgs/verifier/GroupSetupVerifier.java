@@ -3,6 +3,8 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -249,5 +251,17 @@ public class GroupSetupVerifier implements IVerifier {
     if (!hatc.equals(c)) {
       throw new VerificationException("Challenge is rejected ");
     }
+  }
+  
+  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

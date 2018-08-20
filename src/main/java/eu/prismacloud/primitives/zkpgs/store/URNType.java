@@ -28,6 +28,7 @@ public enum URNType {
  HATBBARIBARJ,
  HATRBARIBARJ;
 
+	private URNType() {}
 	
 	public static String getSuffix(URNType t) {
 		switch(t) {

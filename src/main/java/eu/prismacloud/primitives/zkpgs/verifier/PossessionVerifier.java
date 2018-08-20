@@ -1,6 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -8,9 +10,11 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.logging.Logger;
 
 /** */
@@ -100,5 +104,17 @@ public class PossessionVerifier implements IVerifier {
 //    gslog.info("hatZ bitlength: " + hatZ.bitLength());
 
     return hatZ;
+  }
+  
+  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /** The type Extended public key. */
-public class ExtendedPublicKey implements Serializable {
+public class ExtendedPublicKey implements Serializable, IPublicKey {
   private static final long serialVersionUID = 603738248933483649L;
   private final SignerPublicKey signerPublicKey;
   private ExtendedPublicKey ePublicKey;
@@ -22,7 +22,6 @@ public class ExtendedPublicKey implements Serializable {
   private Map<URN, BaseRepresentation> bases;
   private Map<URN, BigInteger> discLogOfVertexBases;
   private Map<URN, BigInteger> discLogOfEdgeBases;
-  private final KeyGenParameters keygenParams;
   private final Map<URN, BigInteger> labelRepresentatives;
   private final transient GraphEncodingParameters graphEncodingParameters;
   private JsonIsoCountries jsonIsoCountries;
@@ -37,29 +36,25 @@ public class ExtendedPublicKey implements Serializable {
    * Instantiates a new Extended public key.
    *
    * @param signerPublicKey the signer key pair
-   * @param keygenParams the keygen params
-   * @param bases the bases
-   * @param vertexRepresentatives the vertex representatives
-   * @param labelRepresentatives the labels representatives
-   * @param graphEncodingParameters the graph encoding parameters
+ * @param bases the bases
+ * @param vertexRepresentatives the vertex representatives
+ * @param labelRepresentatives the labels representatives
+ * @param graphEncodingParameters the graph encoding parameters
    */
   public ExtendedPublicKey(
       final SignerPublicKey signerPublicKey,
-      final KeyGenParameters keygenParams,
       final Map<URN, BaseRepresentation> bases,
       final Map<URN, BigInteger> vertexRepresentatives,
       final Map<URN, BigInteger> labelRepresentatives,
       final GraphEncodingParameters graphEncodingParameters) {
 
     Assert.notNull(signerPublicKey, "public key must not be null");
-    Assert.notNull(keygenParams, "keygen parameters must not be null");
     Assert.notNull(bases, "bases must not be null");
     Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
     Assert.notNull(labelRepresentatives, "labels representatives must not be null");
     Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
 
     this.signerPublicKey = signerPublicKey;
-    this.keygenParams = keygenParams;
     this.bases = bases;
     this.vertexRepresentatives = vertexRepresentatives;
     this.labelRepresentatives = labelRepresentatives;
@@ -111,5 +106,13 @@ public class ExtendedPublicKey implements Serializable {
    */
   public Map<URN, BigInteger> getVertexRepresentatives() {
     return this.vertexRepresentatives;
+  }
+  
+  /**
+   * Returns the key generation parameters realized with this public key.
+   * @return
+   */
+  public KeyGenParameters getKeyGenParameters() {
+	  return this.signerPublicKey.getKeyGenParameters();
   }
 }

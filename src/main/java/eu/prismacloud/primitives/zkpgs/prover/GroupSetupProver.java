@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.prover;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -76,7 +77,21 @@ public class GroupSetupProver implements IProver {
 
   
   @Override
-  public void executePrecomputation() {}
+  public void executePrecomputation() {
+		// NO PRE-COMPUTATION IS NEEDED: NO-OP.
+  }
+  
+  
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  
+  
   /**
    * Pre challenge phase.
    *
@@ -381,8 +396,16 @@ public class GroupSetupProver implements IProver {
     return new ProofSignature(proofSignatureElements);
   }
   
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
   @Override
   public boolean verify() {
 	  return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

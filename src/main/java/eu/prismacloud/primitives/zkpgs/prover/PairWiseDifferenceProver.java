@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -15,6 +16,8 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,18 +80,16 @@ public class PairWiseDifferenceProver implements IProver {
 	 * 
 	 * @param C_i First commitment, associated with a
 	 * @param C_j Second commitment, associated with b
-	 * @param extendedPublicKey Signer's ExtendedPublicKey
 	 * @param index Index of the PairWiseDifferenceProver to store its values in the ProofStore 
+	 * @param extendedPublicKey Signer's ExtendedPublicKey
 	 * @param proofStore
-	 * @param keyGenParameters
 	 */
 	public PairWiseDifferenceProver(
 			GSCommitment C_i,
 			GSCommitment C_j,
-			ExtendedPublicKey extendedPublicKey,
 			int index,
-			ProofStore<Object> proofStore,
-			KeyGenParameters keyGenParameters) {
+			ExtendedPublicKey extendedPublicKey,
+			ProofStore<Object> proofStore) {
 
 		Assert.notNull(C_i, "commitment i must not be null");
 		Assert.notNull(C_j, "commitment j must not be null");
@@ -98,7 +99,6 @@ public class PairWiseDifferenceProver implements IProver {
 		Assert.notNull(C_j.getRandomness(), "commitment randomness must not be null");
 		Assert.notNull(index, "component prover index must not be null");
 		Assert.notNull(proofStore, "ProofStore must not be null");
-		Assert.notNull(keyGenParameters, "keygen parameters must not be null");
 
 		this.C_i = C_i;
 		this.C_j = C_j;
@@ -111,12 +111,20 @@ public class PairWiseDifferenceProver implements IProver {
 		this.r_Barj = C_j.getRandomness();
 		this.index = index;
 		this.proofStore = proofStore;
-		this.keyGenParameters = keyGenParameters;
+		this.keyGenParameters = this.epk.getKeyGenParameters();
 	}
 
 	public PairWiseDifferenceProver() {}
 
-	
+
+	public GroupElement executePreChallengePhase() throws ProofStoreException {
+		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+	}
+
+	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+	}
+
 	public GroupElement preChallengePhase(GSCommitment C_i,
 			GSCommitment C_j,
 			ExtendedPublicKey extendedPublicKey,
@@ -142,12 +150,12 @@ public class PairWiseDifferenceProver implements IProver {
 		this.index = index;
 		this.proofStore = proverStore;
 		this.keyGenParameters = keyGenParameters;
-		
+
 		createWitnessRandomness();
-		
+
 		return computeWitness();
 	}
-	
+
 
 	@Override
 	public void executePrecomputation() throws ProofStoreException {
@@ -164,7 +172,7 @@ public class PairWiseDifferenceProver implements IProver {
 
 	private void storeCoprimality() throws ProofStoreException {
 		a_BariBarjURN = "pairwiseprover.secret.a_BariBarj_" + index;
-		
+
 		b_BariBarjURN = "pairwiseprover.secret.b_BariBarj_" + index;
 
 		r_BariBarjURN = "pairwiseprover.secret.r_BariBarj_" + index;
@@ -183,8 +191,8 @@ public class PairWiseDifferenceProver implements IProver {
 		return this.r_BariBarj;
 	}
 
-	
-	
+
+
 	/**
 	 * Gets c j.
 	 *
@@ -233,19 +241,19 @@ public class PairWiseDifferenceProver implements IProver {
 	/** Compute eea. */
 	public void computeEEA() {
 		EEAlgorithm.computeEEAlgorithm(m_Bari, m_Barj);
-//		System.out.println("EEA Inputs: "
-//				+ "\n i : " + m_Bari
-//				+ "\n j : " + m_Barj);
-		
+		//		System.out.println("EEA Inputs: "
+		//				+ "\n i : " + m_Bari
+		//				+ "\n j : " + m_Barj);
+
 		this.d_BariBarj = EEAlgorithm.getD();
 		this.a_BariBarj = EEAlgorithm.getS();
 		this.b_BariBarj = EEAlgorithm.getT();
-		
-//		System.out.println("EEA Outputs: "
-//				+ "\n d = " + d_BariBarj
-//				+ "\n a = " + a_BariBarj
-//				+ "\n b = " + b_BariBarj
-//				+ "\n ai + bj = " + (m_Bari.multiply(a_BariBarj)).add(m_Barj.multiply(b_BariBarj)));
+
+		//		System.out.println("EEA Outputs: "
+		//				+ "\n d = " + d_BariBarj
+		//				+ "\n a = " + a_BariBarj
+		//				+ "\n b = " + b_BariBarj
+		//				+ "\n ai + bj = " + (m_Bari.multiply(a_BariBarj)).add(m_Barj.multiply(b_BariBarj)));
 	}
 
 	/**
@@ -290,9 +298,9 @@ public class PairWiseDifferenceProver implements IProver {
 				keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 		int l_tilder =
 				keyGenParameters.getL_n() + keyGenParameters.getL_statzk() 	// size of commitment randomness r
-			  + keyGenParameters.getL_m() 									// max size of a Bezout coefficient for a commitment message
-			  + keyGenParameters.getProofOffset();							// offset introduced by the challenge and response computation
-		
+				+ keyGenParameters.getL_m() 									// max size of a Bezout coefficient for a commitment message
+				+ keyGenParameters.getProofOffset();							// offset introduced by the challenge and response computation
+
 		tildea_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
 		tildeb_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
 		tilder_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
@@ -339,10 +347,10 @@ public class PairWiseDifferenceProver implements IProver {
 		}
 	}
 
-	  @Override
-	  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-	    return CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
-	  }
+	@Override
+	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
+		return CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+	}
 
 	/**
 	 * Sets challenge.
@@ -352,7 +360,7 @@ public class PairWiseDifferenceProver implements IProver {
 	public void setChallenge(BigInteger challenge) {
 		this.cChallenge = challenge;
 	}
-	
+
 	public void postChallengePhase(BigInteger challenge) {
 		setChallenge(challenge);
 		computeResponses();
@@ -366,11 +374,11 @@ public class PairWiseDifferenceProver implements IProver {
 
 		r_BariBarj = (BigInteger) proofStore.retrieve(getProverURN(URNType.RBARIBARJ, index));
 
-		
+
 		hata_BariBarj = tildea_BariBarj.add(this.cChallenge.multiply(a_BariBarj));
 		hatb_BariBarj = tildeb_BariBarj.add(this.cChallenge.multiply(b_BariBarj));
 		hatr_BariBarj = tilder_BariBarj.add(this.cChallenge.multiply(r_BariBarj));
-		
+
 		storeResponses();
 	}
 
@@ -424,6 +432,10 @@ public class PairWiseDifferenceProver implements IProver {
 		return basetildeR_BariBarj;
 	}
 
+	public boolean isSetupComplete() {
+		return false;
+	}
+
 	/**
 	 * Executes the self-verification of the PairWiseDifferenceProver, establishing
 	 * that the hat-values produced indeed fulfill the verification equation.
@@ -442,21 +454,25 @@ public class PairWiseDifferenceProver implements IProver {
 		GroupElement baseRnegChallenge = baseR.modPow(cChallenge.negate());
 
 		GroupElement verifier = baseRnegChallenge.multiply(C_iHata).multiply(C_jHatb).multiply(blindingAdjustment);
-		
+
 		return verifier.equals(this.basetildeR_BariBarj);
 	}
-	
+
 	public String getProverURN(URNType t) {
-		  if (URNType.isEnumerable(t)) {
-			  throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
-		  }
-		  return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
-	  }
-	  
-	  public String getProverURN(URNType t, int index) {
-		  if (!URNType.isEnumerable(t)) {
-			  throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
-		  }
-		  return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
+		if (URNType.isEnumerable(t)) {
+			throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
+		}
+		return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+	}
+
+	public String getProverURN(URNType t, int index) {
+		if (!URNType.isEnumerable(t)) {
+			throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
+		}
+		return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
+	}
+	
+	  public List<URN> getGovernedURNs() {
+		  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
 	  }
 }

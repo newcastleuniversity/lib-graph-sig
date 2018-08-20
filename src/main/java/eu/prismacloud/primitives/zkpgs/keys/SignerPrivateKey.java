@@ -1,11 +1,15 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-public class SignerPrivateKey implements Serializable {
+public class SignerPrivateKey implements Serializable, IPrivateKey {
   private static final long serialVersionUID = -9134821806862114638L;
+  
+  private final KeyGenParameters keyGenParameters;
+  
   private final BigInteger p;
   /** Safe prime <tt>q = 2*q' + 1</tt>. */
   private final BigInteger q;
@@ -28,7 +32,10 @@ public class SignerPrivateKey implements Serializable {
       final BigInteger x_R,
       final BigInteger x_R0,
       final BigInteger x_Z,
-      final QRGroup qrGroup) {
+      final QRGroup qrGroup,
+      final KeyGenParameters keyGenParameters) {
+	  
+	  this.keyGenParameters = keyGenParameters;
 
     this.p = p;
     this.pPrime = p_prime;
@@ -62,5 +69,9 @@ public class SignerPrivateKey implements Serializable {
 
   public QRGroup getQrGroup() {
     return qrGroup;
+  }
+  
+  public KeyGenParameters getKeyGenParameters() {
+	  return this.keyGenParameters;
   }
 }

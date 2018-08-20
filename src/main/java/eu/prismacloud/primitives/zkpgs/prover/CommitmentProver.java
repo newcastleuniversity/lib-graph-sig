@@ -3,6 +3,8 @@ package eu.prismacloud.primitives.zkpgs.prover;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -16,6 +18,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,6 +70,19 @@ public class CommitmentProver implements IProver {
   private BaseIterator baseR0Iterator;
   private BaseRepresentation base;
 
+  @Override
+  public void executePrecomputation() {
+	  // NO PRE-COMPUTATION IS NEEDED: NO-OP.
+  }
+  
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
   /**
    * Pre challenge phase for commitment prover in the proving stage.
    *
@@ -102,9 +118,6 @@ public class CommitmentProver implements IProver {
     ISSUING,
     PROVING
   }
-
-  @Override
-  public void executePrecomputation() {}
 
   /**
    * Pre challenge phase for commitment prover in the issuing stage.
@@ -371,8 +384,16 @@ public class CommitmentProver implements IProver {
     return responses;
   }
 
+  public boolean isSetupComplete() {
+	  return false;
+  }
+  
   @Override
   public boolean verify() {
     return false;
+  }
+  
+  public List<URN> getGovernedURNs() {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

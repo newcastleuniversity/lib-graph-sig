@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 /** Generates key pair for the Signer */
-public class SignerKeyPair implements Serializable {
+public class SignerKeyPair implements Serializable, IKeyPair {
 
   private static final long serialVersionUID = -5396481186679228018L;
   private SignerPrivateKey privateKey;
@@ -64,7 +64,8 @@ public class SignerKeyPair implements Serializable {
             specialRSAMod.getqPrime(),
             x_R,
             x_R0,
-            x_Z, (QRGroup) qrGroup);
+            x_Z, (QRGroup) qrGroup,
+            this.keyGenParameters);
     
     publicKey = new SignerPublicKey(specialRSAMod.getN(), R, R_0, S, Z, qrGroup, keyGenParameters);
 
@@ -76,6 +77,10 @@ public class SignerKeyPair implements Serializable {
 
   public SignerPublicKey getPublicKey() {
     return publicKey;
+  }
+  
+  public KeyGenParameters getKeyGenParameters() {
+	  return this.keyGenParameters;
   }
 
 }

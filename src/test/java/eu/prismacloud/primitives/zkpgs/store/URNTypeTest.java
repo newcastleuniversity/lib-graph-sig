@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
+import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.PossessionVerifier;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -17,7 +18,7 @@ class URNTypeTest {
 
 	@BeforeAll
 	void setUp() {
-		prover = new PossessionProver();
+		prover = (PossessionProver) ProverFactory.newProver(ProverFactory.ProverType.PossessionProver);
 		verifier = new PossessionVerifier();
 	}
 	
