@@ -41,7 +41,6 @@ public class PossessionProver implements IProver {
 	private BigInteger R_0;
 	private BigInteger tildem_0;
 	private BigInteger tildevPrime;
-	private GraphRepresentation graphRepresentation;
 	private ProofStore<Object> proofStore;
 	private KeyGenParameters keyGenParameters;
 	//  private Map<URN, BaseRepresentation> bases;
@@ -57,9 +56,7 @@ public class PossessionProver implements IProver {
 	private BigInteger c;
 	private int baseIndex;
 	private BaseCollection baseCollection;
-	private BaseIterator vertexIterator;
-	private BaseIterator edgeIterator;
-	private BaseIterator baseIterator;
+
 	private GroupElement baseS;
 	private GroupElement baseR_0;
 
@@ -83,6 +80,7 @@ public class PossessionProver implements IProver {
 	 * @param ps ProofStore to be used for this proof.
 	 */
 	// TODO Make dependencies final. Then remove auxiliary parameters from preChallengePhase();
+	// TODO Refactor to dual indexing for edges.
 	public PossessionProver(GSSignature blindedSignature, ExtendedPublicKey epk, ProofStore<Object> ps) {
 		super();
 		
@@ -124,10 +122,6 @@ public class PossessionProver implements IProver {
 		this.keyGenParameters = keyGenParameters;
 		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
 		this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
-		// TODO Refactor bad design: iterators only usable once. Should be generated freshly.
-		this.baseIterator = baseCollection.createIterator(BASE.ALL);
-		this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-		this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
 
 		try {
 			createWitnessRandomness();
@@ -160,7 +154,8 @@ public class PossessionProver implements IProver {
 		//    vertexWitnesses = new LinkedHashMap<>();
 		//    edgeWitnesses = new LinkedHashMap<>();
 		String witnessRandomnessURN = "";
-
+		
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation base : vertexIterator) {
 			tildem_i = CryptoUtilsFacade.computeRandomNumber(messageLength);
 			witnessRandomnessURN =
@@ -169,6 +164,7 @@ public class PossessionProver implements IProver {
 			proofStore.store(witnessRandomnessURN, tildem_i);
 		}
 
+		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation base : edgeIterator) {
 			tildem_i_j = CryptoUtilsFacade.computeRandomNumber(messageLength);
 			witnessRandomnessURN =
@@ -280,6 +276,7 @@ public class PossessionProver implements IProver {
 		String tildem_iURN;
 		String tildem_iPath = "possessionprover.witnesses.randomness.vertex.tildem_i_";
 
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation vertexBase : vertexIterator) {
 			baseIndex = vertexBase.getBaseIndex();
 			tildem_iURN = tildem_iPath + baseIndex;
@@ -306,6 +303,7 @@ public class PossessionProver implements IProver {
 		String tildem_i_jURN;
 		String tildem_i_jPath = "possessionprover.witnesses.randomness.edge.tildem_i_j_";
 
+		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation edgeBase : edgeIterator) {
 			baseIndex = edgeBase.getBaseIndex();
 			tildem_i_jURN = tildem_i_jPath + baseIndex;
@@ -430,7 +428,20 @@ public class PossessionProver implements IProver {
 			urnTypes = Collections.unmodifiableList(
 			    Arrays.asList(URNType.TILDEE, URNType.TILDEV, URNType.TILDEM0, URNType.HATE, URNType.HATV, URNType.HATM0));
 		}
-		// TODO iterate over vertices and edges.
+		if (enumeratedTypes == null) {
+			enumeratedTypes = new ArrayList<EnumeratedURNType>(baseCollection.size());
+			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+			int vertexIndex = 1;
+			for (BaseRepresentation baseRepresentation : vertexIterator) {
+				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, vertexIndex++));
+			}
+			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
+			int edgeIndex = 1;
+			for (BaseRepresentation baseRepresentation : vertexIterator) {
+				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, edgeIndex++));
+			}
+		}
+		
 		if (governedURNs == null) {
 			governedURNs = Collections.unmodifiableList(URNType.buildURNList(urnTypes, this.getClass()));
 		}

@@ -92,6 +92,7 @@ public class PairWiseDifferenceProver implements IProver {
 	 * @param extendedPublicKey Signer's ExtendedPublicKey
 	 * @param proofStore
 	 */
+	// TODO Refactor to dual indexing for commitment pairs.
 	public PairWiseDifferenceProver(
 			GSCommitment C_i,
 			GSCommitment C_j,
