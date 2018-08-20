@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -481,10 +482,10 @@ public class PairWiseDifferenceProver implements IProver {
 	
 	public List<URN> getGovernedURNs() {
 		if (urnTypes == null) {
-			  urnTypes = new ArrayList<URNType>();
+			  urnTypes = Collections.emptyList();
 		  }
 		if (enumeratedTypes == null) {
-		  enumeratedTypes = new ArrayList<EnumeratedURNType>(
+		  enumeratedTypes = Collections.unmodifiableList(
 				  Arrays.asList(
 						(new EnumeratedURNType(URNType.ABARIBARJ, index)),
 						(new EnumeratedURNType(URNType.BBARIBARJ, index)),

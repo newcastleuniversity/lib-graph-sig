@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -426,7 +427,7 @@ public class PossessionProver implements IProver {
 
 	public List<URN> getGovernedURNs() {
 		if (urnTypes == null) {
-			urnTypes = new ArrayList<URNType>(
+			urnTypes = Collections.unmodifiableList(
 			    Arrays.asList(URNType.TILDEE, URNType.TILDEV, URNType.TILDEM0, URNType.HATE, URNType.HATV, URNType.HATM0));
 		}
 		// TODO iterate over vertices and edges.
