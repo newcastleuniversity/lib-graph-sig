@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
@@ -16,6 +17,8 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -72,6 +75,10 @@ public class PairWiseDifferenceProver implements IProver {
 	private String tilder_BariBarjURN;
 	@SuppressWarnings("unused")
 	private String basetildeR_BariBarjURN;
+	
+	private List<URNType> urnTypes;
+	private List<EnumeratedURNType> enumeratedTypes;
+	private List<URN> governedURNs;
 
 	Logger gslog = GSLoggerConfiguration.getGSlog();
 
@@ -472,7 +479,27 @@ public class PairWiseDifferenceProver implements IProver {
 		return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
 	}
 	
-	  public List<URN> getGovernedURNs() {
-		  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+	public List<URN> getGovernedURNs() {
+		if (urnTypes == null) {
+			  urnTypes = new ArrayList<URNType>();
+		  }
+		if (enumeratedTypes == null) {
+		  enumeratedTypes = new ArrayList<EnumeratedURNType>(
+				  Arrays.asList(
+						(new EnumeratedURNType(URNType.ABARIBARJ, index)),
+						(new EnumeratedURNType(URNType.BBARIBARJ, index)),
+						(new EnumeratedURNType(URNType.RBARIBARJ, index)),
+						(new EnumeratedURNType(URNType.TILDEABARIBARJ, index)),
+						(new EnumeratedURNType(URNType.TILDEBBARIBARJ, index)),
+						(new EnumeratedURNType(URNType.TILDERBARIBARJ, index)),
+						(new EnumeratedURNType(URNType.HATABARIBARJ, index)),
+						(new EnumeratedURNType(URNType.HATBBARIBARJ, index)),
+						(new EnumeratedURNType(URNType.HATRBARIBARJ, index))
+				  ));
+		}
+		if (governedURNs == null) {
+			governedURNs = URNType.buildURNList(urnTypes, enumeratedTypes, this.getClass());
+		}
+		  return governedURNs;
 	  }
 }

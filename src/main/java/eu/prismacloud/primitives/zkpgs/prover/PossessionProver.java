@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
@@ -20,6 +21,8 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +65,10 @@ public class PossessionProver implements IProver {
 	private BigInteger hate;
 	private BigInteger hatvPrime;
 	private BigInteger hatm_0;
+	
+	private List<URNType> urnTypes;
+	private List<EnumeratedURNType> enumeratedTypes;
+	private List<URN> governedURNs;
 	
 	PossessionProver() {};
 
@@ -116,6 +123,7 @@ public class PossessionProver implements IProver {
 		this.keyGenParameters = keyGenParameters;
 		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
 		this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
+		// TODO Refactor bad design: iterators only usable once. Should be generated freshly.
 		this.baseIterator = baseCollection.createIterator(BASE.ALL);
 		this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
@@ -417,6 +425,14 @@ public class PossessionProver implements IProver {
 	}
 
 	public List<URN> getGovernedURNs() {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+		if (urnTypes == null) {
+			urnTypes = new ArrayList<URNType>(
+			    Arrays.asList(URNType.TILDEE, URNType.TILDEV, URNType.TILDEM0, URNType.HATE, URNType.HATV, URNType.HATM0));
+		}
+		// TODO iterate over vertices and edges.
+		if (governedURNs == null) {
+			governedURNs = URNType.buildURNList(urnTypes, this.getClass());
+		}
+		return governedURNs;
 	}
 }

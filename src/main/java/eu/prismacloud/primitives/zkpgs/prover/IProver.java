@@ -14,6 +14,9 @@ import java.util.Map;
  * The prover role computes zero-knowledge proofs of knowledge with a policy predicate P on graph
  * signatures. Theses proofs can either be interactive or non-interactive.
  * 
+ * <p>Provers use public values in their execution, at the very least an IPublicKey.
+ * Provers rely on a ProofStore to hold cross-prover shared state.
+ * 
  * <p>Provers have a common interface in that they are executed in two distinct phases,
  * with common goals and outputs:
  * <ol>

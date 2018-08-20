@@ -1,9 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.store;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import eu.prismacloud.primitives.zkpgs.prover.IProver;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.verifier.IVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.PairWiseDifferenceVerifier;
 
 public enum URNType {
   ABARIBARJ,
@@ -164,5 +166,44 @@ public enum URNType {
 			if (inter.equals(IProver.class) || inter.equals(IVerifier.class)) return true;
 		}
 		return false;
+	}
+	
+	/** 
+	 * Generates a list of URNs for a given prover/verifier, based on a list of (non-enumerable) URNType instances.
+	 * 
+	 * @param list List of URNType
+	 * @param c prover or verifier class
+	 * 
+	 * @return List of URN for the given prover/verifier
+	 */
+	@SuppressWarnings("rawtypes")
+	public static List<URN> buildURNList(List<URNType> list, Class c) {
+		List<URN> urnList = new ArrayList<URN>(list.size());
+		for (URNType urnType : list) {
+			URN.createZkpgsURN(buildURNComponent(urnType, c));
+		}
+		return urnList;
+	}
+	
+	/** 
+	 * Generates a list of URNs for a given prover/verifier, based on a list of enumerable URNType instances.
+	 * 
+	 * @param list List of URNType
+	 * @param enumeratedList List of EnumeratedURNType
+	 * @param c prover or verifier class
+	 * 
+	 * @return List of URN for the given prover/verifier
+	 */
+	@SuppressWarnings("rawtypes")
+	public static List<URN> buildURNList(List<URNType> list, List<EnumeratedURNType> enumeratedList, Class c) {
+		List<URN> urnList = new ArrayList<URN>(list.size());
+		for (URNType urnType : list) {
+			URN.createZkpgsURN(buildURNComponent(urnType, c));
+		}
+		for (EnumeratedURNType urnType : enumeratedList) {
+			URN.createZkpgsURN(buildURNComponent(urnType.type, c, urnType.index));
+		}
+		
+		return urnList;
 	}
 }
