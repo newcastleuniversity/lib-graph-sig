@@ -63,4 +63,6 @@ Boolean elementOfQRN(BigInteger value, BigInteger modulus);
   BigInteger getLowerPMBound(int bitLength);
   
   boolean isInPMRange(BigInteger number, int bitLength);
+
+  boolean isInRange(BigInteger number, BigInteger min, BigInteger max);
 }

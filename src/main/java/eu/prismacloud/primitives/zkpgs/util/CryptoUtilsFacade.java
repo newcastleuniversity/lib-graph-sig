@@ -123,4 +123,8 @@ public class CryptoUtilsFacade {
   public static boolean isInPMRange(BigInteger number, int bitLength) {
 	  return CryptoUtilsFactory.getInstance(GS).isInPMRange(number, bitLength);
   }
+
+  public static boolean isInRange(BigInteger number, BigInteger min, BigInteger max) {
+    return CryptoUtilsFactory.getInstance(GS).isInRange(number, min, max);
+  }
 }

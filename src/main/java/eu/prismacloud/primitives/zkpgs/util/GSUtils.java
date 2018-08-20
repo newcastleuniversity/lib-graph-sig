@@ -36,7 +36,7 @@ public class GSUtils implements INumberUtils {
   private BigInteger h;
   private ArrayList<BigInteger> primeFactors;
   private KeyGenParameters keyGenParameters;
-  
+
   private HashMap<Integer, BigInteger> boundMap = new HashMap<Integer, BigInteger>();
 
   /** Instantiates a new Gs utils. */
@@ -710,64 +710,75 @@ public class GSUtils implements INumberUtils {
   public BigInteger generateRandomPrime(final int bitLength) {
     return BigInteger.probablePrime(bitLength, new SecureRandom());
   }
-  
+
   /**
-   * Returns the upper bound of a +/- BigInteger, that is,
-   * <tt>+2^(bitLength)-1</tt>.
-   *  
+   * Returns the upper bound of a +/- BigInteger, that is, <tt>+2^(bitLength)-1</tt>.
+   *
    * <p>Internally, the method stores bounds and only computes exponentiations once.
-   * 
+   *
    * @param bitLength a positive int
    * @return BigInteger upper bound
    */
   public BigInteger getUpperPMBound(final int bitLength) {
-	  if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
-	  
-	  Integer iBitLength = new Integer(bitLength);
-	  if (boundMap.containsKey(iBitLength)) { 
-		  return boundMap.get(iBitLength);
-	  } else {
-		  BigInteger upperBound = (NumberConstants.TWO.getValue().pow(bitLength)).subtract(BigInteger.ONE);
-		  boundMap.put(iBitLength, upperBound);
-		  return upperBound;
-	  }
+    if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
+
+    Integer iBitLength = new Integer(bitLength);
+    if (boundMap.containsKey(iBitLength)) {
+      return boundMap.get(iBitLength);
+    } else {
+      BigInteger upperBound =
+          (NumberConstants.TWO.getValue().pow(bitLength)).subtract(BigInteger.ONE);
+      boundMap.put(iBitLength, upperBound);
+      return upperBound;
+    }
   }
-  
+
   /**
-   * Returns the lower bound of a +/- BigInteger, that is,
-   * <tt>-2^(bitLength)+1</tt>.
-   * 
+   * Returns the lower bound of a +/- BigInteger, that is, <tt>-2^(bitLength)+1</tt>.
+   *
    * <p>Internally, the method stores bounds and only computes exponentiations once.
-   * 
+   *
    * @param bitLength a positive int
    * @return BigInteger lower bound
    */
   public BigInteger getLowerPMBound(final int bitLength) {
-	  if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
-	  
-	  Integer iBitLength = new Integer(-bitLength);
-	  if (boundMap.containsKey(iBitLength)) { 
-		  return boundMap.get(iBitLength);
-	  } else {
-		  BigInteger lowerBound = ((NumberConstants.TWO.getValue().pow(bitLength)).negate()).add(BigInteger.ONE);
-		  boundMap.put(iBitLength, lowerBound);
-		  return lowerBound;
-	  }
+    if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
+
+    Integer iBitLength = new Integer(-bitLength);
+    if (boundMap.containsKey(iBitLength)) {
+      return boundMap.get(iBitLength);
+    } else {
+      BigInteger lowerBound =
+          ((NumberConstants.TWO.getValue().pow(bitLength)).negate()).add(BigInteger.ONE);
+      boundMap.put(iBitLength, lowerBound);
+      return lowerBound;
+    }
   }
-  
+
   /**
-   * Checks whether an BigInteger argument is in the correct +/- range.
-   * 
+   * Checks whether a BigInteger argument is in the correct +/- range.
+   *
    * @param number to be tested for correct range
    * @param bitLength length of the +/- BigInteger
-   * 
-   * @return <tt>true</tt> if the BigInteger number is in the range
-   *   <tt>[-2^(bitLength)+1 ... 2^(bitLength)-1]</tt>
+   * @return <tt>true</tt> if the BigInteger number is in the range <tt>[-2^(bitLength)+1 ...
+   *     2^(bitLength)-1]</tt>
    */
   public boolean isInPMRange(final BigInteger number, final int bitLength) {
-	  BigInteger max = getUpperPMBound(bitLength);
-	  BigInteger min = getLowerPMBound(bitLength);
-	  
-	  return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
+    BigInteger max = getUpperPMBound(bitLength);
+    BigInteger min = getLowerPMBound(bitLength);
+
+    return isInRange(number, min, max);
+  }
+
+  /**
+   * Checks whether a BigInteger number is in the correct range of a minimum and maximum number
+   *
+   * @param number to be tested for correct range
+   * @param min the mininum number in range
+   * @param max the maximum number in range
+   * @return <tt>true</tt> if the BigInteger number is in the range of <tt>[min, max]</tt>
+   */
+  public boolean isInRange(BigInteger number, BigInteger min, BigInteger max) {
+    return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
   }
 }

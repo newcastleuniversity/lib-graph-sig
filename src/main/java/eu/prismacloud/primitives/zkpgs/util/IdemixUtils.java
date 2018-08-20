@@ -54,7 +54,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
   public SpecialRSAMod generateSpecialRSAModulus() {
     throw new RuntimeException("not currently used from idemix library");
   }
-  
+
   /**
    * Algorithm <tt>alg:createElementOfZNS</tt> - topocert-doc Generate S' number
    *
@@ -73,17 +73,18 @@ public class IdemixUtils extends Utils implements INumberUtils {
     } while (!isElementOfZNS(s_prime, modN));
 
     return s_prime;
-  } 
-  
-  private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger modN) {
-	    // check gcd(S', modN) = 1
-	    return (s_prime.gcd(modN).equals(BigInteger.ONE));
-	  }
+  }
 
-//  @Override
-//  public QRElement createQRNGenerator(final BigInteger n) {
-//    return new QRElement(Utils.computeGeneratorQuadraticResidue(n, getIdemixSystemParameters()));
-//  }
+  private boolean isElementOfZNS(final BigInteger s_prime, final BigInteger modN) {
+    // check gcd(S', modN) = 1
+    return (s_prime.gcd(modN).equals(BigInteger.ONE));
+  }
+
+  //  @Override
+  //  public QRElement createQRNGenerator(final BigInteger n) {
+  //    return new QRElement(Utils.computeGeneratorQuadraticResidue(n,
+  // getIdemixSystemParameters()));
+  //  }
 
   @Override
   public BigInteger createRandomNumber(final BigInteger lowerBound, final BigInteger upperBound) {
@@ -120,10 +121,10 @@ public class IdemixUtils extends Utils implements INumberUtils {
     throw new RuntimeException("not implemented in idemix library");
   }
 
-//  @Override
-//  public QRElement createQRNElement(final BigInteger n) {
-//    throw new RuntimeException("not implemented in idemix library");
-//  }
+  //  @Override
+  //  public QRElement createQRNElement(final BigInteger n) {
+  //    throw new RuntimeException("not implemented in idemix library");
+  //  }
 
   @Override
   public BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException {
@@ -205,28 +206,33 @@ public class IdemixUtils extends Utils implements INumberUtils {
     }
     return sp;
   }
-  
+
   public boolean verifySGeneratorOfQRN(BigInteger s, BigInteger modN) {
-	  throw new RuntimeException("not currently used from idemix library");
+    throw new RuntimeException("not currently used from idemix library");
   }
 
   @Override
   public BigInteger generatePrimeInRange(BigInteger min, BigInteger max) {
     throw new RuntimeException("not currently used from idemix library");
   }
-  
+
   @Override
   public BigInteger getUpperPMBound(int bitLength) {
     throw new RuntimeException("not currently used from idemix library");
   }
-  
+
   @Override
   public BigInteger getLowerPMBound(int bitLength) {
     throw new RuntimeException("not currently used from idemix library");
   }
-  
+
   @Override
   public boolean isInPMRange(BigInteger number, int bitLength) {
-	  throw new RuntimeException("not currently used from idemix library");
+    throw new RuntimeException("not currently used from idemix library");
+  }
+
+  @Override
+  public boolean isInRange(BigInteger number, BigInteger min, BigInteger max) {
+    throw new RuntimeException("not currently used from idemix library");
   }
 }
