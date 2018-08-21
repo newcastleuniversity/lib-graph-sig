@@ -38,7 +38,7 @@ public class CommitmentProver implements IProver {
       "issuing.commitmentprover.witnesses.randomness.vertex.tildem_0";
 
   public static final String RANDOMNESS_VERTEX_TILDER =
-      "commitmentprover.witnesses.randomness.vertex.tilder_";
+      "commitmentprover.witnesses.randomness.vertex.tilder_i_";
 
   public static final String POSSESSIONPROVER_WITNESSES_RANDOMNESS_TILDEM =
       "possessionprover.witnesses.randomness.tildem_i";
@@ -365,7 +365,7 @@ public class CommitmentProver implements IProver {
    */
   public Map<URN, BigInteger> computeResponsesProving() throws Exception {
     String tilder_iURN =
-        "commitmentprover.witnesses.randomness.vertex.tilder_" + base.getBaseIndex();
+        "commitmentprover.witnesses.randomness.vertex.tilder_i_" + base.getBaseIndex();
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
     String C_iURN = "prover.commitments.C_" + base.getBaseIndex();
