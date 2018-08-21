@@ -16,8 +16,8 @@ public enum URNType {
   TILDEVPRIME,
   TILDEM0,
   TILDEMI,
-  TILDERI,
   TILDEMIJ,
+  TILDERI,
   TILDEABARIBARJ,
   TILDEBBARIBARJ,
   TILDERBARIBARJ,
@@ -27,6 +27,7 @@ public enum URNType {
   HATM0,
   HATMI,
   HATMIJ,
+  HATRI,
  HATABARIBARJ,
  HATBBARIBARJ,
  HATRBARIBARJ;
@@ -43,8 +44,8 @@ public enum URNType {
 		case TILDEVPRIME: return "tildevprime";
 		case TILDEM0: return "tildem_0";
 		case TILDEMI: return "tildem_i_";
-		case TILDERI: return "tilder_i_";
 		case TILDEMIJ: return "tildem_i_j_";
+		case TILDERI: return "tilder_i_";
 		case TILDEABARIBARJ: return "tildea_BariBarj_";
 		case TILDEBBARIBARJ: return "tildeb_BariBarj_";
 		case TILDERBARIBARJ: return "tilder_BariBarj_";
@@ -54,6 +55,7 @@ public enum URNType {
 		case HATM0: return "hatm_0";
 		case HATMI: return "hatm_i_";
 		case HATMIJ: return "hatm_i_j_";
+		case HATRI: return "hatr_i_";
 		case HATABARIBARJ: return "hata_BariBarj_";
 		case HATBBARIBARJ: return "hatb_BariBarj_";
 		case HATRBARIBARJ: return "hatr_BariBarj_";
@@ -71,8 +73,8 @@ public enum URNType {
 		case TILDEVPRIME: return "witnesses.randomness";
 		case TILDEM0: return "witnesses.randomness";
 		case TILDEMI: return "witnesses.randomness.vertex";
-		case TILDERI: return "witnesses.randomness.vertex";
 		case TILDEMIJ: return "witnesses.randomness.edge";
+		case TILDERI: return "witnesses.randomness.vertex";
 		case TILDEABARIBARJ: return "witnesses.randomness";
 		case TILDEBBARIBARJ: return "witnesses.randomness";
 		case TILDERBARIBARJ: return "witnesses.randomness";
@@ -82,6 +84,7 @@ public enum URNType {
 		case HATM0: return "responses";
 		case HATMI: return "responses.vertex";
 		case HATMIJ: return "responses.edge";
+		case HATRI: return "responses.vertex";
 		case HATABARIBARJ: return "responses";
 		case HATBBARIBARJ: return "responses";
 		case HATRBARIBARJ: return "responses";
@@ -95,13 +98,14 @@ public enum URNType {
 		case BBARIBARJ: return true;
 		case RBARIBARJ: return true;
 		case TILDEMI: return true;
-		case TILDERI: return true;
 		case TILDEMIJ: return true;
+		case TILDERI: return true;
 		case TILDEABARIBARJ: return true;
 		case TILDEBBARIBARJ: return true;
 		case TILDERBARIBARJ: return true;
 		case HATMI: return true;
 		case HATMIJ: return true;
+		case HATRI: return true;
 		case HATABARIBARJ: return true;
 		case HATBBARIBARJ: return true;
 		case HATRBARIBARJ: return true;
