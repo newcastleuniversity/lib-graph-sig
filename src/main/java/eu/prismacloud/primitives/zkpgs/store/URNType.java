@@ -16,6 +16,7 @@ public enum URNType {
   TILDEVPRIME,
   TILDEM0,
   TILDEMI,
+  TILDERI,
   TILDEMIJ,
   TILDEABARIBARJ,
   TILDEBBARIBARJ,
@@ -42,6 +43,7 @@ public enum URNType {
 		case TILDEVPRIME: return "tildevprime";
 		case TILDEM0: return "tildem_0";
 		case TILDEMI: return "tildem_i_";
+		case TILDERI: return "tilder_i_";
 		case TILDEMIJ: return "tildem_i_j_";
 		case TILDEABARIBARJ: return "tildea_BariBarj_";
 		case TILDEBBARIBARJ: return "tildeb_BariBarj_";
@@ -69,6 +71,7 @@ public enum URNType {
 		case TILDEVPRIME: return "witnesses.randomness";
 		case TILDEM0: return "witnesses.randomness";
 		case TILDEMI: return "witnesses.randomness.vertex";
+		case TILDERI: return "witnesses.randomness.vertex";
 		case TILDEMIJ: return "witnesses.randomness.edge";
 		case TILDEABARIBARJ: return "witnesses.randomness";
 		case TILDEBBARIBARJ: return "witnesses.randomness";
@@ -92,6 +95,7 @@ public enum URNType {
 		case BBARIBARJ: return true;
 		case RBARIBARJ: return true;
 		case TILDEMI: return true;
+		case TILDERI: return true;
 		case TILDEMIJ: return true;
 		case TILDEABARIBARJ: return true;
 		case TILDEBBARIBARJ: return true;
