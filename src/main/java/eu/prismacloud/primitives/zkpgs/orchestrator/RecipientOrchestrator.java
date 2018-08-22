@@ -17,8 +17,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
@@ -116,10 +114,9 @@ public class RecipientOrchestrator {
     U = recipient.commit(encodedBases, vPrime);
 
     /** TODO generalize commit prover */
-    /** TODO add commitment factory */
     // TODO needs to get access to commitment secrets (recipientGraph)
-    CommitmentProver commitmentProver =
-        (CommitmentProver) ProverFactory.newProver(ProverType.CommitmentProver);
+    // TODO needs to move to the new commitment interface.
+    CommitmentProver commitmentProver = new CommitmentProver(null, 0, extendedPublicKey, proofStore);
 
     tildeU =
         commitmentProver.preChallengePhase(
@@ -131,7 +128,7 @@ public class RecipientOrchestrator {
       gslog.log(Level.SEVERE, ns.getMessage());
     }
 
-    responses = commitmentProver.postChallengePhase(cChallenge);
+    responses = commitmentProver.executePostChallengePhase(cChallenge);
 
     //        recipient.createCommitmentProver(U, extendedPublicKey); // TODO Needs access to
     // secrets
@@ -159,7 +156,7 @@ public class RecipientOrchestrator {
     /** TODO add context to list of elements in challenge */
     challengeList = new ArrayList<>();
     GSContext gsContext =
-        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        new GSContext(extendedPublicKey);
     List<String> contextList = gsContext.computeChallengeContext();
 
     challengeList.addAll(contextList);

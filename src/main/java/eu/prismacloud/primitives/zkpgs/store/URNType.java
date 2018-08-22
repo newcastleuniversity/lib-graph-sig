@@ -11,6 +11,7 @@ public enum URNType {
   ABARIBARJ,
   BBARIBARJ,
   RBARIBARJ,
+  TILDED,
   TILDEE,
   TILDEV,
   TILDEVPRIME,
@@ -21,6 +22,7 @@ public enum URNType {
   TILDEABARIBARJ,
   TILDEBBARIBARJ,
   TILDERBARIBARJ,
+  HATD,
   HATE,
   HATV,
   HATVPRIME,
@@ -39,6 +41,7 @@ public enum URNType {
 		case ABARIBARJ: return "a_BariBarj_";
 		case BBARIBARJ: return "b_BariBarj_";
 		case RBARIBARJ: return "r_BariBarj_";
+		case TILDED: return "tilded";
 		case TILDEE: return "tildee";
 		case TILDEV: return "tildev";
 		case TILDEVPRIME: return "tildevprime";
@@ -49,6 +52,7 @@ public enum URNType {
 		case TILDEABARIBARJ: return "tildea_BariBarj_";
 		case TILDEBBARIBARJ: return "tildeb_BariBarj_";
 		case TILDERBARIBARJ: return "tilder_BariBarj_";
+		case HATD: return "hatd";
 		case HATE: return "hate";
 		case HATV: return "hatv";
 		case HATVPRIME: return "hatvprime";
@@ -68,6 +72,7 @@ public enum URNType {
 		case ABARIBARJ: return "secret";
 		case BBARIBARJ: return "secret";
 		case RBARIBARJ: return "secret";
+		case TILDED: return "witnesses.randomness";
 		case TILDEE: return "witnesses.randomness";
 		case TILDEV: return "witnesses.randomness";
 		case TILDEVPRIME: return "witnesses.randomness";
@@ -78,6 +83,7 @@ public enum URNType {
 		case TILDEABARIBARJ: return "witnesses.randomness";
 		case TILDEBBARIBARJ: return "witnesses.randomness";
 		case TILDERBARIBARJ: return "witnesses.randomness";
+		case HATD: return "responses";
 		case HATE: return "responses";
 		case HATV: return "responses";
 		case HATVPRIME: return "responses";

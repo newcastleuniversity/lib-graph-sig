@@ -17,14 +17,13 @@ import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.CorrectnessProver;
+import eu.prismacloud.primitives.zkpgs.prover.SigningQCorrectnessProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -100,8 +99,8 @@ public class SignerOrchestrator {
   private GroupElement R_0;
   private BigInteger pPrime;
   private BigInteger qPrime;
-  private List<String> contextList;
   private GroupElement basesProduct;
+private List<String> contextList;
 
   public SignerOrchestrator(
       ExtendedKeyPair extendedKeyPair,
@@ -163,44 +162,29 @@ public class SignerOrchestrator {
     createPartialSignature(extendedKeyPair.getExtendedPublicKey());
     store();
 
-    order =
-        extendedKeyPair
-            .getPrivateKey()
-            .getpPrime()
-            .multiply(extendedKeyPair.getPrivateKey().getqPrime());
+    // Initalizing proof of correctness of Q/A computation.
+    SigningQProverOrchestrator signingQOrchestrator = new SigningQProverOrchestrator(gsSignature, n_2, extendedKeyPair, proofStore);
+    
+    signingQOrchestrator.executePreChallengePhase();
 
-    CorrectnessProver correctnessProver =
-        (CorrectnessProver) ProverFactory.newProver(ProverType.CorectnessProver);
-    correctnessProver.preChallengePhase(
-        gsSignature,
-        order,
-        n_2,
-        proofStore,
-        extendedKeyPair.getExtendedPublicKey(),
-        keyGenParameters,
-        graphEncodingParameters);
+    cPrime = signingQOrchestrator.computeChallenge();
 
-    cPrime = correctnessProver.computeChallenge();
-
-    hatd = correctnessProver.postChallengePhase();
-
-    p2ProofSignatureElements = new HashMap<URN, Object>();
-    p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.hatd"), hatd);
-    p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.cPrime"), cPrime);
-
-    P_2 = new ProofSignature(p2ProofSignatureElements);
-
-    correctnessMessageElements = new HashMap<URN, Object>();
-    correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.A"), A);
-    correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.e"), e);
-    correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
-    correctnessMessageElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
-    correctnessMessageElements.put(
+    signingQOrchestrator.executePostChallengePhase(cPrime);
+    this.hatd = responses.get(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
+  
+    P_2 = signingQOrchestrator.createProofSignature();
+    
+    HashMap<URN, Object> preSignatureElements = new HashMap<URN, Object>();
+    preSignatureElements.put(URN.createZkpgsURN("proofsignature.A"), A);
+    preSignatureElements.put(URN.createZkpgsURN("proofsignature.e"), e);
+    preSignatureElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
+    preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
+    preSignatureElements.put(
         URN.createZkpgsURN("proofsignature.encoding"), this.encodedBasesCollection);
 
-    GSMessage correctnessMsg = new GSMessage(correctnessMessageElements);
+    GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
 
-    signer.sendMessage(correctnessMsg);
+    signer.sendMessage(preSignatureMsg);
   }
 
   private void encodeSignerGraph() throws org.jgrapht.io.ImportException {
@@ -229,40 +213,6 @@ public class SignerOrchestrator {
 
   public Boolean verifyChallenge() {
     return hatc.equals(cChallenge);
-  }
-
-  private List<String> populateChallengeList() {
-    challengeList = new ArrayList<String>();
-    GSContext gsContext =
-        new GSContext(
-            extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
-    contextList = gsContext.computeChallengeContext();
-
-    challengeList.addAll(contextList);
-
-    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
-    GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
-
-    /** TODO add context to list of elements in challenge */
-    challengeList.add(String.valueOf(modN));
-    challengeList.add(String.valueOf(baseS));
-    challengeList.add(String.valueOf(baseZ));
-    challengeList.add(String.valueOf(R_0));
-
-//    for (BaseRepresentation baseRepresentation : basesIterator) {
-//      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-//    }
-
-    String uCommitmentURN = "recipient.U";
-    U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
-    GroupElement commitmentU = U.getCommitmentValue();
-
-    challengeList.add(String.valueOf(commitmentU));
-    /** TODO fix hatU computation */
-    challengeList.add(String.valueOf(hatU));
-    challengeList.add(String.valueOf(n_1));
-
-    return challengeList;
   }
 
   private void extractMessageElements(GSMessage msg) throws Exception {
@@ -374,4 +324,38 @@ public class SignerOrchestrator {
   public void close() {
     signer.close();
   }
+  
+  private List<String> populateChallengeList() {
+	    challengeList = new ArrayList<String>();
+	    GSContext gsContext =
+	        new GSContext(
+	            extendedKeyPair.getExtendedPublicKey());
+	    contextList = gsContext.computeChallengeContext();
+
+	    challengeList.addAll(contextList);
+
+	    R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
+	    GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
+
+	    /** TODO add context to list of elements in challenge */
+	    challengeList.add(String.valueOf(modN));
+	    challengeList.add(String.valueOf(baseS));
+	    challengeList.add(String.valueOf(baseZ));
+	    challengeList.add(String.valueOf(R_0));
+
+//	    for (BaseRepresentation baseRepresentation : basesIterator) {
+//	      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+//	    }
+
+	    String uCommitmentURN = "recipient.U";
+	    U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
+	    GroupElement commitmentU = U.getCommitmentValue();
+
+	    challengeList.add(String.valueOf(commitmentU));
+	    /** TODO fix hatU computation */
+	    challengeList.add(String.valueOf(hatU));
+	    challengeList.add(String.valueOf(n_1));
+
+	    return challengeList;
+	  }
 }

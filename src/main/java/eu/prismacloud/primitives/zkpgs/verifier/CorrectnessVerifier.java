@@ -172,7 +172,7 @@ public class CorrectnessVerifier implements IVerifier {
     challengeList = new ArrayList<String>();
     /** TODO add context in challenge list */
     GSContext gsContext =
-        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        new GSContext(extendedPublicKey);
     List<String> contextList = gsContext.computeChallengeContext();
     challengeList.addAll(contextList);
     challengeList.add(String.valueOf(Q));

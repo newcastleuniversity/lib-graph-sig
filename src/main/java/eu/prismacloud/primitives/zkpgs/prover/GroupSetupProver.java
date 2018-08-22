@@ -319,7 +319,7 @@ public class GroupSetupProver implements IProver {
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
     GSContext gsContext =
-        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        new GSContext(extendedPublicKey);
     List<String> contextList = gsContext.computeChallengeContext();
 
     challengeList.add(String.valueOf(modN));

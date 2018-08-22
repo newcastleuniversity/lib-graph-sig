@@ -230,7 +230,7 @@ public class VerifierOrchestrator {
     challengeList = new ArrayList<>();
 
     GSContext gsContext =
-        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        new GSContext(extendedPublicKey);
     contextList = gsContext.computeChallengeContext();
     challengeList.addAll(contextList);
     challengeList.add(String.valueOf(aPrime));

@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
@@ -17,8 +18,6 @@ import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.PairWiseDifferenceProver;
 import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory.ProverType;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
@@ -38,318 +37,344 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** Orchestrate provers */
-public class ProverOrchestrator {
+public class ProverOrchestrator implements IProverOrchestrator {
 
-  private BaseCollection baseCollection;
-  private GroupElement baseZ;
-  private GroupElement baseS;
-  private BigInteger n_3;
-  private BigInteger modN;
-  private GSSignature graphSignature;
-  private GSSignature blindedGraphSignature;
-  private ProofOperation proofCommand;
-  private GSProver prover;
-  private Map<URN, BaseRepresentation> vertexRepresentations;
-  private ExtendedPublicKey extendedPublicKey;
-  private BigInteger R_0;
-  private BigInteger tildem_0;
-  private BigInteger tildevPrime;
-  private GraphRepresentation graphRepresentation;
-  private KeyGenParameters keyGenParameters;
-  private GraphEncoding graphEncoding;
-  private GraphEncodingParameters graphEncodingParameters;
-  private GroupElement tildeZ;
-  private Map<URN, BaseRepresentation> vertices;
-  private Map<URN, BaseRepresentation> edges;
-  private Map<URN, GSCommitment> tildeC_i;
-  private Map<URN, BigInteger> hatV;
-  private List<PairWiseCommitments> pairWiseVertices;
-  private Map<URN, GSCommitment> commitments;
-  private BigInteger r_i;
-  private GSCommitment commitment;
-  private BigInteger r_BariBarj;
-  private Map<URN, BigInteger> edgeWitnesses;
-  private Map<URN, BigInteger> vertexWitnesses;
-  private BigInteger tildem_i;
-  private BigInteger tilder_i;
-  private Map<URN, GroupElement> pairWiseWitnesses;
-  private List<String> challengeList = new ArrayList<String>();
-  private GroupElement tildeR_BariBarj;
-  private BigInteger c;
-  private ProofStore<Object> proofStore;
-  private URN r_BariBarjURN;
-  private BigInteger a_BariBarj;
-  private BigInteger b_BariBarj;
-  private URN a_BariBarjURN;
-  private URN b_BariBarjURN;
-  private Map<URN, BaseRepresentation> encodedBases;
-  private Map<URN, BaseRepresentation> encodedVertexBases;
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private List<String> contextList;
-  private GroupSetupProver groupSetupProver;
-  private BigInteger groupSetupChallenge;
-  private ProofSignature proofSignatureP;
-  private GSVerifier verifier;
-  private BigInteger cChallenge;
-  private BaseIterator vertexIterator;
-  private PossessionProver possessionProver;
-  private List<CommitmentProver> commitmentProverList;
-  private BaseIterator edgeIterator;
-  private Map<URN, BigInteger> response;
-  private Map<URN, BigInteger> responses;
+	private BaseCollection baseCollection;
+	private GroupElement baseZ;
+	private GroupElement baseS;
+	private BigInteger n_3;
+	private BigInteger modN;
+	private GSSignature graphSignature;
+	private GSSignature blindedGraphSignature;
+	private ProofOperation proofCommand;
+	private GSProver prover;
+	private Map<URN, BaseRepresentation> vertexRepresentations;
+	private ExtendedPublicKey extendedPublicKey;
+	private BigInteger R_0;
+	private BigInteger tildem_0;
+	private BigInteger tildevPrime;
+	private GraphRepresentation graphRepresentation;
+	private KeyGenParameters keyGenParameters;
+	private GraphEncoding graphEncoding;
+	private GraphEncodingParameters graphEncodingParameters;
+	private GroupElement tildeZ;
+	private Map<URN, BaseRepresentation> vertices;
+	private Map<URN, BaseRepresentation> edges;
+	private Map<URN, GSCommitment> tildeC_i;
+	private Map<URN, BigInteger> hatV;
+	private List<PairWiseCommitments> pairWiseVertices;
+	private Map<URN, GSCommitment> commitments;
+	private BigInteger r_i;
+	private GSCommitment commitment;
+	private BigInteger r_BariBarj;
+	private Map<URN, BigInteger> edgeWitnesses;
+	private Map<URN, BigInteger> vertexWitnesses;
+	private BigInteger tildem_i;
+	private BigInteger tilder_i;
+	private Map<URN, GroupElement> pairWiseWitnesses;
+	private List<String> challengeList = new ArrayList<String>();
+	private GroupElement tildeR_BariBarj;
+	private BigInteger c;
+	private ProofStore<Object> proofStore;
+	private URN r_BariBarjURN;
+	private BigInteger a_BariBarj;
+	private BigInteger b_BariBarj;
+	private URN a_BariBarjURN;
+	private URN b_BariBarjURN;
+	private Map<URN, BaseRepresentation> encodedBases;
+	private Map<URN, BaseRepresentation> encodedVertexBases;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private List<String> contextList;
+	private GroupSetupProver groupSetupProver;
+	private BigInteger groupSetupChallenge;
+	private ProofSignature proofSignatureP;
+	private GSVerifier verifier;
+	private BigInteger cChallenge;
+	private BaseIterator vertexIterator;
+	private PossessionProver possessionProver;
+	private List<CommitmentProver> commitmentProverList;
+	private BaseIterator edgeIterator;
+	private Map<URN, BigInteger> response;
+	private Map<URN, BigInteger> responses;
 
-  public ProverOrchestrator(
-      final ExtendedPublicKey extendedPublicKey,
-      final ProofStore<Object> proofStore,
-      final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters) {
+	public ProverOrchestrator(
+			final ExtendedPublicKey extendedPublicKey,
+			final ProofStore<Object> proofStore,
+			final KeyGenParameters keyGenParameters,
+			final GraphEncodingParameters graphEncodingParameters) {
 
-    this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
-    this.graphEncodingParameters = graphEncodingParameters;
-    //    this.baseCollection = extendedPublicKey.getBaseCollection();
-    this.modN = extendedPublicKey.getPublicKey().getModN();
-    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-    this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
-    this.proofStore = proofStore;
-    this.prover = new GSProver(proofStore, extendedPublicKey, keyGenParameters);
-    //    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-  }
+		this.extendedPublicKey = extendedPublicKey;
+		this.keyGenParameters = keyGenParameters;
+		this.graphEncodingParameters = graphEncodingParameters;
+		//    this.baseCollection = extendedPublicKey.getBaseCollection();
+		this.modN = extendedPublicKey.getPublicKey().getModN();
+		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+		this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
+		this.proofStore = proofStore;
+		this.prover = new GSProver(proofStore, extendedPublicKey, keyGenParameters);
+		//    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+	}
 
-  public void init() throws Exception {
-    GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
-    BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
-    BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
-    gslog.info("graph sig e: " + e);
+	public void init() {
+		GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
+		BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
+		BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
+		gslog.info("graph sig e: " + e);
 
-    this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
-    this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
-    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
+		this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+		this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
+		this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
 
-    GSMessage msg = prover.receiveMessage();
-    Map<URN, Object> messageElements = msg.getMessageElements();
-    n_3 = (BigInteger) messageElements.get(URN.createZkpgsURN("verifier.n_3"));
+		GSMessage msg = prover.receiveMessage();
+		Map<URN, Object> messageElements = msg.getMessageElements();
+		n_3 = (BigInteger) messageElements.get(URN.createZkpgsURN("verifier.n_3"));
 
-    prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
-    commitments = prover.getCommitmentMap();
-  }
+		// TODO I prefer to have specific exceptions, not just throwing Exception.
+		try {
+			prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
+		} catch (Exception e1) {
+			gslog.log(Level.SEVERE, "Commitments not computed correctly.", e1);
+		}
+		commitments = prover.getCommitmentMap();
+	}
 
-  public void computePreChallengePhase() throws Exception {
-    this.blindedGraphSignature = graphSignature.blind();
-    storeBlindedGS();
-    computeTildeZ();
+	public void executePreChallengePhase() {
+		this.blindedGraphSignature = graphSignature.blind();
 
-    //    List<PairWiseDifferenceProver> pairWiseDifferenceProvers = new ArrayList<>();
-    //    PairWiseDifferenceProver pairWiseDifferenceProver;
-    //
-    //    List<PairWiseCommitments> commitmentPairs = getPairs((Map<URN, GSCommitment>)
-    // hatV.values());
-    //
-    //    int index = 0;
-    //    for (PairWiseCommitments commitmentPair : commitmentPairs) {
-    //      pairWiseDifferenceProver =
-    //          new PairWiseDifferenceProver(
-    //              commitmentPair.getC_i(),
-    //              commitmentPair.getC_j(),
-    //              extendedPublicKey.getPublicKey().getBaseS(),
-    //              extendedPublicKey.getPublicKey().getModN(),
-    //              index,
-    //              proofStore,
-    //              keyGenParameters);
-    //
-    //      pairWiseDifferenceProver.precomputation();
-    //
-    //      pairWiseDifferenceProvers.add(pairWiseDifferenceProver);
-    //      index++;
-    //    }
+		try {
+			storeBlindedGS();
+		} catch (ProofStoreException e) {
+			gslog.log(Level.SEVERE, "Blinded graph signature could not be stored.", e);
+		}
 
-    computeCommitmentProvers();
+		try {
+			computeTildeZ();
+		} catch (ProofStoreException e) {
+			gslog.log(Level.SEVERE, "Blinded graph signature could not be stored.", e);
+		}
 
-    //    computePairWiseProvers(pairWiseDifferenceProvers);
-  }
+		//    List<PairWiseDifferenceProver> pairWiseDifferenceProvers = new ArrayList<>();
+		//    PairWiseDifferenceProver pairWiseDifferenceProver;
+		//
+		//    List<PairWiseCommitments> commitmentPairs = getPairs((Map<URN, GSCommitment>)
+		// hatV.values());
+		//
+		//    int index = 0;
+		//    for (PairWiseCommitments commitmentPair : commitmentPairs) {
+		//      pairWiseDifferenceProver =
+		//          new PairWiseDifferenceProver(
+		//              commitmentPair.getC_i(),
+		//              commitmentPair.getC_j(),
+		//              extendedPublicKey.getPublicKey().getBaseS(),
+		//              extendedPublicKey.getPublicKey().getModN(),
+		//              index,
+		//              proofStore,
+		//              keyGenParameters);
+		//
+		//      pairWiseDifferenceProver.precomputation();
+		//
+		//      pairWiseDifferenceProvers.add(pairWiseDifferenceProver);
+		//      index++;
+		//    }
 
-  private void storeBlindedGS() throws Exception {
-    String commitmentsURN = "prover.commitments";
-    proofStore.store(commitmentsURN, commitments);
+		computeCommitmentProvers();
 
-    String blindedGSURN = "prover.blindedgs";
-    proofStore.store(blindedGSURN, this.blindedGraphSignature);
+		//    computePairWiseProvers(pairWiseDifferenceProvers);
+	}
 
-    String APrimeURN = "prover.blindedgs.APrime";
-    proofStore.store(APrimeURN, this.blindedGraphSignature.getA());
+	private void storeBlindedGS() throws ProofStoreException {
+		String commitmentsURN = "prover.commitments";
+		proofStore.store(commitmentsURN, commitments);
 
-    String ePrimeURN = "prover.blindedgs.ePrime";
-    proofStore.store(ePrimeURN, this.blindedGraphSignature.getEPrime());
+		String blindedGSURN = "prover.blindedgs";
+		proofStore.store(blindedGSURN, this.blindedGraphSignature);
 
-    String vPrimeURN = "prover.blindedgs.vPrime";
-    proofStore.store(vPrimeURN, this.blindedGraphSignature.getV());
-  }
+		String APrimeURN = "prover.blindedgs.APrime";
+		proofStore.store(APrimeURN, this.blindedGraphSignature.getA());
 
-  public ProofSignature createProofSignature() {
-    String hateURN = "possessionprover.responses.hate";
-    BigInteger hate = (BigInteger) proofStore.retrieve(hateURN);
-    String hatvPrimeURN = "possessionprover.responses.hatvprime";
-    BigInteger hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
-    String hatm_0URN = "possessionprover.responses.hatm_0";
-    BigInteger hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
+		String ePrimeURN = "prover.blindedgs.ePrime";
+		proofStore.store(ePrimeURN, this.blindedGraphSignature.getEPrime());
 
-    Map<URN, Object> proofSignatureElements = new HashMap<>();
-    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.c"), cChallenge);
-    proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P_3.APrime"), blindedGraphSignature.getA());
-    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hate"), hate);
-    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"), hatvPrime);
-    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatm_0"), hatm_0);
+		String vPrimeURN = "prover.blindedgs.vPrime";
+		proofStore.store(vPrimeURN, this.blindedGraphSignature.getV());
+	}
 
-    int baseIndex;
-    String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
-    String hatm_iURN;
-    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
-    String hatr_iURN;
-    for (BaseRepresentation vertexBase : vertexIterator) {
-      baseIndex = vertexBase.getBaseIndex();
-      hatm_iURN = hatm_iPath + baseIndex;
-      proofSignatureElements.put(
-          URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex),
-          proofStore.retrieve(hatm_iURN));
-      hatr_iURN = hatr_iPath + baseIndex;
-      proofSignatureElements.put(
-          URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex),
-          proofStore.retrieve(hatr_iURN));
-    }
+	public ProofSignature createProofSignature() {
+		String hateURN = "possessionprover.responses.hate";
+		BigInteger hate = (BigInteger) proofStore.retrieve(hateURN);
+		String hatvPrimeURN = "possessionprover.responses.hatvprime";
+		BigInteger hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
+		String hatm_0URN = "possessionprover.responses.hatm_0";
+		BigInteger hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
 
-    String hatm_i_jURN;
-    String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
+		Map<URN, Object> proofSignatureElements = new HashMap<>();
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.c"), cChallenge);
+		proofSignatureElements.put(
+				URN.createZkpgsURN("proofsignature.P_3.APrime"), blindedGraphSignature.getA());
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hate"), hate);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"), hatvPrime);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatm_0"), hatm_0);
 
-    for (BaseRepresentation edgeBase : edgeIterator) {
-      baseIndex = edgeBase.getBaseIndex();
-      hatm_i_jURN = hatm_i_jPath + baseIndex;
-      proofSignatureElements.put(
-          URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex),
-          proofStore.retrieve(hatm_i_jURN));
-    }
+		int baseIndex;
+		String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
+		String hatm_iURN;
+		String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+		String hatr_iURN;
+		for (BaseRepresentation vertexBase : vertexIterator) {
+			baseIndex = vertexBase.getBaseIndex();
+			hatm_iURN = hatm_iPath + baseIndex;
+			proofSignatureElements.put(
+					URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex),
+					proofStore.retrieve(hatm_iURN));
+			hatr_iURN = hatr_iPath + baseIndex;
+			proofSignatureElements.put(
+					URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex),
+					proofStore.retrieve(hatr_iURN));
+		}
 
-    /** TODO add proof signature elements from pair wise difference prover */
-    return new ProofSignature(proofSignatureElements);
-  }
+		String hatm_i_jURN;
+		String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
 
-  public void computeChallenge() throws NoSuchAlgorithmException {
-    gslog.info("compute challenge ");
-    challengeList = populateChallengeList();
-    cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-  }
+		for (BaseRepresentation edgeBase : edgeIterator) {
+			baseIndex = edgeBase.getBaseIndex();
+			hatm_i_jURN = hatm_i_jPath + baseIndex;
+			proofSignatureElements.put(
+					URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex),
+					proofStore.retrieve(hatm_i_jURN));
+		}
 
-  public void computePostChallengePhase() throws ProofStoreException {
-    gslog.info("compute post challlenge phase");
-    possessionProver.postChallengePhase(cChallenge);
-    responses = new HashMap<>();
-    for (CommitmentProver commitmentProver : commitmentProverList) {
-      response = commitmentProver.postChallengePhase(cChallenge);
+		/** TODO add proof signature elements from pair wise difference prover */
+		return new ProofSignature(proofSignatureElements);
+	}
 
-      responses.putAll(response);
-    }
+	public BigInteger computeChallenge() {
+		gslog.info("compute challenge ");
+		challengeList = populateChallengeList();
+		try {
+			cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+		} catch (NoSuchAlgorithmException e) {
+			gslog.log(Level.SEVERE, "Fiat-Shamir challenge could not be computed.", e);
+		}
+		return cChallenge;
+	}
 
-    ProofSignature P_3 = createProofSignature();
+	public void executePostChallengePhase(BigInteger c) {
+		gslog.info("compute post challlenge phase");
+		possessionProver.postChallengePhase(cChallenge);
+		responses = new HashMap<>();
+		for (CommitmentProver commitmentProver : commitmentProverList) {
+			try {
+				response = commitmentProver.executePostChallengePhase(cChallenge);
+			} catch (ProofStoreException e) {
+				gslog.log(Level.SEVERE, "Could not access the ProofStore.", e);
+				return;
+			}
 
-    Map<URN, Object> messageElements = new HashMap<>();
-    messageElements.put(URN.createZkpgsURN("prover.P_3"), P_3);
+			responses.putAll(response);
+		}
 
-    // add public values
-    messageElements.put(URN.createZkpgsURN("prover.APrime"), blindedGraphSignature.getA());
-    messageElements.put(URN.createZkpgsURN("prover.C_i"), commitments);
+		ProofSignature P_3 = createProofSignature();
 
-    //    for (Entry<URN, BigInteger> entry : responses.entrySet()) {
-    //      proofStore.save(entry.getKey(), entry.getValue() );
-    //    }
+		Map<URN, Object> messageElements = new HashMap<>();
+		messageElements.put(URN.createZkpgsURN("prover.P_3"), P_3);
 
-    prover.sendMessage(new GSMessage(messageElements));
-  }
+		// add public values
+		messageElements.put(URN.createZkpgsURN("prover.APrime"), blindedGraphSignature.getA());
+		messageElements.put(URN.createZkpgsURN("prover.C_i"), commitments);
 
-  private List<String> populateChallengeList() {
-    /** TODO populate context list */
-    GSContext gsContext =
-        new GSContext(extendedPublicKey, keyGenParameters, graphEncodingParameters);
-    contextList = gsContext.computeChallengeContext();
-    challengeList.addAll(contextList);
-    challengeList.add(String.valueOf(blindedGraphSignature.getA()));
-    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
-    for (GSCommitment gsCommitment : commitments.values()) {
-      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
-    }
+		//    for (Entry<URN, BigInteger> entry : responses.entrySet()) {
+		//      proofStore.save(entry.getKey(), entry.getValue() );
+		//    }
 
-    challengeList.add(String.valueOf(tildeZ));
+		prover.sendMessage(new GSMessage(messageElements));
+	}
 
-    String tildeC_iURN;
-    for (BaseRepresentation vertex : vertexIterator) {
-      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
-      commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
-      challengeList.add(String.valueOf(commitment.getCommitmentValue()));
-    }
-    /** TODO add pair-wise elements for challenge */
-    //    for (GroupElement witness : pairWiseWitnesses.values()) {
-    //      challengeList.add(String.valueOf(witness));
-    //    }
-    gslog.info("n3: " + n_3);
-    challengeList.add(String.valueOf(n_3));
+	private List<String> populateChallengeList() {
+		/** TODO populate context list */
+		GSContext gsContext =
+				new GSContext(extendedPublicKey);
+		contextList = gsContext.computeChallengeContext();
+		challengeList.addAll(contextList);
+		challengeList.add(String.valueOf(blindedGraphSignature.getA()));
+		challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
+		for (GSCommitment gsCommitment : commitments.values()) {
+			challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
+		}
 
-    return challengeList;
-  }
+		challengeList.add(String.valueOf(tildeZ));
 
-  private void computePairWiseProvers(List<PairWiseDifferenceProver> pairWiseDifferenceProvers) {
-    int i = 0;
+		String tildeC_iURN;
+		for (BaseRepresentation vertex : vertexIterator) {
+			tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
+			commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
+			challengeList.add(String.valueOf(commitment.getCommitmentValue()));
+		}
+		/** TODO add pair-wise elements for challenge */
+		//    for (GroupElement witness : pairWiseWitnesses.values()) {
+		//      challengeList.add(String.valueOf(witness));
+		//    }
+		gslog.info("n3: " + n_3);
+		challengeList.add(String.valueOf(n_3));
 
-    for (PairWiseDifferenceProver differenceProver : pairWiseDifferenceProvers) {
+		return challengeList;
+	}
 
-      differenceProver.createWitnessRandomness();
-      differenceProver.computeWitness();
-      tildeR_BariBarj = differenceProver.getBasetildeR_BariBarj();
+	private void computePairWiseProvers(List<PairWiseDifferenceProver> pairWiseDifferenceProvers) {
+		int i = 0;
 
-      /** TODO store witness randomness tildea_BariBarj, tilbeb_BariBarj, tilder_BariBarj */
-      pairWiseWitnesses.put(
-          URN.createURN(
-              URN.getZkpgsNameSpaceIdentifier(), "pairwiseprover.witnesses.tildeR_BariBarj" + i),
-          tildeR_BariBarj);
-    }
-  }
+		for (PairWiseDifferenceProver differenceProver : pairWiseDifferenceProvers) {
 
-  private void computeCommitmentProvers() {
-    CommitmentProver commitmentProver;
-    commitmentProverList = new ArrayList<>();
+			differenceProver.createWitnessRandomness();
+			differenceProver.computeWitness();
+			tildeR_BariBarj = differenceProver.getBasetildeR_BariBarj();
 
-    String witnessRandomnessURN = "";
-    String tildeC_iURN = "";
-    for (BaseRepresentation vertex : vertexIterator) {
-      witnessRandomnessURN =
-          "possessionprover.witnesses.randomness.vertex.tildem_i_" + vertex.getBaseIndex();
-      tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
+			/** TODO store witness randomness tildea_BariBarj, tilbeb_BariBarj, tilder_BariBarj */
+			pairWiseWitnesses.put(
+					URN.createURN(
+							URN.getZkpgsNameSpaceIdentifier(), "pairwiseprover.witnesses.tildeR_BariBarj" + i),
+					tildeR_BariBarj);
+		}
+	}
 
-      commitmentProver = (CommitmentProver) ProverFactory.newProver(ProverType.CommitmentProver);
-      GSCommitment tildeCommitment =
-          commitmentProver.preChallengePhase(
-              vertex, proofStore, extendedPublicKey, keyGenParameters);
+	private void computeCommitmentProvers() {
+		CommitmentProver commitmentProver;
+		commitmentProverList = new ArrayList<>();
 
-      commitmentProverList.add(commitmentProver);
-      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
+		String witnessRandomnessURN = "";
+		String tildeC_iURN = "";
+		for (BaseRepresentation vertex : vertexIterator) {
+			witnessRandomnessURN =
+					"possessionprover.witnesses.randomness.vertex.tildem_i_" + vertex.getBaseIndex();
+			tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
-      try {
-        proofStore.store(tildeC_iURN, tildeCommitment);
-      } catch (Exception e) {
-        gslog.log(Level.SEVERE, e.getMessage());
-      }
-    }
-  }
+			throw new NotImplementedException("Needs to be adapted to the new CommitmentProver interface.");
+			// TODO fix indexing, semantics of the CommitmentProver.
+			//      commitmentProver = new CommitmentProver(com, 0, extendedPublicKey, proofStore);
+			//      GSCommitment tildeCommitment =
+			//          commitmentProver.preChallengePhase(
+			//              vertex, proofStore, extendedPublicKey, keyGenParameters);
+			//
+			//      commitmentProverList.add(commitmentProver);
+			//      tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
 
-  private void computeTildeZ() {
+			//      try {
+			//        proofStore.store(tildeC_iURN, tildeCommitment);
+			//      } catch (Exception e) {
+			//        gslog.log(Level.SEVERE, e.getMessage());
+			//      }
+		}
+	}
 
-    possessionProver = (PossessionProver) ProverFactory.newProver(ProverType.PossessionProver);
+	private void computeTildeZ() throws ProofStoreException {
 
-    tildeZ =
-        possessionProver.preChallengePhase(
-            blindedGraphSignature, extendedPublicKey, baseCollection, proofStore, keyGenParameters);
-  }
+		possessionProver = new PossessionProver(blindedGraphSignature, extendedPublicKey, proofStore);
 
-  public void close() {
-    prover.close();
-  }
+		tildeZ =
+				possessionProver.executePreChallengePhase();
+	}
+
+	public void close() {
+		prover.close();
+	}
 }

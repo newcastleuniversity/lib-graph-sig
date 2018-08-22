@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /** Represents the public knowledge before the proof */
-public class GSContext {
+public class GSContext implements IContext {
   private final List<String> ctxList = new ArrayList<String>();
   private final ExtendedPublicKey extendedPublicKey;
   private final KeyGenParameters keyGenParameters;
@@ -23,15 +23,11 @@ public class GSContext {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   public GSContext(
-      final ExtendedPublicKey extendedPublicKey,
-      final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters) {
+      final ExtendedPublicKey extendedPublicKey) {
     Assert.notNull(extendedPublicKey, "extended public key must not be null");
-    Assert.notNull(keyGenParameters, "keyGen parameters must not be null");
-    Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
     this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
-    this.graphEncodingParameters = graphEncodingParameters;
+    this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
+    this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
   }
 
   public List<String> computeChallengeContext() {

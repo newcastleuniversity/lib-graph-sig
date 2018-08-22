@@ -15,104 +15,108 @@ import java.util.Map;
 
 /** The type Extended public key. */
 public class ExtendedPublicKey implements Serializable, IPublicKey {
-  private static final long serialVersionUID = 603738248933483649L;
-  private final SignerPublicKey signerPublicKey;
-  private ExtendedPublicKey ePublicKey;
-  private ExtendedPrivateKey ePrivateKey;
-  private Map<URN, BaseRepresentation> bases;
-  private Map<URN, BigInteger> discLogOfVertexBases;
-  private Map<URN, BigInteger> discLogOfEdgeBases;
-  private final Map<URN, BigInteger> labelRepresentatives;
-  private final transient GraphEncodingParameters graphEncodingParameters;
-  private JsonIsoCountries jsonIsoCountries;
-  private Map<URN, BigInteger> countryLabels;
-  private BaseRepresentation base;
-  private int index = 0;
-  private Map<URN, BigInteger> vertexRepresentatives;
-  private BigInteger vertexPrimeRepresentative;
-  private BaseCollectionImpl baseCollection;
+	private static final long serialVersionUID = 603738248933483649L;
+	private final SignerPublicKey signerPublicKey;
+	private ExtendedPublicKey ePublicKey;
+	private ExtendedPrivateKey ePrivateKey;
+	private Map<URN, BaseRepresentation> bases;
+	private Map<URN, BigInteger> discLogOfVertexBases;
+	private Map<URN, BigInteger> discLogOfEdgeBases;
+	private final Map<URN, BigInteger> labelRepresentatives;
+	private final transient GraphEncodingParameters graphEncodingParameters;
+	private JsonIsoCountries jsonIsoCountries;
+	private Map<URN, BigInteger> countryLabels;
+	private BaseRepresentation base;
+	private int index = 0;
+	private Map<URN, BigInteger> vertexRepresentatives;
+	private BigInteger vertexPrimeRepresentative;
+	private BaseCollectionImpl baseCollection;
 
-  /**
-   * Instantiates a new Extended public key.
-   *
-   * @param signerPublicKey the signer key pair
- * @param bases the bases
- * @param vertexRepresentatives the vertex representatives
- * @param labelRepresentatives the labels representatives
- * @param graphEncodingParameters the graph encoding parameters
-   */
-  public ExtendedPublicKey(
-      final SignerPublicKey signerPublicKey,
-      final Map<URN, BaseRepresentation> bases,
-      final Map<URN, BigInteger> vertexRepresentatives,
-      final Map<URN, BigInteger> labelRepresentatives,
-      final GraphEncodingParameters graphEncodingParameters) {
+	/**
+	 * Instantiates a new Extended public key.
+	 *
+	 * @param signerPublicKey the signer key pair
+	 * @param bases the bases
+	 * @param vertexRepresentatives the vertex representatives
+	 * @param labelRepresentatives the labels representatives
+	 * @param graphEncodingParameters the graph encoding parameters
+	 */
+	public ExtendedPublicKey(
+			final SignerPublicKey signerPublicKey,
+			final Map<URN, BaseRepresentation> bases,
+			final Map<URN, BigInteger> vertexRepresentatives,
+			final Map<URN, BigInteger> labelRepresentatives,
+			final GraphEncodingParameters graphEncodingParameters) {
 
-    Assert.notNull(signerPublicKey, "public key must not be null");
-    Assert.notNull(bases, "bases must not be null");
-    Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
-    Assert.notNull(labelRepresentatives, "labels representatives must not be null");
-    Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
+		Assert.notNull(signerPublicKey, "public key must not be null");
+		Assert.notNull(bases, "bases must not be null");
+		Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
+		Assert.notNull(labelRepresentatives, "labels representatives must not be null");
+		Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
 
-    this.signerPublicKey = signerPublicKey;
-    this.bases = bases;
-    this.vertexRepresentatives = vertexRepresentatives;
-    this.labelRepresentatives = labelRepresentatives;
-    this.graphEncodingParameters = graphEncodingParameters;
-    this.baseCollection = new BaseCollectionImpl();
-  }
+		this.signerPublicKey = signerPublicKey;
+		this.bases = bases;
+		this.vertexRepresentatives = vertexRepresentatives;
+		this.labelRepresentatives = labelRepresentatives;
+		this.graphEncodingParameters = graphEncodingParameters;
+		this.baseCollection = new BaseCollectionImpl();
+	}
 
-  /**
-   * Gets public key.
-   *
-   * @return the public key
-   */
-  public SignerPublicKey getPublicKey() {
-    return this.signerPublicKey;
-  }
+	/**
+	 * Gets public key.
+	 *
+	 * @return the public key
+	 */
+	public SignerPublicKey getPublicKey() {
+		return this.signerPublicKey;
+	}
 
-  /**
-   * Gets bases.
-   *
-   * @return the vertex bases
-   */
-  public Map<URN, BaseRepresentation> getBases() {
-    return this.bases;
-  }
+	/**
+	 * Gets bases.
+	 *
+	 * @return the vertex bases
+	 */
+	public Map<URN, BaseRepresentation> getBases() {
+		return this.bases;
+	}
 
-  /**
-   * Gets base collection.
-   *
-   * @return the base collection
-   */
-  public BaseCollection getBaseCollection() {
-    baseCollection.setBases(new ArrayList<BaseRepresentation>(bases.values()));
-    return baseCollection;
-  }
+	/**
+	 * Gets base collection.
+	 *
+	 * @return the base collection
+	 */
+	public BaseCollection getBaseCollection() {
+		baseCollection.setBases(new ArrayList<BaseRepresentation>(bases.values()));
+		return baseCollection;
+	}
 
-  /**
-   * Gets labels representatives.
-   *
-   * @return the country labels
-   */
-  public Map<URN, BigInteger> getLabelRepresentatives() {
-    return this.labelRepresentatives;
-  }
+	/**
+	 * Gets labels representatives.
+	 *
+	 * @return the country labels
+	 */
+	public Map<URN, BigInteger> getLabelRepresentatives() {
+		return this.labelRepresentatives;
+	}
 
-  /**
-   * Gets vertex representatives.
-   *
-   * @return the vertex representatives
-   */
-  public Map<URN, BigInteger> getVertexRepresentatives() {
-    return this.vertexRepresentatives;
-  }
-  
-  /**
-   * Returns the key generation parameters realized with this public key.
-   * @return
-   */
-  public KeyGenParameters getKeyGenParameters() {
-	  return this.signerPublicKey.getKeyGenParameters();
-  }
+	/**
+	 * Gets vertex representatives.
+	 *
+	 * @return the vertex representatives
+	 */
+	public Map<URN, BigInteger> getVertexRepresentatives() {
+		return this.vertexRepresentatives;
+	}
+
+	/**
+	 * Returns the key generation parameters realized with this public key.
+	 * @return
+	 */
+	public KeyGenParameters getKeyGenParameters() {
+		return this.signerPublicKey.getKeyGenParameters();
+	}
+
+	public GraphEncodingParameters getGraphEncodingParameters() {
+		return graphEncodingParameters;
+	}
 }

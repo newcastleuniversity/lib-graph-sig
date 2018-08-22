@@ -1,27 +1,38 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import java.math.BigInteger;
 
-public class GroupSetupOrchestrator {
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 
-  public GroupSetupOrchestrator(){
+public class GroupSetupOrchestrator implements IProverOrchestrator {
 
-
-  }
-
-
-  public void computePreChallengePhase(){
+	public GroupSetupOrchestrator(){
 
 
-  }
+	}
+
+	public void init() {}
 
 
-  public void computeChallenge() {
 
-  }
+	public void executePreChallengePhase(){
+		throw new NotImplementedException("Not implemented yet.");
+	}
 
 
-  public void computePostChallengePhase() {
-    
-  }
+	public BigInteger computeChallenge() {
+		throw new NotImplementedException("Not implemented yet.");
+	}
+
+
+	public void executePostChallengePhase(BigInteger cChallenge) {
+		throw new NotImplementedException("Not implemented yet.");
+	}
+
+	@Override
+	public ProofSignature createProofSignature() {
+		throw new NotImplementedException("Not implemented yet.");
+	}
 
 }
