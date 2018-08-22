@@ -2,24 +2,25 @@ package eu.prismacloud.primitives.zkpgs.store;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
-import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
+//import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
+//import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.PossessionVerifier;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class URNTypeTest {
 	private PossessionProver prover;
-	private PossessionVerifier verifier;
+//	private PossessionVerifier verifier;
 
 	@BeforeAll
 	void setUp() {
-		prover = (PossessionProver) ProverFactory.newProver(ProverFactory.ProverType.PossessionProver);
-		verifier = new PossessionVerifier();
+//		prover = (PossessionProver) ProverFactory.newProver(ProverFactory.ProverType.PossessionProver);
+//		verifier = new PossessionVerifier();
 	}
 	
 	@Test
@@ -59,7 +60,7 @@ class URNTypeTest {
 	
 	@Test
 	void testIsProverVerifier() {
-		assertTrue(URNType.isProverVerifier(prover.getClass()));
+		assertTrue(URNType.isProverVerifier(PossessionProver.class));
 		assertFalse(URNType.isProverVerifier(URNType.class));
 	}
 }
