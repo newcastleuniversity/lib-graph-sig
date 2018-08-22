@@ -103,7 +103,7 @@ public interface IProver {
 	 * this provers URN name for those responses.
 	 */
 	// TODO This method is to replace computeResponses() or postChallengePhase()
-	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException;
+	Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException;
 
 	/** 
 	 * Computes the appropriate responses for the witness

@@ -23,7 +23,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ibm.zurich.idmx.key.IssuerPublicKey;
+
 /** The type Commitment prover. */
+
+// TODO Separate out issuing and proving phases.
 public class CommitmentProver implements IProver {
 	
 	public static final String URNID = "commitmentprover";
@@ -48,10 +52,11 @@ public class CommitmentProver implements IProver {
   private static final String RANDOMNESS_TILDEVPRIME =
       "possessionprover.witnesses.randomness.tildevPrime";
 
-  private BaseCollection baseCollection;
-  private ProofStore<Object> proofStore;
-  private ExtendedPublicKey extendedPublicKey;
-  private KeyGenParameters keyGenParameters;
+  private final BaseCollection baseCollection;
+  private final ProofStore<Object> proofStore;
+  private final ExtendedPublicKey extendedPublicKey;
+  private final KeyGenParameters keyGenParameters;
+  private final GSCommitment com;
   private BigInteger modN;
   private GroupElement baseS;
   private BigInteger tilder_i;
@@ -70,53 +75,66 @@ public class CommitmentProver implements IProver {
   private BaseIterator baseR0Iterator;
   private BaseRepresentation base;
 
+  // TODO Demote public key, EPK not really needed.
+  public CommitmentProver(final GSCommitment com, final int index, final ExtendedPublicKey epk, final ProofStore ps) {
+	  this.extendedPublicKey = epk;
+	  this.baseCollection = epk.getBaseCollection();
+	  this.keyGenParameters = epk.getKeyGenParameters();
+	  this.proofStore = ps;
+	  
+	  this.com = com;
+  }
+  
+  
+  
   @Override
   public void executePrecomputation() {
 	  // NO PRE-COMPUTATION IS NEEDED: NO-OP.
   }
   
-  public GroupElement executePreChallengePhase() throws ProofStoreException {
-	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-  }
-  
-  public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
-	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-  }
-  
   /**
    * Pre challenge phase for commitment prover in the proving stage.
-   *
-   * @param base the base
-   * @param proofStore the proof store
-   * @param extendedPublicKey the extended public key
-   * @param keyGenParameters the key gen parameters
+   * 
    * @return the gs commitment
    */
-  public GSCommitment preChallengePhase(
-      final BaseRepresentation base,
-      final ProofStore<Object> proofStore,
-      final ExtendedPublicKey extendedPublicKey,
-      final KeyGenParameters keyGenParameters) {
-
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
     Assert.notNull(base, "base must not be null");
     Assert.notNull(proofStore, "proof store must not be null");
     Assert.notNull(extendedPublicKey, "extended public key must not be null");
     Assert.notNull(keyGenParameters, "keygen parameters must not be null");
-    this.base = base;
-    this.proofStore = proofStore;
-    this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
+
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.proofStage = STAGE.PROVING;
 
     createWitnessRandomness();
     computeWitness();
-    return witness;
+    return witness.getCommitmentValue();
   }
 
   public enum STAGE {
     ISSUING,
     PROVING
+  }
+  
+  
+  /**
+   * Pre challenge phase for commitment prover in the proving stage.
+   * 
+   * @return the gs commitment
+   */
+  public GroupElement preChallengePhase(BaseRepresentation base) throws ProofStoreException {
+    Assert.notNull(base, "base must not be null");
+    Assert.notNull(proofStore, "proof store must not be null");
+    Assert.notNull(extendedPublicKey, "extended public key must not be null");
+    Assert.notNull(keyGenParameters, "keygen parameters must not be null");
+
+    this.base = base;
+    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+    this.proofStage = STAGE.PROVING;
+
+    createWitnessRandomness();
+    computeWitness();
+    return witness.getCommitmentValue();
   }
 
   /**
@@ -139,10 +157,6 @@ public class CommitmentProver implements IProver {
     Assert.notNull(extendedPublicKey, "extended public key must not be null");
     Assert.notNull(keyGenParameters, "keygen parameters must not be null");
 
-    this.baseCollection = baseCollection;
-    this.proofStore = proofStore;
-    this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.proofStage = STAGE.ISSUING;
@@ -294,7 +308,8 @@ public class CommitmentProver implements IProver {
    * @param cChallenge the common challenge c
    * @return the map outputs responses
    */
-  public Map<URN, BigInteger> postChallengePhase(BigInteger cChallenge) {
+  public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+
     this.cChallenge = cChallenge;
 
     if (this.proofStage == STAGE.ISSUING) {
