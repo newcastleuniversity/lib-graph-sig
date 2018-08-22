@@ -127,7 +127,7 @@ public class CommitmentVerifier implements IVerifier {
     return hatC_i;
   }
 
-  private boolean checkLengthsVerifying() {
+  public boolean checkLengthsVerifying() {
 
     int l_hatr =
         keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
@@ -135,7 +135,7 @@ public class CommitmentVerifier implements IVerifier {
         keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
 
 
-    hatr_i = (BigInteger) proofStore.retrieve("proving.commitmentprover.responses.hatr_i_" + vertex.getBaseIndex());
+    hatr_i = (BigInteger) proofStore.retrieve("commitmentprover.responses.vertex.hatr_i_" + vertex.getBaseIndex());
 
     hatm_i = (BigInteger) proofStore.retrieve("possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex());
 

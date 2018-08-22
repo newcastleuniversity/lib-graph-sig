@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -108,6 +109,7 @@ public class CommitmentProver implements IProver {
     this.keyGenParameters = keyGenParameters;
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.proofStage = STAGE.PROVING;
+    
 
     createWitnessRandomness();
     computeWitness();
@@ -365,7 +367,7 @@ public class CommitmentProver implements IProver {
    */
   public Map<URN, BigInteger> computeResponsesProving() throws Exception {
     String tilder_iURN =
-        "commitmentprover.witnesses.randomness.vertex.tilder_i_" + base.getBaseIndex();
+        URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, + base.getBaseIndex());
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
     String C_iURN = "prover.commitments.C_" + base.getBaseIndex();
@@ -376,7 +378,7 @@ public class CommitmentProver implements IProver {
 
     BigInteger hatr_i = tilder_i.add(this.cChallenge.multiply(r_i));
 
-    String hatr_iURN = "proving.commitmentprover.responses.hatr_i_" + base.getBaseIndex();
+    String hatr_iURN = URNType.buildURNComponent(URNType.HATRI, CommitmentProver.class,  base.getBaseIndex());
 
     responses.put(URN.createZkpgsURN(hatr_iURN), hatr_i);
     gslog.info("store hatr_i " + hatr_i);
