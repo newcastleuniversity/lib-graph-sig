@@ -82,7 +82,7 @@ public class GroupSetupProver implements IProver {
 		this.baseZ = (QRElementPQ) extendedKeyPair.getPublicKey().getBaseZ();
 		this.baseR = (QRElementPQ) extendedKeyPair.getPublicKey().getBaseR();
 		this.baseR_0 = (QRElementPQ) extendedKeyPair.getPublicKey().getBaseR_0();
-		this.proofStore = proofStore;
+		this.proofStore = ps;
 		this.keyGenParameters = keyGenParameters;
 		this.graphEncodingParameters = graphEncodingParameters;
 		this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
