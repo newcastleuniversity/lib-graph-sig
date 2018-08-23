@@ -34,7 +34,7 @@ public class GroupSetupProver implements IProver {
 
 	public static final String URNID = "groupsetupprover";
 
-	private ExtendedKeyPair extendedKeyPair;
+	private final ExtendedKeyPair extendedKeyPair;
 	private ExtendedPublicKey ePublicKey;
 	private BigInteger r_Z;
 	private BigInteger r;
@@ -55,7 +55,7 @@ public class GroupSetupProver implements IProver {
 	private BigInteger cChallenge;
 	private QRElementPQ baseR;
 	private QRElementPQ baseR_0;
-	private ProofStore<Object> proofStore;
+	private final ProofStore<Object> proofStore;
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
 	private Map<String, BigInteger> vertexWitnessRandomNumbers;
@@ -83,8 +83,8 @@ public class GroupSetupProver implements IProver {
 		this.baseR = (QRElementPQ) extendedKeyPair.getPublicKey().getBaseR();
 		this.baseR_0 = (QRElementPQ) extendedKeyPair.getPublicKey().getBaseR_0();
 		this.proofStore = ps;
-		this.keyGenParameters = keyGenParameters;
-		this.graphEncodingParameters = graphEncodingParameters;
+		this.keyGenParameters = extendedKeyPair.getExtendedPublicKey().getKeyGenParameters();
+		this.graphEncodingParameters = extendedKeyPair.getExtendedPublicKey().getGraphEncodingParameters();
 		this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
 	}
 
