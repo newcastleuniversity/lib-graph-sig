@@ -92,11 +92,10 @@ class PairWiseDifferenceVerifierTest {
 		prover = new PairWiseDifferenceProver(c1, c2coprime, testIndex, epk, proofStore);
 		prover.executePrecomputation();
 		
-		tildeR = prover.preChallengePhase(c1, c2coprime, epk, testIndex,
-				proofStore, keyGenParameters);
+		tildeR = prover.executePreChallengePhase();
 		cChallenge = prover.computeChallenge();
 		assertNotNull(cChallenge);
-		prover.postChallengePhase(cChallenge);
+		prover.executePostChallengePhase(cChallenge);
 
 		log.info("Retrieving hat-values");
 		hata_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATABARIBARJ, testIndex));

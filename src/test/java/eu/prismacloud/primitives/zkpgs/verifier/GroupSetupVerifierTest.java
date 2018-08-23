@@ -63,11 +63,10 @@ class GroupSetupVerifierTest {
   @BeforeEach
   void setUp() throws NoSuchAlgorithmException, ProofStoreException {
 
-    groupSetupProver = new GroupSetupProver();
     proofStore = new ProofStore<Object>();
+    groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
 
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
     tilder_0 = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
@@ -82,7 +81,7 @@ class GroupSetupVerifierTest {
 
     //    assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
 
-    groupSetupProver.postChallengePhase();
+    groupSetupProver.executePostChallengePhase(cChallenge);
 
     hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
     hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");

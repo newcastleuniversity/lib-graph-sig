@@ -93,11 +93,9 @@ class PossessionVerifierTest {
 
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
-		tildeZ = prover.preChallengePhase(sigmaM,
-				epk, baseCollection, 
-				proofStore, keyGenParameters);
+		tildeZ = prover.executePreChallengePhase();
 		cChallenge = prover.computeChallenge();
-		prover.postChallengePhase(cChallenge);
+		prover.executePostChallengePhase(cChallenge);
 
 		log.info("Retrieving hat-values");
 		hate = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATE));
