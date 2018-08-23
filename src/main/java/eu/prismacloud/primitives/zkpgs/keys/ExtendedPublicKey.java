@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -11,10 +12,11 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /** The type Extended public key. */
-public class ExtendedPublicKey implements Serializable, IPublicKey {
+public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProducer {
 	private static final long serialVersionUID = 603738248933483649L;
 	private final SignerPublicKey signerPublicKey;
 	private ExtendedPublicKey ePublicKey;
@@ -118,5 +120,27 @@ public class ExtendedPublicKey implements Serializable, IPublicKey {
 
 	public GraphEncodingParameters getGraphEncodingParameters() {
 		return graphEncodingParameters;
+	}
+
+	@Override
+	public List<String> computeChallengeContext() {
+		List<String> ctxList = new ArrayList<String>();
+		addToChallengeContext(ctxList);
+		return ctxList;
+	}
+
+	@Override
+	public void addToChallengeContext(List<String> ctxList) {
+		this.signerPublicKey.addToChallengeContext(ctxList);
+		
+	    for (BaseRepresentation baseRepresentation : getBases().values()) {
+	      baseRepresentation.addToChallengeContext(ctxList);
+	    }
+
+	    for (BigInteger label : getLabelRepresentatives().values()) {
+	      ctxList.add(String.valueOf(label));
+	    }
+
+	    graphEncodingParameters.addToChallengeContext(ctxList);
 	}
 }

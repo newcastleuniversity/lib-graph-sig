@@ -1,13 +1,16 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SignerPublicKey implements Serializable, IPublicKey {
+public class SignerPublicKey implements Serializable, IPublicKey, IContextProducer {
 
   private static final long serialVersionUID = 7953446087582080777L;
   private final KeyGenParameters keyGenParameters;
@@ -63,4 +66,19 @@ public class SignerPublicKey implements Serializable, IPublicKey {
   public KeyGenParameters getKeyGenParameters() {
     return keyGenParameters;
   }
+
+@Override
+public List<String> computeChallengeContext() {
+	List<String> ctxList = new ArrayList<String>();
+	return ctxList;
+}
+
+@Override
+public void addToChallengeContext(List<String> ctxList) {
+	   ctxList.add(String.valueOf(this.getModN()));
+	    ctxList.add(String.valueOf(this.getBaseS().getValue()));
+	    ctxList.add(String.valueOf(this.getBaseZ().getValue()));
+	    ctxList.add(String.valueOf(this.getBaseR().getValue()));
+	    ctxList.add(String.valueOf(this.getBaseR_0().getValue()));
+}
 }

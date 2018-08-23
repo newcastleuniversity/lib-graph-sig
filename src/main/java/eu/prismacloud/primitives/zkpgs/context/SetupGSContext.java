@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * Holds the context during setup and signing proofs, before an ExtendedPublicKey is established.
  *
  */
-public class SetupGSContext implements IContext {
+public class SetupGSContext implements IContext, IContextProducer {
 
 	private final List<String> ctxList = new ArrayList<String>();
 	private final SignerPublicKey publicKey;
@@ -35,13 +35,9 @@ public class SetupGSContext implements IContext {
 	 */
 	@Override
 	public List<String> computeChallengeContext() {
-		addKeyGenParameters(keyGenParameters);
+		keyGenParameters.addToChallengeContext(ctxList);
 
-		ctxList.add(String.valueOf(publicKey.getModN()));
-		ctxList.add(String.valueOf(publicKey.getBaseS().getValue()));
-		ctxList.add(String.valueOf(publicKey.getBaseZ().getValue()));
-		ctxList.add(String.valueOf(publicKey.getBaseR().getValue()));
-		ctxList.add(String.valueOf(publicKey.getBaseR_0().getValue()));
+		publicKey.addToChallengeContext(ctxList);
 
 		return ctxList;
 	}
@@ -64,19 +60,10 @@ public class SetupGSContext implements IContext {
 		ctxList.clear();
 	}
 
-	private void addKeyGenParameters(KeyGenParameters keyGenParameters) {
-		ctxList.add(String.valueOf(keyGenParameters.getL_n()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_gamma()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_rho()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_m()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_res()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_e()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_prime_e()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_v()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_statzk()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_H()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_r()));
-		ctxList.add(String.valueOf(keyGenParameters.getL_pt()));
-	}
+	@Override
+	public void addToChallengeContext(List<String> ctx) {
+		keyGenParameters.addToChallengeContext(ctx);
 
+		publicKey.addToChallengeContext(ctx);
+	}
 }

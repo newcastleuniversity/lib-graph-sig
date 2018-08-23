@@ -15,77 +15,69 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /** Represents the public knowledge before the proof */
-public class GSContext implements IContext {
-  private final List<String> ctxList = new ArrayList<String>();
-  private final ExtendedPublicKey extendedPublicKey;
-  private final KeyGenParameters keyGenParameters;
-  private final GraphEncodingParameters graphEncodingParameters;
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
+public class GSContext implements IContext, IContextProducer {
+	private List<String> ctxList = new ArrayList<String>();
 
-  public GSContext(
-      final ExtendedPublicKey extendedPublicKey) {
-    Assert.notNull(extendedPublicKey, "extended public key must not be null");
-    this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
-    this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
-  }
+	private final ExtendedPublicKey extendedPublicKey;
+	private final KeyGenParameters keyGenParameters;
+	private final GraphEncodingParameters graphEncodingParameters;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
 
-  public List<String> computeChallengeContext() {
+	public GSContext(
+			final ExtendedPublicKey extendedPublicKey) {
+		Assert.notNull(extendedPublicKey, "extended public key must not be null");
+		this.extendedPublicKey = extendedPublicKey;
+		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
+		this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
+	}
 
-    SignerPublicKey publicKey = extendedPublicKey.getPublicKey();
-    Map<URN, BaseRepresentation> bases = extendedPublicKey.getBases();
-    Map<URN, BigInteger> labels = extendedPublicKey.getLabelRepresentatives();
+	public List<String> computeChallengeContext() {
+		List<String> ctxList = new ArrayList<String>();
+		addToChallengeContext(ctxList);
+		return ctxList;
+	}
 
-    addKeyGenParameters(keyGenParameters);
+	public void addToChallengeContext(List<String> ctxList) {
+		keyGenParameters.addToChallengeContext(ctxList);
+		extendedPublicKey.addToChallengeContext(ctxList);
+	}
 
-    ctxList.add(String.valueOf(publicKey.getModN()));
-    ctxList.add(String.valueOf(publicKey.getBaseS().getValue()));
-    ctxList.add(String.valueOf(publicKey.getBaseZ().getValue()));
-    ctxList.add(String.valueOf(publicKey.getBaseR().getValue()));
-    ctxList.add(String.valueOf(publicKey.getBaseR_0().getValue()));
+	/**
+	 * TODO Old computeChallengeContext method. To be transfered to test cases.
+	 * @deprecated
+	 * @return
+	 */
+	public List<String> oldComputeChallengeContext() {
+		List<String> ctxList = new ArrayList<String>();
 
-    for (BaseRepresentation baseRepresentation : bases.values()) {
-      ctxList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    }
+		SignerPublicKey publicKey = extendedPublicKey.getPublicKey();
+		Map<URN, BaseRepresentation> bases = extendedPublicKey.getBases();
+		Map<URN, BigInteger> labels = extendedPublicKey.getLabelRepresentatives();
 
-    for (BigInteger label : labels.values()) {
-      ctxList.add(String.valueOf(label));
-    }
+		keyGenParameters.addToChallengeContext(ctxList);
 
-    addGraphEncodingParameters(graphEncodingParameters);
-    return ctxList;
-  }
+		publicKey.addToChallengeContext(ctxList);
 
-  public void computeWitnessContext(List<String> witnesses) {
-    for (String element : witnesses) {
-      ctxList.add(element);
-    }
-  }
+		for (BaseRepresentation baseRepresentation : bases.values()) {
+			baseRepresentation.addToChallengeContext(ctxList);
+		}
 
-  public void clearContext() {
-    ctxList.clear();
-  }
+		for (BigInteger label : labels.values()) {
+			ctxList.add(String.valueOf(label));
+		}
 
-  private void addKeyGenParameters(KeyGenParameters keyGenParameters) {
-    ctxList.add(String.valueOf(keyGenParameters.getL_n()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_gamma()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_rho()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_m()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_res()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_e()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_prime_e()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_v()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_statzk()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_H()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_r()));
-    ctxList.add(String.valueOf(keyGenParameters.getL_pt()));
-  }
+		graphEncodingParameters.addToChallengeContext(ctxList);
 
-  private void addGraphEncodingParameters(GraphEncodingParameters graphEncodingParameters) {
-    ctxList.add(String.valueOf(graphEncodingParameters.getL_V()));
-    ctxList.add(String.valueOf(graphEncodingParameters.getlPrime_V()));
-    ctxList.add(String.valueOf(graphEncodingParameters.getL_E()));
-    ctxList.add(String.valueOf(graphEncodingParameters.getL_L()));
-    ctxList.add(String.valueOf(graphEncodingParameters.getlPrime_L()));
-  }
+		return ctxList;
+	}
+
+	public void computeWitnessContext(List<String> witnesses) {
+		for (String element : witnesses) {
+			ctxList.add(element);
+		}
+	}
+
+	public void clearContext() {
+		ctxList.clear();
+	}
 }

@@ -1,11 +1,14 @@
 package eu.prismacloud.primitives.zkpgs;
 
+import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /** */
-public class BaseRepresentation implements Serializable {
+public class BaseRepresentation implements Serializable, IContextProducer, Cloneable {
 
   private static final long serialVersionUID = 8542984504573091475L;
 
@@ -73,4 +76,16 @@ public class BaseRepresentation implements Serializable {
   public BaseRepresentation clone() {
 	  return new BaseRepresentation(this.base, this.exponent, this.baseIndex, this.baseType);
   }
+
+@Override
+public List<String> computeChallengeContext() {
+	List<String> ctxList = new ArrayList<String>();
+	addToChallengeContext(ctxList);
+	return ctxList;
+}
+
+@Override
+public void addToChallengeContext(List<String> ctxList) {
+	ctxList.add(String.valueOf(this.getBase().getValue()));
+}
 }

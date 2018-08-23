@@ -2,107 +2,123 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /** Base service class for the iterator. */
-public class BaseCollectionImpl implements BaseCollection, Serializable {
+public class BaseCollectionImpl implements BaseCollection, Serializable, IContextProducer {
 
-  private static final long serialVersionUID = 4214821047875971751L;
-  private List<BaseRepresentation> bases;
+	private static final long serialVersionUID = 4214821047875971751L;
+	private List<BaseRepresentation> bases;
 
-  @Override
-  public BaseIterator createIterator(BASE type) {
-    return new BaseIteratorImpl(type, bases);
-  }
+	@Override
+	public BaseIterator createIterator(BASE type) {
+		return new BaseIteratorImpl(type, bases);
+	}
 
-  @Override
-  public boolean add(BaseRepresentation base) {
-    return bases.add(base);
-  }
+	@Override
+	public boolean add(BaseRepresentation base) {
+		return bases.add(base);
+	}
 
-  @Override
-  public boolean remove(BaseRepresentation base) {
-    return bases.remove(base);
-  }
+	@Override
+	public boolean remove(BaseRepresentation base) {
+		return bases.remove(base);
+	}
 
-  private class BaseIteratorImpl implements BaseIterator {
+	private class BaseIteratorImpl implements BaseIterator {
 
-    private final BASE type;
-    private List<BaseRepresentation> listOfBases;
-    private int position;
+		private final BASE type;
+		private List<BaseRepresentation> listOfBases;
+		private int position;
 
-    public BaseIteratorImpl(BASE type, List<BaseRepresentation> bases) {
-      this.type = type;
-      this.listOfBases = bases;
-    }
+		public BaseIteratorImpl(BASE type, List<BaseRepresentation> bases) {
+			this.type = type;
+			this.listOfBases = bases;
+		}
 
-    @Override
-    public boolean hasNext() {
-      while (position < listOfBases.size()) {
-        BaseRepresentation ba = listOfBases.get(position);
-        if (ba.getBaseType().equals(type) || type.equals(BASE.ALL)) {
-          return true;
-        } else {
-          position++;
-        }
-      }
-      return false;
-    }
+		@Override
+		public boolean hasNext() {
+			while (position < listOfBases.size()) {
+				BaseRepresentation ba = listOfBases.get(position);
+				if (ba.getBaseType().equals(type) || type.equals(BASE.ALL)) {
+					return true;
+				} else {
+					position++;
+				}
+			}
+			return false;
+		}
 
-    @Override
-    public BaseRepresentation next() {
-      BaseRepresentation ba = listOfBases.get(position);
-      position++;
-      return ba;
-    }
+		@Override
+		public BaseRepresentation next() {
+			BaseRepresentation ba = listOfBases.get(position);
+			position++;
+			return ba;
+		}
 
-    @Override
-    public Iterator<BaseRepresentation> iterator() {
-      List<BaseRepresentation> result = new ArrayList<BaseRepresentation>();
-      if (type.equals(BASE.ALL)) {
-        for (BaseRepresentation baseRepresentation : listOfBases) {
-          if (baseRepresentation.getExponent() != null) {
-            result.add(baseRepresentation);
-          }
-        }
-        return result.iterator();
-      } else {
-        for (BaseRepresentation baseRepresentation : listOfBases) {
-          if (type.equals(baseRepresentation.getBaseType())
-              && baseRepresentation.getExponent() != null) {
-            result.add(baseRepresentation);
-          }
-        }
+		@Override
+		public Iterator<BaseRepresentation> iterator() {
+			List<BaseRepresentation> result = new ArrayList<BaseRepresentation>();
+			if (type.equals(BASE.ALL)) {
+				for (BaseRepresentation baseRepresentation : listOfBases) {
+					if (baseRepresentation.getExponent() != null) {
+						result.add(baseRepresentation);
+					}
+				}
+				return result.iterator();
+			} else {
+				for (BaseRepresentation baseRepresentation : listOfBases) {
+					if (type.equals(baseRepresentation.getBaseType())
+							&& baseRepresentation.getExponent() != null) {
+						result.add(baseRepresentation);
+					}
+				}
 
-        return result.iterator();
-      }
-    }
-  }
+				return result.iterator();
+			}
+		}
+	}
 
-  public BaseCollectionImpl() {
-    bases = new ArrayList<BaseRepresentation>();
-  }
+	public BaseCollectionImpl() {
+		bases = new ArrayList<BaseRepresentation>();
+	}
 
-  public List<BaseRepresentation> getBases() {
-    return bases;
-  }
+	public List<BaseRepresentation> getBases() {
+		return bases;
+	}
 
-  public void setBases(List<BaseRepresentation> bases) {
-    this.bases = bases;
-  }
+	public void setBases(List<BaseRepresentation> bases) {
+		this.bases = bases;
+	}
 
-  public BaseRepresentation get(int index) {
-    return bases.get(index);
-  }
+	public BaseRepresentation get(int index) {
+		return bases.get(index);
+	}
 
-  public void set(int index, BaseRepresentation value) {
-    bases.set(index, value);
-  }
+	public void set(int index, BaseRepresentation value) {
+		bases.set(index, value);
+	}
 
-  public int size() {
-    return bases.size();
-  }
+	public int size() {
+		return bases.size();
+	}
+
+	@Override
+	public List<String> computeChallengeContext() {
+		List<String> ctxList = new ArrayList<String>();
+		addToChallengeContext(ctxList);
+		return ctxList;
+	}
+
+	@Override
+	public void addToChallengeContext(List<String> ctxList) {
+		for (BaseRepresentation baseRepresentation : bases) {
+			baseRepresentation.addToChallengeContext(ctxList);
+		}
+	}
 }
