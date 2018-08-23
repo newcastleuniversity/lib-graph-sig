@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,12 +44,8 @@ public class PossessionProver implements IProver {
 	private BigInteger tildevPrime;
 	private ProofStore<Object> proofStore;
 	private KeyGenParameters keyGenParameters;
-	//  private Map<URN, BaseRepresentation> bases;
-	//  private Map<URN, BaseRepresentation> edges;
 	private GroupElement tildeZ;
 	private BigInteger tildee;
-	//  private Map<URN, BigInteger> vertexWitnesses;
-	//  private Map<URN, BigInteger> edgeWitnesses;
 	private Vector<BaseRepresentation> graphResponses = new Vector<BaseRepresentation>();
 	private BigInteger tildem_i;
 	private BigInteger tildem_i_j;
@@ -95,31 +92,13 @@ public class PossessionProver implements IProver {
 	}
 
 	public GroupElement executePreChallengePhase() throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
-
-	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
-
-	// TODO The keyGenParameters and baseCollection are present in the epk. Remove redundant parameters.
-	public GroupElement preChallengePhase(
-			GSSignature blindedSignature,
-			ExtendedPublicKey extendedPublicKey,
-			BaseCollection baseCollection,
-			ProofStore<Object> proofStore,
-			KeyGenParameters keyGenParameters) {
 		Assert.notNull(blindedSignature, "blinded graph signature must not be null");
 		Assert.notNull(extendedPublicKey, "extended public key must not be null");
 		Assert.notNull(baseCollection, "encoded bases collection must not be null");
 		Assert.notNull(proofStore, "prover store must not be null");
 		Assert.notNull(keyGenParameters, "keygen parameters must not be null");
 
-		this.blindedSignature = blindedSignature;
-		this.extendedPublicKey = extendedPublicKey;
-		this.baseCollection = baseCollection;
-		this.proofStore = proofStore;
-		this.keyGenParameters = keyGenParameters;
+		
 		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
 		this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
@@ -133,7 +112,7 @@ public class PossessionProver implements IProver {
 		return computetildeZ();
 	}
 
-	public void createWitnessRandomness() throws ProofStoreException {
+	private void createWitnessRandomness() throws ProofStoreException {
 
 		int tildeeLength =
 				keyGenParameters.getL_prime_e()
@@ -191,12 +170,11 @@ public class PossessionProver implements IProver {
 		//    proverStore.store(tildem_i_jURN, edgeWitnesses);
 	}
 
-	public GroupElement computeWitness() {
+	private GroupElement computeWitness() {
 		return computetildeZ();
 	}
 
-	//  @Override
-	public GroupElement computetildeZ() {
+	private GroupElement computetildeZ() {
 		Assert.notNull(tildee, "TildeE must not be null.");
 		Assert.notNull(tildevPrime, "tildevPrime must not be null.");
 
@@ -243,18 +221,20 @@ public class PossessionProver implements IProver {
 		return tildeZ;
 	}
 
-	@Override
 	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
 		return CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 	}
 
-	public void setChallenge(BigInteger challenge) {
+	private void setChallenge(BigInteger challenge) {
 		this.c = challenge;
 	}
 
-	public void postChallengePhase(BigInteger cChallenge) {
+	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+		
 		//gslog.info("prover: post challenge phase");
 		this.c = cChallenge;
+		
+		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
 		// More reliable to use the GSSignature stored in the state of the class.
 		//    String ePrimeURN = "prover.blindedgs.ePrime";
@@ -291,6 +271,8 @@ public class PossessionProver implements IProver {
 
 			String hatm_iURN = "possessionprover.responses.vertex.hatm_i_" + baseIndex;
 
+			responses.put(URN.createZkpgsURN(hatm_iURN), hatm_i);
+			
 			try {
 				proofStore.store(hatm_iURN, hatm_i);
 			} catch (Exception e) {
@@ -318,6 +300,8 @@ public class PossessionProver implements IProver {
 
 			String hatm_i_jURN = "possessionprover.responses.edge.hatm_i_j_" + baseIndex;
 
+			responses.put(URN.createZkpgsURN(hatm_i_jURN), hatm_i_j);
+			
 			try {
 				proofStore.store(hatm_i_jURN, hatm_i_j);
 			} catch (Exception e) {
@@ -326,6 +310,7 @@ public class PossessionProver implements IProver {
 		}
 		gslog.info("tildee bitlength: " + tildee.bitLength());
 		gslog.info("c bitlength: " + c.bitLength());
+		
 		hate = tildee.add(this.c.multiply(ePrime));
 		hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
 		hatm_0 = tildem_0.add(this.c.multiply(m_0));
@@ -333,6 +318,10 @@ public class PossessionProver implements IProver {
 		String hateURN = "possessionprover.responses.hate";
 		String hatvPrimeURN = "possessionprover.responses.hatvprime";
 		String hatm_0URN = "possessionprover.responses.hatm_0";
+		
+		responses.put(URN.createZkpgsURN(hateURN), hate);
+		responses.put(URN.createZkpgsURN(hatvPrimeURN), hatvPrime);
+		responses.put(URN.createZkpgsURN(hatm_0URN), hatm_0);
 
 		try {
 			proofStore.store(hateURN, hate);
@@ -342,7 +331,8 @@ public class PossessionProver implements IProver {
 			gslog.log(Level.SEVERE, e.getMessage());
 		}
 
-		/** TODO output list of responses */
+		return responses;
+		
 	}
 
 	private BaseRepresentation checkBaseR_0(BaseIterator baseR0Iterator) {
@@ -359,8 +349,6 @@ public class PossessionProver implements IProver {
 		return baseRepR_0;
 	}
 
-	//  @Override
-	public void computeResponses() {}
 
 	public boolean isSetupComplete() {
 		return false;

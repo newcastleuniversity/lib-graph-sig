@@ -129,12 +129,11 @@ class PairWiseDifferenceProverTest {
 	 * randomness (tilde-values). It retrieves these values from the ProofStore.
 	 * The computation of the overall witness tildeR is done in testComputeWiteness().
 	 * The correct range of the witness randomness is checked by testCreateWitnessRandomness().
+	 * @throws ProofStoreException 
 	 */
 	@Test
-	void testPreChallengePhase() {
-		prover.preChallengePhase(c1, c2coprime,
-				epk, testIndex, 
-				proofStore, keyGenParameters);
+	void testPreChallengePhase() throws ProofStoreException {
+		prover.executePreChallengePhase();
 		tildea_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
 		assertNotNull(tildea_BariBarj);
 		tildeb_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEBBARIBARJ, testIndex));
@@ -145,10 +144,11 @@ class PairWiseDifferenceProverTest {
 
 	/**
 	 * The test checks the correct range of the witness randomness.
+	 * @throws ProofStoreException 
 	 */
 	@Test
 	@DisplayName("Test witness randomness is in correct range")
-	void testCreateWitnessRandomness() {
+	void testCreateWitnessRandomness() throws ProofStoreException {
 		int bitLengthR =
 				keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
@@ -160,9 +160,7 @@ class PairWiseDifferenceProverTest {
 				+ "\n  minimum negative random number for witnesses: " + minR
 				+ "\n  bitLength: " + bitLengthR);
 
-		prover.preChallengePhase(c1, c2coprime,
-				epk, testIndex, 
-				proofStore, keyGenParameters);
+		prover.executePreChallengePhase();
 		tildea_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
 		assertNotNull(tildea_BariBarj);
 		assertTrue(inRange(tildea_BariBarj, minR, maxR));
@@ -183,14 +181,13 @@ class PairWiseDifferenceProverTest {
 	/**
 	 * The test checks whether witness TildeR is computed correctly.
 	 * It has a dependency on the ProofStore, retrieving the tilde values from it.
+	 * @throws ProofStoreException 
 	 */
 	@Test
 	@DisplayName("Test computing witness TildeR")
-	void testComputeWitness() {
+	void testComputeWitness() throws ProofStoreException {
 		log.info("PairWiseDifferenceProverTest: Computing witness TildeR.");
-		tildeR = prover.preChallengePhase(c1, c2coprime,
-				epk, testIndex, 
-				proofStore, keyGenParameters);
+		tildeR = prover.executePreChallengePhase();
 
 		assertNotNull(tildeR);
 
@@ -233,9 +230,7 @@ class PairWiseDifferenceProverTest {
 	@DisplayName("Test post challenge phase")
 	void testPostChallengePhase() throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
-		prover.preChallengePhase(c1, c2coprime,
-				epk, 0, 
-				proofStore, keyGenParameters);
+		prover.executePreChallengePhase();
 		tildea_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
 
 		tildeb_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEBBARIBARJ, testIndex));
@@ -251,7 +246,7 @@ class PairWiseDifferenceProverTest {
 
 		log.info("challenge bitlength: " + cChallenge.bitLength());
 
-		prover.postChallengePhase(cChallenge);
+		prover.executePostChallengePhase(cChallenge);
 		
 		Thread.sleep(3000);
 

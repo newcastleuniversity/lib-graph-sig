@@ -261,8 +261,13 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
 	public void executePostChallengePhase(BigInteger c) {
 		gslog.info("compute post challlenge phase");
-		possessionProver.postChallengePhase(cChallenge);
-		responses = new HashMap<>();
+		try {
+			responses = possessionProver.executePostChallengePhase(cChallenge);
+		} catch (ProofStoreException e1) {
+			gslog.log(Level.SEVERE, "Could not access the ProofStore.", e1);
+			return;
+		}
+		
 		for (CommitmentProver commitmentProver : commitmentProverList) {
 			try {
 				response = commitmentProver.executePostChallengePhase(cChallenge);
@@ -326,8 +331,12 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
 		for (PairWiseDifferenceProver differenceProver : pairWiseDifferenceProvers) {
 
-			differenceProver.createWitnessRandomness();
-			differenceProver.computeWitness();
+			try {
+				differenceProver.executePreChallengePhase();
+			} catch (ProofStoreException e) {
+				gslog.log(Level.SEVERE, "Could not access the ProofStore.", e);
+				return;
+			}
 			tildeR_BariBarj = differenceProver.getBasetildeR_BariBarj();
 
 			/** TODO store witness randomness tildea_BariBarj, tilbeb_BariBarj, tilder_BariBarj */

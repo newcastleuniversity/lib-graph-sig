@@ -64,32 +64,7 @@ public interface IProver {
 	 * @return a GroupElement being the overall witness (tilde-value) for this proof.
 	 * @throws ProofStoreException
 	 */
-	// TODO this method is to replace preChallengePhase()
 	GroupElement executePreChallengePhase() throws ProofStoreException;
-
-	/**
-	 * Computes the witness randomness with appropriate length and 
-	 * stores the witness randomness in the ProofStore.
-	 * 
-	 * The createWitnessRandomness method is responsible for having all witness randomness
-	 * stored in the ProofStore under appropriate URNs after its execution.
-	 *  
-	 * @throws ProofStoreException
-	 */
-	/* TODO createWitnessRandomness and computeWitness() should not exposed on the interface
-	 * because they can leave the prover in an inconsistent state or fail.
-	 */
-	void createWitnessRandomness() throws ProofStoreException;
-
-	/**
-	 * Computes the witness for this component prover.
-	 * 
-	 * @throws ProofStoreException
-	 */
-	GroupElement computeWitness() throws ProofStoreException;
-
-	// TODO Challenge is computed by the Orchestrator, not the prover.
-	BigInteger computeChallenge() throws NoSuchAlgorithmException;
 
 	/**
 	 * Computes the post-challenge phase of the prover, based on a given challenge.
@@ -102,15 +77,8 @@ public interface IProver {
 	 * @return A map of response BigIntger values, where the URN index must correspond to
 	 * this provers URN name for those responses.
 	 */
-	// TODO This method is to replace computeResponses() or postChallengePhase()
 	Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException;
 
-	/** 
-	 * Computes the appropriate responses for the witness
-	 * 
-	 * TODO per topocert specification, this method should return the responses.
-	 */
-	void computeResponses();
 
 	/**
 	 * This method checks whether the prover has everything at its disposal to
@@ -133,10 +101,6 @@ public interface IProver {
 	 */
 	boolean verify();
 	
-	// TODO include URN inquiry into interface?
-//	String getProverURN(URNType t);
-//	
-//	String getProverURN(URNType t, int index);
 	
 	/**
 	 * Returns a list of the URN identifiers of the data in the ProofStore

@@ -60,16 +60,14 @@ class GroupSetupProverTest {
    }
   @BeforeEach
   void setUp() {
-
-    groupSetupProver = new GroupSetupProver();
+	  groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
     proofStore = new ProofStore<Object>();
   }
 
   @Test
-  void preChallengePhase() {
+  void preChallengePhase() throws Exception {
 
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
     assertNotNull(tilder);
     tilder_0 = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
@@ -80,7 +78,7 @@ class GroupSetupProverTest {
 
   @Test
   @DisplayName("Test witness randomness is in range [-2^bitLength, 2^bitlength]")
-  void createWitnessRandomness() {
+  void createWitnessRandomness() throws Exception {
     int bitLength =
         keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
     BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
@@ -89,8 +87,7 @@ class GroupSetupProverTest {
     log.info("minimum negative random number: " + min);
     log.info("bitLength: " + bitLength);
 
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
     assertNotNull(tilder);
     assertTrue(inRange(tilder, min, max));
@@ -110,7 +107,7 @@ class GroupSetupProverTest {
 
   @Test
   @DisplayName("Test witness randomness bit length")
-  void computeWitnessRandomnessBitLength() {
+  void computeWitnessRandomnessBitLength() throws ProofStoreException {
     int bitLength =
         keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
     BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
@@ -119,8 +116,7 @@ class GroupSetupProverTest {
     log.info("minimum negative random number: " + min);
     log.info("bitLength: " + bitLength);
 
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
     assertNotNull(tilder);
     assertTrue(inRange(tilder, min, max));
@@ -142,9 +138,8 @@ class GroupSetupProverTest {
 
   @Test
   @DisplayName("Test computing witnesses")
-  void computeWitness() {
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+  void computeWitness() throws ProofStoreException {
+    groupSetupProver.executePreChallengePhase();
     tildeZ = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.tildeZ");
     assertNotNull(tildeZ);
     /** TODO test that it is congruent */
@@ -153,10 +148,9 @@ class GroupSetupProverTest {
   @Test
   @DisplayName("Test challenge bitLength")
 //  @RepeatedTest(5)
-  void computeChallenge() throws NoSuchAlgorithmException {
+  void computeChallenge() throws NoSuchAlgorithmException, ProofStoreException {
 
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     BigInteger cChallenge = groupSetupProver.computeChallenge();
     assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
   }
@@ -166,8 +160,7 @@ class GroupSetupProverTest {
 //  @RepeatedTest(15)
   void postChallengePhase() throws ProofStoreException, NoSuchAlgorithmException {
 
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
     tilder_0 = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
@@ -188,7 +181,7 @@ class GroupSetupProverTest {
 
     assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
 
-    groupSetupProver.postChallengePhase();
+    groupSetupProver.executePostChallengePhase(cChallenge);
 
     hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
     hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");
@@ -212,8 +205,7 @@ class GroupSetupProverTest {
   @Test
   @DisplayName("Test output proof signature")
   void outputProofSignature() throws NoSuchAlgorithmException, ProofStoreException {
-    groupSetupProver.preChallengePhase(
-        extendedKeyPair, proofStore, keyGenParameters, graphEncodingParameters);
+    groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
     tilder_0 = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
@@ -228,7 +220,7 @@ class GroupSetupProverTest {
 
     //    assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
 
-    groupSetupProver.postChallengePhase();
+    groupSetupProver.executePostChallengePhase(cChallenge);
 
     hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
     hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");

@@ -80,22 +80,12 @@ public class SigningQCorrectnessProver implements IProver {
 		return tildeA;
 	}
 
-	@Override
-	public void createWitnessRandomness() throws ProofStoreException {}
-
-	@Override
-	public GroupElement computeWitness() throws ProofStoreException { 
-		throw new NotImplementedException("Does not compute a single witness");
-	}
 
 	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
 		challengeList = populateChallengeList();
 		cPrime = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
 		return cPrime;
 	}
-
-	@Override
-	public void computeResponses() {}
 
 	private List<String> populateChallengeList() {
 		this.A = (QRElement) proofStore.retrieve("issuing.signer.A");

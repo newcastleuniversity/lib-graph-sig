@@ -9,6 +9,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.util.logging.Logger;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.launcher.Launcher;
@@ -20,6 +21,7 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 
 /** */
+@Disabled
 public class GSTestSuite {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
 

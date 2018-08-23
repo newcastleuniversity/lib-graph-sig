@@ -108,13 +108,12 @@ class PossessionProverTest {
 	 * randomness (tilde-values). It retrieves these values from the ProofStore.
 	 * The computation of the overall witness tildeZ is done in testComputeWiteness().
 	 * The correct range of the witness randomness is checked by testCreateWitnessRandomness().
+	 * @throws ProofStoreException 
 	 */
 	@Test
-	void testPreChallengePhase() {
+	void testPreChallengePhase() throws ProofStoreException {
 
-		prover.preChallengePhase(sigmaM,
-				epk, baseCollection, 
-				proofStore, keyGenParameters);
+		prover.executePreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
 		tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));
@@ -126,10 +125,11 @@ class PossessionProverTest {
 
 	/**
 	 * The test checks the correct range of the witness randomness.
+	 * @throws ProofStoreException 
 	 */
 	@Test
 	@DisplayName("Test witness randomness is in correct range")
-	void testCreateWitnessRandomness() {
+	void testCreateWitnessRandomness() throws ProofStoreException {
 		int bitLengthM =
 				keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
 		int bitLengthEPrime =
@@ -158,9 +158,7 @@ class PossessionProverTest {
 				+ "\n  minimum negative random number for v': " + minV
 				+ "\n  bitLength: " + bitLengthM);
 
-		prover.preChallengePhase(sigmaM,
-				epk, baseCollection, 
-				proofStore, keyGenParameters);
+		prover.executePreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
 		assertTrue(inRange(tildee, minE, maxE));
@@ -181,14 +179,13 @@ class PossessionProverTest {
 	/**
 	 * The test checks whether witness TildeZ is computed correctly.
 	 * It has a dependency on the ProofStore, retrieving the tilde values from it.
+	 * @throws ProofStoreException 
 	 */
 	@Test
 	@DisplayName("Test computing witness TildeZ")
-	void testComputeWitness() {
+	void testComputeWitness() throws ProofStoreException {
 		log.info("PossessionProverTest: Computing witness TildeZ.");
-		tildeZ = prover.preChallengePhase(sigmaM,
-				epk, baseCollection, 
-				proofStore, keyGenParameters);
+		tildeZ = prover.executePreChallengePhase();
 
 		assertNotNull(tildeZ);
 
@@ -238,9 +235,7 @@ class PossessionProverTest {
 	@DisplayName("Test post challenge phase")
 	void testPostChallengePhase() throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
-		prover.preChallengePhase(sigmaM,
-				epk, baseCollection, 
-				proofStore, keyGenParameters);
+		prover.executePreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 
 		tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));
@@ -256,7 +251,7 @@ class PossessionProverTest {
 
 		log.info("challenge bitlength: " + cChallenge.bitLength());
 
-		prover.postChallengePhase(cChallenge);
+		prover.executePostChallengePhase(cChallenge);
 		
 		Thread.sleep(3000);
 

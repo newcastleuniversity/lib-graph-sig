@@ -20,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -126,45 +127,12 @@ public class PairWiseDifferenceProver implements IProver {
 	public PairWiseDifferenceProver() {}
 
 
+	@Override
 	public GroupElement executePreChallengePhase() throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
-
-	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
-
-	public GroupElement preChallengePhase(GSCommitment C_i,
-			GSCommitment C_j,
-			ExtendedPublicKey extendedPublicKey,
-			int index,
-			ProofStore<Object> proverStore,
-			KeyGenParameters keyGenParameters) {
-
-		Assert.notNull(C_i, "commitment i must not be null");
-		Assert.notNull(C_j, "commitment j must not be null");
-		Assert.notNull(index, "component prover index must not be null");
-		Assert.notNull(proverStore, "Prover store must not be null");
-		Assert.notNull(keyGenParameters, "keygen parameters must not be null");
-
-		this.C_i = C_i;
-		this.C_j = C_j;
-		this.epk = extendedPublicKey;
-		this.baseS = epk.getPublicKey().getBaseS();
-		this.baseR = epk.getPublicKey().getBaseR();
-		this.m_Bari = C_i.getExponents().get(URN.createZkpgsURN("commitment.exponent.m"));
-		this.r_Bari = C_i.getRandomness();
-		this.m_Barj = C_j.getExponents().get(URN.createZkpgsURN("commitment.exponent.m"));
-		this.r_Barj = C_j.getRandomness();
-		this.index = index;
-		this.proofStore = proverStore;
-		this.keyGenParameters = keyGenParameters;
-
 		createWitnessRandomness();
 
 		return computeWitness();
 	}
-
 
 	@Override
 	public void executePrecomputation() throws ProofStoreException {
@@ -248,7 +216,7 @@ public class PairWiseDifferenceProver implements IProver {
 	//  }
 
 	/** Compute eea. */
-	public void computeEEA() {
+	private void computeEEA() {
 		EEAlgorithm.computeEEAlgorithm(m_Bari, m_Barj);
 		//		System.out.println("EEA Inputs: "
 		//				+ "\n i : " + m_Bari
@@ -301,8 +269,7 @@ public class PairWiseDifferenceProver implements IProver {
 		return this.d_BariBarj;
 	}
 
-	@Override
-	public void createWitnessRandomness() {
+	private void createWitnessRandomness() {
 		int l_tildeab =
 				keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 		int l_tilder =
@@ -332,8 +299,7 @@ public class PairWiseDifferenceProver implements IProver {
 		}
 	}
 
-	@Override
-	public GroupElement computeWitness() {
+	private GroupElement computeWitness() {
 		GroupElement C_Bari = C_i.getCommitmentValue();
 		GroupElement C_Barj = C_j.getCommitmentValue();
 
@@ -356,7 +322,6 @@ public class PairWiseDifferenceProver implements IProver {
 		}
 	}
 
-	@Override
 	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
 		return CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 	}
@@ -366,17 +331,17 @@ public class PairWiseDifferenceProver implements IProver {
 	 *
 	 * @param challenge the challenge
 	 */
-	public void setChallenge(BigInteger challenge) {
+	private void setChallenge(BigInteger challenge) {
 		this.cChallenge = challenge;
 	}
 
-	public void postChallengePhase(BigInteger challenge) {
-		setChallenge(challenge);
-		computeResponses();
+	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+		setChallenge(cChallenge);
+		return computeResponses();
 	}
 
-	@Override
-	public void computeResponses() {
+	private Map<URN, BigInteger> computeResponses() {
+		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 		a_BariBarj = (BigInteger) proofStore.retrieve(getProverURN(URNType.ABARIBARJ, index));
 
 		b_BariBarj = (BigInteger) proofStore.retrieve(getProverURN(URNType.BBARIBARJ, index));
@@ -388,7 +353,17 @@ public class PairWiseDifferenceProver implements IProver {
 		hatb_BariBarj = tildeb_BariBarj.add(this.cChallenge.multiply(b_BariBarj));
 		hatr_BariBarj = tilder_BariBarj.add(this.cChallenge.multiply(r_BariBarj));
 
+		String hata_BariBarjURN = "pairwiseprover.responses.hata_BariBarj_" + index;
+		String hatb_BariBarjURN = "pairwiseprover.responses.hatb_BariBarj_" + index;
+		String hatr_BariBarjURN = "pairwiseprover.responses.hatr_BariBarj_" + index;
+
+		responses.put(URN.createZkpgsURN(hata_BariBarjURN), hata_BariBarj);
+		responses.put(URN.createZkpgsURN(hatb_BariBarjURN), hatb_BariBarj);
+		responses.put(URN.createZkpgsURN(hatr_BariBarjURN), hatr_BariBarj);
+		
 		storeResponses();
+		
+		return responses;
 	}
 
 	private void storeResponses() {
