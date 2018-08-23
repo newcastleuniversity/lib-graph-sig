@@ -52,7 +52,6 @@ public class GroupSetupProver implements IProver {
   private BigInteger cChallenge;
   private QRElementPQ baseR;
   private QRElementPQ baseR_0;
-  private List<String> challengeList = new ArrayList<String>();
   private ProofStore<Object> proofStore;
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
@@ -64,7 +63,6 @@ public class GroupSetupProver implements IProver {
   private Map<URN, BigInteger> edgeResponses;
   private BaseCollection baseRepresentationMap;
   private Map<String, BigInteger> edgeBases;
-  private List<String> contextList;
   private ExtendedPublicKey extendedPublicKey;
   private BigInteger hatr_i;
   private BigInteger tilder_i;
@@ -231,8 +229,8 @@ public class GroupSetupProver implements IProver {
 
   //  @Override
   public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-    challengeList = populateChallengeList();
-    cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    List<String> ctxList = populateChallengeList();
+    cChallenge = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
     return cChallenge;
   }
 
@@ -317,35 +315,20 @@ public class GroupSetupProver implements IProver {
   }
 
   private List<String> populateChallengeList() {
-    /** TODO add context to list of elements in challenge */
     GSContext gsContext =
         new GSContext(extendedPublicKey);
-    List<String> contextList = gsContext.computeChallengeContext();
+    List<String> ctxList = gsContext.computeChallengeContext();
 
-    challengeList.add(String.valueOf(modN));
-    challengeList.add(String.valueOf(baseS.getValue()));
-    challengeList.add(String.valueOf(baseZ.getValue()));
-    challengeList.add(String.valueOf(baseR.getValue()));
-    challengeList.add(String.valueOf(baseR_0.getValue()));
-
-    for (BaseRepresentation baseRepresentation : vertexIterator) {
-      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    }
-
-    for (BaseRepresentation baseRepresentation : edgeIterator) {
-      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    }
-
-    challengeList.add(String.valueOf(tildeZ));
-    challengeList.add(String.valueOf(basetildeR));
-    challengeList.add(String.valueOf(basetildeR_0));
+    ctxList.add(String.valueOf(tildeZ));
+    ctxList.add(String.valueOf(basetildeR));
+    ctxList.add(String.valueOf(basetildeR_0));
 
     for (BaseRepresentation baseRepresentation : vertexIterator) {
       tilder_i =
           (BigInteger)
               proofStore.retrieve(
                   "groupsetupprover.witnesses.tildeR_i_" + baseRepresentation.getBaseIndex());
-      challengeList.add(String.valueOf(tilder_i));
+      ctxList.add(String.valueOf(tilder_i));
     }
 
     for (BaseRepresentation baseRepresentation : edgeIterator) {
@@ -353,10 +336,10 @@ public class GroupSetupProver implements IProver {
           (BigInteger)
               proofStore.retrieve(
                   "groupsetupprover.witnesses.tildeR_j_" + baseRepresentation.getBaseIndex());
-      challengeList.add(String.valueOf(tilder_j));
+      ctxList.add(String.valueOf(tilder_j));
     }
 
-    return challengeList;
+    return ctxList;
   }
 
   /**

@@ -86,10 +86,11 @@ class GSContextTest {
 		for (BaseRepresentation baseRepresentation : bases.values()) {
 			baseRepresentation.addToChallengeContext(ctxList);
 		}
-
-		for (BigInteger label : labels.values()) {
-			ctxList.add(String.valueOf(label));
-		}
+		
+		// Intentionally removed labels from context, not specified as such.
+//		for (BigInteger label : labels.values()) {
+//			ctxList.add(String.valueOf(label));
+//		}
 
 		graphEncodingParameters.addToChallengeContext(ctxList);
 

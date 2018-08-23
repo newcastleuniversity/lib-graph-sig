@@ -137,9 +137,10 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 	      baseRepresentation.addToChallengeContext(ctxList);
 	    }
 
-	    for (BigInteger label : getLabelRepresentatives().values()) {
-	      ctxList.add(String.valueOf(label));
-	    }
+	    // Intentionally removed labels from context, not specified as such.
+//	    for (BigInteger label : getLabelRepresentatives().values()) {
+//	      ctxList.add(String.valueOf(label));
+//	    }
 
 	    graphEncodingParameters.addToChallengeContext(ctxList);
 	}
