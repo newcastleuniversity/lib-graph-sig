@@ -9,7 +9,6 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -45,23 +44,25 @@ class GroupSetupProverTest {
   private BigInteger hatr;
   private BigInteger hatr_0;
   private BigInteger tildeZ;
+
   @BeforeAll
-   void setupKey() throws IOException, ClassNotFoundException {
-     BaseTest baseTest = new BaseTest();
-     baseTest.setup();
-     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
-     gsk = baseTest.getSignerKeyPair();
-     graphEncodingParameters = baseTest.getGraphEncodingParameters();
-     keyGenParameters = baseTest.getKeyGenParameters();
+  void setupKey() throws IOException, ClassNotFoundException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    gsk = baseTest.getSignerKeyPair();
+    graphEncodingParameters = baseTest.getGraphEncodingParameters();
+    keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
-       extendedKeyPair.generateBases();
-       extendedKeyPair.graphEncodingSetup();
-       extendedKeyPair.createExtendedKeyPair();
-   }
+    extendedKeyPair.generateBases();
+    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.createExtendedKeyPair();
+  }
+
   @BeforeEach
   void setUp() {
-	  groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
     proofStore = new ProofStore<Object>();
+    groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
   }
 
   @Test
@@ -147,7 +148,7 @@ class GroupSetupProverTest {
 
   @Test
   @DisplayName("Test challenge bitLength")
-//  @RepeatedTest(5)
+  //  @RepeatedTest(5)
   void computeChallenge() throws NoSuchAlgorithmException, ProofStoreException {
 
     groupSetupProver.executePreChallengePhase();
@@ -157,7 +158,7 @@ class GroupSetupProverTest {
 
   @Test
   @DisplayName("Test post challenge phase")
-//  @RepeatedTest(15)
+  //  @RepeatedTest(15)
   void postChallengePhase() throws ProofStoreException, NoSuchAlgorithmException {
 
     groupSetupProver.executePreChallengePhase();
@@ -197,9 +198,9 @@ class GroupSetupProverTest {
     log.info("hatr bitLength " + hatr.bitLength());
     log.info("hatr0 bitLength " + hatr_0.bitLength());
 
-    assertEquals(bitLength, hatr_Z.bitLength()+1);
-    assertEquals(bitLength, hatr.bitLength()+1);
-    assertEquals(bitLength, hatr_0.bitLength()+1);
+    assertEquals(bitLength, hatr_Z.bitLength() + 1);
+    assertEquals(bitLength, hatr.bitLength() + 1);
+    assertEquals(bitLength, hatr_0.bitLength() + 1);
   }
 
   @Test
@@ -232,9 +233,9 @@ class GroupSetupProverTest {
 
     int bitLength = computeBitLength();
 
-    assertEquals(bitLength, hatr_Z.bitLength()+1);
-    assertEquals(bitLength, hatr.bitLength()+1);
-    assertEquals(bitLength, hatr_0.bitLength()+1);
+    assertEquals(bitLength, hatr_Z.bitLength() + 1);
+    assertEquals(bitLength, hatr.bitLength() + 1);
+    assertEquals(bitLength, hatr_0.bitLength() + 1);
 
     ProofSignature proofSignature = groupSetupProver.outputProofSignature();
     Map<URN, Object> proofElements = proofSignature.getProofSignatureElements();
@@ -246,12 +247,12 @@ class GroupSetupProverTest {
     }
 
     BigInteger phatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-    assertEquals(bitLength, phatr.bitLength()+1);
+    assertEquals(bitLength, phatr.bitLength() + 1);
 
     BigInteger phatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
-    assertEquals(bitLength, phatr_0.bitLength()+1);
+    assertEquals(bitLength, phatr_0.bitLength() + 1);
     BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
-    assertEquals(bitLength, phatr_Z.bitLength()+1);
+    assertEquals(bitLength, phatr_Z.bitLength() + 1);
 
     Map<URN, BigInteger> edgeResponses =
         (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
@@ -259,11 +260,11 @@ class GroupSetupProverTest {
         (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
 
     for (BigInteger vertexResponse : vertexResponses.values()) {
-      assertEquals(bitLength, vertexResponse.bitLength()+1);
+      assertEquals(bitLength, vertexResponse.bitLength() + 1);
     }
 
     for (BigInteger edgeResponse : edgeResponses.values()) {
-      assertEquals(bitLength, edgeResponse.bitLength()+1);
+      assertEquals(bitLength, edgeResponse.bitLength() + 1);
     }
   }
 

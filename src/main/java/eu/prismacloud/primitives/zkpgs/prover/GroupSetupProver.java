@@ -11,6 +11,7 @@ import eu.prismacloud.primitives.zkpgs.orchestrator.IProverOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -75,6 +76,9 @@ public class GroupSetupProver implements IProver {
 	private BaseCollection baseCollection;
 
 	public GroupSetupProver(ExtendedKeyPair extendedKeyPair, ProofStore ps) {
+		Assert.notNull(extendedKeyPair, "Extended key pair must not be null" );
+		Assert.notNull(ps, "Proof store must not be null");
+		
 		this.extendedKeyPair = extendedKeyPair;
 		this.extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
 		this.baseS = (QRElementPQ) extendedKeyPair.getPublicKey().getBaseS();
