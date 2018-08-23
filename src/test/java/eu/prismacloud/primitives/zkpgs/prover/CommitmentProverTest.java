@@ -94,9 +94,11 @@ class CommitmentProverTest {
     baseCollection = new BaseCollectionImpl();
     baseCollection.add(baseR0);
 
-    cprover = new CommitmentProver();
+    GroupElement R0 = epk.getPublicKey().getBaseR_0();
+    BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+    GSCommitment C_i = GSCommitment.createCommitment(m_i, R0, epk);
 
-    //    storeBlindedGS(sigmaM);
+    cprover = new CommitmentProver(C_i, 0, extendedKeyPair.getPublicKey(), proofStore);
   }
 
   @AfterEach
@@ -108,11 +110,9 @@ class CommitmentProverTest {
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
-    GSCommitment gsCommitment =
-        cprover.preChallengePhase(
-            baseR0, proofStore, extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
+    GroupElement tildeC_i = cprover.executePreChallengePhase();
 
-    assertNotNull(gsCommitment);
+    assertNotNull(tildeC_i);
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
@@ -125,8 +125,7 @@ class CommitmentProverTest {
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
-    cprover.preChallengePhase(
-        baseR0, proofStore, extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
+    cprover.executePreChallengePhase();
 
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
@@ -148,11 +147,9 @@ class CommitmentProverTest {
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 
     proofStore.store(tildem_iURN, tildem_i);
-    GSCommitment gsCommitment =
-        cprover.preChallengePhase(
-            baseR0, proofStore, extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
+    GroupElement tildeC_i = cprover.executePreChallengePhase();
 
-    assertNotNull(gsCommitment);
+    assertNotNull(tildeC_i);
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
@@ -162,7 +159,7 @@ class CommitmentProverTest {
     GroupElement baseR = epk.getPublicKey().getBaseR();
     GroupElement comm = baseR.modPow(tildem_i).multiply(baseS.modPow(tilder_i));
 
-    assertEquals(comm, gsCommitment.getCommitmentValue());
+    assertEquals(comm, tildeC_i);
   }
 
   @Test
@@ -183,17 +180,15 @@ class CommitmentProverTest {
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
-    GSCommitment gsCommitment =
-        cprover.preChallengePhase(
-            baseR0, proofStore, extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
+    GroupElement tildeC_i = cprover.executePreChallengePhase();
 
-    assertNotNull(gsCommitment);
+    assertNotNull(tildeC_i);
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
     assertNotNull(tilder_i);
     BigInteger cChallenge = cprover.computeChallenge();
-    Map<URN, BigInteger> responses = cprover.postChallengePhase(cChallenge);
+    Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
 
     assertNotNull(responses);
     assertTrue(responses.size() > 0);
