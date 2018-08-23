@@ -62,7 +62,7 @@ public class RecipientOrchestrator {
   private GSSigner signer;
   private BaseCollection encodedBases;
   private BigInteger recipientMSK;
-  private GSCommitment tildeU;
+  private GroupElement tildeU;
   private List<String> challengeList;
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
@@ -116,11 +116,10 @@ public class RecipientOrchestrator {
     /** TODO generalize commit prover */
     // TODO needs to get access to commitment secrets (recipientGraph)
     // TODO needs to move to the new commitment interface.
-    CommitmentProver commitmentProver = new CommitmentProver(null, 0, extendedPublicKey, proofStore);
+    CommitmentProver commitmentProver = new CommitmentProver(U, 0, extendedPublicKey.getPublicKey(), proofStore);
 
     tildeU =
-        commitmentProver.preChallengePhase(
-            encodedBases, proofStore, extendedPublicKey, keyGenParameters);
+        commitmentProver.executePreChallengePhase();
 
     try {
       cChallenge = computeChallenge();
@@ -173,7 +172,7 @@ public class RecipientOrchestrator {
     GroupElement commitmentU = U.getCommitmentValue();
 
     challengeList.add(String.valueOf(commitmentU));
-    challengeList.add(String.valueOf(tildeU.getCommitmentValue()));
+    challengeList.add(String.valueOf(tildeU));
     challengeList.add(String.valueOf(n_1));
 
     return challengeList;
