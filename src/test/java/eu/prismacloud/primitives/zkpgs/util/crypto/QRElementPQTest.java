@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import static org.junit.Assert.fail;
+
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,28 +18,43 @@ class QRElementPQTest {
   void tearDown() {}
 
   @Test
-  void getXp() {}
+  void getXp() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void getXq() {}
+  void getXq() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void setPQRepresentation() {}
+  void setPQRepresentation() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void getGroup() {}
+  void getGroup() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void getValue() {}
+  void getValue() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void getOrder() {}
+  void getOrder() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void modPow() {}
+  void modPow() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
   void multiply() {
+	  fail("Test not implemented yet.");
     // TODO multiply using the CRT and randomization -> create elements in randoma and multiply them
 
   }

@@ -15,6 +15,8 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
+
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -28,15 +30,11 @@ import java.util.logging.Logger;
  * with respect to a SignerPublicKey and a GraphRepresentation with an encoding specified in the
  * signer's ExtendedPublicKey.
  */
-public class GSSignature {
-  // implements Serializable
-  // TODO We need to clean up the class in terms of variables that belong to the class.
+public class GSSignature implements Serializable {
   /** */
-  //	private static final long serialVersionUID = 4811571232342405043L;
-  private static Logger gslog = GSLoggerConfiguration.getGSlog();
+  private static final long serialVersionUID = 4811571232342405043L;
 
   private final SignerPublicKey signerPublicKey;
-  private GSCommitment U;
   private final KeyGenParameters keyGenParameters;
   private final BigInteger ePrimeOffset;
   private final GroupElement A;
@@ -47,6 +45,7 @@ public class GSSignature {
   private final GroupElement baseZ;
   private BaseCollection encodedBases;
 
+  // TODO this constructor seems broken. The graph signature should not hold the commitment in state.
   public GSSignature(
       final ExtendedPublicKey extendedPublicKey,
       GSCommitment U,
@@ -61,7 +60,6 @@ public class GSSignature {
     this.e = e;
     this.ePrime = e.subtract(ePrimeOffset);
     this.v = v;
-    this.U = U;
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;
     this.baseS = this.signerPublicKey.getBaseS();

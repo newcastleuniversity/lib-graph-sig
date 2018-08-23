@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import static org.junit.Assert.fail;
+
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,20 +23,30 @@ class QRGroupTest {
 
   @Test
   @DisplayName("Test getOrder of QRGroup")
-  void getOrder() {}
+  void getOrder() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
   @DisplayName("Test get Generator of QRGroup")
-  void getGenerator() {}
+  void getGenerator() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
   @DisplayName("Test create a generator for QRGroup")
-  void createGenerator() {}
+  void createGenerator() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
   @DisplayName("Test element for membership in QRGroup")
-  void isElement() {}
+  void isElement() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void getModulus() {}
+  void getModulus() {
+	  fail("Test not implemented yet.");
+  }
 }

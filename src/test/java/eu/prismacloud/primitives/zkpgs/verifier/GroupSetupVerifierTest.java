@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
@@ -151,7 +152,9 @@ class GroupSetupVerifierTest {
   }
 
   @Test
-  void checkLengths() {}
+  void checkLengths() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
   void computeHatValues() {

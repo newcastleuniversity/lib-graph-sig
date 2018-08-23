@@ -333,7 +333,7 @@ public class CommitmentProver implements IProver {
   }
 
   private void computeResponsesIssuing() throws Exception {
-    BigInteger m_0 = null;
+    BigInteger m_0 = null; // TODO message needs to be added.
     BaseRepresentation baseRepresentation;
     BigInteger vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
 

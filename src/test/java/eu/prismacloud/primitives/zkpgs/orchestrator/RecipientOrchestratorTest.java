@@ -14,6 +14,9 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,18 +68,23 @@ class RecipientOrchestratorTest {
   @Test
   void round1() throws ProofStoreException {
     // recipientOrchestrator.round1();
-
+	  fail("Test not implemented yet.");
   }
 
   @Test
-  void computeChallenge() {}
+  void computeChallenge() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void createProofSignature() {}
+  void createProofSignature() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
   void round3() throws Exception {
     //  signerOrchestrator.round2();
     //  recipientOrchestrator.round3();
+	  fail("Test not implemented yet.");
   }
 }

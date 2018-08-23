@@ -37,7 +37,7 @@ public class GSSignerClientTest {
   @BeforeAll
   void setup2Key() throws IOException, ClassNotFoundException, InterruptedException {
     Thread.sleep(200);
-    FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
+    persistenceUtil = new FilePersistenceUtil();
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);

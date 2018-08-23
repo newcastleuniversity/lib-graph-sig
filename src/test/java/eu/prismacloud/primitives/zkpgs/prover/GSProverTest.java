@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -112,8 +113,12 @@ class GSProverTest {
   }
 
   @Test
-  void computeBlindedSignature() {}
+  void computeBlindedSignature() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void sendMessage() {}
+  void sendMessage() {
+	  fail("Test not implemented yet.");
+  }
 }

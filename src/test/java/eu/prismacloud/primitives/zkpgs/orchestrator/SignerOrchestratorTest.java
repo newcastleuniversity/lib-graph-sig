@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
@@ -75,29 +76,43 @@ class SignerOrchestratorTest {
     //    recipientOrchestrator.round3();
 
     //    recipientOrchestrator.round3();
+    fail("Test not implemented yet.");
 
   }
 
   @Test
   void round2() throws Exception {
 //    signerOrchestrator.round2();
+	  fail("Test not implemented yet.");
   }
 
   @Test
-  void computeChallenge() {}
+  void computeChallenge() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void verifyChallenge() {}
+  void verifyChallenge() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void createPartialSignature() {}
+  void createPartialSignature() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void computeRandomness() {}
+  void computeRandomness() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void computevPrimePrime() {}
+  void computevPrimePrime() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void store() {}
+  void store() {
+	  fail("Test not implemented yet.");
+  }
 }

@@ -1,26 +1,38 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
+import static org.junit.Assert.fail;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** */
 class ExtendedPublicKeyTest {
 
-  @BeforeEach
-  void setUp() {}
+	@BeforeEach
+	void setUp() {}
 
-  @Test
-  void getPublicKey() {}
+	@Test
+	void getPublicKey() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void getPrivateKey() {}
+	@Test
+	void getPrivateKey() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void getVertexBases() {}
+	@Test
+	void getVertexBases() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void getEdgeBases() {}
+	@Test
+	void getEdgeBases() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void graphEncodingSetup() {}
+	@Test
+	void graphEncodingSetup() {
+		fail("Test not implemented yet.");
+	}
 }

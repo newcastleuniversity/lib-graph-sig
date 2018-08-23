@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import static org.junit.Assert.fail;
+
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +17,12 @@ class QRElementNTest {
   void tearDown() {}
 
   @Test
-  void getGroup() {}
+  void getGroup() {
+	  fail("Test not implemented yet.");
+  }
 
   @Test
-  void getValue() {}
+  void getValue() {
+	  fail("Test not implemented yet.");
+  }
 }

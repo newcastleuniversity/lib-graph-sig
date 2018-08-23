@@ -322,6 +322,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
 	private void computePairWiseProvers(List<PairWiseDifferenceProver> pairWiseDifferenceProvers) {
 		int i = 0;
+		pairWiseWitnesses = new HashMap<URN, GroupElement>();
 
 		for (PairWiseDifferenceProver differenceProver : pairWiseDifferenceProvers) {
 

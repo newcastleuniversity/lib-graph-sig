@@ -265,6 +265,8 @@ private List<String> contextList;
     computeA();
 
     /** TODO check if we need to verify pre-signature */
+    /* TODO this call of the graph signature is broken, the constructor only stores in
+    state but does not do any compuation. */
     gsSignature =
         new GSSignature(
             extendedPublicKey, U, encodedBasesCollection, keyGenParameters, A, e, vPrimePrime);

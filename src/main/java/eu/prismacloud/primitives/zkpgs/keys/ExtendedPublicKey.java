@@ -19,19 +19,10 @@ import java.util.Map;
 public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProducer {
 	private static final long serialVersionUID = 603738248933483649L;
 	private final SignerPublicKey signerPublicKey;
-	private ExtendedPublicKey ePublicKey;
-	private ExtendedPrivateKey ePrivateKey;
 	private Map<URN, BaseRepresentation> bases;
-	private Map<URN, BigInteger> discLogOfVertexBases;
-	private Map<URN, BigInteger> discLogOfEdgeBases;
 	private final Map<URN, BigInteger> labelRepresentatives;
 	private final transient GraphEncodingParameters graphEncodingParameters;
-	private JsonIsoCountries jsonIsoCountries;
-	private Map<URN, BigInteger> countryLabels;
-	private BaseRepresentation base;
-	private int index = 0;
 	private Map<URN, BigInteger> vertexRepresentatives;
-	private BigInteger vertexPrimeRepresentative;
 	private BaseCollectionImpl baseCollection;
 
 	/**

@@ -32,7 +32,7 @@ public class GSVerifier {
     return barV;
   }
 
-  public void checkLengths(ProofSignature p_3) {
+  public boolean checkLengths(ProofSignature p_3) {
     int hateLength =
         keyGenParameters.getL_prime_e()
             + keyGenParameters.getL_statzk()
@@ -40,6 +40,10 @@ public class GSVerifier {
             + 1;
     int hatvLength =
         keyGenParameters.getL_v() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
+    
+    // TODO Implement length check
+    
+    return false;
   }
 
   public void sendMessage(GSMessage messageToProver) {

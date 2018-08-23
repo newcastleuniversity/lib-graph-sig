@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
@@ -49,14 +50,8 @@ class GSVerifierTest {
     verifier = new GSVerifier(extendedPublicKey, keyGenParameters);
   }
 
-//  @Test
-//  void getBarV() {
-//    Map<URN, BigInteger> barV = verifier.getBarV();
-//    assertNotNull(barV);
-//  }
-//
-//  @Test
-//  void checkLengths() {
-//    verifier.checkLengths(new ProofSignature(new HashMap<>()));
-//  }
+  @Test
+  void testGSVerifier() {
+	  fail("Test not implemented yet.");
+  }
 }

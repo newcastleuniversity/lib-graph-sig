@@ -264,7 +264,6 @@ class CRTTest {
     BigInteger qPrime = signerPrivateKey.getqPrime();
     BigInteger modN = signerPublicKey.getModN();
 
-    QRGroupPQ qrGroupPQ = new QRGroupPQ(pPrime, qPrime);
 
     Group qrGroupN = new QRGroupN(modN);
 

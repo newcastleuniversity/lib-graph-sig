@@ -1,25 +1,37 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import static org.junit.Assert.fail;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ProverOrchestratorTest {
 
-  @BeforeEach
-  void setUp() {}
+	@BeforeEach
+	void setUp() {}
 
-  @Test
-  void proverOrchestrator() {}
+	@Test
+	void proverOrchestrator() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void getRandomizedGraphSignature() {}
+	@Test
+	void getRandomizedGraphSignature() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void sendPreChallenge() {}
+	@Test
+	void sendPreChallenge() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void sendPostChallenge() {}
+	@Test
+	void sendPostChallenge() {
+		fail("Test not implemented yet.");
+	}
 
-  @Test
-  void execute() {}
+	@Test
+	void execute() {
+		fail("Test not implemented yet.");
+	}
 }
