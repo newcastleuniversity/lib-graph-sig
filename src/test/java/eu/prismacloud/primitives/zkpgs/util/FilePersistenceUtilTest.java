@@ -25,7 +25,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 class FilePersistenceUtilTest {
   private Logger log = GSLoggerConfiguration.getGSlog();
   // set flag to true to generate a new signer key pair and a new signer public key
-  private Boolean generateKeys = false;
+  private Boolean generateKeys = true;
   private FilePersistenceUtil persistenceUtil;
   private KeyGenParameters keyGenParameters;
   private String signerKeyPairFileName;
