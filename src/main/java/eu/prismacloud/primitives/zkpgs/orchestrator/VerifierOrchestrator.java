@@ -34,278 +34,294 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** */
-public class VerifierOrchestrator {
+public class VerifierOrchestrator implements IVerifierOrchestrator {
 
-  private BaseIterator vertexIterator;
-  private BaseIterator edgeIterator;
-  private ProofSignature P_3;
-  private final GSVerifier verifier;
-  private final ExtendedPublicKey extendedPublicKey;
-  private final ProofStore<Object> proofStore;
-  private final KeyGenParameters keyGenParameters;
-  private final GraphEncodingParameters graphEncodingParameters;
-  private ProofStore<Object> verifierStore = new ProofStore<Object>();
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private GroupElement aPrime;
-  private Map<URN, GSCommitment> C_i;
-  private BigInteger cChallenge;
-  private BigInteger hate;
-  private BigInteger hatvPrime;
-  private BigInteger hatm_0;
-  private List<CommitmentVerifier> commitmentVerifierList;
-  private BigInteger tildem_i;
-  private BigInteger n_3;
-  private List<String> contextList;
-  private List<String> challengeList;
-  private GroupElement hatZ;
-  private BigInteger hatc;
-  private BaseCollection baseCollection;
+	private ProofSignature P_3;
+	private final GSVerifier verifier;
+	private final ExtendedPublicKey extendedPublicKey;
+	private final ProofStore<Object> proofStore;
+	private final KeyGenParameters keyGenParameters;
+	private final GraphEncodingParameters graphEncodingParameters;
+	private ProofStore<Object> verifierStore = new ProofStore<Object>();
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private GroupElement aPrime;
+	private Map<URN, GSCommitment> C_i;
+	private BigInteger cChallenge;
+	private BigInteger hate;
+	private BigInteger hatvPrime;
+	private BigInteger hatm_0;
+	private List<CommitmentVerifier> commitmentVerifierList;
+	private BigInteger tildem_i;
+	private BigInteger n_3;
+	private List<String> contextList;
+	private List<String> challengeList;
+	private GroupElement hatZ;
+	private BigInteger hatc;
+	private BaseCollection baseCollection;
 
-  public VerifierOrchestrator(
-      final ExtendedPublicKey extendedPublicKey,
-      final ProofStore<Object> proofStore,
-      final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters) {
+	public VerifierOrchestrator(
+			final ExtendedPublicKey extendedPublicKey,
+			final ProofStore<Object> proofStore,
+			final KeyGenParameters keyGenParameters,
+			final GraphEncodingParameters graphEncodingParameters) {
 
-    this.extendedPublicKey = extendedPublicKey;
-    this.proofStore = proofStore;
-    this.keyGenParameters = keyGenParameters;
-    this.graphEncodingParameters = graphEncodingParameters;
-    this.verifier = new GSVerifier(extendedPublicKey, keyGenParameters);
-    //    this.vertexIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.VERTEX);
-    //    this.edgeIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.EDGE);
-  }
+		this.extendedPublicKey = extendedPublicKey;
+		this.proofStore = proofStore;
+		this.keyGenParameters = keyGenParameters;
+		this.graphEncodingParameters = graphEncodingParameters;
+		this.verifier = new GSVerifier(extendedPublicKey, keyGenParameters);
+		//    this.vertexIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.VERTEX);
+		//    this.edgeIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.EDGE);
+	}
 
-  public void init() {
-    this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
-    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
+	public void init() {
+		this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
 
-    n_3 = verifier.computeNonce();
-    Map<URN, Object> messageElements = new HashMap<URN, Object>();
-    messageElements.put(URN.createZkpgsURN("verifier.n_3"), n_3);
-    verifier.sendMessage(new GSMessage(messageElements));
-  }
+		n_3 = verifier.computeNonce();
+		Map<URN, Object> messageElements = new HashMap<URN, Object>();
+		messageElements.put(URN.createZkpgsURN("verifier.n_3"), n_3);
+		verifier.sendMessage(new GSMessage(messageElements));
+	}
 
-  public void receiveProverMessage() throws VerificationException {
-    GSMessage proverMessage = verifier.receiveMessage();
-    Map<URN, Object> proverMessageElements = proverMessage.getMessageElements();
+	public void receiveProverMessage() throws VerificationException {
+		GSMessage proverMessage = verifier.receiveMessage();
+		Map<URN, Object> proverMessageElements = proverMessage.getMessageElements();
 
-    P_3 = (ProofSignature) proverMessageElements.get(URN.createZkpgsURN("prover.P_3"));
-    aPrime = (GroupElement) proverMessageElements.get(URN.createZkpgsURN("prover.APrime"));
+		P_3 = (ProofSignature) proverMessageElements.get(URN.createZkpgsURN("prover.P_3"));
+		aPrime = (GroupElement) proverMessageElements.get(URN.createZkpgsURN("prover.APrime"));
 
-    C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.C_i"));
-    Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
+		C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.C_i"));
+		Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
 
-    if (!checkProofSignatureLengths(proofSignatureElements)) {
-      /** TODO create a custom exception for lengths or return null */
-      throw new VerificationException("Proof signature elements do not have correct length");
-    }
+		if (!checkLengths(proofSignatureElements)) {
+			/** TODO create a custom exception for lengths or return null */
+			throw new VerificationException("Proof signature elements do not have correct length");
+		}
 
-    try {
-      storePublicValues();
-      storeProofSignature(proofSignatureElements);
-    } catch (ProofStoreException e) {
-      gslog.log(Level.SEVERE, e.getMessage());
-    }
-  }
+		try {
+			storePublicValues();
+			storeProofSignature(proofSignatureElements);
+		} catch (ProofStoreException e) {
+			gslog.log(Level.SEVERE, e.getMessage());
+		}
+	}
 
-  public boolean checkProofSignatureLengths(Map<URN, Object> proofSignatureElements) {
-    int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
-    int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
-    int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
-    int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+	@Override
+	public boolean checkLengths(Map<URN, Object> proofSignatureElements) {
+		int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
+		int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
+		int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
+		int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
-    hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
-    hatvPrime =
-        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
-    hatm_0 =
-        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
-    /** TODO check lengths for vertices, edges, and pair-wise different vertex encodings */
-    return CryptoUtilsFacade.isInPMRange(hate, l_hate)
-        && CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
-        && CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
-  }
+		hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
+		hatvPrime =
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
+		hatm_0 =
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
+		/** TODO check lengths for vertices, edges, and pair-wise different vertex encodings */
+		return CryptoUtilsFacade.isInPMRange(hate, l_hate)
+				&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
+				&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
+	}
 
-  private void storeProofSignature(Map<URN, Object> proofSignatureElements)
-      throws ProofStoreException {
+	private void storeProofSignature(Map<URN, Object> proofSignatureElements)
+			throws ProofStoreException {
 
-    cChallenge =
-        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.c"));
-    proofStore.store("verifier.c", cChallenge);
+		cChallenge =
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.c"));
+		proofStore.store("verifier.c", cChallenge);
 
-    aPrime =
-        (GroupElement) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.APrime"));
-    proofStore.store("verifier.APrime", aPrime);
+		aPrime =
+				(GroupElement) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.APrime"));
+		proofStore.store("verifier.APrime", aPrime);
 
-    hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
-    proofStore.store("verifier.hate", hate);
+		hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
+		proofStore.store("verifier.hate", hate);
 
-    hatvPrime =
-        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
-    proofStore.store("verifier.hatvPrime", hatvPrime);
+		hatvPrime =
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
+		proofStore.store("verifier.hatvPrime", hatvPrime);
 
-    hatm_0 =
-        (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
-    proofStore.store("verifier.hatm_0", hatm_0);
+		hatm_0 =
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
+		proofStore.store("verifier.hatm_0", hatm_0);
 
-    /** TODO store vertices from proof signature */
-    int baseIndex;
-    String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
-    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
-    String hatm_iURN;
-    BigInteger hatm_i;
-    BigInteger hatr_i;
-    String hatr_iURN;
-    for (BaseRepresentation vertexBase : vertexIterator) {
-      baseIndex = vertexBase.getBaseIndex();
-      hatm_iURN = hatm_iPath + baseIndex;
-      hatm_i =
-          (BigInteger)
-              proofSignatureElements.get(
-                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
+		/** TODO store vertices from proof signature */
+		int baseIndex;
+		String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
+		String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+		String hatm_iURN;
+		BigInteger hatm_i;
+		BigInteger hatr_i;
+		String hatr_iURN;
 
-      proofStore.store(hatm_iPath + baseIndex, hatm_i);
-      hatr_iURN = hatr_iPath + baseIndex;
-      hatr_i =
-          (BigInteger)
-              proofSignatureElements.get(
-                  URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
-      proofStore.store(hatr_iPath + baseIndex, hatr_i);
-    }
-    /** TODO store edges from proof signature */
-    //    String hatm_i_jURN;
-    //    String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
-    //    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
-    //    String hatr_iURN;
-    //    BigInteger hatm_i_j;
-    //    BigInteger hatr_i;
-    //    for (BaseRepresentation edgeBase : edgeIterator) {
-    //      baseIndex = edgeBase.getBaseIndex();
-    //      hatm_i_jURN = hatm_i_jPath + baseIndex;
-    //      hatm_i_j =
-    //          (BigInteger)
-    //              proofSignatureElements.get(
-    //                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex));
-    //      Assert.checkBitLength(hatm_i_j, l_m, "hatm_i_j length is not correct");
-    //      proofStore.store("verifier.hatm_i_j_" + baseIndex, hatm_i_j);
-    //
-    //      hatr_iURN = hatr_iPath + baseIndex;
-    //      hatr_i =
-    //          (BigInteger)
-    //              proofSignatureElements.get(
-    //                  URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
-    //      Assert.checkBitLength(hatr_i, l_hatr, "hatr_i length is not correct");
-    //      proofStore.store("verifier.hatr_i_" + baseIndex, hatr_i);
-    //    }
-    /** TODO store pair-wise different vertex encodings from the proof signature */
-  }
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation vertexBase : vertexIterator) {
+			baseIndex = vertexBase.getBaseIndex();
+			hatm_iURN = hatm_iPath + baseIndex;
+			hatm_i =
+					(BigInteger)
+					proofSignatureElements.get(
+							URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
 
-  public void preChallengePhase() {
+			proofStore.store(hatm_iPath + baseIndex, hatm_i);
+			hatr_iURN = hatr_iPath + baseIndex;
+			hatr_i =
+					(BigInteger)
+					proofSignatureElements.get(
+							URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
+			proofStore.store(hatr_iPath + baseIndex, hatr_i);
+		}
+		/** TODO store edges from proof signature */
+		//    String hatm_i_jURN;
+		//    String hatm_i_jPath = "possessionprover.responses.edge.hatm_i_j_";
+		//    String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+		//    String hatr_iURN;
+		//    BigInteger hatm_i_j;
+		//    BigInteger hatr_i;
+		//    for (BaseRepresentation edgeBase : edgeIterator) {
+		//      baseIndex = edgeBase.getBaseIndex();
+		//      hatm_i_jURN = hatm_i_jPath + baseIndex;
+		//      hatm_i_j =
+		//          (BigInteger)
+		//              proofSignatureElements.get(
+		//                  URN.createZkpgsURN("proofsignature.P_3.hatm_i_j_" + baseIndex));
+		//      Assert.checkBitLength(hatm_i_j, l_m, "hatm_i_j length is not correct");
+		//      proofStore.store("verifier.hatm_i_j_" + baseIndex, hatm_i_j);
+		//
+		//      hatr_iURN = hatr_iPath + baseIndex;
+		//      hatr_i =
+		//          (BigInteger)
+		//              proofSignatureElements.get(
+		//                  URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
+		//      Assert.checkBitLength(hatr_i, l_hatr, "hatr_i length is not correct");
+		//      proofStore.store("verifier.hatr_i_" + baseIndex, hatr_i);
+		//    }
+		/** TODO store pair-wise different vertex encodings from the proof signature */
+	}
 
-    PossessionVerifier possessionVerifier =
-        (PossessionVerifier) VerifierFactory.newVerifier(VerifierType.PossessionVerifier);
+	public void preChallengePhase() {
 
-    hatZ =
-        possessionVerifier.computeHatZ(
-            extendedPublicKey, baseCollection, proofStore, keyGenParameters);
-    gslog.info("hatZ : " + hatZ);
+		PossessionVerifier possessionVerifier =
+				new PossessionVerifier(extendedPublicKey, proofStore);
 
-    computeCommitmentVerifiers();
-  }
+		try {
+			hatZ =
+					possessionVerifier.executeVerification(cChallenge);
+		} catch (ProofStoreException e) {
+			gslog.log(Level.SEVERE, "Could not access the challenge in the ProofStore.", e);
+		}
+		gslog.info("hatZ : " + hatZ);
 
-  public void computeChallenge() throws NoSuchAlgorithmException {
-    gslog.info("compute challenge ");
-    challengeList = populateChallengeList();
-    hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-  }
+		computeCommitmentVerifiers();
+	}
 
-  public void verifyChallenge() throws VerificationException {
-    if (!cChallenge.equals(hatc)) {
-      throw new VerificationException("challenge verification failed");
-    }
-  }
+	@Override
+	public BigInteger computeChallenge() {
+		gslog.info("compute challenge ");
+		challengeList = populateChallengeList();
+		try {
+			hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+		} catch (NoSuchAlgorithmException e) {
+			gslog.log(Level.SEVERE, "Could not find the hash algorithm.", e);
+		}
+		return hatc;
+	}
 
-  private List<String> populateChallengeList() {
-    challengeList = new ArrayList<>();
+	public void verifyChallenge() throws VerificationException {
+		if (!cChallenge.equals(hatc)) {
+			throw new VerificationException("challenge verification failed");
+		}
+	}
 
-    GSContext gsContext =
-        new GSContext(extendedPublicKey);
-    contextList = gsContext.computeChallengeContext();
-    challengeList.addAll(contextList);
-    challengeList.add(String.valueOf(aPrime));
-    challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
+	private List<String> populateChallengeList() {
+		challengeList = new ArrayList<>();
 
-    for (GSCommitment gsCommitment : C_i.values()) {
-      challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
-    }
+		GSContext gsContext =
+				new GSContext(extendedPublicKey);
+		contextList = gsContext.computeChallengeContext();
+		challengeList.addAll(contextList);
+		challengeList.add(String.valueOf(aPrime));
+		challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseZ().getValue()));
 
-    challengeList.add(String.valueOf(hatZ));
+		for (GSCommitment gsCommitment : C_i.values()) {
+			challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
+		}
 
-    GroupElement commitment;
-    String hatC_iURN;
-    for (BaseRepresentation vertex : vertexIterator) {
-      hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
-      commitment = (GroupElement) proofStore.retrieve(hatC_iURN);
-      challengeList.add(String.valueOf(commitment));
-    }
+		challengeList.add(String.valueOf(hatZ));
 
-    /** TODO add pair-wise elements for challenge */
-    //    for (GroupElement witness : pairWiseWitnesses.values()) {
-    //      challengeList.add(String.valueOf(witness));
-    //    }
-    gslog.info("n3: " + n_3);
-    challengeList.add(String.valueOf(n_3));
+		GroupElement commitment;
+		String hatC_iURN;
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation vertex : vertexIterator) {
+			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
+			commitment = (GroupElement) proofStore.retrieve(hatC_iURN);
+			challengeList.add(String.valueOf(commitment));
+		}
 
-    return challengeList;
-  }
+		/** TODO add pair-wise elements for challenge */
+		//    for (GroupElement witness : pairWiseWitnesses.values()) {
+		//      challengeList.add(String.valueOf(witness));
+		//    }
+		gslog.info("n3: " + n_3);
+		challengeList.add(String.valueOf(n_3));
 
-  private void computeCommitmentVerifiers() {
-    CommitmentVerifier commitmentVerifier;
-    commitmentVerifierList = new ArrayList<>();
+		return challengeList;
+	}
 
-    String witnessRandomnessURN;
-    String hatC_iURN;
-    for (BaseRepresentation vertex : vertexIterator) {
-      witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
-      tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
+	private void computeCommitmentVerifiers() {
+		CommitmentVerifier commitmentVerifier;
+		commitmentVerifierList = new ArrayList<>();
 
-      commitmentVerifier =
-          (CommitmentVerifier) VerifierFactory.newVerifier(VerifierType.CommitmentVerifier);
+		String witnessRandomnessURN;
+		String hatC_iURN;
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation vertex : vertexIterator) {
+			witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
+			tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
-      GroupElement hatCommitment =
-          commitmentVerifier.computeWitness(
-              cChallenge, vertex, proofStore, extendedPublicKey, keyGenParameters);
+			commitmentVerifier =
+					new CommitmentVerifier();
 
-      commitmentVerifierList.add(commitmentVerifier);
-      hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
+			GroupElement hatCommitment =
+					commitmentVerifier.computeWitness(
+							cChallenge, vertex, proofStore, extendedPublicKey, keyGenParameters);
 
-      try {
-        proofStore.store(hatC_iURN, hatCommitment);
-      } catch (Exception e) {
-        gslog.log(Level.SEVERE, e.getMessage());
-      }
-    }
-  }
+			commitmentVerifierList.add(commitmentVerifier);
+			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
 
-  public void storePublicValues() throws ProofStoreException {
-    String ZURN = "verifier.Z";
-    String APrimeURN = "verifier.APrime";
-    //    String C_iURN = "verifier.C_i";
+			try {
+				proofStore.store(hatC_iURN, hatCommitment);
+			} catch (Exception e) {
+				gslog.log(Level.SEVERE, e.getMessage());
+			}
+		}
+	}
 
-    verifierStore.store(ZURN, extendedPublicKey.getPublicKey().getBaseZ());
-    verifierStore.store(APrimeURN, P_3.get("proofsignature.P_3.APrime"));
-    /** TODO check storage of C_i */
-    //    verifierStore.store(C_iURN, P_3.get("proofsignature.P_3.C_i"));
+	public void storePublicValues() throws ProofStoreException {
+		String ZURN = "verifier.Z";
+		String APrimeURN = "verifier.APrime";
+		//    String C_iURN = "verifier.C_i";
 
-    for (Entry<URN, GSCommitment> commitmentEntry : C_i.entrySet()) {
-      URN commitmentKey = commitmentEntry.getKey();
-      GSCommitment commitment = commitmentEntry.getValue();
-      proofStore.save(commitmentKey, commitment);
-    }
-  }
+		verifierStore.store(ZURN, extendedPublicKey.getPublicKey().getBaseZ());
+		verifierStore.store(APrimeURN, P_3.get("proofsignature.P_3.APrime"));
+		/** TODO check storage of C_i */
+		//    verifierStore.store(C_iURN, P_3.get("proofsignature.P_3.C_i"));
 
-  public void close() {
-    verifier.close();
-  }
+		for (Entry<URN, GSCommitment> commitmentEntry : C_i.entrySet()) {
+			URN commitmentKey = commitmentEntry.getKey();
+			GSCommitment commitment = commitmentEntry.getValue();
+			proofStore.save(commitmentKey, commitment);
+		}
+	}
+
+	public void close() {
+		verifier.close();
+	}
+
+	@Override
+	public boolean executeVerification(BigInteger cChallenge) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

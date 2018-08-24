@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -21,100 +22,96 @@ import java.util.logging.Logger;
 public class PossessionVerifier implements IVerifier {
 	public static final String URNID = "possessionverifier";
 
-  private ExtendedPublicKey extendedPublicKey;
-  private ProofStore<Object> proofStore;
-  private KeyGenParameters keyGenParameters;
-  private GroupElement baseZ;
-  private GroupElement baseS;
-  private BaseCollection baseCollection;
-  private GroupElement baseR0;
-  private BaseIterator vertexIterator;
-  private BaseIterator edgeIterator;
-  private GroupElement APrime;
-  private BigInteger cChallenge;
-  private BigInteger hatvPrime;
-  private BigInteger hate;
-  private GroupElement hatZ;
-  private BigInteger hatm_0;
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private ExtendedPublicKey extendedPublicKey;
+	private ProofStore<Object> proofStore;
+	private KeyGenParameters keyGenParameters;
+	private GroupElement baseZ;
+	private GroupElement baseS;
+	private BaseCollection baseCollection;
+	private GroupElement baseR0;
+	private GroupElement APrime;
+	private BigInteger cChallenge;
+	private BigInteger hatvPrime;
+	private BigInteger hate;
+	private GroupElement hatZ;
+	private BigInteger hatm_0;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
 
-  public boolean checkLengths() {
-    int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
-    int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
-    int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
+	public PossessionVerifier(ExtendedPublicKey epk, ProofStore<Object> ps) {
+		Assert.notNull(epk, "The extended public key must not be null.");
+		Assert.notNull(ps, "The ProofStore must not be null.");
 
-    hate = (BigInteger) proofStore.retrieve("verifier.hate");
-    hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
-    hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+		this.extendedPublicKey = epk;
+		this.keyGenParameters = epk.getKeyGenParameters();
+		this.proofStore = ps;
 
-    /** TODO check lengths for hatm_i vertices and hatm_i_j edges */
-    return CryptoUtilsFacade.isInPMRange(hate, l_hate)
-        && CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
-        && CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
-  }
+		this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
+		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
 
-  public GroupElement computeHatZ(
-      final ExtendedPublicKey extendedPublicKey,
-      final BaseCollection baseCollection,
-      final ProofStore<Object> proofStore,
-      final KeyGenParameters keyGenParameters) {
+		this.baseCollection = epk.getBaseCollection();
+		this.baseR0 = extendedPublicKey.getPublicKey().getBaseR_0();
+	}
 
-    this.extendedPublicKey = extendedPublicKey;
-    this.proofStore = proofStore;
-    this.keyGenParameters = keyGenParameters;
-    this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
-    this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-    // TODO I don't understand how the baseCollection is set. It seems to come from the EPK.
-    // Yet, somehow that iterator below draws upon an exponent, which should not be there.
-    this.baseCollection = baseCollection;
-    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
-    this.baseR0 = extendedPublicKey.getPublicKey().getBaseR_0();
-    // TODO Where do the response exponents come into play?
+	@Override
+	public boolean checkLengths() {
+		int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
+		int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
+		int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
 
-    APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
-    cChallenge = (BigInteger) proofStore.retrieve("verifier.c");
-    hate = (BigInteger) proofStore.retrieve("verifier.hate");
-    hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
-    hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+		hate = (BigInteger) proofStore.retrieve("verifier.hate");
+		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
+		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
 
-    // Aborting verification with output null, if lengths check rejects hat-values.
-    if (!checkLengths()) return null;
+		/** TODO check lengths for hatm_i vertices and hatm_i_j edges */
+		return CryptoUtilsFacade.isInPMRange(hate, l_hate)
+				&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
+				&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
+	}
 
-    QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
+	@Override
+	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
+		cChallenge = (BigInteger) proofStore.retrieve("verifier.c");
+		hate = (BigInteger) proofStore.retrieve("verifier.hate");
+		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
+		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
 
-    //    BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
-    //    for (BaseRepresentation baseRepresentation : baseIterator) {
-    //      basesProduct =
-    //          basesProduct.multiply(
-    //              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-    //    }
-    GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
-    // gslog.info("Aprime: " + APrime);
-    GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
+		// Aborting verification with output null, if lengths check rejects hat-values.
+		if (!checkLengths()) return null;
 
-    GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
-    GroupElement result = divide.modPow(cChallenge.negate());
-    GroupElement aPrimeHate = APrime.modPow(hate);
-    GroupElement baseShatvPrime = baseS.modPow(hatvPrime);
+		QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
-    hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0);
+		//    BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		//    for (BaseRepresentation baseRepresentation : baseIterator) {
+		//      basesProduct =
+		//          basesProduct.multiply(
+		//              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+		//    }
+		GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
+		// gslog.info("Aprime: " + APrime);
+		GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
 
-//    gslog.info("hatZ: " + hatZ);
-//    gslog.info("hatZ bitlength: " + hatZ.bitLength());
+		GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
+		GroupElement result = divide.modPow(cChallenge.negate());
+		GroupElement aPrimeHate = APrime.modPow(hate);
+		GroupElement baseShatvPrime = baseS.modPow(hatvPrime);
 
-    return hatZ;
-  }
-  
-  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-  }
-  
-  public boolean isSetupComplete() {
-	  return false;
-  }
-  
-  public List<URN> getGovernedURNs() {
-	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-  }
+		hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0);
+
+		//	    gslog.info("hatZ: " + hatZ);
+		//	    gslog.info("hatZ bitlength: " + hatZ.bitLength());
+
+		return hatZ;
+	}
+
+	@Override
+	public boolean isSetupComplete() {
+		// Only instantiable with complete setup
+		return true;
+	}
+
+	@Override
+	public List<URN> getGovernedURNs() {
+		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+	}
 }

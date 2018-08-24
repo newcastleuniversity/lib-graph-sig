@@ -17,7 +17,8 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
  * The orchestrator is responsible for computing the overall (cross-prover) challenge.
  */
 public interface IProverOrchestrator {
-	
+	/* TODO There is an option to have orchestrator and provers share the exact interfaces
+	of pre- and post-challenge phases. Then a class could implement both interfaces as a short-hand.
 	/**
 	 * The orchestrator initializes and sets up an appropriate proof store for the proofs to come.
 	 */

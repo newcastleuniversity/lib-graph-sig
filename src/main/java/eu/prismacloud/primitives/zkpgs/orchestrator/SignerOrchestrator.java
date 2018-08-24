@@ -139,7 +139,7 @@ private List<String> contextList;
     extractMessageElements(msg);
 
     CommitmentVerifier commitmentVerifier =
-        (CommitmentVerifier) VerifierFactory.newVerifier(VerifierType.CommitmentVerifier);
+        new CommitmentVerifier();
 
     hatU =
         commitmentVerifier.computeWitness(

@@ -45,7 +45,6 @@ public class GroupSetupVerifier implements IVerifier {
   private GraphEncodingParameters graphEncodingParameters;
   private Map<URN, BigInteger> vertexResponses;
   private Map<URN, BigInteger> edgeResponses;
-  private List<String> challengeList = new ArrayList<>();
   private GroupElement baseZ;
   private BigInteger c;
   private GroupElement baseS;
@@ -56,33 +55,18 @@ public class GroupSetupVerifier implements IVerifier {
   private GroupElement baseR_0;
   private BigInteger hatr_0;
   private BigInteger hatc;
-  private List<String> contextList;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private GroupElement hatR_i_j;
   private BaseCollection baseCollection;
-  private BaseIterator vertexIterator;
-  private BaseIterator edgeIterator;
 
-  /**
-   * Pre challenge phase.
-   *
-   * @param extendedPublicKey the extended public key
-   * @param proofSignature the proof signature
-   * @param proofStore the proof store
-   * @param keyGenParameters the key gen parameters
-   * @param graphEncodingParameters the graph encoding parameters
-   */
-  public void preChallengePhase(
-      ExtendedPublicKey extendedPublicKey,
-      ProofSignature proofSignature,
-      ProofStore<Object> proofStore,
-      KeyGenParameters keyGenParameters,
-      GraphEncodingParameters graphEncodingParameters) {
-    this.extendedPublicKey = extendedPublicKey;
+  public GroupSetupVerifier(final ProofSignature proofSignature, 
+		  final ExtendedPublicKey epk, final ProofStore<Object> ps) {
+      
+    this.extendedPublicKey = epk;
     this.proofSignature = proofSignature;
-    this.proofStore = proofStore;
-    this.keyGenParameters = keyGenParameters;
-
+    this.proofStore = ps;
+    this.keyGenParameters = epk.getKeyGenParameters();
+    
     this.baseZ = (QRElement) proofSignature.get("proofsignature.P.baseZ");
     this.c = (BigInteger) proofSignature.get("proofsignature.P.c");
     this.baseS = (QRElement) proofSignature.get("proofsignature.P.baseS");
@@ -94,15 +78,15 @@ public class GroupSetupVerifier implements IVerifier {
     this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
     this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
     this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
-    this.graphEncodingParameters = graphEncodingParameters;
+    this.graphEncodingParameters = epk.getGraphEncodingParameters();
     this.baseCollection = extendedPublicKey.getBaseCollection();
-    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    this.edgeIterator = baseCollection.createIterator(BASE.EDGE);
   }
+ 
 
   /** Check lengths. */
-  //  @Override
-  public void checkLengths() {
+  @Override
+  public boolean checkLengths() {
+	  //TODO why is length reduced by 1 here?
     bitLength = computeBitLength() - 1;
 
     gslog.info("computeBitLength: " + bitLength);
@@ -115,6 +99,8 @@ public class GroupSetupVerifier implements IVerifier {
     BigInteger vertexResponse;
     BigInteger edgeResponse;
 
+
+    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
       vertexResponse =
           this.vertexResponses.get(
@@ -124,6 +110,7 @@ public class GroupSetupVerifier implements IVerifier {
           vertexResponse, bitLength, "length for vertex response is not correct ");
     }
 
+    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
     for (BaseRepresentation baseRepresentation : edgeIterator) {
       edgeResponse =
           this.edgeResponses.get(
@@ -131,6 +118,9 @@ public class GroupSetupVerifier implements IVerifier {
                   "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
       Assert.checkBitLength(edgeResponse, bitLength, "length for edge response is not correct ");
     }
+    
+    // TODO switch to a model where length check returns boolean
+    return true;
   }
 
   private int computeBitLength() {
@@ -141,8 +131,7 @@ public class GroupSetupVerifier implements IVerifier {
   }
 
   /** Compute hat values. */
-  //  @Override
-  public void computeHatValues() {
+  private void computeHatValues() {
     GroupElement vertexBase;
     GroupElement edgeBase;
     BigInteger hatVertexResponse;
@@ -161,6 +150,8 @@ public class GroupSetupVerifier implements IVerifier {
     hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
     hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
 
+
+    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
       hatVertexResponse =
           vertexResponses.get(
@@ -178,6 +169,8 @@ public class GroupSetupVerifier implements IVerifier {
           hatR_i);
     }
 
+
+    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
     for (BaseRepresentation baseRepresentation : edgeIterator) {
       hatEdgeResponse =
           edgeResponses.get(
@@ -197,52 +190,41 @@ public class GroupSetupVerifier implements IVerifier {
    *
    * @throws NoSuchAlgorithmException the no such algorithm exception
    */
-  //  @Override
+  // TODO should be part of an orchestrator
   public void computeVerificationChallenge() throws NoSuchAlgorithmException {
-    challengeList = populateChallengeList();
-    hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    List<String> ctxList = populateChallengeList();
+    hatc = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
   }
 
   private List<String> populateChallengeList() {
     /** TODO add context to list of elements in challenge */
     GSContext gsContext =
         new GSContext(extendedPublicKey);
-    contextList = gsContext.computeChallengeContext();
-    challengeList.add(String.valueOf(modN));
-    challengeList.add(String.valueOf(baseS));
-    challengeList.add(String.valueOf(baseZ));
-    challengeList.add(String.valueOf(baseR));
-    challengeList.add(String.valueOf(baseR_0));
+    List<String> ctxList = gsContext.computeChallengeContext();
 
+    ctxList.add(String.valueOf(hatZ));
+    ctxList.add(String.valueOf(hatR));
+    ctxList.add(String.valueOf(hatR_0));
+
+    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
-      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    }
-
-    for (BaseRepresentation baseRepresentation : edgeIterator) {
-      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-    }
-
-    challengeList.add(String.valueOf(hatZ));
-    challengeList.add(String.valueOf(hatR));
-    challengeList.add(String.valueOf(hatR_0));
-
-    for (BaseRepresentation baseRepresentation : vertexIterator) {
-      challengeList.add(
+      ctxList.add(
           String.valueOf(
               hatVertexBases.get(
                   URN.createZkpgsURN(
                       "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()))));
     }
 
+    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
     for (BaseRepresentation baseRepresentation : edgeIterator) {
-      challengeList.add(
+      ctxList.add(
           String.valueOf(
               hatEdgeBases.get(
                   URN.createZkpgsURN(
                       "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()))));
     }
 
-    return challengeList;
+    return ctxList;
   }
 
   /** Verify challenge. */
@@ -254,11 +236,16 @@ public class GroupSetupVerifier implements IVerifier {
   }
   
   public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+	  checkLengths();
+	  computeHatValues();
+	  
+	  // TODO adapt interfaces to allow to return multiple group elements.
+	  return null;
   }
   
   public boolean isSetupComplete() {
-	  return false;
+	  // Class cannot be instantiated without complete setup;
+	  return true;
   }
   
   public List<URN> getGovernedURNs() {

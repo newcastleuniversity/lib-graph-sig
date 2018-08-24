@@ -19,6 +19,7 @@ import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignatureValidator;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
@@ -28,7 +29,7 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.verifier.CorrectnessVerifier;
+import eu.prismacloud.primitives.zkpgs.verifier.SigningQCorrectnessVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
 import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
@@ -246,35 +247,41 @@ public class RecipientOrchestrator {
 
     proofStore.store("recipient.vPrimePrime", vPrimePrime);
     proofStore.store("recipient.vPrime", vPrime);
+    
+    GSSignature signatureCandidate = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
 
-    CorrectnessVerifier correctnessVerifier =
-        (CorrectnessVerifier) VerifierFactory.newVerifier(VerifierType.CorrectnessVerifier);
-
-    correctnessVerifier.preChallengePhase(
-        e,
-        v,
-        P_2,
-        A,
-        extendedPublicKey,
-        n_2,
-        encodedBasesCollection,
-        proofStore,
-        keyGenParameters,
-        graphEncodingParameters);
-
-    try {
-      correctnessVerifier.computeChallenge();
-    } catch (NoSuchAlgorithmException ns) {
-      gslog.log(Level.SEVERE, ns.getMessage());
+    GSSignatureValidator sigmaVerifier = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
+    
+    if(!sigmaVerifier.verify()) {
+    	// TODO follow convention that orchestrators need to catch exceptions and exit gracefully.
+    	throw new VerificationException("challenge cannot be verified");
     }
-
-    if (!correctnessVerifier.verifyChallenge()) {
-      throw new VerificationException("challenge cannot be verified");
-    }
+    
+    SigningQVerifierOrchestrator verifyingQOrchestrator = new SigningQVerifierOrchestrator(P_2, signatureCandidate, n_2, extendedPublicKey, proofStore);
+    
+    
+//    
+//    correctnessVerifier.preChallengePhase(
+//        e,
+//        v,
+//        P_2,
+//        A,
+//        extendedPublicKey,
+//        n_2,
+//        encodedBasesCollection,
+//        proofStore,
+//        keyGenParameters,
+//        graphEncodingParameters);
+//
+//    try {
+//      correctnessVerifier.computeChallenge();
+//    } catch (NoSuchAlgorithmException ns) {
+//      gslog.log(Level.SEVERE, ns.getMessage());
+//    }
 
     gslog.info("verify graph signature ");
 
-    gsSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+    gsSignature = signatureCandidate;
 
     encodedBasesCollection.add(baseR_0);
     Boolean isValidSignature = gsSignature.verify(extendedPublicKey, encodedBasesCollection);

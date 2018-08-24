@@ -237,4 +237,10 @@ public class CommitmentVerifier implements IVerifier {
   public List<URN> getGovernedURNs() {
 	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
+
+@Override
+public boolean checkLengths() {
+	// TODO Auto-generated method stub
+	return false;
+}
 }

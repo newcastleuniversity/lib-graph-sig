@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
@@ -163,13 +164,11 @@ public class CommitmentVerifierTest {
 
   @Test
   void testComputeHatC() {
-
-
-    
-
-
+	  fail("Test not implemented yet.");
   }
 
   @Test
-  void testComputeUHat() {}
+  void testComputeUHat() {
+	  fail("Test not implemented yet.");
+  }
 }

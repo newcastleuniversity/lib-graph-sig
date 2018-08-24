@@ -104,16 +104,16 @@ class PossessionVerifierTest {
 
 		storeVerifierView(sigmaM.getA());
 
-		verifier = new PossessionVerifier();
+		verifier = new PossessionVerifier(epk, proofStore);
 	}
 
 	/**
 	 * The test checks whether the PossessionVerifier computes hatZ correctly.
 	 */
 	@Test
-	void testComputeHatZ() {
+	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
-		GroupElement hatZ = verifier.computeHatZ(epk, baseCollection, proofStore, keyGenParameters);
+		GroupElement hatZ = verifier.executeVerification(cChallenge);
 		
 		assertEquals(tildeZ, hatZ, "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
 	}
@@ -139,7 +139,7 @@ class PossessionVerifierTest {
 		proofStore.store("verifier.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-		Object output = verifier.computeHatZ(epk, baseCollection,  proofStore, keyGenParameters);
+		Object output = verifier.executeVerification(cChallenge);
 
 		assertNull(output, "The PossionVerifier should have aborted outputting null "
 				+ "upon receiving ill-sized inputs, but produced a non-null output.");

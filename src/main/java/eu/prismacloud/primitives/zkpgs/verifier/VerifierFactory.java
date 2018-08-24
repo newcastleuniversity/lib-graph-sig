@@ -10,19 +10,19 @@ public class VerifierFactory {
     PairWiseDifferenceVerifier
   }
 
-  public static IVerifier newVerifier(VerifierType type) {
-    if (type == VerifierType.GroupSetupVerifier) {
-      return new GroupSetupVerifier();
-    } else if (type == VerifierType.CommitmentVerifier) {
-      return new CommitmentVerifier();
-    } else if (type == VerifierType.CorrectnessVerifier) {
-      return new CorrectnessVerifier();
-    } else if (type == VerifierType.PossessionVerifier) {
-      return new PossessionVerifier();
-    } else if (type == VerifierType.PairWiseDifferenceVerifier) {
-      return new PairWiseDifferenceVerifier();
-    } else {
-      return null;
-    }
-  }
+//  public static IVerifier newVerifier(VerifierType type) {
+//    if (type == VerifierType.GroupSetupVerifier) {
+//      return new GroupSetupVerifier();
+//    } else if (type == VerifierType.CommitmentVerifier) {
+//      return new CommitmentVerifier();
+//    } else if (type == VerifierType.CorrectnessVerifier) {
+//      return new SigningQCorrectnessVerifier();
+//    } else if (type == VerifierType.PossessionVerifier) {
+//      return new PossessionVerifier();
+//    } else if (type == VerifierType.PairWiseDifferenceVerifier) {
+//      return new PairWiseDifferenceVerifier();
+//    } else {
+//      return null;
+//    }
+//  }
 }

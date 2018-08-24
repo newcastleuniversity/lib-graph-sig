@@ -36,62 +36,30 @@ public class PairWiseDifferenceVerifier implements IVerifier{
 	private BigInteger cChallenge;
 
 	private Logger log = GSLoggerConfiguration.getGSlog();
+	
 
-	public PairWiseDifferenceVerifier() {}
-
-	public PairWiseDifferenceVerifier(final int index,
-			GSCommitment C_i, GSCommitment C_j) {
+	public PairWiseDifferenceVerifier(GSCommitment C_i, GSCommitment C_j, 
+			final int index,
+			final ExtendedPublicKey epk,
+			final ProofStore<Object> ps) {
+		
+		Assert.notNull(C_i, "Commitment C_i must not be null.");
+		Assert.notNull(C_j, "Commitment C_j must not be null.");
+		Assert.notNull(epk, "The extended public key must not be null.");
+		Assert.notNull(ps, "The ProofStore must not be null.");
+		
+		this.epk = epk;
+		this.proofStore = ps;
+		this.keyGenParameters = epk.getKeyGenParameters();
+		this.baseS = epk.getPublicKey().getBaseS();
+		this.baseR = epk.getPublicKey().getBaseR();
 		this.index = index;
 		this.C_i = C_i;
 		this.C_j = C_j;
 	}
 
-	/**
-	 * Checks the lengths of the hat-values as inputs of the verifier.
-	 * 
-	 * @return <tt>true</tt> if and only if the inputs are in the specified range.
-	 */
-	public boolean checkLengths() {
-		int l_hatab = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
-		int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getL_statzk() 	// size of commitment randomness r
-		+ keyGenParameters.getL_m() 										// max size of a Bezout coefficient for a commitment message
-		+ 1 																// accounting adding two blinding compensations
-		+ keyGenParameters.getProofOffset();								// offset introduced by the challenge and response computation
-
-		hata_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATABARIBARJ, index));
-		hatb_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATBBARIBARJ, index));
-		hatr_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATRBARIBARJ, index));
-
-		//	    log.info("Desired BL for ab = " + l_hatab
-		//	    		+ "\n  hata (BL = " + hata_BariBarj.bitLength() + ") = " + hata_BariBarj
-		//	    		+ "\n  hatb (BL = " + hatb_BariBarj.bitLength() + ") = " + hatb_BariBarj
-		//	    		+ "\nDesired BL for v = " + l_hatr
-		//	    		+ "\n  hatr (BL = " + hatr_BariBarj.bitLength() + ") = " + hatr_BariBarj);
-
-		return CryptoUtilsFacade.isInPMRange(hata_BariBarj, l_hatab)
-				&& CryptoUtilsFacade.isInPMRange(hatb_BariBarj, l_hatab)
-				&& CryptoUtilsFacade.isInPMRange(hatr_BariBarj, l_hatr);
-	}
-
-	/**
-	 * Computes the overall verification witness hatR for the PairWiseDifferenceVerifier.
-	 * 
-	 * @param extendedPublicKey
-	 * @param proofStore
-	 * @param keyGenParameters
-	 * @return
-	 */
-	public GroupElement computeHatR(
-			final ExtendedPublicKey extendedPublicKey,
-			final ProofStore<Object> proofStore,
-			final KeyGenParameters keyGenParameters) {
-
-		this.epk = extendedPublicKey;
-		this.proofStore = proofStore;
-		this.keyGenParameters = keyGenParameters;
-		this.baseS = epk.getPublicKey().getBaseS();
-		this.baseR = epk.getPublicKey().getBaseR();
-
+	@Override
+	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
 		hata_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATABARIBARJ, index));
 		hatb_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATBBARIBARJ, index));
 		hatr_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATRBARIBARJ, index));
@@ -122,6 +90,40 @@ public class PairWiseDifferenceVerifier implements IVerifier{
 
 		return this.hatR;
 	}
+	
+	/**
+	 * Checks the lengths of the hat-values as inputs of the verifier.
+	 * 
+	 * @return <tt>true</tt> if and only if the inputs are in the specified range.
+	 */
+	@Override
+	public boolean checkLengths() {
+		int l_hatab = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+		int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getL_statzk() 	// size of commitment randomness r
+		+ keyGenParameters.getL_m() 										// max size of a Bezout coefficient for a commitment message
+		+ 1 																// accounting adding two blinding compensations
+		+ keyGenParameters.getProofOffset();								// offset introduced by the challenge and response computation
+
+		hata_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATABARIBARJ, index));
+		hatb_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATBBARIBARJ, index));
+		hatr_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATRBARIBARJ, index));
+
+		//	    log.info("Desired BL for ab = " + l_hatab
+		//	    		+ "\n  hata (BL = " + hata_BariBarj.bitLength() + ") = " + hata_BariBarj
+		//	    		+ "\n  hatb (BL = " + hatb_BariBarj.bitLength() + ") = " + hatb_BariBarj
+		//	    		+ "\nDesired BL for v = " + l_hatr
+		//	    		+ "\n  hatr (BL = " + hatr_BariBarj.bitLength() + ") = " + hatr_BariBarj);
+
+		return CryptoUtilsFacade.isInPMRange(hata_BariBarj, l_hatab)
+				&& CryptoUtilsFacade.isInPMRange(hatb_BariBarj, l_hatab)
+				&& CryptoUtilsFacade.isInPMRange(hatr_BariBarj, l_hatr);
+	}
+
+	@Override
+	public boolean isSetupComplete() {
+		// Can only be instantiated with complete setup
+		return true;
+	}
 
 	public String getVerifierURN(URNType t) {
 		if (URNType.isEnumerable(t)) {
@@ -137,14 +139,8 @@ public class PairWiseDifferenceVerifier implements IVerifier{
 		return PairWiseDifferenceVerifier.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
 	}
 
-	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
 
-	public boolean isSetupComplete() {
-		return false;
-	}
-
+	@Override
 	public List<URN> getGovernedURNs() {
 		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
 	}

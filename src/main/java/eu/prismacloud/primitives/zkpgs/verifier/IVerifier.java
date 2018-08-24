@@ -26,6 +26,13 @@ public interface IVerifier {
 	GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException;
 	
 	/**
+	 * Checks the lengths of inputed prover-responses (hat-values).
+	 *  
+	 * @return <tt>true</tt> if the lengths fulfil the requirements for the given prover.
+	 */
+	boolean checkLengths();
+	
+	/**
 	 * Verifies if the component verifier is setup consistently to commence the 
 	 * verification on challenge and responses.
 	 * 

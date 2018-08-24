@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -102,18 +103,19 @@ class PairWiseDifferenceVerifierTest {
 		hatb_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATBBARIBARJ, testIndex));
 		hatr_BariBarj = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATRBARIBARJ, testIndex));
 
-		verifier = new PairWiseDifferenceVerifier(testIndex, c1, c2coprime);
+		verifier = new PairWiseDifferenceVerifier(c1, c2coprime, testIndex, epk, proofStore);
 		
 		storeVerifierView(testIndex);
 	}
 
 	/**
 	 * The test checks whether the PairWiseDifferenceVerifier computes hatR correctly.
+	 * @throws ProofStoreException 
 	 */
 	@Test
-	void testComputeHatR() {
+	void testComputeHatR() throws ProofStoreException {
 		log.info("Checking the verifier's computation of hatR");
-		hatR = verifier.computeHatR(epk, proofStore, keyGenParameters);
+		hatR = verifier.executeVerification(cChallenge);
 		
 		assertNotNull(verifier);
 		assertNotNull(hatR);
@@ -141,7 +143,7 @@ class PairWiseDifferenceVerifierTest {
 		proofStore.store(verifier.getVerifierURN(URNType.HATRBARIBARJ, testIndex), hatr_BariBarj);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-		Object output = verifier.computeHatR(epk, proofStore, keyGenParameters);
+		Object output = verifier.executeVerification(cChallenge);
 
 		assertNull(output, "The PairWiseDifferenceVerifier should have aborted outputting null "
 				+ "upon receiving ill-sized inputs, but produced a non-null output.");
