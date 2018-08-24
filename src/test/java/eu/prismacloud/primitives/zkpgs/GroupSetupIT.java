@@ -111,9 +111,9 @@ public class GroupSetupIT {
 	}
 
 	private void testGroupSetupProver() throws NoSuchAlgorithmException, ProofStoreException {
-		groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
-		proofStore = new ProofStore<Object>();
 
+    proofStore = new ProofStore<Object>();
+		groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
 		groupSetupProver.executePreChallengePhase();
 		BigInteger tilder =
 				(BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
