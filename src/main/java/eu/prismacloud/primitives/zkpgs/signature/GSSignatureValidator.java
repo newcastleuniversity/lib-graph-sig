@@ -25,7 +25,7 @@ public class GSSignatureValidator {
 	private final ProofStore<Object> proofStore;
 	private final GSSignature sigma;
 	private final KeyGenParameters keyGenParameters;
-	private BaseCollection encodedBasesCollection;
+	private final BaseCollection encodedBasesCollection;
 
 	private final GroupElement baseS;
 
@@ -41,6 +41,7 @@ public class GSSignatureValidator {
 		this.baseZ = pk.getBaseZ();
 		this.proofStore = ps;
 		this.sigma = sigma;
+		this.encodedBasesCollection = sigma.getEncodedBases();
 	}
 
 
@@ -56,7 +57,7 @@ public class GSSignatureValidator {
 		}
 	}
 
-	private void computeQ() throws ProofStoreException {
+	private GroupElement computeQ() throws ProofStoreException {
 		gslog.info("compute Q");
 		GroupElement basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
 
@@ -81,6 +82,10 @@ public class GSSignatureValidator {
 		GroupElement Sv = baseS.modPow(v);
 		GroupElement result = Sv.multiply(basesProduct);
 		Q = baseZ.multiply(result.modInverse());
+		
+		proofStore.store("issuing.recipient.Q", Q);
+		
+		return Q;
 	}
 
 	private void computehatQ() throws VerificationException {

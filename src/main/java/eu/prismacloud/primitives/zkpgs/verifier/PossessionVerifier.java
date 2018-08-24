@@ -71,10 +71,11 @@ public class PossessionVerifier implements IVerifier {
 	@Override
 	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
 		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
-		cChallenge = (BigInteger) proofStore.retrieve("verifier.c");
 		hate = (BigInteger) proofStore.retrieve("verifier.hate");
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
 		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+		
+		this.cChallenge = cChallenge;
 
 		// Aborting verification with output null, if lengths check rejects hat-values.
 		if (!checkLengths()) return null;

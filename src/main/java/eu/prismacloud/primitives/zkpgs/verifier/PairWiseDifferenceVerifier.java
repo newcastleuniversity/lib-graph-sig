@@ -63,8 +63,9 @@ public class PairWiseDifferenceVerifier implements IVerifier{
 		hata_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATABARIBARJ, index));
 		hatb_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATBBARIBARJ, index));
 		hatr_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATRBARIBARJ, index));
-		cChallenge = (BigInteger) proofStore.retrieve("verifier.c");
 
+		this.cChallenge = cChallenge;
+		
 		// Aborting verification with output null, if lengths check rejects hat-values.
 		if (!checkLengths()) return null;
 

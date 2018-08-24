@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -26,27 +27,39 @@ public class SigningQCorrectnessVerifier implements IVerifier {
 	private final SignerPublicKey signerPublicKey;
 	private final ProofStore<Object> proofStore;
 
-	private BigInteger e;
+	private final BigInteger e;
 	private BigInteger hatd;
-	private GroupElement A;
-	private ProofSignature P_2;
+	private final GroupElement A;
+	private final ProofSignature P_2;
+	private final GSSignature sigma;
 
-	public SigningQCorrectnessVerifier(SignerPublicKey pk, ProofStore<Object> ps) {
+	public SigningQCorrectnessVerifier(final ProofSignature P_2, final GSSignature sigma, final SignerPublicKey pk, final ProofStore<Object> ps) {
 
+		Assert.notNull(P_2, "Pre-signature ProofSignature P_2 has been found to be null.");
+		Assert.notNull(sigma, "Pre-signature sigma has been found to be null.");
+		Assert.notNull(pk, "The signer public key has been found to be null.");
+		Assert.notNull(ps, "The ProofStore has been found to be null.");
+		
 		this.signerPublicKey = pk;
 		this.proofStore = ps;
 		this.keyGenParameters = pk.getKeyGenParameters();
+		this.P_2 = P_2;
+		this.sigma = sigma;
+		this.A = sigma.getA();
+		this.e = sigma.getE();
+		Assert.notNull(this.A, "Pre-signature value A has been found to be null.");
+		Assert.notNull(this.e, "Pre-signature value e has been found to be null.");
 	}
 
 
 	@Override
-	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-		Assert.notNull(A, "Pre-signature value A has not been retrieved from the ProofStore");
-		
-		BigInteger cPrime = (BigInteger) P_2.get("P_2.cPrime");
-		BigInteger hatd = (BigInteger) P_2.get("P_2.hatd");
+	public GroupElement executeVerification(BigInteger cPrime) throws ProofStoreException {
+		Assert.notNull(A, "Pre-signature value A has been found to be null.");
 		
 		Assert.notNull(cPrime, "Challenge cPrime was null.");
+		
+		//BigInteger cPrime = (BigInteger) P_2.get("P_2.cPrime");
+		BigInteger hatd = (BigInteger) P_2.get("P_2.hatd");
 		Assert.notNull(hatd, "Response hatd was null.");
 		
 		checkLengths();

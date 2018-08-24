@@ -1,37 +1,25 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.PossessionVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.SigningQCorrectnessVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
-import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +41,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 	private GroupElement Q;
 
-	private GroupElement A;
+	private final GroupElement A;
 
 	private GroupElement hatA;
 
@@ -69,23 +57,34 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 			final BigInteger nonce,
 			final ExtendedPublicKey extendedPublicKey,
 			final ProofStore<Object> proofStore) {
+		
+		Assert.notNull(P_2, "Pre-signature ProofSignature P_2 has been found to be null.");
+		Assert.notNull(sigma, "Pre-signature sigma has been found to be null.");
+		Assert.notNull(extendedPublicKey, "The extended public key has been found to be null.");
+		Assert.notNull(proofStore, "The ProofStore has been found to be null.");
+		Assert.notNull(nonce, "The nonce n_2 has been found to be null.");
 
 		this.extendedPublicKey = extendedPublicKey;
 		this.proofStore = proofStore;
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
 		this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
 		
-		this.sigma = sigma;
 		this.P_2 = P_2;
 		this.n_2 = nonce;
 		
-		this.verifier = new SigningQCorrectnessVerifier(extendedPublicKey.getPublicKey(), proofStore);
+		this.sigma = sigma;
+		this.A = sigma.getA();
+		Assert.notNull(this.A, "Pre-signature value A has been found to be null.");
+		
+		
+		this.verifier = new SigningQCorrectnessVerifier(P_2, sigma, extendedPublicKey.getPublicKey(), proofStore);
 	}
 
 	
 	@Override
 	public void init() {
-		// no further initialization needed.
+		this.Q = (GroupElement) proofStore.retrieve("issuing.recipient.Q");
+		Assert.notNull(Q, "Pre-signature value Q has been found to be null.");
 	}
 
 
@@ -109,13 +108,18 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 
 	private boolean verifyChallenge() throws VerificationException {
-		if (!cChallenge.equals(hatc)) {
+		if (!this.cChallenge.equals(hatc)) {
 			throw new VerificationException("challenge verification failed");
 		}
 		return true;
 	}
 
 	private List<String> populateChallengeList() {
+		Assert.notNull(Q, "Pre-signature value Q has been found to be null.");
+		Assert.notNull(A, "Pre-signature value A has been found to be null.");
+		Assert.notNull(hatA, "Pre-signature verifier witness hatA has been found to be null.");
+		Assert.notNull(n_2, "Pre-signature nonce n_2 has been found to be null.");
+		
 		List<String> ctxList = new ArrayList<String>();
 
 		GSContext gsContext =
@@ -132,12 +136,13 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 	@Override
 	public boolean executeVerification(BigInteger cChallenge) {
+		
+		this.cChallenge = cChallenge;
+		
 		if (!checkLengths(P_2.getProofSignatureElements())) {
 			gslog.log(Level.SEVERE, "Length checks on inputs failed");
 			return false;
 		}
-		
-		cChallenge = computeChallenge();
 		
 		try {
 			hatA = verifier.executeVerification(cChallenge);

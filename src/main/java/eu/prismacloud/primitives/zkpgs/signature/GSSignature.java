@@ -218,4 +218,12 @@ public class GSSignature implements Serializable {
     return (this.v.compareTo(this.keyGenParameters.getLowerBoundV()) > 0)
         && (this.v.compareTo(this.keyGenParameters.getUpperBoundV()) < 0);
   }
+
+public BaseCollection getEncodedBases() {
+	return encodedBases;
+}
+
+public void setEncodedBases(BaseCollection encodedBases) {
+	this.encodedBases = encodedBases;
+}
 }

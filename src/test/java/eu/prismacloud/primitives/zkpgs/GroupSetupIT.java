@@ -104,7 +104,7 @@ public class GroupSetupIT {
 			throws NoSuchAlgorithmException, VerificationException {
 		// TODO needs to be updated to Orchestrator / Verifier composition.
 		GroupSetupVerifier groupSetupVerifier = new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
-
+		groupSetupVerifier.checkLengths();
 
 
 		fail("Test not implemented yet.");
