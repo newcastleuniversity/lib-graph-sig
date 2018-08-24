@@ -14,6 +14,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -65,12 +66,17 @@ class GSSignatureTest {
   private GroupElement Sv1;
   private GSSignature gsSignature;
   private SignerKeyPair signerKeyPair;
+  private BaseTest baseTest;
 
   @BeforeAll
   void setupKey() throws IOException, ClassNotFoundException {
-    BaseTest baseTest = new BaseTest();
+    baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    keyGenParameters = baseTest.getKeyGenParameters();
+    Assert.notNull(keyGenParameters, "KeyGenParameters were not retrieved from the base test.");
+    
+    graphEncodingParameters = baseTest.getGraphEncodingParameters();
     signerKeyPair = baseTest.getSignerKeyPair();
     publicKey = signerKeyPair.getPublicKey();
     privateKey = signerKeyPair.getPrivateKey();
@@ -79,9 +85,6 @@ class GSSignatureTest {
   @BeforeEach
   void setUp()
       throws NoSuchAlgorithmException, ProofStoreException, IOException, ClassNotFoundException {
-    JSONParameters parameters = new JSONParameters();
-    keyGenParameters = parameters.getKeyGenParameters();
-    graphEncodingParameters = parameters.getGraphEncodingParameters();
   }
 
   @Test

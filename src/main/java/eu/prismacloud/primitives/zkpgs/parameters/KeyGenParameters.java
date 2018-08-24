@@ -113,6 +113,7 @@ public class KeyGenParameters implements Serializable, IContextProducer {
 	}
 
 	public static KeyGenParameters getKeyGenParameters() {
+		Assert.notNull(KeyGenParameters.keyGenParameters, "KeyGenParamters have not been created yet.");
 		return KeyGenParameters.keyGenParameters;
 	}
 
@@ -136,6 +137,7 @@ public class KeyGenParameters implements Serializable, IContextProducer {
 
 		return keyGenParameters;
 	}
+
 
 	public int getL_n() {
 		return this.l_n;

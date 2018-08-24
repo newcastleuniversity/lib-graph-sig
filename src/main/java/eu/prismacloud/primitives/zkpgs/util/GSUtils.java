@@ -35,13 +35,11 @@ public class GSUtils implements INumberUtils {
   private BigInteger r;
   private BigInteger h;
   private ArrayList<BigInteger> primeFactors;
-  private KeyGenParameters keyGenParameters;
 
   private HashMap<Integer, BigInteger> boundMap = new HashMap<Integer, BigInteger>();
 
   /** Instantiates a new Gs utils. */
   public GSUtils() {
-    keyGenParameters = KeyGenParameters.getKeyGenParameters();
   }
 
   /**
@@ -168,6 +166,12 @@ public class GSUtils implements INumberUtils {
    */
   @Override
   public BigInteger generatePrimeInRange(BigInteger min, BigInteger max) {
+	  Assert.notNull(min, "Input minimum was found to be null.");
+	  Assert.notNull(max, "Input maximum was found to be null.");
+	  
+	  if (min.equals(max)) {
+		  throw new IllegalArgumentException("Min and max values of the range must be different.");
+	  }
 
     log.info("generate prime in range: ");
     BigInteger prime;
@@ -219,8 +223,8 @@ public class GSUtils implements INumberUtils {
   @Override
   public SpecialRSAMod generateSpecialRSAModulus() {
 
-    p = this.generateRandomSafePrime(keyGenParameters);
-    q = this.generateRandomSafePrime(keyGenParameters);
+    p = this.generateRandomSafePrime(KeyGenParameters.getKeyGenParameters());
+    q = this.generateRandomSafePrime(KeyGenParameters.getKeyGenParameters());
     modN = p.getSafePrime().multiply(q.getSafePrime());
     return new SpecialRSAMod(modN, p, q);
   }
@@ -287,7 +291,7 @@ public class GSUtils implements INumberUtils {
   public CommitmentGroup generateCommitmentGroup() {
 
     // TODO check if the computations are correct
-    rho = generateRandomPrime(keyGenParameters.getL_rho());
+    rho = generateRandomPrime(KeyGenParameters.getKeyGenParameters().getL_rho());
     gamma = computeCommitmentGroupModulus(rho);
     g = createCommitmentGroupGenerator(rho, gamma);
     r = createRandomNumber(BigInteger.ZERO, rho);
@@ -439,7 +443,7 @@ public class GSUtils implements INumberUtils {
       do {
         n = createRandomNumber(min, n);
 
-        if (n.isProbablePrime(keyGenParameters.getL_pt())) {
+        if (n.isProbablePrime(KeyGenParameters.getKeyGenParameters().getL_pt())) {
           primeSeq.add(n);
           y = y.multiply(n);
         }
@@ -658,9 +662,9 @@ public class GSUtils implements INumberUtils {
     GroupElement Q;
     BigInteger d;
 
-    int eBitLength = (keyGenParameters.getL_e() - 1) + (keyGenParameters.getL_prime_e() - 1);
-    e = CryptoUtilsFacade.computePrimeWithLength(keyGenParameters.getL_e() - 1, eBitLength);
-    v = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
+    int eBitLength = (KeyGenParameters.getKeyGenParameters().getL_e() - 1) + (KeyGenParameters.getKeyGenParameters().getL_prime_e() - 1);
+    e = CryptoUtilsFacade.computePrimeWithLength(KeyGenParameters.getKeyGenParameters().getL_e() - 1, eBitLength);
+    v = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_v() - 1);
 
     baseR = base.getBase().modPow(m);
 
@@ -698,7 +702,10 @@ public class GSUtils implements INumberUtils {
    * @return the boolean
    */
   public Boolean isPrime(final BigInteger number) {
-    return number.isProbablePrime(keyGenParameters.getL_pt());
+	  Assert.notNull(number, "Number to be checked was found to be null.");
+	  Assert.notNull(KeyGenParameters.getKeyGenParameters(), "KeyGenParameters was null.");
+	  Assert.notNull(KeyGenParameters.getKeyGenParameters().getL_pt(), "Primality check likelihood was null.");
+    return number.isProbablePrime(KeyGenParameters.getKeyGenParameters().getL_pt());
   }
 
   /**
