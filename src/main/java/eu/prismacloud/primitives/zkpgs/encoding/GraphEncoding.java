@@ -1,8 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.encoding;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.keys.ExtendedPrivateKey;
-import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
@@ -13,24 +11,16 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /** The type Graph encoding. */
 public class GraphEncoding {
 
   private final SignerPublicKey signerPublicKey;
-  private BigInteger vertexPrimeRepresentative;
-  private List<BigInteger> vertexPrimes;
   private Map<BigInteger, GSSignature> signatureMap;
-  private ExtendedPublicKey ePublicKey;
-  private ExtendedPrivateKey ePrivateKey;
   private Map<URN, BaseRepresentation> bases;
   private Map<URN, BigInteger> vertexPrimeRepresentatives = new LinkedHashMap<>();
   private KeyGenParameters keyGenParameters;
-  private Map<URN, BigInteger> discLogOfVertexBases;
-  private Map<URN, BigInteger> discLogOfEdgeBases;
-  private KeyGenParameters keygenParams;
   private GraphEncodingParameters graphEncodingParameters;
   private Map<URN, BigInteger> countryLabels;
   private JsonIsoCountries jsonIsoCountries;
@@ -48,7 +38,7 @@ public class GraphEncoding {
   public GraphEncoding(
       final Map<URN, BaseRepresentation> bases,
       final Map<URN, BigInteger> vertexPrimeRepresentatives,
-      SignerPublicKey publicKey,
+      final SignerPublicKey publicKey,
       final KeyGenParameters keyGenParameters,
       final GraphEncodingParameters graphEncodingParameters) {
 
@@ -86,33 +76,6 @@ public class GraphEncoding {
    */
   public Map<URN, BigInteger> getVertexPrimeRepresentatives() {
     return this.vertexPrimeRepresentatives;
-  }
-
-  /**
-   * Gets signature map.
-   *
-   * @return the signature map
-   */
-  public Map<BigInteger, GSSignature> getSignatureMap() {
-    return signatureMap;
-  }
-
-  /**
-   * Gets country labels.
-   *
-   * @return the country labels
-   */
-  public Map<URN, BigInteger> getCountryLabels() {
-    return countryLabels;
-  }
-
-  /**
-   * Gets certified prime represenatives.
-   *
-   * @return the certified prime represenatives
-   */
-  public Map<URN, Object> getCertifiedPrimeRepresenatives() {
-    return certifiedPrimeRepresenatives;
   }
 
   /**
