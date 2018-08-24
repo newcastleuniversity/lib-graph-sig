@@ -12,3 +12,7 @@ ROBUSTNESS CHECKS
  - Standard interfaces for provers/verifiers etc. enforcing common paradigms.
  - Interfaces exposing only methods suitable for external use.
  - Objects have a sound tearDown/finalization to avoid hanging references to secret data.
+ 
+SECURITY ASPECTS
+ - Protected sockets.
+ - Taking care of object serialization.
