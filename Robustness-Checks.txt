@@ -1,0 +1,12 @@
+ROBUSTNESS CHECKS
+
+ - jUnit test cases for all relevant methods, reaching high coverage.
+ - jUnit test cases testing graceful handling of error conditions.
+ - 0 SpotBugs reported.
+ - Errors caught as early as possible, e.g., constructors asserting non-null inputs.
+ - Thread-safe: methods and fields robust against multiple calls.
+   (e.g., iterators only local to their use).
+ - Input validation for network/service inputs (e.g., challenges and hat-values).
+ - Enforcing length constraints that yield the guarantees of the Camenisch-Lysyanskaya proofs.
+ - Standard interfaces for provers/verifiers etc. enforcing common paradigms.
+ - Interfaces exposing only methods suitable for external use.
