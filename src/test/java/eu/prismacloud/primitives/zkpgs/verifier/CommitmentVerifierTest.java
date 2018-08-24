@@ -59,7 +59,7 @@ public class CommitmentVerifierTest {
   private BigInteger hatr_i;
   private BigInteger cChallenge;
   private BigInteger hatm_i;
-  private GSCommitment tildeC_i;
+  private GroupElement tildeC_i;
 
   @BeforeAll
   void setUpKey() throws IOException, ClassNotFoundException {
@@ -93,22 +93,26 @@ public class CommitmentVerifierTest {
     baseCollection = new BaseCollectionImpl();
     baseCollection.add(baseR0);
 
-    cprover = new CommitmentProver();
+    GroupElement R0 = epk.getPublicKey().getBaseR_0();
+    BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+    GSCommitment C_i = GSCommitment.createCommitment(m_i, R0, epk);
+
+    cprover = new CommitmentProver(C_i, 0, extendedKeyPair.getPublicKey(), proofStore);
 
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
 
     tildeC_i =
-        cprover.preChallengePhase(
-            baseR0, proofStore, extendedKeyPair.getExtendedPublicKey(), keyGenParameters);
+        cprover.executePreChallengePhase();
 
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
     GroupElement baseR = epk.getPublicKey().getBaseR();
-    BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    GSCommitment C_i = GSCommitment.createCommitment(m_i, baseR, epk);
+    
+    m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+    C_i = GSCommitment.createCommitment(m_i, baseR, epk);
     Map<URN, GSCommitment> commitmentMap = new HashMap<>();
     commitmentMap.put(URN.createZkpgsURN("prover.commitments.C_0"), C_i);
 
@@ -121,7 +125,7 @@ public class CommitmentVerifierTest {
     hatm_i = tildem_i.add(cChallenge.multiply(testM));
     proofStore.store(hatm_iURN, tildem_i);
 
-    Map<URN, BigInteger> responses = cprover.postChallengePhase(cChallenge);
+    Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
     String hatr_iURN = URNType.buildURNComponent(URNType.HATRI, CommitmentProver.class, 0);
     gslog.info("hariUrn: " + hatr_iURN);
 
@@ -143,7 +147,7 @@ public class CommitmentVerifierTest {
             keyGenParameters);
 
     assertNotNull(hatC_i);
-    assertEquals(tildeC_i.getCommitmentValue(), hatC_i);
+    assertEquals(tildeC_i, hatC_i);
   }
 
   @Test
