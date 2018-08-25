@@ -30,9 +30,10 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 class GroupSetupVerifierTest {
 
+	private Logger log = GSLoggerConfiguration.getGSlog();
+	
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
-	private Logger log = GSLoggerConfiguration.getGSlog();
 	private SignerKeyPair gsk;
 	private ExtendedKeyPair extendedKeyPair;
 	private GroupSetupProver groupSetupProver;
@@ -114,8 +115,11 @@ class GroupSetupVerifierTest {
 		BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
 		//    assertEquals(bitLength, phatr_Z.bitLength());
 
+		@SuppressWarnings("unchecked")
 		Map<URN, BigInteger> edgeResponses =
 				(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
+		
+		@SuppressWarnings("unchecked")
 		Map<URN, BigInteger> vertexResponses =
 				(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
 

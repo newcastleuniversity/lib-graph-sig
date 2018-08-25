@@ -93,7 +93,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.C_i"));
 		Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
 
-		if (!checkLengths(proofSignatureElements)) {
+		if (!checkLengths()) {
 			/** TODO create a custom exception for lengths or return null */
 			throw new VerificationException("Proof signature elements do not have correct length");
 		}
@@ -107,17 +107,17 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	@Override
-	public boolean checkLengths(Map<URN, Object> proofSignatureElements) {
+	public boolean checkLengths() {
 		int l_hate = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
 		int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
 		int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
 		int l_hatr = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
-		hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
+		hate = (BigInteger) P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hate"));
 		hatvPrime =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
+				(BigInteger) P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
 		hatm_0 =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
+				(BigInteger) P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
 		/** TODO check lengths for vertices, edges, and pair-wise different vertex encodings */
 		return CryptoUtilsFacade.isInPMRange(hate, l_hate)
 				&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)

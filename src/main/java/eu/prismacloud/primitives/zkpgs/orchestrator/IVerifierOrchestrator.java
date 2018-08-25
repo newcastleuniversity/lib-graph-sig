@@ -12,9 +12,20 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
  * An orchestrator realizing the IVerifierOrchestrator realizes the verification of
  * a Zero-Knowledge Proof of Knowledge by drawing upon component verifiers.
  * 
- * <p>A proof orchestrator organizes the inputs for component verifiers. 
+ * <p>A verifier orchestrator organizes the inputs for component verifiers. 
  * The orchestrator is responsible for knowing  and managing all proof context.
  * The orchestrator is responsible for computing the overall (cross-prover) challenge.
+ * 
+ * <p>A class implementing IVerifierOrchestrator is expected to offer a constructor to
+ * completely settle the dependencies of the orchestrator.
+ * <ol>
+ *   <li>The init() function should be called first for preliminary computations.</li>
+ *   <li>Then, checkLength() is next to establish that all inputs are sound.</li>
+ *   <li>computeChallenge() establishes an appropriate challenge for the proof context.</li>
+ *   <li>Finally, executeVerification() completes the verification.</li>
+ * </ol>
+ * 
+ * <p>Top-level orchestrators should catch exceptions and handle them conservatively.
  */
 public interface IVerifierOrchestrator {
 	
@@ -37,13 +48,21 @@ public interface IVerifierOrchestrator {
 	 * @throws ProofStoreException
 	 */
 	BigInteger computeChallenge() throws ProofStoreException;
-	
+
 	/**
 	 * Orchestrates to have the lengths of all proof signature elements checked.
+	 * 
+	 * @return <tt>true</tt> if all lengths are validated successfully.
+	 */
+	boolean checkLengths();
+	
+	/**
+	 * Orchestrates to have the lengths of inputted proof signature elements checked.
 	 * 
 	 * @param proofSignatureElements
 	 * 
 	 * @return <tt>true</tt> if all lengths are validated successfully.
+	 * @deprecated
 	 */
-	boolean checkLengths(Map<URN, Object> proofSignatureElements);
+	//boolean checkLengths(Map<URN, Object> proofSignatureElements);
 }

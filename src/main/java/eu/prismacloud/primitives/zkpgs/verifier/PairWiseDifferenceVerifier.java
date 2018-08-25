@@ -50,9 +50,9 @@ public class PairWiseDifferenceVerifier implements IVerifier{
 		
 		this.epk = epk;
 		this.proofStore = ps;
-		this.keyGenParameters = epk.getKeyGenParameters();
-		this.baseS = epk.getPublicKey().getBaseS();
-		this.baseR = epk.getPublicKey().getBaseR();
+		this.keyGenParameters = this.epk.getKeyGenParameters();
+		this.baseS = this.epk.getPublicKey().getBaseS();
+		this.baseR = this.epk.getPublicKey().getBaseR();
 		this.index = index;
 		this.C_i = C_i;
 		this.C_j = C_j;

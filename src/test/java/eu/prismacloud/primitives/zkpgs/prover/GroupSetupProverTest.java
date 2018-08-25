@@ -254,10 +254,12 @@ class GroupSetupProverTest {
     BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
     assertEquals(bitLength, phatr_Z.bitLength() + 1);
 
-    Map<URN, BigInteger> edgeResponses =
-        (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
+    @SuppressWarnings("unchecked")
+	Map<URN, BigInteger> edgeResponses =
+        ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i"));
+    @SuppressWarnings("unchecked")
     Map<URN, BigInteger> vertexResponses =
-        (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
+        ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j"));
 
     for (BigInteger vertexResponse : vertexResponses.values()) {
       assertEquals(bitLength, vertexResponse.bitLength() + 1);

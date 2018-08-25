@@ -26,17 +26,11 @@ public class CommitmentVerifier implements IVerifier {
   private GSCommitment U;
   private BigInteger c;
   private GroupElement baseS;
-  private GroupElement baseZ;
   private GroupElement baseR_0;
-  private GroupElement S;
-  private GroupElement Z;
-  private BigInteger n_1;
-  private BigInteger modN;
   private STAGE proofStage;
   private Map<URN, BaseRepresentation> baseRepresentationMap;
   private KeyGenParameters keyGenParameters;
   private GroupElement hatU;
-  private List<BigInteger> challengeList;
   private BigInteger hatc;
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
@@ -68,11 +62,10 @@ public class CommitmentVerifier implements IVerifier {
     this.responses = responses;
     this.proofStore = proofStore;
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-    this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseRepresentationMap = extendedPublicKey.getBases();
     this.keyGenParameters = keyGenParameters;
     this.proofStage = proofStage;
-    this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
+    this.baseR_0 = this.extendedPublicKey.getPublicKey().getBaseR_0();
 
     if (STAGE.ISSUING == proofStage) {
 

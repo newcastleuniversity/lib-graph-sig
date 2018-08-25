@@ -45,8 +45,8 @@ public class SigningQCorrectnessVerifier implements IVerifier {
 		this.keyGenParameters = pk.getKeyGenParameters();
 		this.P_2 = P_2;
 		this.sigma = sigma;
-		this.A = sigma.getA();
-		this.e = sigma.getE();
+		this.A = this.sigma.getA();
+		this.e = this.sigma.getE();
 		Assert.notNull(this.A, "Pre-signature value A has been found to be null.");
 		Assert.notNull(this.e, "Pre-signature value e has been found to be null.");
 	}

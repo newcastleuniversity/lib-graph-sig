@@ -4,7 +4,6 @@ import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
@@ -33,11 +32,9 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	private final ExtendedPublicKey extendedPublicKey;
 	private final ProofStore<Object> proofStore;
 	private final KeyGenParameters keyGenParameters;
-	private final GraphEncodingParameters graphEncodingParameters;
 
 	private BigInteger cChallenge;
 	private BigInteger hatc;
-	private BigInteger hatd;
 
 	private GroupElement Q;
 
@@ -67,13 +64,12 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 		this.extendedPublicKey = extendedPublicKey;
 		this.proofStore = proofStore;
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
-		this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
 		
 		this.P_2 = P_2;
 		this.n_2 = nonce;
 		
 		this.sigma = sigma;
-		this.A = sigma.getA();
+		this.A = this.sigma.getA();
 		Assert.notNull(this.A, "Pre-signature value A has been found to be null.");
 		
 		
@@ -89,7 +85,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 
 	@Override
-	public boolean checkLengths(Map<URN, Object> proofSignatureElements) {
+	public boolean checkLengths() {
 		return verifier.checkLengths();
 	}
 
@@ -139,7 +135,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 		
 		this.cChallenge = cChallenge;
 		
-		if (!checkLengths(P_2.getProofSignatureElements())) {
+		if (!checkLengths()) {
 			gslog.log(Level.SEVERE, "Length checks on inputs failed");
 			return false;
 		}

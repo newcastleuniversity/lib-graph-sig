@@ -47,10 +47,8 @@ public class CommitmentVerifierTest {
   private ExtendedKeyPair extendedKeyPair;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private ExtendedPublicKey epk;
-  private GSSigningOracle oracle;
   private ProofStore<Object> proofStore;
   private BigInteger testM;
-  private GSSignature sigmaM;
   private BaseRepresentation baseR0;
   private BaseCollectionImpl baseCollection;
   private CommitmentVerifier cverifier;
@@ -74,9 +72,6 @@ public class CommitmentVerifierTest {
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
 
-    gslog.info("Initializing GSSigningOracle");
-    oracle = new GSSigningOracle(skp, keyGenParameters, graphEncodingParameters);
-
     epk = extendedKeyPair.getExtendedPublicKey();
   }
 
@@ -84,8 +79,6 @@ public class CommitmentVerifierTest {
   void setUp() throws Exception {
     proofStore = new ProofStore<Object>();
     testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    gslog.info("Creating test signature with GSSigningOracle on testM: " + testM);
-    sigmaM = oracle.sign(testM).blind();
 
     baseR0 = new BaseRepresentation(epk.getPublicKey().getBaseR_0(), 0, BASE.BASE0);
     baseR0.setExponent(testM);
@@ -161,7 +154,7 @@ public class CommitmentVerifierTest {
             extendedKeyPair.getExtendedPublicKey(),
             keyGenParameters);
 
-    Boolean isCorrectLength = cverifier.checkLengthsVerifying();
+    boolean isCorrectLength = cverifier.checkLengthsVerifying();
 
     assertTrue(isCorrectLength);
   }

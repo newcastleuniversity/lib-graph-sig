@@ -248,39 +248,27 @@ public class RecipientOrchestrator {
 		proofStore.store("recipient.vPrimePrime", vPrimePrime);
 		proofStore.store("recipient.vPrime", vPrime);
 
+		gslog.info("Validating incoming graph signature.");
 		GSSignature signatureCandidate = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
 
 		if(!sigmaValidator.verify()) {
-			// TODO follow convention that orchestrators need to catch exceptions and exit gracefully.
 			throw new VerificationException("The signature is inconsistent.");
 		}
 
 		SigningQVerifierOrchestrator verifyingQOrchestrator = new SigningQVerifierOrchestrator(P_2, signatureCandidate, n_2, extendedPublicKey, proofStore);
-		verifyingQOrchestrator.computeChallenge();
 
-		//    
-		//    correctnessVerifier.preChallengePhase(
-		//        e,
-		//        v,
-		//        P_2,
-		//        A,
-		//        extendedPublicKey,
-		//        n_2,
-		//        encodedBasesCollection,
-		//        proofStore,
-		//        keyGenParameters,
-		//        graphEncodingParameters);
-		//
-		//    try {
-		//      correctnessVerifier.computeChallenge();
-		//    } catch (NoSuchAlgorithmException ns) {
-		//      gslog.log(Level.SEVERE, ns.getMessage());
-		//    }
+		verifyingQOrchestrator.init();
+		
+		verifyingQOrchestrator.checkLengths();
 
-		gslog.info("verify graph signature ");
-
+		cChallenge = verifyingQOrchestrator.computeChallenge();
+		
+		if(!verifyingQOrchestrator.executeVerification(cChallenge)) {
+			throw new VerificationException("Graph signature proof P_2 could not be verified.");
+		}
+		
 		gsSignature = signatureCandidate;
 
 		encodedBasesCollection.add(baseR_0);
