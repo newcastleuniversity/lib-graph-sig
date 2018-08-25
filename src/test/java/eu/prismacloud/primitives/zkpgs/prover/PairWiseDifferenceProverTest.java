@@ -15,7 +15,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -48,8 +47,6 @@ class PairWiseDifferenceProverTest {
 	private PairWiseDifferenceProver prover;
 	private ProofStore<Object> proofStore;
 	
-	private BaseCollection baseCollection;
-	
 	private GSCommitment c1, c2coprime;
 	private BigInteger m1, m2coprime;
 	
@@ -58,7 +55,6 @@ class PairWiseDifferenceProverTest {
 	private BigInteger hata_BariBarj, hatb_BariBarj, hatr_BariBarj;
 
 	private GroupElement tildeR;
-	private GroupElement hatR;
 	
 	private int testIndex;
 

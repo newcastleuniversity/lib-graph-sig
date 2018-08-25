@@ -14,15 +14,12 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
-import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.GSUtils;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -49,10 +46,7 @@ class CommitmentProverTest {
   private SignerKeyPair skp;
   private ExtendedKeyPair extendedKeyPair;
   private ExtendedPublicKey epk;
-  private PossessionProver prover;
-  private GSSignature sigmaM;
   private BigInteger testM;
-  private GSSigningOracle oracle;
   private ProofStore<Object> proofStore;
 
   private BaseCollection baseCollection;
@@ -60,7 +54,7 @@ class CommitmentProverTest {
   private BaseRepresentation baseR0;
   private BigInteger tilder_i;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private GSUtils gsUtils;
+//  private GSUtils gsUtils;
 
   @BeforeAll
   void setUpKey() throws IOException, ClassNotFoundException {
@@ -75,9 +69,6 @@ class CommitmentProverTest {
     extendedKeyPair.graphEncodingSetup();
     extendedKeyPair.createExtendedKeyPair();
 
-    log.info("Initializing GSSigningOracle");
-    oracle = new GSSigningOracle(skp, keyGenParameters, graphEncodingParameters);
-
     epk = extendedKeyPair.getExtendedPublicKey();
   }
 
@@ -85,8 +76,8 @@ class CommitmentProverTest {
   void setUp() throws Exception {
     proofStore = new ProofStore<Object>();
     testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    log.info("Creating test signature with GSSigningOracle on testM: " + testM);
-    sigmaM = oracle.sign(testM).blind();
+//    log.info("Creating test signature with GSSigningOracle on testM: " + testM);
+//    sigmaM = oracle.sign(testM).blind();
 
     baseR0 = new BaseRepresentation(epk.getPublicKey().getBaseR_0(), 0, BASE.BASE0);
     baseR0.setExponent(testM);
