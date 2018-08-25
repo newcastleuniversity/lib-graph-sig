@@ -19,7 +19,6 @@ public class GSSigningOracle {
   private GraphEncodingParameters graphEncodingParameters;
   private final GroupElement baseS;
   private final GroupElement baseZ;
-  private final BigInteger modN;
 
   /**
    * Constructor for the GSSigningOracle for bare signatures without graph encoding.
@@ -32,7 +31,6 @@ public class GSSigningOracle {
     this.keyGenParameters = keyGenParameters;
     this.baseS = signerKeyPair.getPublicKey().getBaseS();
     this.baseZ = signerKeyPair.getPublicKey().getBaseZ();
-    this.modN = signerKeyPair.getPublicKey().getModN();
   }
 
   /**
@@ -51,7 +49,6 @@ public class GSSigningOracle {
     this.graphEncodingParameters = graphEncodingParameters;
     this.baseS = signerKeyPair.getPublicKey().getBaseS();
     this.baseZ = signerKeyPair.getPublicKey().getBaseZ();
-    this.modN = signerKeyPair.getPublicKey().getModN();
   }
 
   /**

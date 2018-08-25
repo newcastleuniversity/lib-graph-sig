@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -82,12 +83,12 @@ public class PossessionVerifier implements IVerifier {
 
 		QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
-		//    BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
-		//    for (BaseRepresentation baseRepresentation : baseIterator) {
-		//      basesProduct =
-		//          basesProduct.multiply(
-		//              baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-		//    }
+		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation baseRepresentation : baseIterator) {
+			basesProduct =
+					basesProduct.multiply(
+							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+		}
 		GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
 		// gslog.info("Aprime: " + APrime);
 		GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
@@ -97,7 +98,7 @@ public class PossessionVerifier implements IVerifier {
 		GroupElement aPrimeHate = APrime.modPow(hate);
 		GroupElement baseShatvPrime = baseS.modPow(hatvPrime);
 
-		hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0);
+		hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0).multiply(basesProduct);
 
 		//	    gslog.info("hatZ: " + hatZ);
 		//	    gslog.info("hatZ bitlength: " + hatZ.bitLength());

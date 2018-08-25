@@ -36,7 +36,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
-class PossessionProverTest {
+class GraphPossessionProverTest {
 
   private Logger log = GSLoggerConfiguration.getGSlog();
 

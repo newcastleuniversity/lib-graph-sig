@@ -169,29 +169,31 @@ public class PossessionProver implements IProver {
 		BigInteger vertexWitness;
 		BigInteger edgeWitness;
 
-		//    for (BaseRepresentation baseRepresentation : vertexIterator) {
-		//      tildemURN =
-		//          "possessionprover.witnesses.randomness.vertex.tildem_i_"
-		//              + baseRepresentation.getBaseIndex();
-		//      vertexWitness = (BigInteger) proverStore.retrieve(tildemURN);
-		//      //      vertexWitness = vertexWitnesses.get(URN.createZkpgsURN(baseURN));
-		//      baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
-		//    }
-		//
-		//    for (BaseRepresentation baseRepresentation : edgeIterator) {
-		//      tildemURN =
-		//          "possessionprover.witnesses.randomness.edge.tildem_i_j_"
-		//              + baseRepresentation.getBaseIndex();
-		//      //      edgeWitness = edgeWitnesses.get(URN.createZkpgsURN(baseURN));
-		//      edgeWitness = (BigInteger) proverStore.retrieve(tildemURN);
-		//      baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
-		//    }
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation baseRepresentation : vertexIterator) {
+			tildemURN =
+					"possessionprover.witnesses.randomness.vertex.tildem_i_"
+							+ baseRepresentation.getBaseIndex();
+			vertexWitness = (BigInteger) proofStore.retrieve(tildemURN);
+			//      vertexWitness = vertexWitnesses.get(URN.createZkpgsURN(baseURN));
+			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
+		}
+
+		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
+		for (BaseRepresentation baseRepresentation : edgeIterator) {
+			tildemURN =
+					"possessionprover.witnesses.randomness.edge.tildem_i_j_"
+							+ baseRepresentation.getBaseIndex();
+			//      edgeWitness = edgeWitnesses.get(URN.createZkpgsURN(baseURN));
+			edgeWitness = (BigInteger) proofStore.retrieve(tildemURN);
+			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
+		}
 
 		tildem_0 = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
 
 		// gslog.info("aPrimeEtilde bitlength: " + aPrimeEtilde.bitLength());
 		GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
-		tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0);
+		tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0).multiply(baseProduct);
 
 		// gslog.info("tildeZ: " + tildeZ);
 		// gslog.info("tildeZ bitlength: " + tildeZ.bitLength());
