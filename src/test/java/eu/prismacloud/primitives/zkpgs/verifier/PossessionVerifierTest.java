@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
@@ -80,6 +81,8 @@ class PossessionVerifierTest {
 	void setUp() throws Exception {
 		proofStore = new ProofStore<Object>();
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		assertNotNull(testM, "Test message, a random number, could not be generated.");
+		
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
 		sigmaM = oracle.sign(testM).blind();
 		storeBlindedGS(sigmaM);
@@ -91,6 +94,8 @@ class PossessionVerifierTest {
 		baseCollection = new BaseCollectionImpl();
 		baseCollection.add(baseR0);
 
+		proofStore.store("bases.exponent.m_0", testM);
+		
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
 		tildeZ = prover.executePreChallengePhase();

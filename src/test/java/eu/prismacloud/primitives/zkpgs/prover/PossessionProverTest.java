@@ -82,6 +82,8 @@ class PossessionProverTest {
   void setUp() throws Exception {
     proofStore = new ProofStore<Object>();
     testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+    assertNotNull(testM, "Test message, a random number, could not be generated.");
+    
     log.info("Creating test signature with GSSigningOracle on testM: " + testM);
     sigmaM = oracle.sign(testM).blind();
 
