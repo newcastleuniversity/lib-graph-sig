@@ -19,9 +19,18 @@ public enum URNType {
   TILDEMI,
   TILDEMIJ,
   TILDERI,
+	TILDERIJ,
+	TILDER,
+	TILDER0,
+	TILDERZ,
   TILDEABARIBARJ,
   TILDEBBARIBARJ,
   TILDERBARIBARJ,
+	TILDEBASEZ,
+	TILDEBASER,
+	TILDEBASER0,
+	TILDEBASERI,
+	TILDEBASERIJ,
   HATD,
   HATE,
   HATV,
@@ -30,12 +39,16 @@ public enum URNType {
   HATMI,
   HATMIJ,
   HATRI,
+	HATRIJ,
+	HATRZ,
+	HATR,
+	HATR0,
  HATABARIBARJ,
  HATBBARIBARJ,
  HATRBARIBARJ;
 
 	private URNType() {}
-	
+
 	public static String getSuffix(URNType t) {
 		switch(t) {
 		case ABARIBARJ: return "a_BariBarj_";
@@ -49,9 +62,18 @@ public enum URNType {
 		case TILDEMI: return "tildem_i_";
 		case TILDEMIJ: return "tildem_i_j_";
 		case TILDERI: return "tilder_i_";
+		case TILDERIJ: return "tilder_i_j_";
+		case TILDER: return "tilder";
+		case TILDER0: return "tilder_0";
+		case TILDERZ: return "tilder_Z";
 		case TILDEABARIBARJ: return "tildea_BariBarj_";
 		case TILDEBBARIBARJ: return "tildeb_BariBarj_";
 		case TILDERBARIBARJ: return "tilder_BariBarj_";
+		case TILDEBASEZ: return "tildeZ";
+		case TILDEBASER: return "tildeR";
+		case TILDEBASER0: return "tildeR_0";
+		case TILDEBASERI: return "tildeR_i";
+		case TILDEBASERIJ: return "tildeR_i_j_";
 		case HATD: return "hatd";
 		case HATE: return "hate";
 		case HATV: return "hatv";
@@ -60,13 +82,17 @@ public enum URNType {
 		case HATMI: return "hatm_i_";
 		case HATMIJ: return "hatm_i_j_";
 		case HATRI: return "hatr_i_";
+		case HATRZ: return "hatr_Z";
+		case HATR: return "hatr";
+		case HATR0: return "hatr_0";
+		case HATRIJ: return "hatr_i_j_";
 		case HATABARIBARJ: return "hata_BariBarj_";
 		case HATBBARIBARJ: return "hatb_BariBarj_";
 		case HATRBARIBARJ: return "hatr_BariBarj_";
 		}
 		throw new RuntimeException("URNType " + t + " does not exist.");
 	}
-	
+
 	public static String getClass(URNType t) {
 		switch(t) {
 		case ABARIBARJ: return "secret";
@@ -80,9 +106,17 @@ public enum URNType {
 		case TILDEMI: return "witnesses.randomness.vertex";
 		case TILDEMIJ: return "witnesses.randomness.edge";
 		case TILDERI: return "witnesses.randomness.vertex";
+		case TILDER: return "witnesses.randomness";
+		case TILDER0: return "witnesses.randomness";
+		case TILDERZ: return "witnesses.randomness";
 		case TILDEABARIBARJ: return "witnesses.randomness";
 		case TILDEBBARIBARJ: return "witnesses.randomness";
 		case TILDERBARIBARJ: return "witnesses.randomness";
+		case TILDEBASEZ: return "witnesses";
+		case TILDEBASER: return "witnesses";
+		case TILDEBASER0: return "witnesses";
+		case TILDEBASERI: return "witnesses";
+		case TILDEBASERIJ: return "witnesses";
 		case HATD: return "responses";
 		case HATE: return "responses";
 		case HATV: return "responses";
@@ -91,13 +125,17 @@ public enum URNType {
 		case HATMI: return "responses.vertex";
 		case HATMIJ: return "responses.edge";
 		case HATRI: return "responses.vertex";
+		case HATRIJ: return "responses.edge";
+		case HATRZ: return "responses";
+		case HATR: return "responses";
+		case HATR0: return "responses";
 		case HATABARIBARJ: return "responses";
 		case HATBBARIBARJ: return "responses";
 		case HATRBARIBARJ: return "responses";
 		}
 		throw new RuntimeException("URNType " + t + " does not exist.");
 	}
-	
+
 	public static boolean isEnumerable(URNType t) {
 		switch(t) {
 		case ABARIBARJ: return true;
@@ -106,9 +144,12 @@ public enum URNType {
 		case TILDEMI: return true;
 		case TILDEMIJ: return true;
 		case TILDERI: return true;
+		case TILDERIJ: return true;
 		case TILDEABARIBARJ: return true;
 		case TILDEBBARIBARJ: return true;
 		case TILDERBARIBARJ: return true;
+		case TILDEBASERI: return true;
+		case TILDEBASERIJ: return true;
 		case HATMI: return true;
 		case HATMIJ: return true;
 		case HATRI: return true;
@@ -118,11 +159,11 @@ public enum URNType {
 		default: return false;
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Builds an URN Component for a prover class fulfilling the IProver interface
 	 * or a verifier fulfilling the IVerifier interface.
-	 * 
+	 *
 	 * @param t URNType
 	 * @param c Class governing the datum
 	 * @return String URN component to identify a datum of that class in the ProofStore.
@@ -132,21 +173,21 @@ public enum URNType {
 		if (URNType.isEnumerable(t)) {
 			  throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
 		  }
-		
+
 		String proverID;
 		  try {
 			proverID = (String) c.getDeclaredField("URNID").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
 		}
-		  
-		  
+
+
 		return proverID + URN.DOT + URNType.getClass(t) + URN.DOT + URNType.getSuffix(t);
 	}
-	
-	/** 
+
+	/**
 	 * Builds an URN Component for a prover class fulfilling the IProver interface.
-	 * 
+	 *
 	 * @param t URNType
 	 * @param c Class governing the datum
 	 * @param index int index of the datum
@@ -157,22 +198,22 @@ public enum URNType {
 		if (!URNType.isEnumerable(t)) {
 			  throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
 		}
-		
+
 		if (!isProverVerifier(c)) {
 			throw new RuntimeException("Class " + c.getName() + " does neither implement the IProver nor the IVerifier interface.");
 		}
-		
+
 		String proverID;
 		try {
 			proverID = (String) c.getDeclaredField("URNID").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
 		}
-		  
-		  
+
+
 		return proverID + URN.DOT + URNType.getClass(t) + URN.DOT + URNType.getSuffix(t) + index;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static boolean isProverVerifier(Class c) {
 		Class[] implementedInterfaces = c.getInterfaces();
@@ -181,13 +222,13 @@ public enum URNType {
 		}
 		return false;
 	}
-	
-	/** 
+
+	/**
 	 * Generates a list of URNs for a given prover/verifier, based on a list of (non-enumerable) URNType instances.
-	 * 
+	 *
 	 * @param list List of URNType
 	 * @param c prover or verifier class
-	 * 
+	 *
 	 * @return List of URN for the given prover/verifier
 	 */
 	@SuppressWarnings("rawtypes")
@@ -198,14 +239,14 @@ public enum URNType {
 		}
 		return urnList;
 	}
-	
-	/** 
+
+	/**
 	 * Generates a list of URNs for a given prover/verifier, based on a list of enumerable URNType instances.
-	 * 
+	 *
 	 * @param list List of URNType
 	 * @param enumeratedList List of EnumeratedURNType
 	 * @param c prover or verifier class
-	 * 
+	 *
 	 * @return List of URN for the given prover/verifier
 	 */
 	@SuppressWarnings("rawtypes")
@@ -217,7 +258,7 @@ public enum URNType {
 		for (EnumeratedURNType urnType : enumeratedList) {
 			URN.createZkpgsURN(buildURNComponent(urnType.type, c, urnType.index));
 		}
-		
+
 		return urnList;
 	}
 }
