@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -20,7 +19,6 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +91,7 @@ public class GroupSetupProver implements IProver {
   public void executePrecomputation() {
     // NO PRE-COMPUTATION IS NEEDED: NO-OP.
   }
-
+// TODO return multiple witnesses
   @Override
   public GroupElement executePreChallengePhase() throws ProofStoreException {
     createWitnessRandomness();
@@ -174,19 +172,12 @@ public class GroupSetupProver implements IProver {
     return geTildeZ;
   }
 
-  // TODO computeChallenge should be part of an orchestrator.
-  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-    List<String> ctxList = populateChallengeList();
-    cChallenge = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
-    return cChallenge;
-  }
-
   /**
    * Post challenge phase.
    *
    * @throws ProofStoreException the proof store exception
    */
-  //  @Override
+  @Override
   public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
       throws ProofStoreException {
 
@@ -203,7 +194,8 @@ public class GroupSetupProver implements IProver {
     vertexResponses = new HashMap<URN, BigInteger>();
     edgeResponses = new HashMap<URN, BigInteger>();
     Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
-
+    this.cChallenge = cChallenge;
+    
     hatr_Z = tilder_Z.add(cChallenge.multiply(r_Z));
     hatr = tilder.add(cChallenge.multiply(r));
     hatr_0 = tilder_0.add(cChallenge.multiply(r_0));
@@ -254,35 +246,6 @@ public class GroupSetupProver implements IProver {
 
   private int computeBitlength() {
     return keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
-  }
-
-  public List<String> populateChallengeList() {
-    GSContext gsContext = new GSContext(extendedPublicKey);
-    List<String> ctxList = gsContext.computeChallengeContext();
-
-    ctxList.add(String.valueOf(tildeZ));
-    ctxList.add(String.valueOf(basetildeR));
-    ctxList.add(String.valueOf(basetildeR_0));
-
-    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    for (BaseRepresentation baseRepresentation : vertexIterator) {
-      tilder_i =
-          (BigInteger)
-              proofStore.retrieve(
-                  getProverURN(URNType.TILDEBASERI, baseRepresentation.getBaseIndex()));
-      ctxList.add(String.valueOf(tilder_i));
-    }
-
-    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
-    for (BaseRepresentation baseRepresentation : edgeIterator) {
-      tilder_j =
-          (BigInteger)
-              proofStore.retrieve(
-                  getProverURN(URNType.TILDEBASERIJ, baseRepresentation.getBaseIndex()));
-      ctxList.add(String.valueOf(tilder_j));
-    }
-
-    return ctxList;
   }
 
   /**
