@@ -13,6 +13,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
@@ -128,7 +129,7 @@ public class GroupSetupIT {
 		assertNotNull(tilder_0);
 		assertNotNull(tilder_Z);
 
-		BigInteger cChallenge = groupSetupProver.computeChallenge();
+		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());;
 
 		assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
 
