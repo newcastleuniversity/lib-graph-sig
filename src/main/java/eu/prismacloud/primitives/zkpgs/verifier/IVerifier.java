@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -23,7 +24,7 @@ public interface IVerifier {
 	 * 
 	 * @throws ProofStoreException
 	 */
-	GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException;
+	Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException;
 	
 	/**
 	 * Checks the lengths of inputed prover-responses (hat-values).

@@ -64,7 +64,7 @@ public interface IProver {
 	 * @return a GroupElement being the overall witness (tilde-value) for this proof.
 	 * @throws ProofStoreException
 	 */
-	GroupElement executePreChallengePhase() throws ProofStoreException;
+	Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException;
 
 	/**
 	 * Computes the post-challenge phase of the prover, based on a given challenge.
