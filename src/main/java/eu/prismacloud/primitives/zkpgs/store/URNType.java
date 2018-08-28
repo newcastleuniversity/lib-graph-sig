@@ -11,6 +11,7 @@ public enum URNType {
   ABARIBARJ,
   BBARIBARJ,
   RBARIBARJ,
+	TILDEA,
   TILDED,
   TILDEE,
   TILDEV,
@@ -31,6 +32,9 @@ public enum URNType {
 	TILDEBASER0,
 	TILDEBASERI,
 	TILDEBASERIJ,
+	TILDEU,
+	TILDEZ,
+	HATA,
   HATD,
   HATE,
   HATV,
@@ -43,6 +47,7 @@ public enum URNType {
 	HATRZ,
 	HATR,
 	HATR0,
+	HATZ,
  HATABARIBARJ,
  HATBBARIBARJ,
  HATRBARIBARJ;
@@ -54,6 +59,7 @@ public enum URNType {
 		case ABARIBARJ: return "a_BariBarj_";
 		case BBARIBARJ: return "b_BariBarj_";
 		case RBARIBARJ: return "r_BariBarj_";
+		case TILDEA: return "tildeA";
 		case TILDED: return "tilded";
 		case TILDEE: return "tildee";
 		case TILDEV: return "tildev";
@@ -74,6 +80,9 @@ public enum URNType {
 		case TILDEBASER0: return "tildeR_0";
 		case TILDEBASERI: return "tildeR_i";
 		case TILDEBASERIJ: return "tildeR_i_j_";
+		case TILDEU: return "tildeU";
+		case TILDEZ: return "tildeZ";
+		case HATA: return "hata";
 		case HATD: return "hatd";
 		case HATE: return "hate";
 		case HATV: return "hatv";
@@ -85,6 +94,7 @@ public enum URNType {
 		case HATRZ: return "hatr_Z";
 		case HATR: return "hatr";
 		case HATR0: return "hatr_0";
+		case HATZ: return "hatZ";
 		case HATRIJ: return "hatr_i_j_";
 		case HATABARIBARJ: return "hata_BariBarj_";
 		case HATBBARIBARJ: return "hatb_BariBarj_";
@@ -98,6 +108,7 @@ public enum URNType {
 		case ABARIBARJ: return "secret";
 		case BBARIBARJ: return "secret";
 		case RBARIBARJ: return "secret";
+		case TILDEA: return "witnesses";
 		case TILDED: return "witnesses.randomness";
 		case TILDEE: return "witnesses.randomness";
 		case TILDEV: return "witnesses.randomness";
@@ -117,6 +128,9 @@ public enum URNType {
 		case TILDEBASER0: return "witnesses";
 		case TILDEBASERI: return "witnesses";
 		case TILDEBASERIJ: return "witnesses";
+		case TILDEU: return "witnesses";
+		case TILDEZ: return "witnesses";
+		case HATA: return "responses";
 		case HATD: return "responses";
 		case HATE: return "responses";
 		case HATV: return "responses";
@@ -128,6 +142,7 @@ public enum URNType {
 		case HATRIJ: return "responses.edge";
 		case HATRZ: return "responses";
 		case HATR: return "responses";
+		case HATZ: return "responses";
 		case HATR0: return "responses";
 		case HATABARIBARJ: return "responses";
 		case HATBBARIBARJ: return "responses";
