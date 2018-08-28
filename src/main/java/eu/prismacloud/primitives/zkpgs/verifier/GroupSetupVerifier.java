@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
@@ -20,8 +19,6 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +26,10 @@ import java.util.logging.Logger;
 
 /** Class represents the verification stage for the group setup. */
 public class GroupSetupVerifier implements IVerifier {
-
-  private ExtendedPublicKey extendedPublicKey;
-  private ProofSignature proofSignature;
-  private ProofStore<Object> proofStore;
+  public static final String URNID = "groupsetupverifier";
+  private final ExtendedPublicKey extendedPublicKey;
+  private final ProofSignature proofSignature;
+  private final ProofStore<Object> proofStore;
   private KeyGenParameters keyGenParameters;
   private int bitLength;
   private GroupElement hatZ;
@@ -59,14 +56,19 @@ public class GroupSetupVerifier implements IVerifier {
   private GroupElement hatR_i_j;
   private BaseCollection baseCollection;
 
-  public GroupSetupVerifier(final ProofSignature proofSignature, 
-		  final ExtendedPublicKey epk, final ProofStore<Object> ps) {
-      
+  public GroupSetupVerifier(
+      final ProofSignature proofSignature,
+      final ExtendedPublicKey epk,
+      final ProofStore<Object> ps) {
+    Assert.notNull(proofSignature, "proofSignature must not be null");
+    Assert.notNull(epk, "ExtendedPublicKey must not be null");
+    Assert.notNull(ps, "ProofStore must not be null");
+
     this.extendedPublicKey = epk;
     this.proofSignature = proofSignature;
     this.proofStore = ps;
     this.keyGenParameters = epk.getKeyGenParameters();
-    
+
     this.baseZ = (QRElement) proofSignature.get("proofsignature.P.baseZ");
     this.c = (BigInteger) proofSignature.get("proofsignature.P.c");
     this.baseS = (QRElement) proofSignature.get("proofsignature.P.baseS");
@@ -81,24 +83,22 @@ public class GroupSetupVerifier implements IVerifier {
     this.graphEncodingParameters = epk.getGraphEncodingParameters();
     this.baseCollection = extendedPublicKey.getBaseCollection();
   }
- 
 
   /** Check lengths. */
   @Override
   public boolean checkLengths() {
-	  //TODO why is length reduced by 1 here?
-    bitLength = computeBitLength() - 1;
+    // TODO why is length reduced by 1 here?
+    boolean isLengthCorrect;
 
-    gslog.info("computeBitLength: " + bitLength);
-    gslog.info("bitlength: " + this.hatr_z.bitLength());
+    bitLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
-    Assert.checkBitLength(this.hatr_z, bitLength, "length for hatr_Z is not correct ");
-    Assert.checkBitLength(this.hatr, bitLength, "length for hatr is not correct ");
-    Assert.checkBitLength(this.hatr_0, bitLength, "length for hatr_0 is not correct ");
+    isLengthCorrect =
+        CryptoUtilsFacade.isInPMRange(this.hatr_z, bitLength)
+            && CryptoUtilsFacade.isInPMRange(this.hatr, bitLength)
+            && CryptoUtilsFacade.isInPMRange(this.hatr_0, bitLength);
 
     BigInteger vertexResponse;
     BigInteger edgeResponse;
-
 
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
@@ -106,8 +106,7 @@ public class GroupSetupVerifier implements IVerifier {
           this.vertexResponses.get(
               URN.createZkpgsURN(
                   "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()));
-      Assert.checkBitLength(
-          vertexResponse, bitLength, "length for vertex response is not correct ");
+      isLengthCorrect = isLengthCorrect && CryptoUtilsFacade.isInPMRange(vertexResponse, bitLength);
     }
 
     BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
@@ -116,22 +115,15 @@ public class GroupSetupVerifier implements IVerifier {
           this.edgeResponses.get(
               URN.createZkpgsURN(
                   "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
-      Assert.checkBitLength(edgeResponse, bitLength, "length for edge response is not correct ");
+      isLengthCorrect = isLengthCorrect && CryptoUtilsFacade.isInPMRange(edgeResponse, bitLength);
     }
-    
-    // TODO switch to a model where length check returns boolean
-    return true;
-  }
 
-  private int computeBitLength() {
-    return keyGenParameters.getL_n()
-        + keyGenParameters.getL_statzk()
-        + keyGenParameters.getL_H()
-        + 1;
+    // TODO switch to a model where length check returns boolean
+    return isLengthCorrect;
   }
 
   /** Compute hat values. */
-  private void computeHatValues() {
+  public Map<URN, GroupElement> computeHatValues() {
     GroupElement vertexBase;
     GroupElement edgeBase;
     BigInteger hatVertexResponse;
@@ -139,17 +131,21 @@ public class GroupSetupVerifier implements IVerifier {
     GroupElement hatR_i;
     GroupElement hatR_j;
 
-    hatVertexBases = new HashMap<URN, GroupElement>();
-    hatEdgeBases = new HashMap<URN, GroupElement>();
+    HashMap<URN, GroupElement> hatValues = new HashMap<URN, GroupElement>();
+    //    hatEdgeBases = new HashMap<URN, GroupElement>();
 
     // Compute the negation of the challenge once.
     BigInteger negChallenge = c.negate();
 
     /** TODO check computation if it is computed correctly according to spec. */
     hatZ = baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
-    hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
-    hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
+    hatValues.put(URN.createZkpgsURN("groupsetupprover.responses.hatZ"), hatZ);
 
+    hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
+    hatValues.put(URN.createZkpgsURN("groupsetupprover.responses.hatR"), hatR);
+
+    hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
+    hatValues.put(URN.createZkpgsURN("groupsetupprover.responses.hatR_0"), hatR_0);
 
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
@@ -163,12 +159,11 @@ public class GroupSetupVerifier implements IVerifier {
               .modPow(negChallenge)
               .multiply(baseS.modPow(hatVertexResponse));
 
-      hatVertexBases.put(
+      hatValues.put(
           URN.createZkpgsURN(
               "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()),
           hatR_i);
     }
-
 
     BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
     for (BaseRepresentation baseRepresentation : edgeIterator) {
@@ -178,54 +173,57 @@ public class GroupSetupVerifier implements IVerifier {
                   "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
       hatR_i_j =
           baseRepresentation.getBase().modPow(negChallenge).multiply(baseS.modPow(hatEdgeResponse));
-      hatEdgeBases.put(
+      hatValues.put(
           URN.createZkpgsURN(
               "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()),
           hatR_i_j);
     }
+
+    return hatValues;
   }
 
-  /**
-   * Compute verification challenge.
-   *
-   * @throws NoSuchAlgorithmException the no such algorithm exception
-   */
-  // TODO should be part of an orchestrator
-  public void computeVerificationChallenge() throws NoSuchAlgorithmException {
-    List<String> ctxList = populateChallengeList();
-    hatc = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
-  }
+  //  /**
+  //   * Compute verification challenge.
+  //   *
+  //   * @throws NoSuchAlgorithmException the no such algorithm exception
+  //   */
+  //  // TODO should be part of an orchestrator
+  //  public void computeVerificationChallenge() throws NoSuchAlgorithmException {
+  //    List<String> ctxList = populateChallengeList();
+  //    hatc = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
+  //  }
 
-  private List<String> populateChallengeList() {
-    /** TODO add context to list of elements in challenge */
-    GSContext gsContext =
-        new GSContext(extendedPublicKey);
-    List<String> ctxList = gsContext.computeChallengeContext();
-
-    ctxList.add(String.valueOf(hatZ));
-    ctxList.add(String.valueOf(hatR));
-    ctxList.add(String.valueOf(hatR_0));
-
-    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    for (BaseRepresentation baseRepresentation : vertexIterator) {
-      ctxList.add(
-          String.valueOf(
-              hatVertexBases.get(
-                  URN.createZkpgsURN(
-                      "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()))));
-    }
-
-    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
-    for (BaseRepresentation baseRepresentation : edgeIterator) {
-      ctxList.add(
-          String.valueOf(
-              hatEdgeBases.get(
-                  URN.createZkpgsURN(
-                      "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()))));
-    }
-
-    return ctxList;
-  }
+  //  private List<String> populateChallengeList() {
+  //    /** TODO add context to list of elements in challenge */
+  //    GSContext gsContext = new GSContext(extendedPublicKey);
+  //    List<String> ctxList = gsContext.computeChallengeContext();
+  //
+  //    ctxList.add(String.valueOf(hatZ));
+  //    ctxList.add(String.valueOf(hatR));
+  //    ctxList.add(String.valueOf(hatR_0));
+  //
+  //    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+  //    for (BaseRepresentation baseRepresentation : vertexIterator) {
+  //      ctxList.add(
+  //          String.valueOf(
+  //              hatVertexBases.get(
+  //                  URN.createZkpgsURN(
+  //                      "groupsetupverifier.vertex.hatR_i_" +
+  // baseRepresentation.getBaseIndex()))));
+  //    }
+  //
+  //    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
+  //    for (BaseRepresentation baseRepresentation : edgeIterator) {
+  //      ctxList.add(
+  //          String.valueOf(
+  //              hatEdgeBases.get(
+  //                  URN.createZkpgsURN(
+  //                      "groupsetupverifier.edge.hatR_i_j_" +
+  // baseRepresentation.getBaseIndex()))));
+  //    }
+  //
+  //    return ctxList;
+  //  }
 
   /** Verify challenge. */
   //  @Override
@@ -234,21 +232,36 @@ public class GroupSetupVerifier implements IVerifier {
       throw new VerificationException("Challenge is rejected ");
     }
   }
-  
+
+  /**
+   * Execute verification returning mulitple group elements
+   *
+   * @param cChallenge the c challenge
+   * @return the map containing the group elements
+   */
+  public Map<URN, GroupElement> executeMultiVerification(BigInteger cChallenge) {
+    
+    if (!checkLengths()) return null;
+    return computeHatValues();
+  }
+
+  @Override
   public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-	  checkLengths();
-	  computeHatValues();
-	  
-	  // TODO adapt interfaces to allow to return multiple group elements.
-	  return null;
+    checkLengths();
+    computeHatValues();
+
+    // TODO adapt interfaces to allow to return multiple group elements.
+    return null;
   }
-  
+
+  @Override
   public boolean isSetupComplete() {
-	  // Class cannot be instantiated without complete setup;
-	  return true;
+    // Class cannot be instantiated without complete setup;
+    return true;
   }
-  
+
+  @Override
   public List<URN> getGovernedURNs() {
-	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+    throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

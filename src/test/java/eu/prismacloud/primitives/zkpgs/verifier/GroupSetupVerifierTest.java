@@ -1,11 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -13,15 +12,20 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -31,7 +35,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 class GroupSetupVerifierTest {
 
 	private Logger log = GSLoggerConfiguration.getGSlog();
-	
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
 	private SignerKeyPair gsk;
@@ -46,6 +49,7 @@ class GroupSetupVerifierTest {
 	private BigInteger hatr_0;
 	private GroupSetupVerifier groupSetupVerifier;
 	private ProofSignature proofSignature;
+  private Logger gslog = GSLoggerConfiguration.getGSlog();
 
 	@BeforeAll
 	void setupKey() throws IOException, ClassNotFoundException {
@@ -78,9 +82,7 @@ class GroupSetupVerifierTest {
 		assertNotNull(tilder_0);
 		assertNotNull(tilder_Z);
 
-		BigInteger cChallenge = groupSetupProver.computeChallenge();
-
-		//    assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
+		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 
 		groupSetupProver.executePostChallengePhase(cChallenge);
 
@@ -92,12 +94,6 @@ class GroupSetupVerifierTest {
 		assertNotNull(hatr);
 		assertNotNull(hatr_0);
 
-		int bitLength = computeBitLength();
-
-		//    assertEquals(bitLength, hatr_Z.bitLength());
-		//    assertEquals(bitLength, hatr.bitLength());
-		//    assertEquals(bitLength, hatr_0.bitLength());
-
 		proofSignature = groupSetupProver.outputProofSignature();
 		Map<URN, Object> proofElements = proofSignature.getProofSignatureElements();
 		assertNotNull(proofSignature);
@@ -108,7 +104,6 @@ class GroupSetupVerifierTest {
 		}
 
 		BigInteger phatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-		//    assertEquals(bitLength, phatr.bitLength());
 
 		BigInteger phatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
 		//    assertEquals(bitLength, phatr_0.bitLength());
@@ -131,29 +126,64 @@ class GroupSetupVerifierTest {
 			//      assertEquals(bitLength, edgeResponse.bitLength());
 		}
 
-		groupSetupVerifier = new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
+    groupSetupVerifier =
+        new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
 	}
 
-	private int computeBitLength() {
-		return keyGenParameters.getL_n()
-				+ keyGenParameters.getL_statzk()
-				+ keyGenParameters.getL_H()
-				+ 1;
+  @Test
+  @DisplayName("Test bitlengths are correct")
+  void testCheckLengths() {
+    groupSetupVerifier =
+        new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
+    assertNotNull(groupSetupVerifier);
+
+    boolean isLengthCorrect = groupSetupVerifier.checkLengths();
+    assertTrue(isLengthCorrect);
 	}
 
 	@Test
-	void testCheckLengths() {
-		groupSetupVerifier.checkLengths();
-		fail("Test not implemented yet.");
+  @DisplayName("Test illegal bitlengths so that the checkLengths returns false")
+  void testIllegalLengths() throws ProofStoreException {
+    int length = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+    gslog.info("compute bit length: " + length);
+
+    // compute har_0 with wrong bitlength
+    BigInteger hatr_0 =
+        NumberConstants.TWO
+            .getValue()
+            .pow(length + 1)
+            .add(NumberConstants.TWO.getValue().pow(length + 1));
+
+    proofSignature
+        .getProofSignatureElements()
+        .replace(URN.createZkpgsURN("proofsignature.P.hatr_0"), hatr_0);
+
+    GroupSetupVerifier groupSetupVerifier =
+        new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
+
+    boolean isLengthsCorrect = groupSetupVerifier.checkLengths();
+
+    gslog.info("checklengths: " + isLengthsCorrect);
+
+    Assertions.assertFalse(isLengthsCorrect, "checkLengths method did not reject illegal lengths");
 	}
 	
 	@Test
-	void testIllegalLengths() {
-		fail("Test not implemented yet.");
+  void testHatValueComputation() {
+
+    groupSetupVerifier.computeHatValues();
 	}
 
+
 	@Test
-	void testHatValueComputation() {
-		fail("Test not implemented yet.");
+  @DisplayName("Test returning hat values for GroupSetupVerifier")
+  void testExecuteMultiVerification() {
+    BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+
+    Map<URN, GroupElement> hatValues = groupSetupVerifier.executeMultiVerification(cChallenge);
+
+    assertNotNull(hatValues);
+
+    assertTrue(hatValues.size() > 0);
 	}
 }
