@@ -11,6 +11,7 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
@@ -106,6 +107,9 @@ class GroupSetupProverTest {
     return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
   }
 
+
+
+
   @Test
   @DisplayName("Test witness randomness bit length")
   void computeWitnessRandomnessBitLength() throws ProofStoreException {
@@ -147,16 +151,6 @@ class GroupSetupProverTest {
   }
 
   @Test
-  @DisplayName("Test challenge bitLength")
-  //  @RepeatedTest(5)
-  void computeChallenge() throws NoSuchAlgorithmException, ProofStoreException {
-
-    groupSetupProver.executePreChallengePhase();
-    BigInteger cChallenge = groupSetupProver.computeChallenge();
-    assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
-  }
-
-  @Test
   @DisplayName("Test post challenge phase")
   //  @RepeatedTest(15)
   void postChallengePhase() throws ProofStoreException, NoSuchAlgorithmException {
@@ -172,7 +166,7 @@ class GroupSetupProverTest {
     assertNotNull(tilder_0);
     assertNotNull(tilder_Z);
 
-    BigInteger cChallenge = groupSetupProver.computeChallenge();
+    BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
     log.info("challenge: " + cChallenge);
 
     byte[] result = cChallenge.toByteArray();
@@ -217,9 +211,8 @@ class GroupSetupProverTest {
     assertNotNull(tilder_0);
     assertNotNull(tilder_Z);
 
-    BigInteger cChallenge = groupSetupProver.computeChallenge();
+    BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 
-    //    assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
 
     groupSetupProver.executePostChallengePhase(cChallenge);
 
@@ -272,8 +265,6 @@ class GroupSetupProverTest {
 
   private int computeBitLength() {
     return keyGenParameters.getL_n()
-        + keyGenParameters.getL_statzk()
-        + keyGenParameters.getL_H()
-        + 1;
+        + keyGenParameters.getProofOffset();
   }
 }
