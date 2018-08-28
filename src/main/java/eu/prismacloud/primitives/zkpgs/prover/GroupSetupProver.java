@@ -17,6 +17,7 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -37,9 +38,9 @@ public class GroupSetupProver implements IProver {
   private BigInteger tilder_Z;
   private BigInteger tilder;
   private BigInteger tilder_0;
-  private BigInteger tildeZ;
-  private BigInteger basetildeR;
-  private BigInteger basetildeR_0;
+  private GroupElement tildeZ;
+  private GroupElement basetildeR;
+  private GroupElement basetildeR_0;
   private BigInteger hatr_Z;
   private BigInteger hatr;
   private BigInteger hatr_0;
@@ -91,12 +92,11 @@ public class GroupSetupProver implements IProver {
   public void executePrecomputation() {
     // NO PRE-COMPUTATION IS NEEDED: NO-OP.
   }
-// TODO return multiple witnesses
+  // TODO return multiple witnesses
   @Override
-  public GroupElement executePreChallengePhase() throws ProofStoreException {
+  public Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException {
     createWitnessRandomness();
-    GroupElement witness = computeWitness();
-    return witness;
+    return computeWitnesses();
   }
 
   private void createWitnessRandomness() throws ProofStoreException {
@@ -130,21 +130,22 @@ public class GroupSetupProver implements IProver {
     }
   }
 
-  private GroupElement computeWitness() throws ProofStoreException {
-    // TODO needs to work on GroupElement not raw BigInteger.
-    GroupElement geTildeZ = baseS.modPow(tilder_Z);
-    tildeZ = baseS.modPow(tilder_Z).getValue();
-    basetildeR = baseS.modPow(tilder).getValue();
-    basetildeR_0 = baseS.modPow(tilder_0).getValue();
+  private Map<URN, GroupElement> computeWitnesses() throws ProofStoreException {
+    Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>();
+    tildeZ = baseS.modPow(tilder_Z);
+    basetildeR = baseS.modPow(tilder);
+    basetildeR_0 = baseS.modPow(tilder_0);
 
     proofStore.store(getProverURN(URNType.TILDEBASEZ), tildeZ);
+    witnesses.put(URN.createZkpgsURN(getProverURN(URNType.TILDEBASEZ)), tildeZ);
 
     proofStore.store(getProverURN(URNType.TILDEBASER), basetildeR);
-
+    witnesses.put(URN.createZkpgsURN(getProverURN(URNType.TILDEBASER)), basetildeR);
     proofStore.store(getProverURN(URNType.TILDEBASER0), basetildeR_0);
+    witnesses.put(URN.createZkpgsURN(getProverURN(URNType.TILDEBASER0)), basetildeR_0);
 
-    BigInteger vWitnessBase;
-    BigInteger eWitnessBase;
+    GroupElement vWitnessBase;
+    GroupElement eWitnessBase;
     BigInteger vWitnessRandomNumber;
     BigInteger eWitnessRandomNumber;
 
@@ -154,9 +155,12 @@ public class GroupSetupProver implements IProver {
           (BigInteger)
               proofStore.retrieve(getProverURN(URNType.TILDERI, baseRepresentation.getBaseIndex()));
 
-      vWitnessBase = baseS.modPow(vWitnessRandomNumber).getValue();
+      vWitnessBase = baseS.modPow(vWitnessRandomNumber);
       proofStore.store(
           getProverURN(URNType.TILDEBASERI, baseRepresentation.getBaseIndex()), vWitnessBase);
+      witnesses.put(
+          URN.createZkpgsURN(getProverURN(URNType.TILDEBASERI, baseRepresentation.getBaseIndex())),
+          vWitnessBase);
     }
 
     BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
@@ -165,11 +169,14 @@ public class GroupSetupProver implements IProver {
           (BigInteger)
               proofStore.retrieve(
                   getProverURN(URNType.TILDERIJ, baseRepresentation.getBaseIndex()));
-      eWitnessBase = baseS.modPow(eWitnessRandomNumber).getValue();
+      eWitnessBase = baseS.modPow(eWitnessRandomNumber);
       proofStore.store(
           getProverURN(URNType.TILDEBASERIJ, baseRepresentation.getBaseIndex()), eWitnessBase);
+      witnesses.put(
+          URN.createZkpgsURN(getProverURN(URNType.TILDEBASERIJ, baseRepresentation.getBaseIndex())),
+          eWitnessBase);
     }
-    return geTildeZ;
+    return witnesses;
   }
 
   /**
@@ -195,7 +202,7 @@ public class GroupSetupProver implements IProver {
     edgeResponses = new HashMap<URN, BigInteger>();
     Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
     this.cChallenge = cChallenge;
-    
+
     hatr_Z = tilder_Z.add(cChallenge.multiply(r_Z));
     hatr = tilder.add(cChallenge.multiply(r));
     hatr_0 = tilder_0.add(cChallenge.multiply(r_0));

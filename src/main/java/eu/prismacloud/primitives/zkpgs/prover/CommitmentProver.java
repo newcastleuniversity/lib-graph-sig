@@ -52,6 +52,8 @@ public class CommitmentProver implements IProver {
   private BaseIterator edgeIterator;
   private BaseIterator baseR0Iterator;
   private BaseRepresentation base;
+  private String tilder_iURN;
+  private Map<URN, GroupElement> witnesses;
 
   // TODO Demote public key, EPK not really needed.
   public CommitmentProver(
@@ -78,14 +80,14 @@ public class CommitmentProver implements IProver {
    *
    * @return the gs commitment
    */
-  public GroupElement executePreChallengePhase() throws ProofStoreException {
-
+  public Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException {
     this.baseS = signerPublicKey.getBaseS();
     this.proofStage = STAGE.PROVING;
 
     createWitnessRandomness();
     computeWitness();
-    return witness.getCommitmentValue();
+
+    return witnesses;
   }
 
   public enum STAGE {
@@ -155,7 +157,7 @@ public class CommitmentProver implements IProver {
 
     tilder_i = CryptoUtilsFacade.computeRandomNumber(tilder_iLength);
 
-    String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, index);
+    tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, index);
 
     try {
       proofStore.store(tilder_iURN, tilder_i);
@@ -165,7 +167,7 @@ public class CommitmentProver implements IProver {
   }
 
   //  @Override
-  public GroupElement computeWitness() {
+  public Map<URN, GroupElement> computeWitness() {
     Map<URN, GroupElement> baseMap = new HashMap<>();
     Map<URN, BigInteger> exponentsMap = new HashMap<>();
 
@@ -193,9 +195,13 @@ public class CommitmentProver implements IProver {
       GroupElement sMulti = baseS.modPow(tildevPrime);
       GroupElement tildeU = sMulti.multiply(R_0.modPow(tildem_0));
 
-      witness = new GSCommitment(tildeU);
+      
 
-      gslog.info("witness U: " + witness.getCommitmentValue());
+      witnesses = new HashMap<URN, GroupElement>();
+      String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+      witnesses.put(URN.createZkpgsURN(tildeUURN), tildeU);
+
+      gslog.info("witness U: " + tildeU);
 
     } else {
 
@@ -215,10 +221,13 @@ public class CommitmentProver implements IProver {
       //      exponentsMap.put(
       //          URN.createZkpgsURN("commitment.exponent.m_" + vertex.getBaseIndex()), tildem_i);
 
-      witness = new GSCommitment(tildeC_i);
+
+      witnesses = new HashMap<URN, GroupElement>();
+      String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+      witnesses.put(URN.createZkpgsURN(tildeC_iURN), tildeC_i);
     }
 
-    return witness.getCommitmentValue();
+    return witnesses;
   }
 
   public BigInteger computeChallenge() {

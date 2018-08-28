@@ -43,7 +43,8 @@ import java.util.logging.Logger;
 public class PairWiseDifferenceProver implements IProver {
 
 	public static final String URNID = "pairwiseprover";
-
+	
+	private Map<URN, GroupElement> witnesses;
 	private BigInteger m_Bari;
 	private BigInteger m_Barj;
 	private BigInteger r_Bari;
@@ -122,13 +123,14 @@ public class PairWiseDifferenceProver implements IProver {
 		this.index = index;
 		this.proofStore = proofStore;
 		this.keyGenParameters = this.epk.getKeyGenParameters();
+		this.witnesses = new HashMap<URN, GroupElement>();
 	}
 
 	public PairWiseDifferenceProver() {}
 
 
 	@Override
-	public GroupElement executePreChallengePhase() throws ProofStoreException {
+	public Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException {
 		createWitnessRandomness();
 
 		return computeWitness();
@@ -299,7 +301,7 @@ public class PairWiseDifferenceProver implements IProver {
 		}
 	}
 
-	private GroupElement computeWitness() {
+	private Map<URN, GroupElement> computeWitness() {
 		GroupElement C_Bari = C_i.getCommitmentValue();
 		GroupElement C_Barj = C_j.getCommitmentValue();
 
@@ -310,7 +312,10 @@ public class PairWiseDifferenceProver implements IProver {
 				multiply(baseS.modPow(tilder_BariBarj));
 
 		storeWitness();
-		return basetildeR_BariBarj;
+
+		Map<URN, GroupElement> witnesses = new HashMap<>();
+		witnesses.put(URN.createZkpgsURN(basetildeR_BariBarjURN), basetildeR_BariBarj);
+		return witnesses;
 	}
 
 	private void storeWitness() {

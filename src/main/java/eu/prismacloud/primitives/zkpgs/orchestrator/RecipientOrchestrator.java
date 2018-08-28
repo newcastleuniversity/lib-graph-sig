@@ -22,6 +22,7 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignatureValidator;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -119,8 +120,10 @@ public class RecipientOrchestrator {
 		// TODO needs to move to the new commitment interface.
 		CommitmentProver commitmentProver = new CommitmentProver(U, 0, extendedPublicKey.getPublicKey(), proofStore);
 
-		tildeU =
+		Map<URN, GroupElement> tildeMap =
 				commitmentProver.executePreChallengePhase();
+		String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+		tildeU = tildeMap.get(URN.createZkpgsURN( tildeUURN));
 
 		try {
 			cChallenge = computeChallenge();

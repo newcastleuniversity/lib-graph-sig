@@ -246,7 +246,7 @@ public class GroupSetupVerifier implements IVerifier {
   }
 
   @Override
-  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+  public Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException {
     checkLengths();
     computeHatValues();
 

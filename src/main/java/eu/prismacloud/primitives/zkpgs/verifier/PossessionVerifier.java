@@ -7,6 +7,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -16,7 +17,9 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /** */
@@ -70,7 +73,7 @@ public class PossessionVerifier implements IVerifier {
 	}
 
 	@Override
-	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	public Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException {
 		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
 		hate = (BigInteger) proofStore.retrieve("verifier.hate");
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
@@ -90,7 +93,6 @@ public class PossessionVerifier implements IVerifier {
 							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 		}
 		GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
-		// gslog.info("Aprime: " + APrime);
 		GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
 
 		GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
@@ -100,10 +102,10 @@ public class PossessionVerifier implements IVerifier {
 
 		hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0).multiply(basesProduct);
 
-		//	    gslog.info("hatZ: " + hatZ);
-		//	    gslog.info("hatZ bitlength: " + hatZ.bitLength());
-
-		return hatZ;
+    Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
+    String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
+    responses.put(URN.createZkpgsURN(hatZURN), hatZ);
+		return responses;
 	}
 
 	@Override
