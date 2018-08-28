@@ -54,7 +54,7 @@ class CommitmentProverTest {
   private BaseRepresentation baseR0;
   private BigInteger tilder_i;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-//  private GSUtils gsUtils;
+  //  private GSUtils gsUtils;
 
   @BeforeAll
   void setUpKey() throws IOException, ClassNotFoundException {
@@ -76,8 +76,8 @@ class CommitmentProverTest {
   void setUp() throws Exception {
     proofStore = new ProofStore<Object>();
     testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-//    log.info("Creating test signature with GSSigningOracle on testM: " + testM);
-//    sigmaM = oracle.sign(testM).blind();
+    //    log.info("Creating test signature with GSSigningOracle on testM: " + testM);
+    //    sigmaM = oracle.sign(testM).blind();
 
     baseR0 = new BaseRepresentation(epk.getPublicKey().getBaseR_0(), 0, BASE.BASE0);
     baseR0.setExponent(testM);
@@ -101,7 +101,9 @@ class CommitmentProverTest {
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
-    GroupElement tildeC_i = cprover.executePreChallengePhase();
+    String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     assertNotNull(tildeC_i);
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
@@ -138,7 +140,10 @@ class CommitmentProverTest {
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 
     proofStore.store(tildem_iURN, tildem_i);
-    GroupElement tildeC_i = cprover.executePreChallengePhase();
+
+    String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     assertNotNull(tildeC_i);
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
@@ -171,7 +176,9 @@ class CommitmentProverTest {
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
-    GroupElement tildeC_i = cprover.executePreChallengePhase();
+    String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     assertNotNull(tildeC_i);
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);

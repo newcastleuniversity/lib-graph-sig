@@ -16,8 +16,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
-import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
-import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
@@ -96,14 +94,15 @@ public class CommitmentVerifierTest {
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
 
-    tildeC_i =
-        cprover.executePreChallengePhase();
+    String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
     GroupElement baseR = epk.getPublicKey().getBaseR();
-    
+
     m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     C_i = GSCommitment.createCommitment(m_i, baseR, epk);
     Map<URN, GSCommitment> commitmentMap = new HashMap<>();
@@ -161,11 +160,11 @@ public class CommitmentVerifierTest {
 
   @Test
   void testComputeHatC() {
-	  fail("Test not implemented yet.");
+    fail("Test not implemented yet.");
   }
 
   @Test
   void testComputeUHat() {
-	  fail("Test not implemented yet.");
+    fail("Test not implemented yet.");
   }
 }

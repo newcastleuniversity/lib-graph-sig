@@ -22,10 +22,12 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -201,8 +203,8 @@ class SingletonPossessionProverTest {
   @DisplayName("Test computing witness TildeZ")
   void testComputeWitness() throws ProofStoreException {
     log.info("PossessionProverTest: Computing witness TildeZ.");
-    tildeZ = prover.executePreChallengePhase();
-
+    Map<URN, GroupElement> witnesses = prover.executePreChallengePhase();
+    tildeZ = witnesses.get(URN.createZkpgsURN(prover.getProverURN(URNType.TILDEZ)));
     assertNotNull(tildeZ);
 
     tildevPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEVPRIME));

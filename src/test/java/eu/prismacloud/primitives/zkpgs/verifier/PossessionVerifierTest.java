@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -23,11 +23,11 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -98,7 +98,9 @@ class PossessionVerifierTest {
 		
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
-		tildeZ = prover.executePreChallengePhase();
+		Map<URN, GroupElement> witnesses = verifier.executeVerification(cChallenge);
+  GroupElement tildeZ = witnesses.get(URN.createZkpgsURN(prover.getProverURN(URNType.TILDEZ)));
+
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
 
@@ -118,8 +120,11 @@ class PossessionVerifierTest {
 	@Test
 	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
-		GroupElement hatZ = verifier.executeVerification(cChallenge);
-		
+
+		Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
+  String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
+  GroupElement hatZ = responses.get(URN.createZkpgsURN(hatZURN));
+
 		assertEquals(tildeZ, hatZ, "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
 	}
 
