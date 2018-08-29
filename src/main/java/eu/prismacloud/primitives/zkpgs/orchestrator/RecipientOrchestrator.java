@@ -204,7 +204,7 @@ public class RecipientOrchestrator {
 
 		GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
 		g = graph.createGraph(RECIPIENT_GRAPH_FILE);
-		graph.encodeGraph(this.graphEncodingParameters);
+		graph.encodeRandomGeoLocationGraph(this.graphEncodingParameters);
 		GraphMLProvider.createImporter();
 		GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 

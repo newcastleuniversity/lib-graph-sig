@@ -63,13 +63,24 @@ public class GSGraph<
   }
 
   /**
-   * Encodes a graph that has been constructed from an imported graphml file. Selects the vertex
-   * prime representative for a vertex and its prime representatives for the labels. The edge prime
+   * Encodes a graph that has been constructed from an imported graphml file with random vertex prime representatives. 
+   * Selects a random prime vertex prime representative for each vertex and 
+   * its prime representatives for the labels. The edge prime
    * representative is selected and its prime representatives for the labels.
-   *
+   * 
+   * <p>The labels are enforced to be geo-location labels (UN ISO country codes)
+   * and restricted to a single label.
+   * 
+   * <p>Note that the method comes with a slight risk of a collision between 
+   * randomly chosen vertex identifiers, making the graph representation ambiguous.
+   * It will also make it impossible for a verifier to effectively determine 
+   * vertex identifiers for his queries. Further, the method is computationally intensive
+   * as many random prime numbers will be chosen.
+   * 
    * @param graphEncodingParameters the graph encoding parameters
+   * @deprecated
    */
-  public void encodeGraph(GraphEncodingParameters graphEncodingParameters) {
+  public void encodeRandomGeoLocationGraph(GraphEncodingParameters graphEncodingParameters) {
     JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
     BigInteger vertexPrimeRepresentative;
     BigInteger labelPrimeRepresentative;

@@ -38,7 +38,7 @@ class GSGraphTest {
     g = graph.createGraph(SIGNER_GRAPH_FILE);
     assertNotNull(g);
 
-    graph.encodeGraph(graphEncodingParameters);
+    graph.encodeRandomGeoLocationGraph(graphEncodingParameters);
     Set<GSEdge> edges = g.edgeSet();
     Set<GSVertex> vertices = g.vertexSet();
 

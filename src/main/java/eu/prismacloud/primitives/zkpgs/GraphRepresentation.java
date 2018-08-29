@@ -56,7 +56,7 @@ public class GraphRepresentation {
 
     Graph<GSVertex, GSEdge> graph;
     encodingParameters = graphEncodingParameters;
-    gsGraph.encodeGraph(graphEncodingParameters);
+    gsGraph.encodeRandomGeoLocationGraph(graphEncodingParameters);
     graph = gsGraph.getGraph();
     bases = extendedPublicKey.getBases();
     encodeVertices(graph, bases);

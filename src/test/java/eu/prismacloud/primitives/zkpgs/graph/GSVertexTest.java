@@ -34,7 +34,7 @@ class GSVertexTest {
 
     g = graph.createGraph(SIGNER_GRAPH_FILE);
 
-    graph.encodeGraph(graphEncodingParameters);
+    graph.encodeRandomGeoLocationGraph(graphEncodingParameters);
     vertices = g.vertexSet();
   }
 
