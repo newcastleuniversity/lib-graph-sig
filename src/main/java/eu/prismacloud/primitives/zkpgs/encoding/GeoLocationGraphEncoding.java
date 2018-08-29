@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.encoding;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
-import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
@@ -11,6 +10,8 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,15 +19,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** The type Graph encoding. */
-public class GeoLocationGraphEncoding implements IGraphEncoding {
+public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6958443506399975449L;
+	
 	private final SignerPublicKey signerPublicKey;
 	private Map<BigInteger, GSSignature> signatureMap;
-	private Map<URN, BigInteger> vertexRepresentatives;
-	private KeyGenParameters keyGenParameters;
-	private GraphEncodingParameters graphEncodingParameters;
+	private final Map<URN, BigInteger> vertexRepresentatives;
+	private final KeyGenParameters keyGenParameters;
+	private final GraphEncodingParameters graphEncodingParameters;
 	private Map<URN, BigInteger> countryLabels;
-	private JsonIsoCountries jsonIsoCountries;
 	private Map<URN, Object> certifiedPrimeRepresenatives = new HashMap<URN, Object>();
 
 	/**
@@ -74,7 +79,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding {
 
 		generateVertexRepresentatives();
 
-		jsonIsoCountries = new JsonIsoCountries();
+		JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
 		countryLabels = jsonIsoCountries.getCountryMap();
 
 		Iterator<BigInteger> labelRepIter = countryLabels.values().iterator();
@@ -149,7 +154,6 @@ public class GeoLocationGraphEncoding implements IGraphEncoding {
 	 * @complexity This method is resource-intensive as BigInteger.nextProbablePrime() will be
 	 * called l_V times.
 	 * 
-	 * @param extendedKeyPair TODO
 	 * @throws EncodingException if the graph encoding attempted to create a prime representative
 	 * outside of the range designated for vertex encoding. This will only occur if the
 	 * graph encoding parameters lPrime_V and l_V are contradicting each other, e.g, if

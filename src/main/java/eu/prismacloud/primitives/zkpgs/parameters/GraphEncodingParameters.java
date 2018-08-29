@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.parameters;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,12 @@ import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
  * <p>The primes for vertex encoding are guaranteed to be encoded in the bitlength interval
  * [lPrime_L, lPrime_V].
  * */
-public class GraphEncodingParameters implements IContextProducer {
+public class GraphEncodingParameters implements Serializable, IContextProducer {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5075347765733171057L;
+
 	/** Maximal number of vertices to be encoded */
 	private final int l_V;
 

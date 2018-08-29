@@ -21,11 +21,8 @@ public class JsonIsoCountries {
   private static final int COUNTRY_CODE_START = 0;
   private static final int COUNTRY_CODE_END = 2;
   private static final String GS_ISO_COUNTRIES_FILE = "iso_3166_alpha_2.json";
-  private final Logger gslog = GSLoggerConfiguration.getGSlog();
 
   private InputStream paramStream;
-  private KeyGenParameters keyGenParameters;
-  private GraphEncodingParameters graphEncodingParameters;
   private JsonReader reader;
   private Map<URN, BigInteger> countriesLabel;
   private JsonArray jsonArray;
