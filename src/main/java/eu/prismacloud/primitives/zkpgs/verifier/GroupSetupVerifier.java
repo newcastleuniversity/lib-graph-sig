@@ -3,13 +3,13 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
-import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -87,7 +87,6 @@ public class GroupSetupVerifier implements IVerifier {
   /** Check lengths. */
   @Override
   public boolean checkLengths() {
-    // TODO why is length reduced by 1 here?
     boolean isLengthCorrect;
 
     bitLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
@@ -104,8 +103,7 @@ public class GroupSetupVerifier implements IVerifier {
     for (BaseRepresentation baseRepresentation : vertexIterator) {
       vertexResponse =
           this.vertexResponses.get(
-              URN.createZkpgsURN(
-                  "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()));
+              URN.createZkpgsURN(getVerifierURN(URNType.HATRI, baseRepresentation.getBaseIndex())));
       isLengthCorrect = isLengthCorrect && CryptoUtilsFacade.isInPMRange(vertexResponse, bitLength);
     }
 
@@ -114,11 +112,10 @@ public class GroupSetupVerifier implements IVerifier {
       edgeResponse =
           this.edgeResponses.get(
               URN.createZkpgsURN(
-                  "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
+                  getVerifierURN(URNType.HATRIJ, baseRepresentation.getBaseIndex())));
       isLengthCorrect = isLengthCorrect && CryptoUtilsFacade.isInPMRange(edgeResponse, bitLength);
     }
 
-    // TODO switch to a model where length check returns boolean
     return isLengthCorrect;
   }
 
@@ -139,20 +136,19 @@ public class GroupSetupVerifier implements IVerifier {
 
     /** TODO check computation if it is computed correctly according to spec. */
     hatZ = baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
-    hatValues.put(URN.createZkpgsURN("groupsetupprover.responses.hatZ"), hatZ);
+    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATZ)), hatZ);
 
     hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
-    hatValues.put(URN.createZkpgsURN("groupsetupprover.responses.hatR"), hatR);
+    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATR)), hatR);
 
     hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
-    hatValues.put(URN.createZkpgsURN("groupsetupprover.responses.hatR_0"), hatR_0);
+    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATR0)), hatR_0);
 
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
       hatVertexResponse =
           vertexResponses.get(
-              URN.createZkpgsURN(
-                  "groupsetupprover.responses.hatr_i_" + baseRepresentation.getBaseIndex()));
+              URN.createZkpgsURN(getVerifierURN(URNType.HATRI, baseRepresentation.getBaseIndex())));
       hatR_i =
           baseRepresentation
               .getBase()
@@ -160,8 +156,8 @@ public class GroupSetupVerifier implements IVerifier {
               .multiply(baseS.modPow(hatVertexResponse));
 
       hatValues.put(
-          URN.createZkpgsURN(
-              "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()),
+          URN.createZkpgsURN(getVerifierURN(URNType.HATBASERI, baseRepresentation.getBaseIndex())),
+          //              "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()),
           hatR_i);
     }
 
@@ -170,12 +166,14 @@ public class GroupSetupVerifier implements IVerifier {
       hatEdgeResponse =
           edgeResponses.get(
               URN.createZkpgsURN(
-                  "groupsetupprover.responses.hatr_i_j_" + baseRepresentation.getBaseIndex()));
+                  getVerifierURN(URNType.HATRIJ, baseRepresentation.getBaseIndex())));
+      //                  "groupsetupprover.responses.hatr_i_j_" +
+      // baseRepresentation.getBaseIndex()));
       hatR_i_j =
           baseRepresentation.getBase().modPow(negChallenge).multiply(baseS.modPow(hatEdgeResponse));
       hatValues.put(
-          URN.createZkpgsURN(
-              "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()),
+          URN.createZkpgsURN(getVerifierURN(URNType.HATBASERIJ, baseRepresentation.getBaseIndex())),
+          //              "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()),
           hatR_i_j);
     }
 
@@ -233,31 +231,37 @@ public class GroupSetupVerifier implements IVerifier {
     }
   }
 
-  /**
-   * Execute verification returning mulitple group elements
-   *
-   * @param cChallenge the c challenge
-   * @return the map containing the group elements
-   */
-  public Map<URN, GroupElement> executeMultiVerification(BigInteger cChallenge) {
-    
+  @Override
+  public Map<URN, GroupElement> executeVerification(BigInteger cChallenge) {
     if (!checkLengths()) return null;
     return computeHatValues();
-  }
-
-  @Override
-  public Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException {
-    checkLengths();
-    computeHatValues();
-
-    // TODO adapt interfaces to allow to return multiple group elements.
-    return null;
   }
 
   @Override
   public boolean isSetupComplete() {
     // Class cannot be instantiated without complete setup;
     return true;
+  }
+
+  public String getVerifierURN(URNType t) {
+    if (URNType.isEnumerable(t)) {
+      throw new RuntimeException(
+          "URNType " + t + " is enumerable and should be evaluated with an index.");
+    }
+    return GroupSetupVerifier.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+  }
+
+  public String getVerifierURN(URNType t, int index) {
+    if (!URNType.isEnumerable(t)) {
+      throw new RuntimeException(
+          "URNType " + t + " is not enumerable and should not be evaluated with an index.");
+    }
+    return GroupSetupVerifier.URNID
+        + "."
+        + URNType.getClass(t)
+        + "."
+        + URNType.getSuffix(t)
+        + index;
   }
 
   @Override
