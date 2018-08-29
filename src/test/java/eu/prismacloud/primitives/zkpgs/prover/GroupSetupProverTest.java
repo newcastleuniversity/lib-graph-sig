@@ -16,6 +16,7 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -45,7 +46,7 @@ class GroupSetupProverTest {
   private BigInteger hatr_Z;
   private BigInteger hatr;
   private BigInteger hatr_0;
-  private BigInteger tildeZ;
+  private GroupElement tildeZ;
 
   @BeforeAll
   void setupKey() throws IOException, ClassNotFoundException, EncodingException {
@@ -108,14 +109,10 @@ class GroupSetupProverTest {
     return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
   }
 
-
-
-
   @Test
   @DisplayName("Test witness randomness bit length")
   void computeWitnessRandomnessBitLength() throws ProofStoreException {
-    int bitLength =
-        keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
+    int bitLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
     BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
     BigInteger min = max.negate();
     log.info("maximum positive random number: " + max);
@@ -126,27 +123,27 @@ class GroupSetupProverTest {
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
     assertNotNull(tilder);
     assertTrue(inRange(tilder, min, max));
-    log.info("bitLength tilder: " + tilder.bitLength());
-    assertEquals(bitLength, tilder.bitLength());
+    //    log.info("bitLength tilder: " + tilder.bitLength());
+    //    assertEquals(bitLength, tilder.bitLength());
 
     tilder_0 = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
     assertNotNull(tilder_0);
     assertTrue(inRange(tilder_0, min, max));
-    log.info("bitLength tilder_0: " + tilder_0.bitLength());
-    assertEquals(bitLength, tilder_0.bitLength());
+    //    log.info("bitLength tilder_0: " + tilder_0.bitLength());
+    //    assertEquals(bitLength, tilder_0.bitLength());
 
     tilder_Z = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_Z");
     assertNotNull(tilder_Z);
     assertTrue(inRange(tilder_Z, min, max));
-    log.info("bitLength tilder_Z: " + tilder_Z.bitLength());
-    assertEquals(bitLength, tilder_Z.bitLength());
+    //    log.info("bitLength tilder_Z: " + tilder_Z.bitLength());
+    //    assertEquals(bitLength, tilder_Z.bitLength());
   }
 
   @Test
   @DisplayName("Test computing witnesses")
   void computeWitness() throws ProofStoreException {
     groupSetupProver.executePreChallengePhase();
-    tildeZ = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.tildeZ");
+    tildeZ = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeZ");
     assertNotNull(tildeZ);
     /** TODO test that it is congruent */
   }
@@ -155,6 +152,9 @@ class GroupSetupProverTest {
   @DisplayName("Test post challenge phase")
   //  @RepeatedTest(15)
   void postChallengePhase() throws ProofStoreException, NoSuchAlgorithmException {
+    int bitLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+    BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
+    BigInteger min = max.negate();
 
     groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
@@ -168,16 +168,12 @@ class GroupSetupProverTest {
     assertNotNull(tilder_Z);
 
     BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
-    log.info("challenge: " + cChallenge);
 
-    byte[] result = cChallenge.toByteArray();
-
-    log.info("byte array length: " + result.length);
     log.info("challenge bitlength: " + cChallenge.bitLength());
 
-    assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
-
-    groupSetupProver.executePostChallengePhase(cChallenge);
+    Map<URN, BigInteger> responses = groupSetupProver.executePostChallengePhase(cChallenge);
+    assertNotNull(responses);
+    assertTrue(responses.size() > 0);
 
     hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
     hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");
@@ -187,20 +183,27 @@ class GroupSetupProverTest {
     assertNotNull(hatr);
     assertNotNull(hatr_0);
 
-    int bitLength = computeBitLength();
+    assertTrue(inRange(hatr_Z, min, max));
+    assertTrue(inRange(hatr, min, max));
+    assertTrue(inRange(hatr_0, min, max));
 
-    log.info("hatrZ bitLength " + hatr_Z.bitLength());
-    log.info("hatr bitLength " + hatr.bitLength());
-    log.info("hatr0 bitLength " + hatr_0.bitLength());
-
-    assertEquals(bitLength, hatr_Z.bitLength() + 1);
-    assertEquals(bitLength, hatr.bitLength() + 1);
-    assertEquals(bitLength, hatr_0.bitLength() + 1);
+    //    int bitLength = computeBitLength();
+    //
+    //    log.info("hatrZ bitLength " + hatr_Z.bitLength());
+    //    log.info("hatr bitLength " + hatr.bitLength());
+    //    log.info("hatr0 bitLength " + hatr_0.bitLength());
+    //
+    //    assertEquals(bitLength, hatr_Z.bitLength() + 1);
+    //    assertEquals(bitLength, hatr.bitLength() + 1);
+    //    assertEquals(bitLength, hatr_0.bitLength() + 1);
   }
 
   @Test
   @DisplayName("Test output proof signature")
   void outputProofSignature() throws NoSuchAlgorithmException, ProofStoreException {
+    int bitLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+    BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
+    BigInteger min = max.negate();
     groupSetupProver.executePreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
@@ -214,7 +217,6 @@ class GroupSetupProverTest {
 
     BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 
-
     groupSetupProver.executePostChallengePhase(cChallenge);
 
     hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
@@ -224,12 +226,14 @@ class GroupSetupProverTest {
     assertNotNull(hatr_Z);
     assertNotNull(hatr);
     assertNotNull(hatr_0);
-
-    int bitLength = computeBitLength();
-
-    assertEquals(bitLength, hatr_Z.bitLength() + 1);
-    assertEquals(bitLength, hatr.bitLength() + 1);
-    assertEquals(bitLength, hatr_0.bitLength() + 1);
+    assertTrue(inRange(hatr_Z, min, max));
+    assertTrue(inRange(hatr, min, max));
+    assertTrue(inRange(hatr_0, min, max));
+    //    int bitLength = computeBitLength();
+    //
+    //    assertEquals(bitLength, hatr_Z.bitLength() + 1);
+    //    assertEquals(bitLength, hatr.bitLength() + 1);
+    //    assertEquals(bitLength, hatr_0.bitLength() + 1);
 
     ProofSignature proofSignature = groupSetupProver.outputProofSignature();
     Map<URN, Object> proofElements = proofSignature.getProofSignatureElements();
@@ -241,31 +245,36 @@ class GroupSetupProverTest {
     }
 
     BigInteger phatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-    assertEquals(bitLength, phatr.bitLength() + 1);
+    assertTrue(inRange(phatr, min, max));
+    //    assertEquals(bitLength, phatr.bitLength() + 1);
 
     BigInteger phatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
+    assertTrue(inRange(phatr_0, min, max));
+
     assertEquals(bitLength, phatr_0.bitLength() + 1);
     BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
-    assertEquals(bitLength, phatr_Z.bitLength() + 1);
+    assertTrue(inRange(phatr_Z, min, max));
+    //    assertEquals(bitLength, phatr_Z.bitLength() + 1);
 
     @SuppressWarnings("unchecked")
-	Map<URN, BigInteger> edgeResponses =
+    Map<URN, BigInteger> edgeResponses =
         ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i"));
     @SuppressWarnings("unchecked")
     Map<URN, BigInteger> vertexResponses =
         ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j"));
 
     for (BigInteger vertexResponse : vertexResponses.values()) {
-      assertEquals(bitLength, vertexResponse.bitLength() + 1);
+      assertTrue(inRange(vertexResponse, min, max));
+      //      assertEquals(bitLength, vertexResponse.bitLength() + 1);
     }
 
     for (BigInteger edgeResponse : edgeResponses.values()) {
-      assertEquals(bitLength, edgeResponse.bitLength() + 1);
+      assertTrue(inRange(edgeResponse, min, max));
+      //      assertEquals(bitLength, edgeResponse.bitLength() + 1);
     }
   }
 
-  private int computeBitLength() {
-    return keyGenParameters.getL_n()
-        + keyGenParameters.getProofOffset();
-  }
+  //  private int computeBitLength() {
+  //    return keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+  //  }
 }
