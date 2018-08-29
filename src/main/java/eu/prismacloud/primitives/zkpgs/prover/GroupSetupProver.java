@@ -141,6 +141,7 @@ public class GroupSetupProver implements IProver {
 
     proofStore.store(getProverURN(URNType.TILDEBASER), basetildeR);
     witnesses.put(URN.createZkpgsURN(getProverURN(URNType.TILDEBASER)), basetildeR);
+    
     proofStore.store(getProverURN(URNType.TILDEBASER0), basetildeR_0);
     witnesses.put(URN.createZkpgsURN(getProverURN(URNType.TILDEBASER0)), basetildeR_0);
 
@@ -197,10 +198,9 @@ public class GroupSetupProver implements IProver {
     BigInteger r_j;
     BigInteger edgeResponse;
     Map<URN, BigInteger> discLogs = extendedKeyPair.getExtendedPrivateKey().getDiscLogOfBases();
-
-    vertexResponses = new HashMap<URN, BigInteger>();
-    edgeResponses = new HashMap<URN, BigInteger>();
     Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
+    vertexResponses = new HashMap<>();
+    edgeResponses = new HashMap<>();
     this.cChallenge = cChallenge;
 
     hatr_Z = tilder_Z.add(cChallenge.multiply(r_Z));
@@ -208,8 +208,14 @@ public class GroupSetupProver implements IProver {
     hatr_0 = tilder_0.add(cChallenge.multiply(r_0));
 
     proofStore.store(getProverURN(URNType.HATRZ), hatr_Z);
+    responses.put(URN.createZkpgsURN(getProverURN(URNType.HATRZ)), hatr_Z );
+
     proofStore.store(getProverURN(URNType.HATR), hatr);
+    responses.put(URN.createZkpgsURN(getProverURN(URNType.HATR)), hatr);
+
     proofStore.store(getProverURN(URNType.HATR0), hatr_0);
+    responses.put(URN.createZkpgsURN(getProverURN(URNType.HATR0)), hatr_0);
+
 
     /** TODO check r_i, r_j computations */
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
@@ -223,11 +229,10 @@ public class GroupSetupProver implements IProver {
 
       hatr_i = tilder_i.add(cChallenge.multiply(r_i));
 
-      URN urn = URN.createZkpgsURN(getProverURN(URNType.HATRI, baseRepresentation.getBaseIndex()));
-      vertexResponses.put(urn, hatr_i);
-      responses.put(urn, hatr_i);
-
-      proofStore.save(urn, hatr_i);
+      URN hatr_iURN = URN.createZkpgsURN(getProverURN(URNType.HATRI, baseRepresentation.getBaseIndex()));
+      responses.put(hatr_iURN, hatr_i);
+      vertexResponses.put(hatr_iURN, hatr_i);
+      proofStore.save(hatr_iURN, hatr_i);
     }
 
     BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
@@ -242,11 +247,10 @@ public class GroupSetupProver implements IProver {
 
       hatr_j = tilder_j.add(cChallenge.multiply(r_j));
 
-      URN urn = URN.createZkpgsURN(getProverURN(URNType.HATRIJ, baseRepresentation.getBaseIndex()));
-      edgeResponses.put(urn, hatr_j);
-      responses.put(urn, hatr_j);
-
-      proofStore.save(urn, hatr_j);
+      URN hatr_i_jURN = URN.createZkpgsURN(getProverURN(URNType.HATRIJ, baseRepresentation.getBaseIndex()));
+      responses.put(hatr_i_jURN, hatr_j);
+      edgeResponses.put(hatr_i_jURN, hatr_j);
+      proofStore.save(hatr_i_jURN, hatr_j);
     }
     return responses;
   }
