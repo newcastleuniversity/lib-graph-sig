@@ -71,9 +71,11 @@ public class GraphEncodingParameters implements IContextProducer {
 		this.lPrime_L = lPrime_L;
 		
 		this.minLabelRep = NumberConstants.TWO.getValue();
-		this.minVertexRep = NumberConstants.TWO.getValue().pow(this.lPrime_L).nextProbablePrime();
+		
+		this.minVertexRep = (NumberConstants.TWO.getValue().pow(this.lPrime_L)).nextProbablePrime();
 		
 		this.upperBoundLabelReps = (NumberConstants.TWO.getValue().pow(this.lPrime_L)).subtract(BigInteger.ONE);
+		
 		this.upperBoundVertexReps = (NumberConstants.TWO.getValue().pow(this.lPrime_V)).subtract(BigInteger.ONE);
 	}
 
@@ -162,7 +164,7 @@ public class GraphEncodingParameters implements IContextProducer {
 	 * @return Upper bound of label encoding range.
 	 */
 	public BigInteger getUpperBoundLabelRepresentatives() {
-		return this.minLabelRep;
+		return this.upperBoundLabelReps;
 	}
 	
 	/**
@@ -171,6 +173,6 @@ public class GraphEncodingParameters implements IContextProducer {
 	 * @return Upper bound of vertex encoding range.
 	 */
 	public BigInteger getUpperBoundVertexRepresentatives() {
-		return this.minVertexRep;
+		return this.upperBoundVertexReps;
 	}
 }
