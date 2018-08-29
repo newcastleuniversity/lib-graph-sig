@@ -143,6 +143,12 @@
               <placement>a</placement>
               <head>Postconditions:</head>
             </tag>
+            <tag>
+              <name>complexity</name>
+              <!-- computational complexity tag for all places -->
+              <placement>a</placement>
+              <head>Computational Complexity:</head>
+            </tag>
           </tags>
         </configuration>
       </plugin>
