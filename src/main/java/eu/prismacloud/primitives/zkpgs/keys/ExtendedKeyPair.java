@@ -3,8 +3,10 @@ package eu.prismacloud.primitives.zkpgs.keys;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.store.Base;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
@@ -27,15 +29,13 @@ public final class ExtendedKeyPair implements IKeyPair {
 	private final Map<URN, BigInteger> discLogOfBases;
 	private ExtendedPublicKey extendedPublicKey;
 	private ExtendedPrivateKey extendedPrivateKey;
-	private int index = 0;
-	private BaseRepresentation base;
 	private Map<URN, BaseRepresentation> baseRepresentationMap;
 	private Map<URN, BigInteger> vertexRepresentatives;
 	private BigInteger vertexPrimeRepresentative;
 	private Map<URN, BigInteger> labelRepresentatives;
 	private GraphEncoding graphEncoding;
-	private GroupElement R_Z;
-	private BigInteger x_RZ;
+//	private GroupElement R_Z;
+//	private BigInteger x_RZ;
 
 	/**
 	 * Instantiates a new Extended key pair.
@@ -167,41 +167,89 @@ public final class ExtendedKeyPair implements IKeyPair {
 		GroupElement R_ij;
 
 		for (int j = 0; j < graphEncodingParameters.getL_E(); j++) {
-			index++;
 			x_R_ij =
 					CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
 			R_ij = S.modPow(x_R_ij);
 
-			base = new BaseRepresentation(R_ij, index, BASE.EDGE);
+			/* The base representation receives as global index the current 
+			 * length of the overall base representation map plus 1, 
+			 * making an index counting from 1;
+			 */
+			int index = baseRepresentationMap.size()+1;
+			BaseRepresentation base = new BaseRepresentation(R_ij, index, BASE.EDGE);
 
 			baseRepresentationMap.put(
-					URN.createZkpgsURN("baseRepresentationMap.edge.R_i_j_" + index), base);
-			discLogOfBases.put(URN.createZkpgsURN("discretelogs.edge.R_i_j_" + index), x_R_ij);
+					URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index), base);
+			discLogOfBases.put(URN.createZkpgsURN("discretelogs.edge.R_E_" + index), x_R_ij);
 		}
 	}
 
 	/** Generate bases. */
 	public void generateBases() {
-		generateGroupBases(baseS);
+		// TODO generateGroupBases(baseS); corresponding method does not work.
 		generateVertexBasesWithRandomVertexRepresentatives(baseS);
 		generateEdgeBases(baseS);
 	}
+	
+	/**
+	 * Generates the map of vertex representatives.
+	 * 
+	 * <p>The vertex representatives are chosen such that they start with the smallest permissible 
+	 * prime value for vertex 0 and enumerate the successive primes to the successive 
+	 * vertex representatives.
+	 * 
+	 * <p> The chosen vertex representatives are guaranteed not to collide with the
+	 * label encoding space and are guaranteed to take at most lPrime_V space.
+	 * 
+	 * @complexity This method is resource-intensive as BigInteger.nextProbablePrime() will be
+	 * called l_V times.
+	 * 
+	 * @throws EncodingException if the graph encoding attempted to create a prime representative
+	 * outside of the range designated for vertex encoding. This will only occur if the
+	 * graph encoding parameters lPrime_V and l_V are contradicting each other, e.g, if
+	 * the encoding bitlength lPrime_V is too small to encode the number of vertices l_V. 
+	 */
+	public void generateVertexRepresentatives() throws EncodingException {
+		BigInteger vertexPrimeRepresentative = graphEncodingParameters.getLeastVertexRepresentative();
+		for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
+			
+			if (i == 0) {
+				// The first vertex representative is chosen as the smallest prime possible.
+				vertexPrimeRepresentative = graphEncodingParameters.getLeastVertexRepresentative();
+			} else {
+				// The subsequent representatives are chosen as the successive next primes.
+				// This yields the most space/computation efficient encoding.
+				vertexPrimeRepresentative = vertexPrimeRepresentative.nextProbablePrime();
+			}
+			
+			if (!CryptoUtilsFacade.isInRange(vertexPrimeRepresentative, 
+					graphEncodingParameters.getLeastVertexRepresentative(), graphEncodingParameters.getUpperBoundVertexRepresentatives())) {
+				throw new EncodingException("The graph encoding attempted to "
+						+ "create a vertex representative outside of the designated range.");
+			}
 
-	private void generateGroupBases(final GroupElement baseS) {
-
-		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
-		R_Z = baseS.modPow(x_RZ);
-
-		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
-
-		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
-		R_Z = baseS.modPow(x_RZ);
-
-		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
+			vertexRepresentatives.put(
+					URN.createZkpgsURN("vertex.representative.e_i_" + i), vertexPrimeRepresentative);
+		}
 	}
 
+// TODO METHOD FAULTY: Does not generate the right bases
+// Z etc. should be part of the SignerKeyPair, not the ExtendedKeyPair
+//	private void generateGroupBases(final GroupElement baseS) {
+//
+//		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+//		R_Z = baseS.modPow(x_RZ);
+//
+//		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
+//
+//		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+//		R_Z = baseS.modPow(x_RZ);
+//
+//		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
+//	}
+
 	/**
-	 * Generates  a map of a base representation with random vertex prime representatives.
+	 * Generates a map of a base representation with random vertex prime representatives.
 	 * 
 	 * <p>The method will lead to an inefficient encoding in that the public vertex 
 	 * representatives will be random primes with full message length.
@@ -214,12 +262,18 @@ public final class ExtendedKeyPair implements IKeyPair {
 		GroupElement R_i;
 
 		for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
-			index++;
 			x_Ri = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
 			R_i = S.modPow(x_Ri);
-			base = new BaseRepresentation(R_i, index, BASE.VERTEX);
+			
+			/* The base representation receives as global index the current 
+			 * length of the overall base representation map plus 1, 
+			 * making an index counting from 1;
+			 */
+			int index = baseRepresentationMap.size()+1;
+			
+			BaseRepresentation base = new BaseRepresentation(R_i, index, BASE.VERTEX);
 			baseRepresentationMap.put(
-					URN.createZkpgsURN("baseRepresentationMap.vertex.R_i_" + index), base);
+					URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index), base);
 
 			vertexPrimeRepresentative =
 					CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_L());
@@ -227,7 +281,43 @@ public final class ExtendedKeyPair implements IKeyPair {
 			vertexRepresentatives.put(
 					URN.createZkpgsURN("vertex.representative.e_i_" + i), vertexPrimeRepresentative);
 
-			discLogOfBases.put(URN.createZkpgsURN("discretelogs.vertex.R_i_" + index), x_Ri);
+			discLogOfBases.put(URN.createZkpgsURN("discretelogs.vertex.R_V_" + index), x_Ri);
+		}
+	}
+	
+	/**
+	 * Generates a map of a base representation drawn uniformly at random from the signer's 
+	 * setup group. The discrete logarithms of the bases with respect to the main base S
+	 * are stored for the signer's extended private key.
+	 *
+	 * @param S the quadratic group generator S
+	 * 
+	 * @complexity The method is computationally intensive as it is computing l_V modular exponentiations
+	 * in the signer's group.
+	 * 
+	 * @post The vertex bases are stored in the keypair's baseRepresentationMap.
+	 * The corresponding discrete logarithms are stored in DiscLogOfBases.
+	 */
+	public void generateVertexBases(final GroupElement S) {
+		BigInteger x_Ri;
+		GroupElement R_i;
+
+		for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
+			
+			x_Ri = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+			R_i = S.modPow(x_Ri);
+			
+			/* The base representation receives as global index the current 
+			 * length of the overall base representation map plus 1, 
+			 * making an index counting from 1;
+			 */
+			int index = baseRepresentationMap.size()+1;
+			
+			BaseRepresentation base = new BaseRepresentation(R_i, index, BASE.VERTEX);
+			baseRepresentationMap.put(
+					URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index), base);
+			
+			discLogOfBases.put(URN.createZkpgsURN("discretelogs.vertex.R_V_" + index), x_Ri);
 		}
 	}
 
