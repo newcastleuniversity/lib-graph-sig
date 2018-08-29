@@ -1,12 +1,23 @@
 package eu.prismacloud.primitives.zkpgs.parameters;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 
-/** The type Graph encoding parameters. */
+/** 
+ * Representation of the graph encoding parameters.
+ * 
+ * <p>As a default, the label encoding will get the reserved space lPrime_L 
+ * of least primes, that is, label representatives are guaranteed to be
+ * less than lPrime_L in bitlength. 
+ * 
+ * <p>The primes for vertex encoding are guaranteed to be encoded in the bitlength interval
+ * [lPrime_L, lPrime_V].
+ * */
 public class GraphEncodingParameters implements IContextProducer {
 	/** Maximal number of vertices to be encoded */
 	private final int l_V;
@@ -25,6 +36,11 @@ public class GraphEncodingParameters implements IContextProducer {
 
 	/** Reserved bit length for label encoding */
 	private final int lPrime_L;
+	
+	private final BigInteger minLabelRep;
+
+	private final BigInteger minVertexRep;
+	
 
 	/**
 	 * Instantiates a new Graph encoding parameters.
@@ -49,6 +65,9 @@ public class GraphEncodingParameters implements IContextProducer {
 		this.l_E = l_E;
 		this.l_L = l_L;
 		this.lPrime_L = lPrime_L;
+		
+		this.minLabelRep = NumberConstants.TWO.getValue();
+		this.minVertexRep = NumberConstants.TWO.getValue().pow(this.lPrime_L).nextProbablePrime();
 	}
 
 	/**
@@ -110,5 +129,13 @@ public class GraphEncodingParameters implements IContextProducer {
 		ctxList.add(String.valueOf(this.getL_E()));
 		ctxList.add(String.valueOf(this.getL_L()));
 		ctxList.add(String.valueOf(this.getlPrime_L()));
+	}
+	
+	public BigInteger getLeastLabelRepresentative() {
+		return this.minLabelRep;
+	}
+	
+	public BigInteger getLeastVertexRepresentative() {
+		return this.minVertexRep;
 	}
 }
