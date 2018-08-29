@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
@@ -30,7 +31,7 @@ class ExtendedPublicKeyTest {
   private ExtendedPublicKey extendedPublicKey;
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException {
+  void setupKey() throws IOException, ClassNotFoundException, EncodingException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -39,7 +40,7 @@ class ExtendedPublicKeyTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
   }

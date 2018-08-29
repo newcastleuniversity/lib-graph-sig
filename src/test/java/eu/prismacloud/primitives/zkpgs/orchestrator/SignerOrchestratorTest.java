@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
@@ -42,7 +43,7 @@ class SignerOrchestratorTest {
   private SignerPrivateKey privateKey;
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException {
+  void setupKey() throws IOException, ClassNotFoundException, EncodingException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -51,7 +52,7 @@ class SignerOrchestratorTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
   }
 

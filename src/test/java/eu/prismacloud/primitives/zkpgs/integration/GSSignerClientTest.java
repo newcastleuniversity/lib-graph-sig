@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.orchestrator.SignerOrchestrator;
@@ -35,7 +36,7 @@ public class GSSignerClientTest {
   private FilePersistenceUtil persistenceUtil;
 
   @BeforeAll
-  void setup2Key() throws IOException, ClassNotFoundException, InterruptedException {
+  void setup2Key() throws IOException, ClassNotFoundException, InterruptedException, EncodingException {
     Thread.sleep(200);
     persistenceUtil = new FilePersistenceUtil();
     BaseTest baseTest = new BaseTest();
@@ -46,7 +47,7 @@ public class GSSignerClientTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
   }
 

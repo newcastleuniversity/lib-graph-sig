@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -57,10 +58,10 @@ public class GroupSetupIT {
 
 	@Test
 	void testGroupSetup()
-			throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException, VerificationException {
+			throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException, VerificationException, EncodingException {
 		extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.generateBases();
-		extendedKeyPair.graphEncodingSetup();
+		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
 		assertNotNull(extendedKeyPair.getExtendedPublicKey());
 

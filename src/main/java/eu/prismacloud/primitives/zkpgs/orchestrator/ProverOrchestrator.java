@@ -5,7 +5,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
-import eu.prismacloud.primitives.zkpgs.encoding.GraphEncoding;
+import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -56,7 +56,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
   private BigInteger tildevPrime;
   private GraphRepresentation graphRepresentation;
   private KeyGenParameters keyGenParameters;
-  private GraphEncoding graphEncoding;
+  private GeoLocationGraphEncoding graphEncoding;
   private GraphEncodingParameters graphEncodingParameters;
   private GroupElement tildeZ;
   private Map<URN, BaseRepresentation> vertices;

@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -57,7 +58,7 @@ class CommitmentProverTest {
   //  private GSUtils gsUtils;
 
   @BeforeAll
-  void setUpKey() throws IOException, ClassNotFoundException {
+  void setUpKey() throws IOException, ClassNotFoundException, EncodingException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -66,7 +67,7 @@ class CommitmentProverTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
 
     epk = extendedKeyPair.getExtendedPublicKey();

@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
@@ -41,7 +42,7 @@ class GraphRepresentationTest {
   private ExtendedKeyPair extendedKeyPair;
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException {
+  void setupKey() throws IOException, ClassNotFoundException, EncodingException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -50,7 +51,7 @@ class GraphRepresentationTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
   }

@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.keys;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -31,9 +32,10 @@ class ExtendedKeyPairTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
   }
+  //TODO Why is setupEncoding() called in every test?
 
   @Test
-  void getExtendedPublicKey() {
+  void getExtendedPublicKey() throws EncodingException {
     log.info("@Test: extended public key");
 
     assertNotNull(extendedKeyPair);
@@ -41,7 +43,7 @@ class ExtendedKeyPairTest {
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPublicKey());
     assertNotNull(extendedKeyPair.getExtendedPublicKey().getBases());
@@ -51,54 +53,54 @@ class ExtendedKeyPairTest {
   }
 
   @Test
-  void getExtendedPrivateKey() {
+  void getExtendedPrivateKey() throws EncodingException {
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPublicKey());
     assertNotNull(extendedKeyPair.getExtendedPrivateKey());
   }
 
   @Test
-  void getPublicKey() {
+  void getPublicKey() throws EncodingException {
 
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPublicKey());
     assertNotNull(extendedKeyPair.getExtendedPublicKey().getPublicKey());
   }
 
   @Test
-  void getPrivateKey() {
+  void getPrivateKey() throws EncodingException {
 
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPrivateKey());
     assertNotNull(extendedKeyPair.getExtendedPrivateKey().getPrivateKey());
   }
 
   @Test
-  void graphEncodingSetup() {
+  void setupEncoding() throws EncodingException {
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.getGraphEncoding();
     assertNotNull(extendedKeyPair.getGraphEncoding());
   }
@@ -119,26 +121,26 @@ class ExtendedKeyPairTest {
   void certifyPrimeRepresentatives() {}
 
   @Test
-  void generateBases() {
+  void generateBases() throws EncodingException {
 
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPublicKey().getBases());
   }
 
   @Test
-  void getLabelRepresentatives() {
+  void getLabelRepresentatives() throws EncodingException {
     assertNotNull(extendedKeyPair);
     assertNotNull(extendedKeyPair.getPublicKey());
     assertNotNull(extendedKeyPair.getPrivateKey());
 
     extendedKeyPair.generateBases();
-    extendedKeyPair.graphEncodingSetup();
+    extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     assertNotNull(extendedKeyPair.getExtendedPublicKey().getLabelRepresentatives());
   }

@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.encoding;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,7 +32,7 @@ class GraphEncodingTest {
   private GraphEncodingParameters graphEncodingParameters;
   private KeyGenParameters keyGenParameters;
   private ExtendedKeyPair extendedKeyPair;
-  private GraphEncoding graphEncoding;
+  private GeoLocationGraphEncoding graphEncoding;
 
   @BeforeEach
   void setUp() throws IOException, ClassNotFoundException {
@@ -61,8 +62,7 @@ class GraphEncodingTest {
         URN.createZkpgsURN("test.vertex.representative"), vertexRepresentative);
 
     graphEncoding =
-        new GraphEncoding(
-            bases,
+        new GeoLocationGraphEncoding(
             vertexRepresentatives,
             signerPublicKey,
             keyGenParameters,
@@ -71,9 +71,8 @@ class GraphEncodingTest {
 
   @Test
   void testCreatingGraphEncoding() {
-    GraphEncoding graphEncoding =
-        new GraphEncoding(
-            bases,
+    GeoLocationGraphEncoding graphEncoding =
+        new GeoLocationGraphEncoding(
             vertexRepresentatives,
             signerPublicKey,
             keyGenParameters,
@@ -83,19 +82,15 @@ class GraphEncodingTest {
   }
 
   @Test
-  void setupGraphEncoding() {}
-
-  @Test
-  void getBases() {
-    Map<URN, BaseRepresentation> bases = graphEncoding.getBases();
-    assertNotNull(bases);
-    assertTrue(bases.size() > 0);
+  void setupGraphEncoding() {
+	  fail("Test not implemented yet.");
   }
+
 
   @Test
   void getVertexPrimeRepresentatives() {
 
-    Map<URN, BigInteger> vertexPrimeRepresentatives = graphEncoding.getVertexPrimeRepresentatives();
+    Map<URN, BigInteger> vertexPrimeRepresentatives = graphEncoding.getVertexRepresentatives();
     assertNotNull(vertexPrimeRepresentatives);
     assertTrue(vertexPrimeRepresentatives.size() > 0);
   }

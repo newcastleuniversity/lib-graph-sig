@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.util;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -47,7 +48,7 @@ class FilePersistenceUtilTest {
 
   @Test
   @DisplayName("Generate a new signer key pair and signer public key")
-  void writeKeyPairAndPublicKey() throws IOException {
+  void writeKeyPairAndPublicKey() throws IOException, EncodingException {
 
     if (generateKeys) {
       log.info("Test writeSignerKeyPair: generating new SignerKeyPair...");
@@ -63,7 +64,7 @@ class FilePersistenceUtilTest {
 
       extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
       extendedKeyPair.generateBases();
-      extendedKeyPair.graphEncodingSetup();
+      extendedKeyPair.setupEncoding();
       extendedKeyPair.createExtendedKeyPair();
 
       log.info("Test writeExtendedPublicKey: writing new ExtendedPublicKey...");

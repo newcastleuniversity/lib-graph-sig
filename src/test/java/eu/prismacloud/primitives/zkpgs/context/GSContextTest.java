@@ -17,6 +17,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -38,7 +39,7 @@ class GSContextTest {
 	private GSContext context;
 
 	@BeforeAll
-	void setupKey() throws IOException, ClassNotFoundException {
+	void setupKey() throws IOException, ClassNotFoundException, EncodingException {
 		BaseTest baseTest = new BaseTest();
 		baseTest.setup();
 		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -47,7 +48,7 @@ class GSContextTest {
 		keyGenParameters = baseTest.getKeyGenParameters();
 		extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.generateBases();
-		extendedKeyPair.graphEncodingSetup();
+		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
 		
 		epk = extendedKeyPair.getExtendedPublicKey();

@@ -2,6 +2,8 @@ package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
+import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -16,14 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 /** The type Extended public key. */
-public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProducer {
+public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProducer, IGraphEncoding {
 	private static final long serialVersionUID = 603738248933483649L;
 	private final SignerPublicKey signerPublicKey;
 	private Map<URN, BaseRepresentation> bases;
-	private final Map<URN, BigInteger> labelRepresentatives;
 	private final transient GraphEncodingParameters graphEncodingParameters;
-	private Map<URN, BigInteger> vertexRepresentatives;
 	private BaseCollectionImpl baseCollection;
+	private final IGraphEncoding graphEncoding;
 
 	/**
 	 * Instantiates a new Extended public key.
@@ -37,20 +38,17 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 	public ExtendedPublicKey(
 			final SignerPublicKey signerPublicKey,
 			final Map<URN, BaseRepresentation> bases,
-			final Map<URN, BigInteger> vertexRepresentatives,
-			final Map<URN, BigInteger> labelRepresentatives,
+			final IGraphEncoding encoding,
 			final GraphEncodingParameters graphEncodingParameters) {
 
 		Assert.notNull(signerPublicKey, "public key must not be null");
 		Assert.notNull(bases, "bases must not be null");
-		Assert.notNull(vertexRepresentatives, "vertex representatives must not be null");
-		Assert.notNull(labelRepresentatives, "labels representatives must not be null");
+		Assert.notNull(encoding, "Graph encoding must not be null");
 		Assert.notNull(graphEncodingParameters, "graph encoding parameters must not be null");
 
 		this.signerPublicKey = signerPublicKey;
 		this.bases = bases;
-		this.vertexRepresentatives = vertexRepresentatives;
-		this.labelRepresentatives = labelRepresentatives;
+		this.graphEncoding = encoding;
 		this.graphEncodingParameters = graphEncodingParameters;
 		this.baseCollection = new BaseCollectionImpl();
 	}
@@ -88,8 +86,9 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 	 *
 	 * @return the country labels
 	 */
+	@Override
 	public Map<URN, BigInteger> getLabelRepresentatives() {
-		return this.labelRepresentatives;
+		return this.graphEncoding.getLabelRepresentatives();
 	}
 
 	/**
@@ -97,8 +96,9 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 	 *
 	 * @return the vertex representatives
 	 */
+	@Override
 	public Map<URN, BigInteger> getVertexRepresentatives() {
-		return this.vertexRepresentatives;
+		return this.graphEncoding.getVertexRepresentatives();
 	}
 
 	/**
@@ -134,5 +134,10 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 //	    }
 
 	    graphEncodingParameters.addToChallengeContext(ctxList);
+	}
+	
+	@Override
+	public void setupEncoding() throws EncodingException {
+		this.graphEncoding.setupEncoding();
 	}
 }
