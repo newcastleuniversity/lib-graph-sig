@@ -18,23 +18,23 @@ class GSEdgeTest {
   @BeforeEach
   void setUp() {
     e_i = new GSVertex("1", new ArrayList<>());
-    e_i.setVertexPrimeRepresentative(BigInteger.valueOf(6701));
+    e_i.setVertexRepresentative(BigInteger.valueOf(6701));
     e_j = new GSVertex("2", new ArrayList<>());
-    e_j.setVertexPrimeRepresentative(BigInteger.valueOf(7703));
+    e_j.setVertexRepresentative(BigInteger.valueOf(7703));
   }
 
   @Test
   void getE_i() {
     gsEdge = new GSEdge(e_i, e_j);
     assertNotNull(gsEdge.getE_i());
-    assertEquals(BigInteger.valueOf(6701), gsEdge.getE_i().getVertexPrimeRepresentative());
+    assertEquals(BigInteger.valueOf(6701), gsEdge.getE_i().getVertexRepresentative());
   }
 
   @Test
   void getE_j() {
     gsEdge = new GSEdge(e_i, e_j);
     assertNotNull(gsEdge.getE_j());
-    assertEquals(BigInteger.valueOf(7703), gsEdge.getE_j().getVertexPrimeRepresentative());
+    assertEquals(BigInteger.valueOf(7703), gsEdge.getE_j().getVertexRepresentative());
   }
 
   @Test

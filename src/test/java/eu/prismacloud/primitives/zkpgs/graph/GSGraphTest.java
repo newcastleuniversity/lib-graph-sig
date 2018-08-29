@@ -47,16 +47,16 @@ class GSGraphTest {
 
     for (GSVertex vertex : vertices) {
       assertNotNull(vertex.getLabels());
-      assertNotNull(vertex.getVertexPrimeRepresentative());
-      assertTrue(vertex.getVertexPrimeRepresentative().isProbablePrime(80));
+      assertNotNull(vertex.getVertexRepresentative());
+      assertTrue(vertex.getVertexRepresentative().isProbablePrime(80));
       
     }
 
     for (GSEdge edge : edges) {
       assertNotNull(edge.getE_i());
       assertNotNull(edge.getE_j());
-      assertTrue(edge.getE_i().getVertexPrimeRepresentative().isProbablePrime(80));
-      assertTrue(edge.getE_j().getVertexPrimeRepresentative().isProbablePrime(80));
+      assertTrue(edge.getE_i().getVertexRepresentative().isProbablePrime(80));
+      assertTrue(edge.getE_j().getVertexRepresentative().isProbablePrime(80));
     }
   }
 

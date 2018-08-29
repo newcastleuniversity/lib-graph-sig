@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.graph;
 import eu.prismacloud.primitives.zkpgs.GraphMLProvider;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.File;
@@ -18,116 +19,122 @@ import org.jgrapht.io.GraphMLImporter;
 import org.jgrapht.io.ImportException;
 
 public class GSGraph<
-    GSVertex extends eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-    GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
-  private static Logger gslog = GSLoggerConfiguration.getGSlog();
-  private static GraphMLProvider graphMLProvider;
-  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-  private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
-  Graph<
-          eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-          eu.prismacloud.primitives.zkpgs.graph.GSEdge>
-      graph;
+GSVertex extends eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
+	private static Logger gslog = GSLoggerConfiguration.getGSlog();
+	private static GraphMLProvider graphMLProvider;
+	private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
+	private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
+	Graph<
+	eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+	eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+	graph;
 
-  private SimpleGraph<GSVertex, GSEdge> g;
-  private GraphMLImporter<GSVertex, GSEdge> importer;
+	private SimpleGraph<GSVertex, GSEdge> g;
+	private GraphMLImporter<GSVertex, GSEdge> importer;
 
-  /**
-   * Creates a new GSGraph with the corresponding vertices and edges after parsing a graphml file.
-   *
-   * @param graph the graph
-   */
-  public GSGraph(
-      Graph<
-              eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-              eu.prismacloud.primitives.zkpgs.graph.GSEdge>
-          graph) {
-    this.graph = graph;
-  }
+	/**
+	 * Creates a new GSGraph with the corresponding vertices and edges after parsing a graphml file.
+	 *
+	 * @param graph the graph
+	 */
+	public GSGraph(
+			Graph<
+			eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+			eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+			graph) {
+		this.graph = graph;
+	}
 
-  /**
-   * Creates a graph structure with a number of vertices and edges after importing the graphml file.
-   *
-   * @param graphFile the graph file
-   * @return the graph
-   * @throws ImportException the import exception
-   */
-  public Graph<GSVertex, GSEdge> createGraph(String graphFile) throws ImportException {
-    graph = new DefaultUndirectedGraph<>(eu.prismacloud.primitives.zkpgs.graph.GSEdge.class);
+	/**
+	 * Creates a graph structure with a number of vertices and edges after importing the graphml file.
+	 *
+	 * @param graphFile the graph file
+	 * @return the graph
+	 * @throws ImportException the import exception
+	 */
+	public Graph<GSVertex, GSEdge> createGraph(String graphFile) throws ImportException {
+		graph = new DefaultUndirectedGraph<>(eu.prismacloud.primitives.zkpgs.graph.GSEdge.class);
 
-    importer = (GraphMLImporter<GSVertex, GSEdge>) GraphMLProvider.createImporter();
-    File file = GraphMLProvider.getGraphMLFile(graphFile);
-    importer.importGraph((Graph<GSVertex, GSEdge>) graph, file);
+		importer = (GraphMLImporter<GSVertex, GSEdge>) GraphMLProvider.createImporter();
+		File file = GraphMLProvider.getGraphMLFile(graphFile);
+		importer.importGraph((Graph<GSVertex, GSEdge>) graph, file);
 
-    return (Graph<GSVertex, GSEdge>) graph;
-  }
+		return (Graph<GSVertex, GSEdge>) graph;
+	}
 
-  /**
-   * Encodes a graph that has been constructed from an imported graphml file with random vertex prime representatives. 
-   * Selects a random prime vertex prime representative for each vertex and 
-   * its prime representatives for the labels. The edge prime
-   * representative is selected and its prime representatives for the labels.
-   * 
-   * <p>The labels are enforced to be geo-location labels (UN ISO country codes)
-   * and restricted to a single label.
-   * 
-   * <p>Note that the method comes with a slight risk of a collision between 
-   * randomly chosen vertex identifiers, making the graph representation ambiguous.
-   * It will also make it impossible for a verifier to effectively determine 
-   * vertex identifiers for his queries. Further, the method is computationally intensive
-   * as many random prime numbers will be chosen.
-   * 
-   * @param graphEncodingParameters the graph encoding parameters
-   * @deprecated
-   */
-  public void encodeRandomGeoLocationGraph(GraphEncodingParameters graphEncodingParameters) {
-    JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
-    BigInteger vertexPrimeRepresentative;
-    BigInteger labelPrimeRepresentative;
+	/**
+	 * Encodes a graph that has been constructed from an imported graphml file with random vertex prime representatives. 
+	 * Selects a random prime vertex prime representative for each vertex and 
+	 * its prime representatives for the labels. The edge prime
+	 * representative is selected and its prime representatives for the labels.
+	 * 
+	 * <p>The labels are enforced to be geo-location labels (UN ISO country codes)
+	 * and restricted to a single label.
+	 * 
+	 * <p>Note that the method comes with a slight risk of a collision between 
+	 * randomly chosen vertex identifiers, making the graph representation ambiguous.
+	 * It will also make it impossible for a verifier to effectively determine 
+	 * vertex identifiers for his queries. Further, the method is computationally intensive
+	 * as many random prime numbers will be chosen.
+	 * 
+	 * @param graphEncodingParameters the graph encoding parameters
+	 * @deprecated
+	 */
+	public void encodeRandomGeoLocationGraph(GraphEncodingParameters graphEncodingParameters) {
+		JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
+		BigInteger vertexPrimeRepresentative;
+		BigInteger labelPrimeRepresentative;
 
-    Set<eu.prismacloud.primitives.zkpgs.graph.GSVertex> vertexSet = this.graph.vertexSet();
-    List<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
-    List<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
+		Set<eu.prismacloud.primitives.zkpgs.graph.GSVertex> vertexSet = this.graph.vertexSet();
+		List<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
+		List<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
 
-    for (eu.prismacloud.primitives.zkpgs.graph.GSVertex vertex : vertexSet) {
-      vertexLabelRepresentatives = new ArrayList<>();
+		for (eu.prismacloud.primitives.zkpgs.graph.GSVertex vertex : vertexSet) {
+			vertexLabelRepresentatives = new ArrayList<>();
 
-      if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
-        for (String label : vertex.getLabels()) {
-          labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
-          vertexLabelRepresentatives.add(labelPrimeRepresentative);
-        }
-      }
+			if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
+				for (String label : vertex.getLabels()) {
+					labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
+					Assert.notNull(labelPrimeRepresentative, "JsonIsoCountries returned null as a vertex label.");
+					vertexLabelRepresentatives.add(labelPrimeRepresentative);
+				}
+			}
 
-      vertexPrimeRepresentative =
-          CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_L());
-      vertex.setVertexPrimeRepresentative(vertexPrimeRepresentative);
-      vertex.setLabelPrimeRepresentatives(vertexLabelRepresentatives);
-    }
+			vertexPrimeRepresentative =
+					CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_V());
+			// TODO not correct: Needs to encode systematically.
+			vertex.setVertexRepresentative(vertexPrimeRepresentative);
+			vertex.setLabelRepresentatives(vertexLabelRepresentatives);
+		}
 
-    Set<eu.prismacloud.primitives.zkpgs.graph.GSEdge> edgeSet = graph.edgeSet();
+		Set<eu.prismacloud.primitives.zkpgs.graph.GSEdge> edgeSet = graph.edgeSet();
 
-    for (eu.prismacloud.primitives.zkpgs.graph.GSEdge edge : edgeSet) {
+		// TODO does not seem to establish edge encoding (product of the two vertices).
+		for (eu.prismacloud.primitives.zkpgs.graph.GSEdge edge : edgeSet) {
 
-      if ((edge.getLabels() != null) && (!edge.getLabels().isEmpty())) {
-        for (String label : edge.getLabels()) {
-          labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
-          edgeLabelRepresentatives.add(labelPrimeRepresentative);
-        }
-        edge.setLabelRepresentatives(edgeLabelRepresentatives);
-      }
-    }
-  }
+			if ((edge.getLabels() != null) && (!edge.getLabels().isEmpty())) {
+				for (String label : edge.getLabels()) {
+					labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
+					Assert.notNull(labelPrimeRepresentative, "JsonIsoCountries returned null as a edge label.");
+					edgeLabelRepresentatives.add(labelPrimeRepresentative);
+				}
+				edge.setLabelRepresentatives(edgeLabelRepresentatives);
+			}
+		}
+	}
 
-  /**
-   * Returns a graph.
-   *
-   * @return the graph
-   */
-  public Graph<
-          eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-          eu.prismacloud.primitives.zkpgs.graph.GSEdge>
-      getGraph() {
-    return graph;
-  }
+	// TODO create new graph encoding function, to establish encoding correctly.
+
+	/**
+	 * Returns a graph.
+	 *
+	 * @return the graph
+	 */
+	public Graph<
+	eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+	eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+	getGraph() {
+		return graph;
+	}
 }

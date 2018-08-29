@@ -1,7 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.signer;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
+import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -13,6 +16,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
+
+import org.jgrapht.Graph;
 
 /**
  * Oracle for Graph Signatures computed non-interactively with a valid SignerKeyPair, but without
@@ -124,6 +129,19 @@ public class GSSigningOracle {
 		}
 
 		return this.sign(basesEncoded);
+	}
+	
+	/**
+	 * Creates a fresh signature with uniformly random blinding randomness, 
+	 * on a given graph represented as (encoded) GraphRepresentation.
+	 *
+	 * @param graphRepresentation A graphRepresentation, readily encoded, to be signed.
+	 * @return valid GSSignature
+	 */
+	public GSSignature sign(GraphRepresentation graphRepresentation) {
+		BaseCollection collection = graphRepresentation.getEncodedBaseCollection();
+
+		return this.sign(collection);
 	}
 
 	/**

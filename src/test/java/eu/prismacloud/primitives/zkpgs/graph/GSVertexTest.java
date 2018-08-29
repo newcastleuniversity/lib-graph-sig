@@ -82,7 +82,7 @@ class GSVertexTest {
     GSVertex vertex = new GSVertex("1", labels);
     List<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(1259));
-    vertex.setLabelPrimeRepresentatives(labelRepresentatives);
+    vertex.setLabelRepresentatives(labelRepresentatives);
     assertNotNull(vertex.getLabelPrimeRepresentatives());
     assertEquals(1, vertex.getLabelPrimeRepresentatives().size());
   }
@@ -93,7 +93,7 @@ class GSVertexTest {
     GSVertex vertex = new GSVertex("1", labels);
     List<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(2389));
-    vertex.setLabelPrimeRepresentatives(labelRepresentatives);
+    vertex.setLabelRepresentatives(labelRepresentatives);
     assertNotNull(vertex.getLabelPrimeRepresentatives());
     assertEquals(BigInteger.valueOf(2389), vertex.getLabelPrimeRepresentatives().get(0));
   }
@@ -102,17 +102,17 @@ class GSVertexTest {
   void getVertexPrimeRepresentative() {
     List<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
-    vertex.setVertexPrimeRepresentative(BigInteger.valueOf(3061));
-    assertNotNull(vertex.getVertexPrimeRepresentative());
-    assertEquals(BigInteger.valueOf(3061), vertex.getVertexPrimeRepresentative());
+    vertex.setVertexRepresentative(BigInteger.valueOf(3061));
+    assertNotNull(vertex.getVertexRepresentative());
+    assertEquals(BigInteger.valueOf(3061), vertex.getVertexRepresentative());
   }
 
   @Test
   void setVertexPrimeRepresentative() {
     List<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
-    vertex.setVertexPrimeRepresentative(BigInteger.valueOf(5351));
-    assertNotNull(vertex.getVertexPrimeRepresentative());
-    assertEquals(BigInteger.valueOf(5351), vertex.getVertexPrimeRepresentative());
+    vertex.setVertexRepresentative(BigInteger.valueOf(5351));
+    assertNotNull(vertex.getVertexRepresentative());
+    assertEquals(BigInteger.valueOf(5351), vertex.getVertexRepresentative());
   }
 }

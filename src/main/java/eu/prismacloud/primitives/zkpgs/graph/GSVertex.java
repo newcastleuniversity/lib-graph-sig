@@ -36,15 +36,15 @@ public class GSVertex {
     return labelPrimeRepresentatives;
   }
 
-  public void setLabelPrimeRepresentatives(List<BigInteger> labelPrimeRepresentatives) {
+  public void setLabelRepresentatives(List<BigInteger> labelPrimeRepresentatives) {
     this.labelPrimeRepresentatives = labelPrimeRepresentatives;
   }
 
-  public BigInteger getVertexPrimeRepresentative() {
+  public BigInteger getVertexRepresentative() {
     return vertexPrimeRepresentative;
   }
 
-  public void setVertexPrimeRepresentative(BigInteger vertexPrimeRepresentative) {
+  public void setVertexRepresentative(BigInteger vertexPrimeRepresentative) {
     this.vertexPrimeRepresentative = vertexPrimeRepresentative;
   }
 
