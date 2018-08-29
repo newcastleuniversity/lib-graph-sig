@@ -183,7 +183,7 @@ public final class ExtendedKeyPair implements IKeyPair {
 	/** Generate bases. */
 	public void generateBases() {
 		generateGroupBases(baseS);
-		generateVertexBases(baseS);
+		generateVertexBasesWithRandomVertexRepresentatives(baseS);
 		generateEdgeBases(baseS);
 	}
 
@@ -201,11 +201,15 @@ public final class ExtendedKeyPair implements IKeyPair {
 	}
 
 	/**
-	 * Generate vertex baseRepresentationMap.
+	 * Generates  a map of a base representation with random vertex prime representatives.
+	 * 
+	 * <p>The method will lead to an inefficient encoding in that the public vertex 
+	 * representatives will be random primes with full message length.
 	 *
 	 * @param S the quadratic group generator S
+	 * @deprecated
 	 */
-	public void generateVertexBases(final GroupElement S) {
+	public void generateVertexBasesWithRandomVertexRepresentatives(final GroupElement S) {
 		BigInteger x_Ri;
 		GroupElement R_i;
 
