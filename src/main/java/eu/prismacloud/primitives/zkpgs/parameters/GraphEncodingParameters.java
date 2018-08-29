@@ -41,6 +41,10 @@ public class GraphEncodingParameters implements IContextProducer {
 
 	private final BigInteger minVertexRep;
 	
+	private final BigInteger upperBoundLabelReps;
+
+	private final BigInteger upperBoundVertexReps;
+	
 
 	/**
 	 * Instantiates a new Graph encoding parameters.
@@ -68,6 +72,9 @@ public class GraphEncodingParameters implements IContextProducer {
 		
 		this.minLabelRep = NumberConstants.TWO.getValue();
 		this.minVertexRep = NumberConstants.TWO.getValue().pow(this.lPrime_L).nextProbablePrime();
+		
+		this.upperBoundLabelReps = (NumberConstants.TWO.getValue().pow(this.lPrime_L)).subtract(BigInteger.ONE);
+		this.upperBoundVertexReps = (NumberConstants.TWO.getValue().pow(this.lPrime_V)).subtract(BigInteger.ONE);
 	}
 
 	/**
@@ -131,11 +138,39 @@ public class GraphEncodingParameters implements IContextProducer {
 		ctxList.add(String.valueOf(this.getlPrime_L()));
 	}
 	
+	/**
+	 * Returns the least prime representative a label can assume.
+	 * 
+	 * @return Least BigInteger prime to encode a label.
+	 */
 	public BigInteger getLeastLabelRepresentative() {
 		return this.minLabelRep;
 	}
 	
+	/**
+	 * Returns the least prime representative a vertex can assume.
+	 * 
+	 * @return Least BigInteger prime to encode a vertex.
+	 */
 	public BigInteger getLeastVertexRepresentative() {
+		return this.minVertexRep;
+	}
+	
+	/**
+	 * Returns the upper bound of label representatives.
+	 * 
+	 * @return Upper bound of label encoding range.
+	 */
+	public BigInteger getUpperBoundLabelRepresentatives() {
+		return this.minLabelRep;
+	}
+	
+	/**
+	 * Returns the upper bound of vertex representatives.
+	 * 
+	 * @return Upper bound of vertex encoding range.
+	 */
+	public BigInteger getUpperBoundVertexRepresentatives() {
 		return this.minVertexRep;
 	}
 }
