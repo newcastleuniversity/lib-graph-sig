@@ -9,13 +9,17 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -42,41 +46,59 @@ class GroupSetupProverOrchestratorTest {
     extendedKeyPair.generateBases();
     extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
+  }
+
+  @BeforeEach
+  void setup() {
     proofStore = new ProofStore<Object>();
     gsProverOrchestrator = new GroupSetupProverOrchestrator(extendedKeyPair, proofStore);
   }
 
   @Test
+  @DisplayName("Test preChallengePhase for the GroupSetupProverOrchestrator")
   void executePreChallengePhase() {
     gsProverOrchestrator.executePreChallengePhase();
+    String tilderURN = URNType.buildURNComponent(URNType.TILDER, GroupSetupProver.class);
+    BigInteger tilder = (BigInteger) proofStore.retrieve(tilderURN);
+    assertNotNull(tilder);
 
+    String tilder_0URN = URNType.buildURNComponent(URNType.TILDER0, GroupSetupProver.class);
+    BigInteger tilder_0 = (BigInteger) proofStore.retrieve(tilder_0URN);
+    assertNotNull(tilder_0);
+
+    String tilder_ZURN = URNType.buildURNComponent(URNType.TILDERZ, GroupSetupProver.class);
+    BigInteger tilder_Z = (BigInteger) proofStore.retrieve(tilder_ZURN);
+    assertNotNull(tilder_Z);
   }
 
   @Test
+  @DisplayName("Test compute challenge")
   void computeChallenge() {
+    gsProverOrchestrator.executePreChallengePhase();
     BigInteger cChallenge = gsProverOrchestrator.computeChallenge();
     assertNotNull(cChallenge);
   }
 
   @Test
+  @DisplayName("Test postChallengePhase for the GroupSetupOrchestrator")
   void executePostChallengePhase() {
     gsProverOrchestrator.executePreChallengePhase();
     BigInteger cChallenge = gsProverOrchestrator.computeChallenge();
+    assertNotNull(cChallenge);
     gsProverOrchestrator.executePostChallengePhase(cChallenge);
   }
 
   @Test
+  @DisplayName("Test create proof signature")
   void createProofSignature() {
     gsProverOrchestrator.executePreChallengePhase();
     BigInteger cChallenge = gsProverOrchestrator.computeChallenge();
     gsProverOrchestrator.executePostChallengePhase(cChallenge);
     ProofSignature proofSignature = gsProverOrchestrator.createProofSignature();
     assertNotNull(proofSignature);
-    Map<URN, Object> proofElements = proofSignature
-        .getProofSignatureElements();
+    Map<URN, Object> proofElements = proofSignature.getProofSignatureElements();
 
     assertNotNull(proofElements);
     assertTrue(proofElements.size() > 0);
-
   }
 }

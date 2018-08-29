@@ -98,7 +98,7 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
     }
 
     /** TODO return map of group elements */
-    hatValues = gsVerifier.executeMultiVerification(cChallenge);
+    hatValues = gsVerifier.executeVerification(cChallenge);
     // gsVerifier.executeVerification(cChallenge);
 
     try {
