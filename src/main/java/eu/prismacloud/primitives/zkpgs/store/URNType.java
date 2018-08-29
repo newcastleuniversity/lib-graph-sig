@@ -43,7 +43,9 @@ public enum URNType {
   HATMI,
   HATMIJ,
   HATRI,
+	HATBASERI,
 	HATRIJ,
+	HATBASERIJ,
 	HATRZ,
 	HATR,
 	HATR0,
@@ -91,6 +93,8 @@ public enum URNType {
 		case HATMI: return "hatm_i_";
 		case HATMIJ: return "hatm_i_j_";
 		case HATRI: return "hatr_i_";
+		case HATBASERI: return "hatR_i_";
+		case HATBASERIJ: return "hatR_i_j_";
 		case HATRZ: return "hatr_Z";
 		case HATR: return "hatr";
 		case HATR0: return "hatr_0";
@@ -139,7 +143,9 @@ public enum URNType {
 		case HATMI: return "responses.vertex";
 		case HATMIJ: return "responses.edge";
 		case HATRI: return "responses.vertex";
+		case HATBASERI: return "responses.vertex";
 		case HATRIJ: return "responses.edge";
+		case HATBASERIJ: return "responses.edge";
 		case HATRZ: return "responses";
 		case HATR: return "responses";
 		case HATZ: return "responses";
@@ -168,6 +174,8 @@ public enum URNType {
 		case HATMI: return true;
 		case HATMIJ: return true;
 		case HATRI: return true;
+		case HATBASERI: return true;
+		case HATBASERIJ: return true;
 		case HATABARIBARJ: return true;
 		case HATBBARIBARJ: return true;
 		case HATRBARIBARJ: return true;
