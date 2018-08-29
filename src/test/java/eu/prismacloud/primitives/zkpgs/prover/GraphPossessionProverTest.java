@@ -113,15 +113,16 @@ class GraphPossessionProverTest {
 			+ ", " + base.getBaseType() 
 			+ "]:\n   Base: " + base.getBase() 
 			+ "\n   Exponent: " + base.getExponent()); 
-//			assertNotNull(base);
-//			assertNotNull(base.getBase(), "Base with index " + base.getBaseIndex() + " was null.");
+			assertNotNull(base);
+			assertNotNull(base.getBase(), "Base with index " + base.getBaseIndex() + " was null.");
+			// TODO Currently the encoding still returns bases with null exponents.
 //			assertNotNull(base.getExponent(), "Exponent with base index " + 
 //			base.getBaseIndex() + " was null.");
 		}
 		
-//		sigmaM = oracle.sign(baseCollection).blind();
+		sigmaM = oracle.sign(baseCollection).blind();
 		
-		proofStore.store("bases.exponent.m_0", testM);
+		//proofStore.store("bases.exponent.m_0", testM);
 
 		prover = new PossessionProver(sigmaM, epk, proofStore);
 
@@ -243,6 +244,13 @@ class GraphPossessionProverTest {
 		GroupElement baseR_0TildeM0 = epk.getPublicKey().getBaseR_0().modPow(tildem_0);
 
 		GroupElement hatZ = baseSTildevPrime.multiply(aPrimeTildeE).multiply(baseR_0TildeM0);
+		BaseIterator baseIter = baseCollection.createIterator(BASE.ALL);
+		while (baseIter.hasNext()) {
+			BaseRepresentation base = (BaseRepresentation) baseIter.next();
+			if (base.getBase() != null && base.getExponent() != null) {
+				hatZ = hatZ.multiply(base.getBase().modPow(base.getExponent()));
+			}
+		}
 
 		log.info("PossessionProverTest: Comparing tildeZ against independent computation.");
 		assertEquals(hatZ, tildeZ, "PossessionProver Witness TildeZ was not computed correctly.");

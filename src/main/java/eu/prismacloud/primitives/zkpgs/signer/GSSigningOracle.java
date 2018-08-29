@@ -125,7 +125,9 @@ public class GSSigningOracle {
 		BaseIterator baseIter = baseCollection.createIterator(BASE.ALL);
 		while (baseIter.hasNext()) {
 			BaseRepresentation base = (BaseRepresentation) baseIter.next();
-			basesEncoded = basesEncoded.multiply(base.getBase().modPow(base.getExponent()));
+			if (base.getBase() != null && base.getExponent() != null) {
+				basesEncoded = basesEncoded.multiply(base.getBase().modPow(base.getExponent()));
+			}
 		}
 
 		return this.sign(basesEncoded);
