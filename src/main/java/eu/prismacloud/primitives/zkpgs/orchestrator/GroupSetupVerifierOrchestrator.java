@@ -8,8 +8,10 @@ import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -37,7 +39,6 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
   private final GroupSetupVerifier gsVerifier;
   private final ProofSignature proofSignature;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private List<String> challengeList = new ArrayList<>();
   private BigInteger cChallenge;
   private Map<URN, BigInteger> responses;
   private BigInteger tilder_i;
@@ -52,8 +53,6 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
   private BigInteger hatr;
   private QRElement baseR_0;
   private BigInteger hatr_0;
-  private Map<URN, BigInteger> vertexResponses;
-  private Map<URN, BigInteger> edgeResponses;
   private Map<URN, GroupElement> hatValues;
 
   public GroupSetupVerifierOrchestrator(
@@ -75,17 +74,6 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
   @Override
   public void init() {
 
-    this.baseZ = (QRElement) proofSignature.get("proofsignature.P.baseZ");
-    this.c = (BigInteger) proofSignature.get("proofsignature.P.c");
-    this.baseS = (QRElement) proofSignature.get("proofsignature.P.baseS");
-    this.hatr_z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
-    this.modN = (BigInteger) proofSignature.get("proofsignature.P.modN");
-    this.baseR = (QRElement) proofSignature.get("proofsignature.P.baseR");
-    this.hatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-    this.baseR_0 = (QRElement) proofSignature.get("proofsignature.P.baseR_0");
-    this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
-    this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
-    this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
   }
 
   @Override
@@ -97,9 +85,14 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
       return false;
     }
 
-    /** TODO return map of group elements */
     hatValues = gsVerifier.executeVerification(cChallenge);
-    // gsVerifier.executeVerification(cChallenge);
+
+    try {
+      computeChallenge();
+    } catch (ProofStoreException e) {
+      gslog.log(Level.SEVERE, "Computing challenge failed.", e);
+      return false;
+    }
 
     try {
       return verifyChallenge();
@@ -133,12 +126,14 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
     GSContext gsContext = new GSContext(extendedPublicKey);
     List<String> ctxList = gsContext.computeChallengeContext();
 
-    GroupElement hatZ =
-        (GroupElement) hatValues.get(URN.createZkpgsURN("groupsetupprover.responses.hatZ"));
-    GroupElement hatR =
-        (GroupElement) hatValues.get(URN.createZkpgsURN("groupsetupprover.responses.hatR"));
-    GroupElement hatR_0 =
-        (GroupElement) hatValues.get(URN.createZkpgsURN("groupsetupprover.responses.hatR_0"));
+    String hatZURN = URNType.buildURNComponent(URNType.HATZ, GroupSetupVerifier.class);
+    GroupElement hatZ = (GroupElement) hatValues.get(URN.createZkpgsURN(hatZURN));
+
+    String hatRURN = URNType.buildURNComponent(URNType.HATBASER, GroupSetupVerifier.class);
+    GroupElement hatR = (GroupElement) hatValues.get(URN.createZkpgsURN(hatRURN));
+
+    String hatR_0URN = URNType.buildURNComponent(URNType.HATBASER0, GroupSetupVerifier.class);
+    GroupElement hatR_0 = (GroupElement) hatValues.get(URN.createZkpgsURN(hatR_0URN));
 
     ctxList.add(String.valueOf(hatZ));
     ctxList.add(String.valueOf(hatR));
