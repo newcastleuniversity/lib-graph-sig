@@ -1,10 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
@@ -31,14 +33,26 @@ public class CryptoUtilsFacade {
 
   public CryptoUtilsFacade() {}
 
-  public static BigInteger computeMultiBaseEx(
+  public static BigInteger computeMultiBaseExp(
       List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN) {
     return CryptoUtilsFactory.getInstance(GS).multiBaseExp(bases, exponents, modN);
   }
 
-  public static BigInteger computeMultiBaseExMap(
+  public static BigInteger computeMultiBaseExpMap(
       Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN) {
     return CryptoUtilsFactory.getInstance(GS).multiBaseExpMap(bases, exponents, modN);
+  }
+  
+  public static GroupElement computeMultiBaseExp(
+		  BaseCollection collection, BASE baseType, Group G) {
+	  return CryptoUtilsFactory.getInstance(GS).computeMultiBaseExp(
+			  collection, baseType, G);
+  }
+  
+  public static GroupElement computeMultiBaseExp(
+		  BaseCollection collection, Group G) {
+	  return CryptoUtilsFactory.getInstance(GS).computeMultiBaseExp(
+			  collection, G);
   }
 
   public static BigInteger computePrimeWithLength(int minBitLength, int maxBitLength) {

@@ -24,6 +24,7 @@ import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -147,7 +148,32 @@ class GraphPossessionProverTest {
 		assertNotNull(tildem_0);
 		tildevPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEVPRIME));
 		assertNotNull(tildevPrime);
-		// TODO realize iteration over graph elements
+		
+		BaseCollection collection = new BaseCollectionImpl();
+		
+		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
+		while (vertexIter.hasNext()) {
+			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
+			BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(
+					URNType.TILDEMI, vertexBase.getBaseIndex()));
+			assertNotNull(tildem);
+			BaseRepresentation tildeBase = vertexBase.clone();
+			tildeBase.setExponent(tildem);
+			collection.add(tildeBase);
+		}
+		
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
+		while (edgeIter.hasNext()) {
+			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
+			BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(
+					URNType.TILDEMIJ, edgeBase.getBaseIndex()));
+			assertNotNull(tildem);
+			BaseRepresentation tildeBase = edgeBase.clone();
+			tildeBase.setExponent(tildem);
+			collection.add(tildeBase);
+		}
+		
+		
 	}
 
 	/**
@@ -213,6 +239,22 @@ class GraphPossessionProverTest {
 		tildevPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEVPRIME));
 		assertNotNull(tildevPrime);
 		assertTrue(inRange(tildevPrime, minV, maxV));
+		
+		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
+		while (vertexIter.hasNext()) {
+			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
+			BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(
+					URNType.TILDEMI, vertexBase.getBaseIndex()));
+			assertTrue(inRange(tildem, minM, maxM));
+		}
+		
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
+		while (edgeIter.hasNext()) {
+			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
+			BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(
+					URNType.TILDEMIJ, edgeBase.getBaseIndex()));
+			assertTrue(inRange(tildem, minM, maxM));
+		}
 	}
 
 	boolean inRange(BigInteger number, BigInteger min, BigInteger max) {
@@ -243,11 +285,20 @@ class GraphPossessionProverTest {
 		GroupElement baseR_0TildeM0 = epk.getPublicKey().getBaseR_0().modPow(tildem_0);
 
 		GroupElement hatZ = baseSTildevPrime.multiply(aPrimeTildeE).multiply(baseR_0TildeM0);
-		BaseIterator baseIter = baseCollection.createIterator(BASE.ALL);
-		while (baseIter.hasNext()) {
-			BaseRepresentation base = (BaseRepresentation) baseIter.next();
-			if (base.getBase() != null && base.getExponent() != null) {
-				hatZ = hatZ.multiply(base.getBase().modPow(base.getExponent()));
+		
+		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
+		while (vertexIter.hasNext()) {
+			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
+			if (vertexBase.getBase() != null && vertexBase.getExponent() != null) {
+				hatZ = hatZ.multiply(vertexBase.getBase().modPow(vertexBase.getExponent()));
+			}
+		}
+		
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
+		while (edgeIter.hasNext()) {
+			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
+			if (edgeBase.getBase() != null && edgeBase.getExponent() != null) {
+				hatZ = hatZ.multiply(edgeBase.getBase().modPow(edgeBase.getExponent()));
 			}
 		}
 
@@ -255,16 +306,6 @@ class GraphPossessionProverTest {
 		assertEquals(hatZ, tildeZ, "PossessionProver Witness TildeZ was not computed correctly.");
 	}
 
-	//	@Test
-	//	@DisplayName("Test challenge bitLength")
-	//	void testComputeChallenge() throws NoSuchAlgorithmException {
-	//
-	//		prover.preChallengePhase(sigmaM,
-	//				epk, baseCollection,
-	//				proofStore, keyGenParameters);
-	//		BigInteger cChallenge = prover.computeChallenge();
-	//		assertEquals(keyGenParameters.getL_H(), cChallenge.bitLength());
-	//	}
 
 	/**
 	 * This test establishes the correctness of the response computation (hat-values). The test

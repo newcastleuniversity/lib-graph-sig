@@ -122,11 +122,19 @@ public class GSSigningOracle {
 	 */
 	public GSSignature sign(BaseCollection baseCollection) {
 		GroupElement basesEncoded = signerKeyPair.getPublicKey().getQRGroup().getOne();
-		BaseIterator baseIter = baseCollection.createIterator(BASE.ALL);
-		while (baseIter.hasNext()) {
-			BaseRepresentation base = (BaseRepresentation) baseIter.next();
-			if (base.getBase() != null && base.getExponent() != null) {
-				basesEncoded = basesEncoded.multiply(base.getBase().modPow(base.getExponent()));
+		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
+		while (vertexIter.hasNext()) {
+			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
+			if (vertexBase.getBase() != null && vertexBase.getExponent() != null) {
+				basesEncoded = basesEncoded.multiply(vertexBase.getBase().modPow(vertexBase.getExponent()));
+			}
+		}
+		
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.ALL);
+		while (edgeIter.hasNext()) {
+			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
+			if (edgeBase.getBase() != null && edgeBase.getExponent() != null) {
+				basesEncoded = basesEncoded.multiply(edgeBase.getBase().modPow(edgeBase.getExponent()));
 			}
 		}
 

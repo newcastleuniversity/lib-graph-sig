@@ -3,10 +3,12 @@ package eu.prismacloud.primitives.zkpgs.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
@@ -816,6 +818,43 @@ public class GSUtils implements INumberUtils {
 		Iterator<GroupElement> iter = map.values().iterator();
 		while (iter.hasNext()) {
 			result = (GroupElement) iter.next();
+		}
+		return result;
+	}
+	
+	/**
+	 * Computes a multi-base exponentiation over ALL bases of a BaseCollection.
+	 * Naturally the method treats bases with null exponent as 1.
+	 * 
+	 * @param collection BaseCollection to iterate over.
+	 * @param G A Group to work in.
+	 * 
+	 * @return Product of the exponentiations.
+	 */
+	@Override
+	public GroupElement computeMultiBaseExp(BaseCollection collection, Group G) {
+		return computeMultiBaseExp(collection, BASE.ALL, G);
+	}
+	
+	/**
+	 * Computes a multi-base exponentiation over a type of bases of a BaseCollection.
+	 * Naturally the method treats bases with null exponent as 1.
+	 * 
+	 * @param collection BaseCollection to iterate over.
+	 * @param baseType type of base to include.
+	 * @param G A Group to work in.
+	 * 
+	 * @return Product of the exponentiations.
+	 */
+	@Override
+	public GroupElement computeMultiBaseExp(BaseCollection collection, BASE baseType, Group G) {
+		GroupElement result = G.getOne();
+		BaseIterator baseIter = collection.createIterator(baseType);
+		while (baseIter.hasNext()) {
+			BaseRepresentation base = (BaseRepresentation) baseIter.next();
+			if (base.getBase() != null && base.getExponent() != null) {
+				result = result.multiply(base.getBase().modPow(base.getExponent()));
+			}
 		}
 		return result;
 	}

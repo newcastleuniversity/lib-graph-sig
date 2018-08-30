@@ -34,12 +34,12 @@ public class PossessionProver implements IProver {
 
 	private Logger log = GSLoggerConfiguration.getGSlog();
 
-	private GSSignature blindedSignature;
-	private ExtendedPublicKey extendedPublicKey;
+	private final GSSignature blindedSignature;
+	private final ExtendedPublicKey extendedPublicKey;
 	private BigInteger tildem_0;
 	private BigInteger tildevPrime;
-	private ProofStore<Object> proofStore;
-	private KeyGenParameters keyGenParameters;
+	private final ProofStore<Object> proofStore;
+	private final KeyGenParameters keyGenParameters;
 	private GroupElement tildeZ;
 	private BigInteger tildee;
 	private Vector<BaseRepresentation> graphResponses = new Vector<BaseRepresentation>();
@@ -47,8 +47,8 @@ public class PossessionProver implements IProver {
 	private BigInteger tildem_i_j;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private BigInteger c;
-	private int baseIndex;
-	private BaseCollection baseCollection;
+
+	private final BaseCollection baseCollection;
 
 	private GroupElement baseS;
 	private GroupElement baseR_0;
@@ -71,7 +71,6 @@ public class PossessionProver implements IProver {
 	 * @param epk ExtendedPublicKey for the signature's issuer.
 	 * @param ps ProofStore to be used for this proof.
 	 */
-	// TODO Make dependencies final. Then remove auxiliary parameters from preChallengePhase();
 	// TODO Refactor to dual indexing for edges.
 	public PossessionProver(
 			final GSSignature blindedSignature,
@@ -110,29 +109,40 @@ public class PossessionProver implements IProver {
 		this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
 		createWitnessRandomness();
-		storeWitnessRandomness();
 		return computetildeZ();
 	}
 
+	/**
+	 * The function creates the witness randomness (tilde values) and stores that
+	 * randomness in the ProofStore.
+	 * 
+	 * @throws ProofStoreException if the values could not be written to the ProofStore.
+	 */
 	private void createWitnessRandomness() throws ProofStoreException {
 
+		// Signing exponent e
 		int tildeeLength = keyGenParameters.getL_prime_e() + keyGenParameters.getProofOffset();
-
 		tildee = CryptoUtilsFacade.computeRandomNumber(tildeeLength);
+		proofStore.store(getProverURN(URNType.TILDEE), tildee);
 
+		// Blinding randomness v'
 		int tildevLength = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
 		tildevPrime = CryptoUtilsFacade.computeRandomNumber(tildevLength);
+		proofStore.store(getProverURN(URNType.TILDEVPRIME), tildevPrime);
 
+		// Message witness for m_0
 		int messageLength = keyGenParameters.getL_m() + keyGenParameters.getProofOffset();
-
 		tildem_0 = CryptoUtilsFacade.computeRandomNumber(messageLength);
+		proofStore.store(getProverURN(URNType.TILDEM0), tildem_0);
 
+		// Vertex Messages
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation base : vertexIterator) {
 			tildem_i = CryptoUtilsFacade.computeRandomNumber(messageLength);
 			proofStore.store(getProverURN(URNType.TILDEMI, base.getBaseIndex()), tildem_i);
 		}
 
+		// Edge Messages
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation base : edgeIterator) {
 			tildem_i_j = CryptoUtilsFacade.computeRandomNumber(messageLength);
@@ -140,20 +150,6 @@ public class PossessionProver implements IProver {
 		}
 	}
 
-	private void storeWitnessRandomness() throws ProofStoreException {
-		proofStore.store(getProverURN(URNType.TILDEE), tildee);
-
-		proofStore.store(getProverURN(URNType.TILDEVPRIME), tildevPrime);
-
-		proofStore.store(getProverURN(URNType.TILDEM0), tildem_0);
-
-		/** TODO store witness randomness for vertices and edges */
-		//    String tildem_iURN = "possessionprover.witnesses.randomness.tildem_i";
-		//    proverStore.store(tildem_iURN, vertexWitnesses);
-		//
-		//    String tildem_i_jURN = "possessionprover.witnesses.randomness.tildem_i_j";
-		//    proverStore.store(tildem_i_jURN, edgeWitnesses);
-	}
 
 	private GroupElement computetildeZ() {
 		Assert.notNull(tildee, "TildeE must not be null.");
@@ -162,44 +158,30 @@ public class PossessionProver implements IProver {
 		// gslog.info("aPrime: " + blindedSignature.getA());
 		GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
 
-		// gslog.info("ePrime + 2^le-1: " +
-		// blindedSignature.getEPrime().add(NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e()-1)));
-
 		GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
 		GroupElement baseProduct = extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
-		String tildemURN;
-		BigInteger vertexWitness;
-		BigInteger edgeWitness;
-
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation baseRepresentation : vertexIterator) {
-			tildemURN =
-					"possessionprover.witnesses.randomness.vertex.tildem_i_"
-							+ baseRepresentation.getBaseIndex();
-			vertexWitness = (BigInteger) proofStore.retrieve(tildemURN);
-			//      vertexWitness = vertexWitnesses.get(URN.createZkpgsURN(baseURN));
+			BigInteger vertexWitness = (BigInteger) proofStore.retrieve(
+					URNType.buildURNComponent(URNType.TILDEMI, this.getClass(), baseRepresentation.getBaseIndex()));
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
 		}
 
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation baseRepresentation : edgeIterator) {
-			tildemURN =
-					"possessionprover.witnesses.randomness.edge.tildem_i_j_"
-							+ baseRepresentation.getBaseIndex();
-			//      edgeWitness = edgeWitnesses.get(URN.createZkpgsURN(baseURN));
-			edgeWitness = (BigInteger) proofStore.retrieve(tildemURN);
+			BigInteger edgeWitness = (BigInteger) proofStore.retrieve(
+					URNType.buildURNComponent(URNType.TILDEMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
+
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
 		}
 
 		tildem_0 = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
 
-		// gslog.info("aPrimeEtilde bitlength: " + aPrimeEtilde.bitLength());
 		GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
+
 		tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0).multiply(baseProduct);
 
-		// gslog.info("tildeZ: " + tildeZ);
-		// gslog.info("tildeZ bitlength: " + tildeZ.bitLength());
 		return tildeZ;
 	}
 
@@ -234,7 +216,7 @@ public class PossessionProver implements IProver {
 
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation vertexBase : vertexIterator) {
-			baseIndex = vertexBase.getBaseIndex();
+			int baseIndex = vertexBase.getBaseIndex();
 			m_i = vertexBase.getExponent();
 			tildem_i = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMI, baseIndex));
 			hatm_i = tildem_i.add(this.c.multiply(m_i));
@@ -260,7 +242,7 @@ public class PossessionProver implements IProver {
 
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation edgeBase : edgeIterator) {
-			baseIndex = edgeBase.getBaseIndex();
+			int baseIndex = edgeBase.getBaseIndex();
 			m_i_j = edgeBase.getExponent();
 			tildem_i_j = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMIJ, baseIndex));
 
@@ -280,8 +262,8 @@ public class PossessionProver implements IProver {
 				gslog.log(Level.SEVERE, e.getMessage());
 			}
 		}
-		gslog.info("tildee bitlength: " + tildee.bitLength());
-		gslog.info("c bitlength: " + c.bitLength());
+		//		gslog.info("tildee bitlength: " + tildee.bitLength());
+		//		gslog.info("c bitlength: " + c.bitLength());
 
 		hate = tildee.add(this.c.multiply(ePrime));
 		hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
@@ -295,13 +277,11 @@ public class PossessionProver implements IProver {
 		responses.put(URN.createZkpgsURN(hatvPrimeURN), hatvPrime);
 		responses.put(URN.createZkpgsURN(hatm_0URN), hatm_0);
 
-		try {
-			proofStore.store(hateURN, hate);
-			proofStore.store(hatvPrimeURN, hatvPrime);
-			proofStore.store(hatm_0URN, hatm_0);
-		} catch (Exception e) {
-			gslog.log(Level.SEVERE, e.getMessage());
-		}
+
+		proofStore.store(hateURN, hate);
+		proofStore.store(hatvPrimeURN, hatvPrime);
+		proofStore.store(hatm_0URN, hatm_0);
+
 
 		return responses;
 	}

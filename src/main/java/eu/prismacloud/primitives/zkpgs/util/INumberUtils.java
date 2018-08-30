@@ -1,10 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
@@ -44,6 +46,12 @@ Boolean elementOfQRN(BigInteger value, BigInteger modulus);
   BigInteger multiBaseExp(List<BigInteger> bases, List<BigInteger> exponents, BigInteger modN);
 
   BigInteger multiBaseExpMap(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents, BigInteger modN);
+  
+  GroupElement computeMultiBaseExp(
+		  BaseCollection collection, BASE baseType, Group G);
+  
+  GroupElement computeMultiBaseExp(
+		  BaseCollection collection, Group G);
 
   BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength);
 
