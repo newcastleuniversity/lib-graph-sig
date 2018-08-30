@@ -403,7 +403,7 @@ class GraphPossessionProverTest {
 	}
 
 	private void createGraphExample() throws ImportException {
-		GraphRepresentation graphRepresentation = new GraphRepresentation();
+		GraphRepresentation graphRepresentation = new GraphRepresentation(epk);
 		Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
 		GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
@@ -413,7 +413,7 @@ class GraphPossessionProverTest {
 		GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 
 		if (!gsGraph.getGraph().vertexSet().isEmpty()) {
-			graphRepresentation.encode(gsGraph, graphEncodingParameters, epk);
+			graphRepresentation.encode(gsGraph);
 			baseCollection = graphRepresentation.getEncodedBaseCollection();
 		}
 	}

@@ -148,10 +148,10 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 		BaseRepresentation base = bases.get(
 				URN.createZkpgsURN("baseRepresentationMap.edge.R_V_" + index));
 		if (base == null) {
-			throw new IllegalArgumentException("Requested base did not exist.");
+			throw new IllegalArgumentException("Requested base did not exist. Index: " + index);
 		}
 		if (!base.getBaseType().equals(BASE.VERTEX)) {
-			throw new IllegalArgumentException("Vertex base candidate is not classified as an vertex.");
+			throw new IllegalArgumentException("Vertex base candidate " + index + " is not classified as an vertex.");
 		}
 		return base;
 	}
@@ -160,10 +160,10 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 		BaseRepresentation base = bases.get(
 				URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index));
 		if (base == null) {
-			throw new IllegalArgumentException("Requested base did not exist.");
+			throw new IllegalArgumentException("Requested base did not exist. Index: " + index);
 		}
 		if (!base.getBaseType().equals(BASE.EDGE)) {
-			throw new IllegalArgumentException("Edge base candidate is not classified as an edge.");
+			throw new IllegalArgumentException("Edge base candidate " + index + " is not classified as an edge.");
 		}
 		return base;
 	}

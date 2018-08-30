@@ -188,7 +188,7 @@ private List<String> contextList;
   }
 
   private void encodeSignerGraph() throws org.jgrapht.io.ImportException {
-    GraphRepresentation graphRepresentation = new GraphRepresentation();
+    GraphRepresentation graphRepresentation = new GraphRepresentation(extendedKeyPair.getExtendedPublicKey());
 
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
 
@@ -199,7 +199,7 @@ private List<String> contextList;
     graph = gsGraph.createGraph(SIGNER_GRAPH_FILE);
 
     graphRepresentation.encode(
-        gsGraph, graphEncodingParameters, extendedKeyPair.getExtendedPublicKey());
+        gsGraph);
 
     this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
     this.basesIterator = encodedBasesCollection.createIterator(BASE.ALL);

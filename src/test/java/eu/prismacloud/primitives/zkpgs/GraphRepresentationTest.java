@@ -69,9 +69,9 @@ class GraphRepresentationTest {
 
   @Test
   void encodeGraph() {
-    GraphRepresentation graphRepresentation = new GraphRepresentation();
+    GraphRepresentation graphRepresentation = new GraphRepresentation(extendedPublicKey);
 
-    graphRepresentation.encode(gsGraph, graphEncodingParameters, extendedPublicKey);
+    graphRepresentation.encode(gsGraph);
 
     assertNotNull(graphRepresentation);
     assertNotNull(graphRepresentation.getEncodedBases());

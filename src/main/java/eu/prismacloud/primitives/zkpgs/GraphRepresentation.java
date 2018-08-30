@@ -24,15 +24,15 @@ import org.jgrapht.Graph;
 public class GraphRepresentation {
 	private static final Logger gslog = GSLoggerConfiguration.getGSlog();
 
-	private Map<URN, BaseRepresentation> allBases;
-	private ExtendedPublicKey extendedPublicKey;
-	private GraphEncodingParameters encodingParameters;
+	private final Map<URN, BaseRepresentation> allBases;
+	private final ExtendedPublicKey extendedPublicKey;
+	private final GraphEncodingParameters encodingParameters;
 	private Map<URN, BaseRepresentation> encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
 
-	public GraphRepresentation() {}
-
-	private GraphRepresentation(Map<URN, BaseRepresentation> bases) {
-		this.allBases = bases;
+	public GraphRepresentation(ExtendedPublicKey epk) {
+		this.extendedPublicKey = epk;
+		this.encodingParameters = epk.getGraphEncodingParameters();
+		this.allBases = epk.getBases();
 	}
 
 	/**
@@ -50,20 +50,16 @@ public class GraphRepresentation {
 	 * @return the graph representation that includes the encoded bases
 	 */
 	public GraphRepresentation encode(
-			GSGraph<GSVertex, GSEdge> gsGraph,
-			GraphEncodingParameters graphEncodingParameters,
-			ExtendedPublicKey extendedPublicKey) {
+			GSGraph<GSVertex, GSEdge> gsGraph) {
 
 		Graph<GSVertex, GSEdge> graph;
-		encodingParameters = graphEncodingParameters;
-		gsGraph.encodeRandomGeoLocationGraph(graphEncodingParameters);
+		gsGraph.encodeRandomGeoLocationGraph(encodingParameters);
 		graph = gsGraph.getGraph();
-		// TODO Seems that the graph representation encodes all the bases, irrespective of size of the graph.
-		allBases = extendedPublicKey.getBases();
+
 		encodeVertices(graph, allBases);
 		encodeEdges(graph, allBases);
 
-		return new GraphRepresentation(allBases);
+		return new GraphRepresentation(extendedPublicKey); // TODO new object does not contain anything of value...
 	}
 
 	private void encodeVertices(Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
