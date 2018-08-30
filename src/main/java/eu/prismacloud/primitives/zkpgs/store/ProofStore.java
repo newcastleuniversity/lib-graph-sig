@@ -93,7 +93,7 @@ public class ProofStore<T> {
     Assert.notNull(key, "Store URN key cannot be null");
     Set<T> el = elements.get(key);
     if (null == el) {
-      throw new IllegalStateException("Store element not present");
+      throw new IllegalStateException("Store element not present: " + key);
     }
     return (T) el.toArray()[0];
   }
@@ -116,7 +116,7 @@ public class ProofStore<T> {
       elements.put(key, el);
     }
     // Repeated instances are not allowed.
-    if (!el.add(element)) throw new ProofStoreException("Store element instance already present");
+    if (!el.add(element)) throw new ProofStoreException("Store element instance already present: " + key);
   }
 
   /**
@@ -125,11 +125,11 @@ public class ProofStore<T> {
    * @param key the key
    */
   public void remove(URN key) {
-    Assert.notNull(key, "key cannot be null");
+    Assert.notNull(key, "Key cannot be null");
 
     Set<T> el = elements.get(key);
     if (null == el) {
-      throw new IllegalStateException("Store element key not present");
+      throw new IllegalStateException("Store element key not present: " + key);
     }
 
     elements.remove(key);
