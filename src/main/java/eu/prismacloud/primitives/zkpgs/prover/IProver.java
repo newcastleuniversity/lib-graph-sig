@@ -53,7 +53,7 @@ public interface IProver {
 	 */
 	public void executePrecomputation() throws ProofStoreException;
 
-
+	
 	/**
 	 * Executes the pre-challenge phase of the proof computing witness 
 	 * randomness and the corresponding witness.
@@ -64,7 +64,23 @@ public interface IProver {
 	 * @return a GroupElement being the overall witness (tilde-value) for this proof.
 	 * @throws ProofStoreException
 	 */
-	Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException;
+	GroupElement executePreChallengePhase() throws ProofStoreException;
+
+	/**
+	 * Executes the pre-challenge phase of compound provers, that is, provers that 
+	 * are executing multiple proof clauses. The prover computes witness 
+	 * randomness and the corresponding witnesses.
+	 * 
+	 * <p>As a convention, regular provers are to return a singleton map, that is, a
+	 * map with only one element.
+	 * 
+	 * <p>Provers are responsible for computing witness randomness and to 
+	 * store this witness randomness in the ProofStore as a side-effect.
+	 *
+	 * @return Map of GroupElement with the combined overall witnesses (tilde-value) for this compound proof.
+	 * @throws ProofStoreException
+	 */
+	Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException;
 
 	/**
 	 * Computes the post-challenge phase of the prover, based on a given challenge.
@@ -79,20 +95,6 @@ public interface IProver {
 	 */
 	Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException;
 
-
-	/**
-	 * This method checks whether the prover has everything at its disposal to
-	 * start the pre-challenge phase, incl. a possibly required pre-computation.
-	 * 
-	 * <p>This method is not only to check whether all required proof-specific
-	 * public values are set correctly, it is also to verify that the ProofStore
-	 * contains the data this prover would require.
-	 * 
-	 * @return <tt>true</tt> if the prover can be expected to complete its computations
-	 * without fail.
-	 */
-	boolean isSetupComplete();
-	
 	/**
 	 * Self-verifies the proof in the post-challenge phase. 
 	 * 

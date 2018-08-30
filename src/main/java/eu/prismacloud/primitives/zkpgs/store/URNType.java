@@ -32,6 +32,7 @@ public enum URNType {
 	TILDEBASER0,
 	TILDEBASERI,
 	TILDEBASERIJ,
+	TILDECI,
 	TILDEU,
 	TILDEZ,
 	HATA,
@@ -83,6 +84,7 @@ public enum URNType {
 		case TILDEBASERI: return "tildeR_i";
 		case TILDEBASERIJ: return "tildeR_i_j_";
 		case TILDEU: return "tildeU";
+		case TILDECI: return "tildeC_i_";
 		case TILDEZ: return "tildeZ";
 		case HATA: return "hata";
 		case HATD: return "hatd";
@@ -133,6 +135,7 @@ public enum URNType {
 		case TILDEBASERI: return "witnesses";
 		case TILDEBASERIJ: return "witnesses";
 		case TILDEU: return "witnesses";
+		case TILDECI: return "witnesses";
 		case TILDEZ: return "witnesses";
 		case HATA: return "responses";
 		case HATD: return "responses";
@@ -166,6 +169,7 @@ public enum URNType {
 		case TILDEMIJ: return true;
 		case TILDERI: return true;
 		case TILDERIJ: return true;
+		case TILDECI: return true;
 		case TILDEABARIBARJ: return true;
 		case TILDEBBARIBARJ: return true;
 		case TILDERBARIBARJ: return true;

@@ -121,7 +121,7 @@ public class RecipientOrchestrator {
 		CommitmentProver commitmentProver = new CommitmentProver(U, 0, extendedPublicKey.getPublicKey(), proofStore);
 
 		Map<URN, GroupElement> tildeMap =
-				commitmentProver.executePreChallengePhase();
+				commitmentProver.executeCompoundPreChallengePhase();
 		String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
 		tildeU = tildeMap.get(URN.createZkpgsURN( tildeUURN));
 

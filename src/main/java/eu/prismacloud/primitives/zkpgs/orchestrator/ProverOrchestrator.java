@@ -332,7 +332,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
     for (PairWiseDifferenceProver differenceProver : pairWiseDifferenceProvers) {
 
       try {
-        differenceProver.executePreChallengePhase();
+        differenceProver.executeCompoundPreChallengePhase();
       } catch (ProofStoreException e) {
         gslog.log(Level.SEVERE, "Could not access the ProofStore.", e);
         return;
@@ -381,7 +381,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
     possessionProver = new PossessionProver(blindedGraphSignature, extendedPublicKey, proofStore);
 
-		Map<URN, GroupElement> tildeMap = possessionProver.executePreChallengePhase();
+		Map<URN, GroupElement> tildeMap = possessionProver.executeCompoundPreChallengePhase();
 		tildeZ = tildeMap.get(URN.createZkpgsURN(possessionProver.getProverURN(URNType.TILDEZ)));
   }
 

@@ -61,7 +61,7 @@ public class GroupSetupProverOrchestrator implements IProverOrchestrator {
   public void executePreChallengePhase() {
 
     try {
-      gsProver.executePreChallengePhase();
+      gsProver.executeCompoundPreChallengePhase();
     } catch (ProofStoreException e) {
       gslog.log(Level.SEVERE, e.getMessage());
     }

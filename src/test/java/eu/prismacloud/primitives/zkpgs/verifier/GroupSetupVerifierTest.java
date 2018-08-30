@@ -81,7 +81,7 @@ class GroupSetupVerifierTest {
     proofStore = new ProofStore<Object>();
     groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
 
-    groupSetupProver.executePreChallengePhase();
+    groupSetupProver.executeCompoundPreChallengePhase();
     tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
     tilder_0 = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");

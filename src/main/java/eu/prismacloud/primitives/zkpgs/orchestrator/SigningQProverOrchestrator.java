@@ -66,7 +66,7 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 	@Override
 	public void executePreChallengePhase() {
 		try {
-			prover.executePreChallengePhase();
+			prover.executeCompoundPreChallengePhase();
 		} catch (ProofStoreException e) {
 			gslog.log(Level.SEVERE, "ProofStore elements not found.", e);
 		}

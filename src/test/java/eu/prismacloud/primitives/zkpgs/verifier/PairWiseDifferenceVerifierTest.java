@@ -89,7 +89,7 @@ class PairWiseDifferenceVerifierTest {
     prover.executePrecomputation();
 
     String basetildeR_BariBarjURN = "pairwiseprover.basetildeR_BariBarj_" + testIndex;
-    Map<URN, GroupElement> witnesses = prover.executePreChallengePhase();
+    Map<URN, GroupElement> witnesses = prover.executeCompoundPreChallengePhase();
     tildeR = witnesses.get(URN.createZkpgsURN(basetildeR_BariBarjURN));
 
     cChallenge = prover.computeChallenge();

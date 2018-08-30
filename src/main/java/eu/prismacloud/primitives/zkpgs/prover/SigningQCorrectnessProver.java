@@ -41,7 +41,6 @@ public class SigningQCorrectnessProver implements IProver {
   private final GSSignature gsSignature;
   private final BigInteger n_2;
   private BigInteger tilded;
-  private GroupElement tildeA;
   private List<String> challengeList;
   private BigInteger cPrime;
   private BigInteger hatd;
@@ -67,7 +66,8 @@ public class SigningQCorrectnessProver implements IProver {
     // NO PRE-COMPUTATION IS NEEDED: NO-OP.
   }
 
-  public Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException {
+  @Override
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
 
     this.Q = (QRElement) proofStore.retrieve("issuing.signer.Q");
 
@@ -78,37 +78,21 @@ public class SigningQCorrectnessProver implements IProver {
             NumberConstants.TWO.getValue(), order.subtract(BigInteger.ONE));
 
     proofStore.store(URNType.buildURNComponent(URNType.TILDED, this.getClass()), tilded);
-    tildeA = Q.modPow(tilded);
-
-    Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>();
-    String tildeAURN = URNType.buildURNComponent(URNType.TILDEA, SigningQCorrectnessProver.class);
-    witnesses.put(URN.createZkpgsURN(tildeAURN), tildeA);
-    return witnesses;
+    GroupElement tildeA = Q.modPow(tilded);
+    
+    return tildeA;
   }
+  
+  @Override
+  public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
+	  GroupElement tildeA = executePreChallengePhase();
+	  Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>();
+	    String tildeAURN = URNType.buildURNComponent(URNType.TILDEA, SigningQCorrectnessProver.class);
+	    witnesses.put(URN.createZkpgsURN(tildeAURN), tildeA);
+	    return witnesses;
+	  }
 
-  public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-    challengeList = populateChallengeList();
-    cPrime = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-    return cPrime;
-  }
-
-  private List<String> populateChallengeList() {
-    this.A = (QRElement) proofStore.retrieve("issuing.signer.A");
-
-    challengeList = new ArrayList<String>();
-    IContext gsContext = new SetupGSContext(signerPublicKey);
-    List<String> contextList = gsContext.computeChallengeContext();
-    gslog.info("contextlist length: " + contextList.size());
-    // TODO add context list
-    challengeList.addAll(contextList);
-    challengeList.add(String.valueOf(Q));
-    challengeList.add(String.valueOf(A));
-    challengeList.add(String.valueOf(tildeA));
-    challengeList.add(String.valueOf(n_2));
-
-    return challengeList;
-  }
-
+  @Override
   public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
       throws ProofStoreException {
     this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
@@ -121,15 +105,12 @@ public class SigningQCorrectnessProver implements IProver {
     return responses;
   }
 
-  public boolean isSetupComplete() {
-    return false;
-  }
-
   @Override
   public boolean verify() {
     return false;
   }
 
+  @Override
   public List<URN> getGovernedURNs() {
     throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }

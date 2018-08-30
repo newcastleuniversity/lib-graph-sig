@@ -103,7 +103,7 @@ class CommitmentProverTest {
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
     String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    Map<URN, GroupElement> witnesses = cprover.executeCompoundPreChallengePhase();
     GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     assertNotNull(tildeC_i);
@@ -119,7 +119,7 @@ class CommitmentProverTest {
     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
-    cprover.executePreChallengePhase();
+    cprover.executeCompoundPreChallengePhase();
 
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);
@@ -143,7 +143,7 @@ class CommitmentProverTest {
     proofStore.store(tildem_iURN, tildem_i);
 
     String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    Map<URN, GroupElement> witnesses = cprover.executeCompoundPreChallengePhase();
     GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     assertNotNull(tildeC_i);
@@ -178,7 +178,7 @@ class CommitmentProverTest {
     BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
     proofStore.store(tildem_iURN, tildem_i);
     String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    Map<URN, GroupElement> witnesses = cprover.executeCompoundPreChallengePhase();
     GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     assertNotNull(tildeC_i);

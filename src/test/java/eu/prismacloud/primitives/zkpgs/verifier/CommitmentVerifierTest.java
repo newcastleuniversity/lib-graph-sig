@@ -96,7 +96,7 @@ public class CommitmentVerifierTest {
     proofStore.store(tildem_iURN, tildem_i);
 
     String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-    Map<URN, GroupElement> witnesses = cprover.executePreChallengePhase();
+    Map<URN, GroupElement> witnesses = cprover.executeCompoundPreChallengePhase();
     GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);

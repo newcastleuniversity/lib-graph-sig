@@ -130,7 +130,15 @@ public class PairWiseDifferenceProver implements IProver {
 
 
 	@Override
-	public Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException {
+	public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
+		GroupElement witness = executePreChallengePhase();
+		Map<URN, GroupElement> witnesses = new HashMap<>();
+		witnesses.put(URN.createZkpgsURN(basetildeR_BariBarjURN), witness);
+		return witnesses;
+	}
+	
+	@Override
+	public GroupElement executePreChallengePhase() throws ProofStoreException {
 		createWitnessRandomness();
 
 		return computeWitness();
@@ -301,7 +309,7 @@ public class PairWiseDifferenceProver implements IProver {
 		}
 	}
 
-	private Map<URN, GroupElement> computeWitness() {
+	private GroupElement computeWitness() {
 		GroupElement C_Bari = C_i.getCommitmentValue();
 		GroupElement C_Barj = C_j.getCommitmentValue();
 
@@ -313,9 +321,8 @@ public class PairWiseDifferenceProver implements IProver {
 
 		storeWitness();
 
-		Map<URN, GroupElement> witnesses = new HashMap<>();
-		witnesses.put(URN.createZkpgsURN(basetildeR_BariBarjURN), basetildeR_BariBarj);
-		return witnesses;
+
+		return basetildeR_BariBarj;
 	}
 
 	private void storeWitness() {
@@ -419,10 +426,6 @@ public class PairWiseDifferenceProver implements IProver {
 	 */
 	public GroupElement getBasetildeR_BariBarj() {
 		return basetildeR_BariBarj;
-	}
-
-	public boolean isSetupComplete() {
-		return false;
 	}
 
 	/**

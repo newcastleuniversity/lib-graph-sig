@@ -140,7 +140,7 @@ class GraphPossessionProverTest {
 	@Test
 	void testPreChallengePhase() throws ProofStoreException {
 
-		GroupElement tildeZ = prover.executePreChallengePhase();
+		prover.executeCompoundPreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
 		tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));
@@ -201,7 +201,7 @@ class GraphPossessionProverTest {
 						+ "\n  bitLength: "
 						+ bitLengthM);
 
-		prover.executePreChallengePhase();
+		prover.executeCompoundPreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
 		assertTrue(inRange(tildee, minE, maxE));
@@ -229,7 +229,7 @@ class GraphPossessionProverTest {
 	@DisplayName("Test computing witness TildeZ")
 	void testComputeWitness() throws ProofStoreException {
 		log.info("PossessionProverTest: Computing witness TildeZ.");
-		Map<URN, GroupElement> witnesses = prover.executePreChallengePhase();
+		Map<URN, GroupElement> witnesses = prover.executeCompoundPreChallengePhase();
 		tildeZ = witnesses.get(URN.createZkpgsURN(prover.getProverURN(URNType.TILDEZ)));
 
 		assertNotNull(tildeZ);
@@ -287,7 +287,7 @@ class GraphPossessionProverTest {
 	void testPostChallengePhase()
 			throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
-		prover.executePreChallengePhase();
+		prover.executeCompoundPreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 
 		tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));

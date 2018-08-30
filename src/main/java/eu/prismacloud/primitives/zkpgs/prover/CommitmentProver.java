@@ -35,10 +35,8 @@ public class CommitmentProver implements IProver {
   private final SignerPublicKey signerPublicKey;
   private final KeyGenParameters keyGenParameters;
   private final GSCommitment com;
-  private BigInteger modN;
   private GroupElement baseS;
   private BigInteger tilder_i;
-  private GSCommitment witness;
   private final Logger gslog = GSLoggerConfiguration.getGSlog();
   private BigInteger cChallenge;
   private STAGE proofStage;
@@ -53,7 +51,6 @@ public class CommitmentProver implements IProver {
   private BaseIterator baseR0Iterator;
   private BaseRepresentation base;
   private String tilder_iURN;
-  private Map<URN, GroupElement> witnesses;
 
   // TODO Demote public key, EPK not really needed.
   public CommitmentProver(
@@ -80,14 +77,26 @@ public class CommitmentProver implements IProver {
    *
    * @return the gs commitment
    */
-  public Map<URN, GroupElement> executePreChallengePhase() throws ProofStoreException {
-    this.baseS = signerPublicKey.getBaseS();
-    this.proofStage = STAGE.PROVING;
+  @Override
+  public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
+	  Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>(1);
+	  GroupElement witness = executePreChallengePhase();
+	  if (proofStage == STAGE.ISSUING) {
+		  String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+	      witnesses.put(URN.createZkpgsURN(tildeUURN), witness);
+	  } else {
+		  String tildeC_iURN = URNType.buildURNComponent(URNType.TILDECI, CommitmentProver.class);
+		  witnesses.put(URN.createZkpgsURN(tildeC_iURN), witness);
+	  }
+	  return witnesses;
+  }
+  
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
+	  this.baseS = signerPublicKey.getBaseS();
+	    this.proofStage = STAGE.PROVING;
 
-    createWitnessRandomness();
-    computeWitness();
-
-    return witnesses;
+	    createWitnessRandomness();
+	    return computeWitness();
   }
 
   public enum STAGE {
@@ -166,8 +175,8 @@ public class CommitmentProver implements IProver {
     }
   }
 
-  //  @Override
-  public Map<URN, GroupElement> computeWitness() {
+
+  public GroupElement computeWitness() {
     Map<URN, GroupElement> baseMap = new HashMap<>();
     Map<URN, BigInteger> exponentsMap = new HashMap<>();
 
@@ -195,14 +204,12 @@ public class CommitmentProver implements IProver {
       GroupElement sMulti = baseS.modPow(tildevPrime);
       GroupElement tildeU = sMulti.multiply(R_0.modPow(tildem_0));
 
+//      String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+//      witnesses.put(URN.createZkpgsURN(tildeUURN), tildeU);
+//
+//      gslog.info("witness U: " + tildeU);
       
-
-      witnesses = new HashMap<URN, GroupElement>();
-      String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-      witnesses.put(URN.createZkpgsURN(tildeUURN), tildeU);
-
-      gslog.info("witness U: " + tildeU);
-
+      return tildeU;
     } else {
 
       /** TODO retrieve witness randomness of committed messages from the common store */
@@ -222,12 +229,11 @@ public class CommitmentProver implements IProver {
       //          URN.createZkpgsURN("commitment.exponent.m_" + vertex.getBaseIndex()), tildem_i);
 
 
-      witnesses = new HashMap<URN, GroupElement>();
-      String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-      witnesses.put(URN.createZkpgsURN(tildeC_iURN), tildeC_i);
+//      witnesses = new HashMap<URN, GroupElement>();
+//      String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+//      witnesses.put(URN.createZkpgsURN(tildeC_iURN), tildeC_i);
+      return tildeC_i;
     }
-
-    return witnesses;
   }
 
   public BigInteger computeChallenge() {
@@ -336,10 +342,6 @@ public class CommitmentProver implements IProver {
     gslog.info("store hatr_i " + hatr_i);
     proofStore.store(hatr_iURN, hatr_i);
     return responses;
-  }
-
-  public boolean isSetupComplete() {
-    return false;
   }
 
   @Override

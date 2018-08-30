@@ -116,7 +116,7 @@ public class GroupSetupIT {
 
     proofStore = new ProofStore<Object>();
 		groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
-		groupSetupProver.executePreChallengePhase();
+		groupSetupProver.executeCompoundPreChallengePhase();
 		BigInteger tilder =
 				(BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
