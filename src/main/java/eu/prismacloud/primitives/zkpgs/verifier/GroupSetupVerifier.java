@@ -69,14 +69,14 @@ public class GroupSetupVerifier implements IVerifier {
     this.proofStore = ps;
     this.keyGenParameters = epk.getKeyGenParameters();
 
-    this.baseZ = (QRElement) proofSignature.get("proofsignature.P.baseZ");
+    this.baseZ = (GroupElement) proofSignature.get("proofsignature.P.baseZ");
     this.c = (BigInteger) proofSignature.get("proofsignature.P.c");
-    this.baseS = (QRElement) proofSignature.get("proofsignature.P.baseS");
+    this.baseS = (GroupElement) proofSignature.get("proofsignature.P.baseS");
     this.hatr_z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
     this.modN = (BigInteger) proofSignature.get("proofsignature.P.modN");
-    this.baseR = (QRElement) proofSignature.get("proofsignature.P.baseR");
+    this.baseR = (GroupElement) proofSignature.get("proofsignature.P.baseR");
     this.hatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-    this.baseR_0 = (QRElement) proofSignature.get("proofsignature.P.baseR_0");
+    this.baseR_0 = (GroupElement) proofSignature.get("proofsignature.P.baseR_0");
     this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
     this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
     this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
@@ -137,12 +137,13 @@ public class GroupSetupVerifier implements IVerifier {
     /** TODO check computation if it is computed correctly according to spec. */
     hatZ = baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_z));
     hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATZ)), hatZ);
+//    proofStore.store(getVerifierURN(URNType.HATZ),hatZ );
 
     hatR = baseR.modPow(negChallenge).multiply(baseS.modPow(hatr));
-    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATR)), hatR);
+    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATBASER)), hatR);
 
     hatR_0 = baseR_0.modPow(negChallenge).multiply(baseS.modPow(hatr_0));
-    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATR0)), hatR_0);
+    hatValues.put(URN.createZkpgsURN(getVerifierURN(URNType.HATBASER0)), hatR_0);
 
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
