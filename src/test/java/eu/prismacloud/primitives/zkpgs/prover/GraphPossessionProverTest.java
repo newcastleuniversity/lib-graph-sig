@@ -29,12 +29,10 @@ import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,8 +72,6 @@ class GraphPossessionProverTest {
 	private BigInteger hate;
 	private BigInteger hatm_0;
 	private BigInteger hatvPrime;
-	
-	private BaseRepresentation baseR_0;
 
 	@BeforeAll
 	void setupKey() throws IOException, ClassNotFoundException, EncodingException {
@@ -173,7 +169,14 @@ class GraphPossessionProverTest {
 			collection.add(tildeBase);
 		}
 		
+		GroupElement hatZ = CryptoUtilsFacade.computeMultiBaseExp(collection, epk.getPublicKey().getQRGroup());
+		GroupElement aPrimeTildee = sigmaM.getA().modPow(tildee);
+		GroupElement baseR_0tildem_0 = epk.getPublicKey().getBaseR_0().modPow(tildem_0);
+		GroupElement baseStildevPrime =epk.getPublicKey().getBaseS().modPow(tildevPrime);
 		
+		hatZ = hatZ.multiply(aPrimeTildee).multiply(baseR_0tildem_0).multiply(baseStildevPrime);
+		
+		assertEquals(hatZ, tildeZ, "The overall witness tildeZ was not computed as expected.");
 	}
 
 	/**
@@ -415,15 +418,11 @@ class GraphPossessionProverTest {
 		}
 	}
 	
-	private void encodeR_0(BigInteger m_0) {
-		baseR_0 = new BaseRepresentation(skp.getPublicKey().getBaseR_0(), m_0, -1, BASE.BASE0);
+	private void encodeR_0(BigInteger m_0) throws ProofStoreException {
+		BaseRepresentation baseR_0 = new BaseRepresentation(skp.getPublicKey().getBaseR_0(), m_0, -1, BASE.BASE0);
 		baseCollection.add(baseR_0);
 
-		try {
 			proofStore.store("bases.R_0", baseR_0);
 			proofStore.store("bases.exponent.m_0", m_0);
-		} catch (ProofStoreException pse) {
-			log.log(Level.SEVERE, pse.getMessage());
-		}
 	}
 }

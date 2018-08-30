@@ -48,12 +48,12 @@ public class QRElement extends GroupElement {
 			baseList.add(bigInteger);
 		}
 		// TODO Provide a CryptoUtils function that operates directly on GroupElements!
-		BigInteger expProduct = CryptoUtilsFacade.computeMultiBaseEx(baseList, exponents, this.group.getModulus());
+		BigInteger expProduct = CryptoUtilsFacade.computeMultiBaseExp(baseList, exponents, this.group.getModulus());
 		return new QRElement(this.getGroup(), expProduct);
 	}
 
 	public QRElement multiBaseExpMap(Map<URN, GroupElement> bases, Map<URN, BigInteger> exponents) {
-		BigInteger expProduct = CryptoUtilsFacade.computeMultiBaseExMap(bases, exponents, this.group.getModulus());
+		BigInteger expProduct = CryptoUtilsFacade.computeMultiBaseExpMap(bases, exponents, this.group.getModulus());
 		return new QRElement(this.getGroup(), expProduct);
 	}
 
