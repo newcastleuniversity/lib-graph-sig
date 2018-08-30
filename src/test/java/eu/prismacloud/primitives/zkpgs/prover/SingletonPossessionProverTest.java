@@ -115,7 +115,7 @@ class SingletonPossessionProverTest {
   @Test
   void testPreChallengePhase() throws ProofStoreException {
 
-    prover.executeCompoundPreChallengePhase();
+    GroupElement tildeZ = prover.executePreChallengePhase();
     tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
     assertNotNull(tildee);
     tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));
@@ -176,7 +176,7 @@ class SingletonPossessionProverTest {
             + "\n  bitLength: "
             + bitLengthM);
 
-    prover.executeCompoundPreChallengePhase();
+    prover.executePreChallengePhase();
     tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
     assertNotNull(tildee);
     assertTrue(inRange(tildee, minE, maxE));
@@ -204,8 +204,7 @@ class SingletonPossessionProverTest {
   @DisplayName("Test computing witness TildeZ")
   void testComputeWitness() throws ProofStoreException {
     log.info("PossessionProverTest: Computing witness TildeZ.");
-    Map<URN, GroupElement> witnesses = prover.executeCompoundPreChallengePhase();
-    tildeZ = witnesses.get(URN.createZkpgsURN(prover.getProverURN(URNType.TILDEZ)));
+    tildeZ = prover.executePreChallengePhase();
     assertNotNull(tildeZ);
 
     tildevPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEVPRIME));
@@ -254,7 +253,7 @@ class SingletonPossessionProverTest {
   void testPostChallengePhase()
       throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
-    prover.executeCompoundPreChallengePhase();
+    prover.executePreChallengePhase();
     tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 
     tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));

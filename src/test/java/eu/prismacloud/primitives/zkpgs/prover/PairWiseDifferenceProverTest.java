@@ -135,7 +135,7 @@ class PairWiseDifferenceProverTest {
    */
   @Test
   void testPreChallengePhase() throws ProofStoreException {
-    prover.executeCompoundPreChallengePhase();
+    GroupElement tildeR = prover.executePreChallengePhase();
     tildea_BariBarj =
         (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
     assertNotNull(tildea_BariBarj);
@@ -168,7 +168,7 @@ class PairWiseDifferenceProverTest {
             + "\n  bitLength: "
             + bitLengthR);
 
-    prover.executeCompoundPreChallengePhase();
+    prover.executePreChallengePhase();
     tildea_BariBarj =
         (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
     assertNotNull(tildea_BariBarj);
@@ -199,9 +199,7 @@ class PairWiseDifferenceProverTest {
   @DisplayName("Test computing witness TildeR")
   void testComputeWitness() throws ProofStoreException {
     log.info("PairWiseDifferenceProverTest: Computing witness TildeR.");
-    String basetildeR_BariBarjURN = "pairwiseprover.basetildeR_BariBarj_" + testIndex;
-    Map<URN, GroupElement> witnesses = prover.executeCompoundPreChallengePhase();
-    tildeR = witnesses.get(URN.createZkpgsURN(basetildeR_BariBarjURN));
+    tildeR = prover.executePreChallengePhase();
 
     assertNotNull(tildeR);
 
@@ -248,7 +246,7 @@ class PairWiseDifferenceProverTest {
   void testPostChallengePhase()
       throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
-    prover.executeCompoundPreChallengePhase();
+    prover.executePreChallengePhase();
     tildea_BariBarj =
         (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
 
