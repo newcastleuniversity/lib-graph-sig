@@ -24,7 +24,7 @@ import org.jgrapht.Graph;
 public class GraphRepresentation {
 	private static final Logger gslog = GSLoggerConfiguration.getGSlog();
 
-	private Map<URN, BaseRepresentation> bases;
+	private Map<URN, BaseRepresentation> allBases;
 	private ExtendedPublicKey extendedPublicKey;
 	private GraphEncodingParameters encodingParameters;
 	private Map<URN, BaseRepresentation> encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
@@ -32,7 +32,7 @@ public class GraphRepresentation {
 	public GraphRepresentation() {}
 
 	private GraphRepresentation(Map<URN, BaseRepresentation> bases) {
-		this.bases = bases;
+		this.allBases = bases;
 	}
 
 	/**
@@ -59,11 +59,11 @@ public class GraphRepresentation {
 		gsGraph.encodeRandomGeoLocationGraph(graphEncodingParameters);
 		graph = gsGraph.getGraph();
 		// TODO Seems that the graph representation encodes all the bases, irrespective of size of the graph.
-		bases = extendedPublicKey.getBases();
-		encodeVertices(graph, bases);
-		encodeEdges(graph, bases);
+		allBases = extendedPublicKey.getBases();
+		encodeVertices(graph, allBases);
+		encodeEdges(graph, allBases);
 
-		return new GraphRepresentation(bases);
+		return new GraphRepresentation(allBases);
 	}
 
 	private void encodeVertices(Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
@@ -76,13 +76,13 @@ public class GraphRepresentation {
 			BigInteger exponentEncoding = encodeVertex(vertexRepresentative, vertexLabelRepresentatives);
 			Assert.notNull(exponentEncoding, "Exponent encoding returned null.");
 
-			BaseRepresentation base =
-					generateRandomBase(BigInteger.ONE, BigInteger.valueOf(encodingParameters.getL_V()));
+			BaseRepresentation base = extendedPublicKey.getRandomVertexBase(encodedBases);
+					
 			Assert.notNull(base, "cannot find base index");
 
 			base.setExponent(exponentEncoding);
 
-			bases.replace(URN.createZkpgsURN("bases.vertex.R_" + base.getBaseIndex()), base);
+			encodedBases.replace(URN.createZkpgsURN("bases.vertex.R_" + base.getBaseIndex()), base);
 		}
 	}
 
@@ -102,39 +102,48 @@ public class GraphRepresentation {
 
 			Assert.notNull(exponentEncoding, "Edge label exponent was found to be null.");
 
-			BigInteger minRange = BigInteger.valueOf(encodingParameters.getL_V());
-			BigInteger maxRange = minRange.add(BigInteger.valueOf(encodingParameters.getL_E()));
-			BaseRepresentation base = generateRandomBase(minRange, maxRange);
+			BaseRepresentation base = extendedPublicKey.getRandomEdgeBase(encodedBases);
+			
 			Assert.notNull(base, "cannot find base index");
 
 			base.setExponent(exponentEncoding);
-			bases.replace(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
+			
+			encodedBases.replace(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
 		}
 	}
 
-	/*
-	 * Generate a uniformly random base index from a range of [min, max] and return the associated base. The bases returned must be different from the previous one.
-	 */
-	private BaseRepresentation generateRandomBase(BigInteger min, BigInteger max) {
-		// TODO: The bases need to be selected randomly either from the vertex or the edge bases, not
-		// over all bases.
-		// TODO Could lead to base collisions. Must be without replacement!
-		int randomBaseIndex = CryptoUtilsFacade.computeRandomNumber(min, max).intValue();
-		List<Integer> crossoutBaseIndex = new ArrayList<Integer>(bases.size());
-
-		BaseRepresentation resultBase = null;
-
-		for (BaseRepresentation baseRepresentation : bases.values()) {
-			if (baseRepresentation.getBaseIndex() == randomBaseIndex) {
-				if (!crossoutBaseIndex.contains(randomBaseIndex)) {
-					crossoutBaseIndex.add(randomBaseIndex);
-					resultBase = baseRepresentation;
-				}
-			}
-		}
-
-		return resultBase;
-	}
+//	/**
+//	 * Generate a uniformly random base index from a range of [min, max] and 
+//	 * return the associated base. 
+//	 * The bases returned must be different from the previous one.
+//	 * 
+//	 * <p>The current method does not work correctly because the state of which bases
+//	 * have been already enumerated will not be kept across calls.
+//	 * Also, error-prone, as it depends on external indexes.
+//	 * 
+//	 * @deprecated
+//	 */
+//	private BaseRepresentation generateRandomBase(BigInteger min, BigInteger max) {
+//		// TODO: The bases need to be selected randomly either from the vertex or the edge bases, not
+//		// over all bases.
+//		// TODO Could lead to base collisions. Must be without replacement!
+//		int randomBaseIndex = CryptoUtilsFacade.computeRandomNumber(min, max).intValue();
+//		List<Integer> crossoutBaseIndex = new ArrayList<Integer>(allBases.size());
+//
+//		BaseRepresentation resultBase = null;
+//
+//		for (BaseRepresentation baseRepresentation : allBases.values()) {
+//			if (baseRepresentation.getBaseIndex() == randomBaseIndex) {
+//				if (!crossoutBaseIndex.contains(randomBaseIndex)) {
+//					crossoutBaseIndex.add(randomBaseIndex);
+//					resultBase = baseRepresentation;
+//				}
+//			}
+//		}
+//
+//		return resultBase;
+//	}
+	
 
 	/**
 	 * Return the encoded bases.
@@ -142,7 +151,7 @@ public class GraphRepresentation {
 	 * @return the encoded bases
 	 */
 	public Map<URN, BaseRepresentation> getEncodedBases() {
-		return bases;
+		return encodedBases;
 	}
 
 	/**
@@ -152,7 +161,7 @@ public class GraphRepresentation {
 	 */
 	public BaseCollection getEncodedBaseCollection() {
 		BaseCollectionImpl baseCollection = new BaseCollectionImpl();
-		baseCollection.setBases(new ArrayList<BaseRepresentation>(bases.values()));
+		baseCollection.setBases(new ArrayList<BaseRepresentation>(encodedBases.values()));
 		return baseCollection;
 	}
 

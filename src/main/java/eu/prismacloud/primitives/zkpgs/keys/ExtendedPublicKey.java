@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -13,7 +14,9 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -139,5 +142,98 @@ public class ExtendedPublicKey implements Serializable, IPublicKey, IContextProd
 	@Override
 	public void setupEncoding() throws EncodingException {
 		this.graphEncoding.setupEncoding();
+	}
+
+	public BaseRepresentation getVertexBase(int index) {
+		BaseRepresentation base = bases.get(
+				URN.createZkpgsURN("baseRepresentationMap.edge.R_V_" + index));
+		if (base == null) {
+			throw new IllegalArgumentException("Requested base did not exist.");
+		}
+		if (!base.getBaseType().equals(BASE.VERTEX)) {
+			throw new IllegalArgumentException("Vertex base candidate is not classified as an vertex.");
+		}
+		return base;
+	}
+
+	public BaseRepresentation getEdgeBase(int index) {
+		BaseRepresentation base = bases.get(
+				URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index));
+		if (base == null) {
+			throw new IllegalArgumentException("Requested base did not exist.");
+		}
+		if (!base.getBaseType().equals(BASE.EDGE)) {
+			throw new IllegalArgumentException("Edge base candidate is not classified as an edge.");
+		}
+		return base;
+	}
+
+	/**
+	 * Chooses uniformly at random a vertex base, excluding ones stated as being
+	 * excludedBases.
+	 * 
+	 * <p>The method is not guaranteed to terminate, should all possible vertex bases be excluded.
+	 * 
+	 * @param excludedBaseMap Map of bases to exclude
+	 * @return BaseRepresentation of a fresh vertex base.
+	 */
+	public BaseRepresentation getRandomVertexBase(Map<URN, BaseRepresentation> excludedBaseMap) {
+		Collection<BaseRepresentation> excludedBases = excludedBaseMap.values();
+		BaseRepresentation candidateBase= null;
+		while (candidateBase == null || excludedBases.contains(candidateBase)) {
+			candidateBase = getRandomVertexBase();
+		}
+		// Post-Condition: candidate is not null and candidate is not in excludedBases.
+		return candidateBase;
+	}
+
+	/**
+	 * Chooses uniformly at random an edge base, excluding ones stated as being
+	 * excludedBases.
+	 * 
+	 * <p>The method is not guaranteed to terminate, should all possible edge bases be excluded.
+	 * 
+	 * @param excludedBaseMap Map of bases to exclude
+	 * @return BaseRepresentation of a fresh edge base.
+	 */
+	public BaseRepresentation getRandomEdgeBase(Map<URN, BaseRepresentation> excludedBaseMap) {
+		Collection<BaseRepresentation> excludedBases = excludedBaseMap.values();
+		BaseRepresentation candidateBase= null;
+		while (candidateBase == null || excludedBases.contains(candidateBase)) {
+			candidateBase = getRandomEdgeBase();
+		}
+		// Post-Condition: candidate is not null and candidate is not in excludedBases.
+		return candidateBase;
+	}
+
+	/**
+	 * Chooses uniformly at random a vertex base.
+	 * 
+	 * @return BaseRepresentation of a fresh vertex base.
+	 */
+	public BaseRepresentation getRandomVertexBase() {
+		int minIndex = 1;
+		int maxIndex = graphEncodingParameters.getL_V();
+		int range = maxIndex-minIndex;
+		
+		SecureRandom secureRandom = new SecureRandom();
+		int index = minIndex + secureRandom.nextInt(range);
+		
+		return getVertexBase(index);
+	}
+
+	/**
+	 * Chooses uniformly at random an edge base.
+	 * 
+	 * @return BaseRepresentation of a fresh edge base.
+	 */
+	public BaseRepresentation getRandomEdgeBase() {
+		int minIndex = graphEncodingParameters.getL_V()+1;
+		int maxIndex = graphEncodingParameters.getL_V()+graphEncodingParameters.getL_E();
+		int range = maxIndex-minIndex;
+		
+		SecureRandom secureRandom = new SecureRandom();
+		int index = minIndex + secureRandom.nextInt(range);
+		return getEdgeBase(index);
 	}
 }

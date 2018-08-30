@@ -106,6 +106,12 @@ public final class URN implements Serializable {
     sb.append('}');
     return sb.toString();
   }
+  
+  public String toHumanReadableString() {
+	  final StringBuilder sb = new StringBuilder("URN:");
+	  sb.append(namespaceSpecific.getContent());
+	  return sb.toString();
+  }
 
   @Override
   public boolean equals(Object o) {

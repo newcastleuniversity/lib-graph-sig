@@ -23,13 +23,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 /** Crypto Utilities class for graph signature library */
 public class GSUtils implements INumberUtils {
 
 	private Logger log = GSLoggerConfiguration.getGSlog();
+	private final SecureRandom secureRandom;
+	
 	private BigInteger modN;
 	private SafePrime p;
 	private SafePrime q;
@@ -44,6 +45,7 @@ public class GSUtils implements INumberUtils {
 
 	/** Instantiates a new Gs utils. */
 	public GSUtils() {
+		this.secureRandom = new SecureRandom();
 	}
 
 	/**
@@ -54,9 +56,6 @@ public class GSUtils implements INumberUtils {
 	 */
 	@Override
 	public BigInteger randomMinusPlusNumber(int bitlength) {
-		SecureRandom secureRandom = new SecureRandom();
-		log.info("generate minus plus number");
-
 		/** TODO check if the computations for generating a +- random number are correct */
 		/** TODO range is -2^bitlength+1 , + 2^bitlength -1 */
 		BigInteger max = NumberConstants.TWO.getValue().pow(bitlength).subtract(BigInteger.ONE);
@@ -147,7 +146,6 @@ public class GSUtils implements INumberUtils {
 	@Override
 	public BigInteger generatePrimeWithLength(int minBitLength, int maxBitLength) {
 		/** TODO check if the implementation is correct for [2^l_e, 2^l_e + 2^lPrime_e] */
-		SecureRandom secureRandom = new SecureRandom();
 		BigInteger min = NumberConstants.TWO.getValue().pow(minBitLength);
 		BigInteger max = min.add(NumberConstants.TWO.getValue().pow(maxBitLength));
 		BigInteger prime = max;
@@ -195,7 +193,6 @@ public class GSUtils implements INumberUtils {
 		BigInteger negativeMin = min;
 		BigInteger maxPlusMin = max.add(positiveMin);
 		BigInteger prime;
-		SecureRandom secureRandom = new SecureRandom();
 
 		do {
 			prime = new BigInteger(maxPlusMin.bitLength(), secureRandom);
@@ -208,7 +205,6 @@ public class GSUtils implements INumberUtils {
 	private BigInteger generatePrimeWithPositiveMin(BigInteger min, BigInteger max) {
 		BigInteger prime;
 		BigInteger difference = max.subtract(min).add(BigInteger.ONE);
-		SecureRandom secureRandom = new SecureRandom();
 
 		do {
 			BigInteger temp = new BigInteger(difference.bitLength(), secureRandom);
@@ -257,7 +253,7 @@ public class GSUtils implements INumberUtils {
 		range = max.subtract(min).add(BigInteger.ONE);
 
 		do {
-			randomNumber = new BigInteger(range.bitLength(), new SecureRandom());
+			randomNumber = new BigInteger(range.bitLength(), secureRandom);
 		} while (randomNumber.compareTo(range) >= 0);
 
 		return randomNumber.add(min);
@@ -274,7 +270,7 @@ public class GSUtils implements INumberUtils {
 	 */
 	@Override
 	public BigInteger createRandomNumber(final int bitLength) {
-		return new BigInteger(bitLength, new SecureRandom());
+		return new BigInteger(bitLength, secureRandom);
 	}
 
 	/**
@@ -719,7 +715,7 @@ public class GSUtils implements INumberUtils {
 	 * @return the big integer
 	 */
 	public BigInteger generateRandomPrime(final int bitLength) {
-		return BigInteger.probablePrime(bitLength, new SecureRandom());
+		return BigInteger.probablePrime(bitLength, secureRandom);
 	}
 
 	/**

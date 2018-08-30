@@ -45,8 +45,8 @@ public class ProofStore<T> {
    * @throws eu.prismacloud.primitives.zkpgs.exception.ProofStoreException the exception
    */
   public void save(URN key, T element) throws ProofStoreException {
-    Assert.notNull(key, "Store key cannot be null");
-    Assert.notNull(element, "Store element cannot be null");
+    Assert.notNull(key, "Store key cannot be null.");
+    Assert.notNull(element, "Store element cannot be null.");
 
     //    gslog.log(Level.INFO, "key value:  " + key);
     //    gslog.log(Level.INFO, "element:  " + element);
@@ -93,7 +93,7 @@ public class ProofStore<T> {
     Assert.notNull(key, "Store URN key cannot be null");
     Set<T> el = elements.get(key);
     if (null == el) {
-      throw new IllegalStateException("Store element not present: " + key);
+      throw new IllegalStateException("Store element not present: " + key.toHumanReadableString());
     }
     return (T) el.toArray()[0];
   }
@@ -106,8 +106,8 @@ public class ProofStore<T> {
    * @throws ProofStoreException the exception
    */
   public void add(URN key, T element) throws ProofStoreException {
-    Assert.notNull(key, "key cannot be null");
-    Assert.notNull(element, "Store element cannot be null");
+    Assert.notNull(key, "key cannot be null.");
+    Assert.notNull(element, "Store element cannot be null.");
 
     Set<T> el = elements.get(key);
     if (null == el) {
@@ -116,7 +116,7 @@ public class ProofStore<T> {
       elements.put(key, el);
     }
     // Repeated instances are not allowed.
-    if (!el.add(element)) throw new ProofStoreException("Store element instance already present: " + key);
+    if (!el.add(element)) throw new ProofStoreException("Store element instance already present: " + key.toHumanReadableString());
   }
 
   /**
@@ -129,7 +129,7 @@ public class ProofStore<T> {
 
     Set<T> el = elements.get(key);
     if (null == el) {
-      throw new IllegalStateException("Store element key not present: " + key);
+      throw new IllegalStateException("Store element key not present: " + key.toHumanReadableString());
     }
 
     elements.remove(key);

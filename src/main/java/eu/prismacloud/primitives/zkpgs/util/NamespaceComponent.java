@@ -88,6 +88,10 @@ public class NamespaceComponent implements Serializable {
     return sb.toString();
   }
 
+  public String getContent() {
+	  return content;
+  }
+  
   @Override
   public boolean equals(Object o) {
     if (this == o) {
