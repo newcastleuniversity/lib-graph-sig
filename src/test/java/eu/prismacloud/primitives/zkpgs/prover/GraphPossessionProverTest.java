@@ -140,7 +140,7 @@ class GraphPossessionProverTest {
 	@Test
 	void testPreChallengePhase() throws ProofStoreException {
 
-		prover.executePreChallengePhase();
+		GroupElement tildeZ = prover.executePreChallengePhase();
 		tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
 		assertNotNull(tildee);
 		tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));

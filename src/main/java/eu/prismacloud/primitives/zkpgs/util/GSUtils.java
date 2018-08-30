@@ -18,8 +18,10 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 /** Crypto Utilities class for graph signature library */
@@ -796,5 +798,25 @@ public class GSUtils implements INumberUtils {
 		Assert.notNull(min, "isInRange received a min that is null.");
 		Assert.notNull(max, "isInRange received a max that is null.");
 		return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
+	}
+	
+	/**
+	 * Returns the single GroupElement of a singleton result map of a computation.
+	 * 
+	 * @param map singleton map, that is, Map with only one element.
+	 * @return GroupElement encapsulated by the map
+	 */
+	public GroupElement getSingletonMapGroupElement(Map<URN, GroupElement> map) {
+		Assert.notNull(map, "GroupElement map submitted for extraction was null.");
+		if (map.isEmpty() || map.size() > 1) {
+			throw new IllegalArgumentException("Submitted argument is not a singleton map.");
+		}
+		// Post-Condition: Map is non-null and has exactly one element.
+		GroupElement result = null;
+		Iterator<GroupElement> iter = map.values().iterator();
+		while (iter.hasNext()) {
+			result = (GroupElement) iter.next();
+		}
+		return result;
 	}
 }
