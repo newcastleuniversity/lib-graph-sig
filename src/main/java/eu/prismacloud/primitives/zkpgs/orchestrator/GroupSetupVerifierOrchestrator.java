@@ -8,7 +8,6 @@ import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
@@ -19,11 +18,9 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,19 +37,7 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
   private final ProofSignature proofSignature;
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private BigInteger cChallenge;
-  private Map<URN, BigInteger> responses;
-  private BigInteger tilder_i;
-  private BigInteger tilder_j;
   private BigInteger hatc;
-  private QRElement baseZ;
-  private BigInteger c;
-  private QRElement baseS;
-  private BigInteger hatr_z;
-  private BigInteger modN;
-  private QRElement baseR;
-  private BigInteger hatr;
-  private QRElement baseR_0;
-  private BigInteger hatr_0;
   private Map<URN, GroupElement> hatValues;
 
   public GroupSetupVerifierOrchestrator(
@@ -72,9 +57,7 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
   }
 
   @Override
-  public void init() {
-
-  }
+  public void init() {}
 
   @Override
   public boolean executeVerification(BigInteger cChallenge) {
@@ -127,13 +110,13 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
     List<String> ctxList = gsContext.computeChallengeContext();
 
     String hatZURN = URNType.buildURNComponent(URNType.HATZ, GroupSetupVerifier.class);
-    GroupElement hatZ = (GroupElement) hatValues.get(URN.createZkpgsURN(hatZURN));
+    GroupElement hatZ = hatValues.get(URN.createZkpgsURN(hatZURN));
 
     String hatRURN = URNType.buildURNComponent(URNType.HATBASER, GroupSetupVerifier.class);
-    GroupElement hatR = (GroupElement) hatValues.get(URN.createZkpgsURN(hatRURN));
+    GroupElement hatR = hatValues.get(URN.createZkpgsURN(hatRURN));
 
     String hatR_0URN = URNType.buildURNComponent(URNType.HATBASER0, GroupSetupVerifier.class);
-    GroupElement hatR_0 = (GroupElement) hatValues.get(URN.createZkpgsURN(hatR_0URN));
+    GroupElement hatR_0 = hatValues.get(URN.createZkpgsURN(hatR_0URN));
 
     ctxList.add(String.valueOf(hatZ));
     ctxList.add(String.valueOf(hatR));
@@ -141,20 +124,18 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
 
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation baseRepresentation : vertexIterator) {
-      ctxList.add(
-          String.valueOf(
-              hatValues.get(
-                  URN.createZkpgsURN(
-                      "groupsetupverifier.vertex.hatR_i_" + baseRepresentation.getBaseIndex()))));
+      String hatR_iURN =
+          URNType.buildURNComponent(
+              URNType.HATBASERI, GroupSetupVerifier.class, baseRepresentation.getBaseIndex());
+      ctxList.add(String.valueOf(hatValues.get(URN.createZkpgsURN(hatR_iURN))));
     }
 
     BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
     for (BaseRepresentation baseRepresentation : edgeIterator) {
-      ctxList.add(
-          String.valueOf(
-              hatValues.get(
-                  URN.createZkpgsURN(
-                      "groupsetupverifier.edge.hatR_i_j_" + baseRepresentation.getBaseIndex()))));
+      String hatR_i_jURN =
+          URNType.buildURNComponent(
+              URNType.HATBASERIJ, GroupSetupVerifier.class, baseRepresentation.getBaseIndex());
+      ctxList.add(String.valueOf(hatValues.get(URN.createZkpgsURN(hatR_i_jURN))));
     }
 
     return ctxList;
