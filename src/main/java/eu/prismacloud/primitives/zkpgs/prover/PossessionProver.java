@@ -14,6 +14,7 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.GraphUtils;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -323,9 +324,9 @@ public class PossessionProver implements IProver {
 
 		// Iterate over the graph components as recorded by the PossessionProver
 		Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
+		log.log(Level.INFO, "Graph considered: " + GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
 		while (graphResponseIterator.hasNext()) {
 			BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
-			// log.info(" Treating graph element " + baseRepresentation);
 			verifier =
 					verifier.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 		}

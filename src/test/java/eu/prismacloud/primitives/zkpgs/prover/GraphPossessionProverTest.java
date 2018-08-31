@@ -293,7 +293,8 @@ class GraphPossessionProverTest {
 		while (vertexIter.hasNext()) {
 			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
 			if (vertexBase.getBase() != null && vertexBase.getExponent() != null) {
-				hatZ = hatZ.multiply(vertexBase.getBase().modPow(vertexBase.getExponent()));
+				BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEMI, vertexBase.getBaseIndex()));
+				hatZ = hatZ.multiply(vertexBase.getBase().modPow(tildem));
 			}
 		}
 		
@@ -301,7 +302,8 @@ class GraphPossessionProverTest {
 		while (edgeIter.hasNext()) {
 			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
 			if (edgeBase.getBase() != null && edgeBase.getExponent() != null) {
-				hatZ = hatZ.multiply(edgeBase.getBase().modPow(edgeBase.getExponent()));
+				BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEMIJ, edgeBase.getBaseIndex()));
+				hatZ = hatZ.multiply(edgeBase.getBase().modPow(tildem));
 			}
 		}
 
