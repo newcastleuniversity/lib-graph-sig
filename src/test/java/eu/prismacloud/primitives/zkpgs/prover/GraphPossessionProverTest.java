@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,11 +29,14 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.GraphUtils;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,9 +107,32 @@ class GraphPossessionProverTest {
 		encodeR_0(testM);
 		
 		assertNotNull(baseCollection);
-		BaseIterator baseIter = baseCollection.createIterator(BASE.ALL);
-		while (baseIter.hasNext()) {
-			BaseRepresentation base = (BaseRepresentation) baseIter.next();
+		assertTrue(baseCollection.size() > 0);
+		log.info("Size of the base collection: " + baseCollection.size());
+		
+		Iterator<BaseRepresentation> basesVertices = baseCollection.createIterator(BASE.VERTEX).iterator();
+		log.info("||Sigma Vertices: " + GraphUtils.iteratedGraphToExpString(basesVertices, proofStore));
+		
+		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
+		while (vertexIter.hasNext()) {
+			BaseRepresentation base = (BaseRepresentation) vertexIter.next();
+			log.log(Level.INFO, "BaseRepresentation[ " + base.getBaseIndex()
+			+ ", " + base.getBaseType() 
+			+ "]:\n   Base: " + base.getBase() 
+			+ "\n   Exponent: " + base.getExponent()); 
+			assertNotNull(base);
+			assertNotNull(base.getBase(), "Base with index " + base.getBaseIndex() + " was null.");
+			// TODO Currently the encoding still returns bases with null exponents.
+//			assertNotNull(base.getExponent(), "Exponent with base index " + 
+//			base.getBaseIndex() + " was null.");
+		}
+		
+		Iterator<BaseRepresentation> basesEdges = baseCollection.createIterator(BASE.VERTEX).iterator();
+		log.info("||Sigma Edges:    " + GraphUtils.iteratedGraphToExpString(basesEdges, proofStore));
+		
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
+		while (edgeIter.hasNext()) {
+			BaseRepresentation base = (BaseRepresentation) edgeIter.next();
 			log.log(Level.INFO, "BaseRepresentation[ " + base.getBaseIndex()
 			+ ", " + base.getBaseType() 
 			+ "]:\n   Base: " + base.getBase() 
@@ -145,7 +172,8 @@ class GraphPossessionProverTest {
 		tildevPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEVPRIME));
 		assertNotNull(tildevPrime);
 		
-		BaseCollection collection = new BaseCollectionImpl();
+		Vector<BaseRepresentation> usedBases = new Vector<BaseRepresentation>();
+		GroupElement hatZ = epk.getPublicKey().getQRGroup().getOne();
 		
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
@@ -153,9 +181,12 @@ class GraphPossessionProverTest {
 			BigInteger tildem = (BigInteger) proofStore.retrieve(prover.getProverURN(
 					URNType.TILDEMI, vertexBase.getBaseIndex()));
 			assertNotNull(tildem);
+			
 			BaseRepresentation tildeBase = vertexBase.clone();
 			tildeBase.setExponent(tildem);
-			collection.add(tildeBase);
+			usedBases.add(tildeBase);
+			
+			hatZ = hatZ.multiply(vertexBase.getBase().modPow(tildem));
 		}
 		
 		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
@@ -166,13 +197,16 @@ class GraphPossessionProverTest {
 			assertNotNull(tildem);
 			BaseRepresentation tildeBase = edgeBase.clone();
 			tildeBase.setExponent(tildem);
-			collection.add(tildeBase);
+			usedBases.add(tildeBase);
+			
+			hatZ = hatZ.multiply(edgeBase.getBase().modPow(tildem));
 		}
 		
-		GroupElement hatZ = CryptoUtilsFacade.computeMultiBaseExp(collection, epk.getPublicKey().getQRGroup());
+		log.log(Level.INFO, "||TildeZ Test: " + GraphUtils.iteratedGraphToExpString(usedBases.iterator(), proofStore));
+		
 		GroupElement aPrimeTildee = sigmaM.getA().modPow(tildee);
 		GroupElement baseR_0tildem_0 = epk.getPublicKey().getBaseR_0().modPow(tildem_0);
-		GroupElement baseStildevPrime =epk.getPublicKey().getBaseS().modPow(tildevPrime);
+		GroupElement baseStildevPrime = epk.getPublicKey().getBaseS().modPow(tildevPrime);
 		
 		hatZ = hatZ.multiply(aPrimeTildee).multiply(baseR_0tildem_0).multiply(baseStildevPrime);
 		
@@ -405,6 +439,7 @@ class GraphPossessionProverTest {
 	}
 
 	private void createGraphExample() throws ImportException {
+		// TODO The graph encoding does only produce an empty collection.
 		GraphRepresentation graphRepresentation = new GraphRepresentation(epk);
 		Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 

@@ -45,8 +45,6 @@ public class PossessionProver implements IProver {
 	private GroupElement tildeZ;
 	private BigInteger tildee;
 	private Vector<BaseRepresentation> graphResponses = new Vector<BaseRepresentation>();
-	private BigInteger tildem_i;
-	private BigInteger tildem_i_j;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private BigInteger c;
 
@@ -140,14 +138,14 @@ public class PossessionProver implements IProver {
 		// Vertex Messages
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation base : vertexIterator) {
-			tildem_i = CryptoUtilsFacade.computeRandomNumber(messageLength);
+			BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(messageLength);
 			proofStore.store(getProverURN(URNType.TILDEMI, base.getBaseIndex()), tildem_i);
 		}
 
 		// Edge Messages
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation base : edgeIterator) {
-			tildem_i_j = CryptoUtilsFacade.computeRandomNumber(messageLength);
+			BigInteger tildem_i_j = CryptoUtilsFacade.computeRandomNumber(messageLength);
 			proofStore.store(getProverURN(URNType.TILDEMIJ, base.getBaseIndex()), tildem_i_j);
 		}
 	}
@@ -231,7 +229,7 @@ public class PossessionProver implements IProver {
 		for (BaseRepresentation vertexBase : vertexIterator) {
 			int baseIndex = vertexBase.getBaseIndex();
 			m_i = vertexBase.getExponent();
-			tildem_i = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMI, baseIndex));
+			BigInteger tildem_i = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMI, baseIndex));
 			hatm_i = tildem_i.add(this.c.multiply(m_i));
 
 			BaseRepresentation vertexResponse = vertexBase.clone();
@@ -257,7 +255,7 @@ public class PossessionProver implements IProver {
 		for (BaseRepresentation edgeBase : edgeIterator) {
 			int baseIndex = edgeBase.getBaseIndex();
 			m_i_j = edgeBase.getExponent();
-			tildem_i_j = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMIJ, baseIndex));
+			BigInteger tildem_i_j = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMIJ, baseIndex));
 
 			hatm_i_j = tildem_i_j.add(this.c.multiply(m_i_j));
 
@@ -275,8 +273,6 @@ public class PossessionProver implements IProver {
 				gslog.log(Level.SEVERE, e.getMessage());
 			}
 		}
-		//		gslog.info("tildee bitlength: " + tildee.bitLength());
-		//		gslog.info("c bitlength: " + c.bitLength());
 
 		log.log(Level.INFO, "||hatZ Graph: " + GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
 		
