@@ -214,12 +214,12 @@ class GroupSetupVerifierTest {
     assertEquals(tildeZ, hatZ);
 
     GroupElement hatR =
-        responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATR)));
+        responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATBASER)));
     GroupElement tildeR = baseS.modPow(tilder);
     assertEquals(tildeR, hatR);
 
     GroupElement hatR0 =
-        responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATR0)));
+        responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATBASER0)));
     GroupElement tildeR0 = baseS.modPow(tilder_0);
     assertEquals(tildeR0, hatR0);
   }

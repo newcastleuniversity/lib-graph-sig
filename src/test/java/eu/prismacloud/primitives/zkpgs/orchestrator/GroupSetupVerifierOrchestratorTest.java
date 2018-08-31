@@ -1,11 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -18,14 +17,12 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -48,7 +45,8 @@ class GroupSetupVerifierOrchestratorTest {
   private BigInteger hatC;
 
   @BeforeAll
-  void setupKey() throws IOException, ClassNotFoundException, EncodingException {
+  void setupKey()
+      throws IOException, ClassNotFoundException, EncodingException, ProofStoreException {
     BaseTest baseTest = new BaseTest();
     baseTest.setup();
     baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -61,29 +59,37 @@ class GroupSetupVerifierOrchestratorTest {
     extendedKeyPair.createExtendedKeyPair();
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
     signerPublicKey = extendedPublicKey.getPublicKey();
-    proofStore = new ProofStore<Object>();
     baseCollection = extendedPublicKey.getBaseCollection();
+  }
+
+  @BeforeEach
+  void setup() throws ProofStoreException {
+    proofStore = new ProofStore<Object>();
     proofSignature = createTestProofSignature();
     gsVerifierOrchestrator =
         new GroupSetupVerifierOrchestrator(proofSignature, extendedPublicKey, proofStore);
   }
 
   @Test
-  void init() {}
-
-  @Test
-  void executeVerification() {
+  @DisplayName("Test verification for the GroupSetupVerifier")
+  void executeVerification() throws ProofStoreException {
+    boolean isLengthCorrect = gsVerifierOrchestrator.checkLengths();
+    assertTrue(isLengthCorrect);
     boolean isVerified = gsVerifierOrchestrator.executeVerification(cChallenge);
     assertTrue(isVerified);
   }
 
   @Test
+  @DisplayName("Test computing hat challenge during verification")
   void computeChallenge() throws ProofStoreException {
+    boolean isVerified = gsVerifierOrchestrator.executeVerification(cChallenge);
     hatC = gsVerifierOrchestrator.computeChallenge();
     assertNotNull(hatC);
+    assertEquals(cChallenge, hatC, "challenges do not match during verfication");
   }
 
   @Test
+  @DisplayName("Test check lengths")
   void checkLengths() {
     boolean isLengthCorrect = gsVerifierOrchestrator.checkLengths();
     assertNotNull(isLengthCorrect);
@@ -91,52 +97,51 @@ class GroupSetupVerifierOrchestratorTest {
   }
 
   @Test
-  void testIllegalLengths() {
-    fail("Test illegal lengths for the GroupSetupVerifierOrchesttrator");
+  @DisplayName("Test illegal lengths for the GroupSetupVerifierOrchestrator")
+  void testIllegalLengths() throws ProofStoreException {
+
+    String hatrURN = "proofsignature.P.hatr";
+    BigInteger hatr =
+        (BigInteger) proofSignature.getProofSignatureElements().get(URN.createZkpgsURN(hatrURN));
+    assertNotNull(hatr);
+    hatr = (BigInteger) hatr.multiply(BigInteger.TEN);
+
+    String hatr_ZURN = "proofsignature.P.hatr_Z";
+    BigInteger hatr_Z =
+        (BigInteger) proofSignature.getProofSignatureElements().get(URN.createZkpgsURN(hatr_ZURN));
+    assertNotNull(hatr_Z);
+    hatr_Z = (BigInteger) hatr_Z.multiply(BigInteger.TEN);
+
+    String hatr_0URN = "proofsignature.P.hatr_0";
+    BigInteger hatr_0 =
+        (BigInteger) proofSignature.getProofSignatureElements().get(URN.createZkpgsURN(hatr_0URN));
+    assertNotNull(hatr_0);
+    hatr_0 = (BigInteger) hatr_0.multiply(BigInteger.TEN);
+
+    // replace hat values in proof signature with values that have illegal length
+    proofSignature.getProofSignatureElements().replace(URN.createZkpgsURN(hatrURN), hatr);
+
+    proofSignature.getProofSignatureElements().replace(URN.createZkpgsURN(hatrURN), hatr_Z);
+
+    proofSignature.getProofSignatureElements().replace(URN.createZkpgsURN(hatrURN), hatr_0);
+
+    GroupSetupVerifierOrchestrator localVerifierOrchestrator =
+        new GroupSetupVerifierOrchestrator(proofSignature, extendedPublicKey, proofStore);
+
+    boolean isLengthCorrect = localVerifierOrchestrator.checkLengths();
+    assertFalse(isLengthCorrect, "checkLengths method should return false");
   }
 
-  private ProofSignature createTestProofSignature() {
-    Map<URN, Object> proofSignatureElements = new HashMap<>();
+  private ProofSignature createTestProofSignature() throws ProofStoreException {
 
-    proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P.modN"), signerPublicKey.getModN());
-    proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P.baseS"), signerPublicKey.getBaseS());
-    proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P.baseZ"), signerPublicKey.getBaseZ());
-    proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P.baseR"), signerPublicKey.getBaseR());
-    proofSignatureElements.put(
-        URN.createZkpgsURN("proofsignature.P.baseR_0"), signerPublicKey.getBaseR_0());
-    BaseRepresentation baseR;
+    GroupSetupProverOrchestrator groupSetupProverOrchestrator =
+        new GroupSetupProverOrchestrator(extendedKeyPair, proofStore);
 
-    BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-    for (BaseRepresentation baseRepresentation : vertexIterator) {
-      proofSignatureElements.put(
-          URN.createZkpgsURN("proofsignature.P.R_i_" + baseRepresentation.getBaseIndex()),
-          baseRepresentation);
-    }
+    groupSetupProverOrchestrator.executePreChallengePhase();
+    cChallenge = groupSetupProverOrchestrator.computeChallenge();
+    groupSetupProverOrchestrator.executePostChallengePhase(cChallenge);
+    groupSetupProverOrchestrator.createProofSignature();
 
-    BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
-    for (BaseRepresentation baseRepresentation : edgeIterator) {
-      proofSignatureElements.put(
-          URN.createZkpgsURN("proofsignature.P.R_i_j_" + baseRepresentation.getBaseIndex()),
-          baseRepresentation);
-    }
-
-    /** TODO add values in test proof signature */
-    //        proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr_Z"),
-    // this.hatr_Z);
-    //        proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr"), this.hatr);
-    //        proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr_0"),
-    // this.hatr_0);
-    //        proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr_i"),
-    // this.vertexResponses);
-    //    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.hatr_i_j"),
-    // this.edgeResponses);
-    cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
-    proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.c"), cChallenge);
-
-    return new ProofSignature(proofSignatureElements);
+    return groupSetupProverOrchestrator.createProofSignature();
   }
 }
