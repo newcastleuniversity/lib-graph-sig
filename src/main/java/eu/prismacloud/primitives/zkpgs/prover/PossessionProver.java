@@ -21,6 +21,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -162,10 +163,15 @@ public class PossessionProver implements IProver {
 		GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
 		GroupElement baseProduct = extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
+		Vector<BaseRepresentation> witnessBases = new Vector<BaseRepresentation>();
+		
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation baseRepresentation : vertexIterator) {
 			BigInteger vertexWitness = (BigInteger) proofStore.retrieve(
 					URNType.buildURNComponent(URNType.TILDEMI, this.getClass(), baseRepresentation.getBaseIndex()));
+			BaseRepresentation tildeBase = baseRepresentation.clone();
+			tildeBase.setExponent(vertexWitness);
+			witnessBases.add(tildeBase);
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
 		}
 
@@ -173,9 +179,15 @@ public class PossessionProver implements IProver {
 		for (BaseRepresentation baseRepresentation : edgeIterator) {
 			BigInteger edgeWitness = (BigInteger) proofStore.retrieve(
 					URNType.buildURNComponent(URNType.TILDEMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
+			
+			BaseRepresentation tildeBase = baseRepresentation.clone();
+			tildeBase.setExponent(edgeWitness);
+			witnessBases.add(tildeBase);
 
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
 		}
+		
+		log.log(Level.INFO, "||TildeZ Graph: " + GraphUtils.iteratedGraphToExpString(witnessBases.iterator(), proofStore));
 
 		tildem_0 = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
 
@@ -266,6 +278,8 @@ public class PossessionProver implements IProver {
 		//		gslog.info("tildee bitlength: " + tildee.bitLength());
 		//		gslog.info("c bitlength: " + c.bitLength());
 
+		log.log(Level.INFO, "||hatZ Graph: " + GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
+		
 		hate = tildee.add(this.c.multiply(ePrime));
 		hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
 		hatm_0 = tildem_0.add(this.c.multiply(m_0));
@@ -324,7 +338,7 @@ public class PossessionProver implements IProver {
 
 		// Iterate over the graph components as recorded by the PossessionProver
 		Iterator<BaseRepresentation> graphResponseIterator = graphResponses.iterator();
-		log.log(Level.INFO, "Graph considered: " + GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
+		log.log(Level.INFO, "||Self-Verify Graph: " + GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
 		while (graphResponseIterator.hasNext()) {
 			BaseRepresentation baseRepresentation = (BaseRepresentation) graphResponseIterator.next();
 			verifier =
