@@ -1,29 +1,26 @@
 package eu.prismacloud.primitives.zkpgs;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
-import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.orchestrator.GroupSetupProverOrchestrator;
+import eu.prismacloud.primitives.zkpgs.orchestrator.GroupSetupVerifierOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.GroupSetupProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.verifier.GroupSetupVerifier;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -31,123 +28,147 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 /** Group Setup integration testing using a 2048 modulus length with a persisted SignerKeyPair. */
 @TestInstance(Lifecycle.PER_CLASS)
 public class GroupSetupIT {
-	private Logger log = GSLoggerConfiguration.getGSlog();
-	private KeyGenParameters keyGenParameters;
-	private GraphEncodingParameters graphEncodingParameters;
-	private ExtendedKeyPair extendedKeyPair;
-	private SignerKeyPair gsk;
-	private GroupSetupProver groupSetupProver;
-	private ProofStore<Object> proofStore;
+  private Logger log = GSLoggerConfiguration.getGSlog();
+  private KeyGenParameters keyGenParameters;
+  private GraphEncodingParameters graphEncodingParameters;
+  private ExtendedKeyPair extendedKeyPair;
+  private SignerKeyPair gsk;
+  private GroupSetupProver groupSetupProver;
+  private ProofStore<Object> proofStore;
+  private GroupSetupProverOrchestrator gpsOrchestrator;
+  private BigInteger cChallenge;
+  private ProofSignature proofSig;
 
-	@BeforeAll
-	void setupKey() throws IOException, ClassNotFoundException {
-		BaseTest baseTest = new BaseTest();
-		baseTest.setup();
-		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
-		gsk = baseTest.getSignerKeyPair();
-		graphEncodingParameters = baseTest.getGraphEncodingParameters();
-		keyGenParameters = baseTest.getKeyGenParameters();
-	}
+  @BeforeAll
+  void setupKey() throws IOException, ClassNotFoundException, EncodingException {
+    BaseTest baseTest = new BaseTest();
+    baseTest.setup();
+    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+    gsk = baseTest.getSignerKeyPair();
+    graphEncodingParameters = baseTest.getGraphEncodingParameters();
+    keyGenParameters = baseTest.getKeyGenParameters();
+    extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
+    extendedKeyPair.generateBases();
+    extendedKeyPair.setupEncoding();
+    extendedKeyPair.createExtendedKeyPair();
+  }
 
-	private int computeBitLength() {
-		return keyGenParameters.getL_n()
-				+ keyGenParameters.getL_statzk()
-				+ keyGenParameters.getL_H()
-				+ 1;
-	}
+  @Test
+  @DisplayName("Test group setup proving proccess should output a proof signature")
+  void testGroupSetupProverOrchestrator() {
+    ProofStore proofStore = new ProofStore<Object>();
+    int bitLength =
+        keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
+    BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
+    BigInteger min = max.negate();
 
-	@Test
-	void testGroupSetup()
-			throws ProofStoreException, NoSuchAlgorithmException, IOException, ClassNotFoundException, VerificationException, EncodingException {
-		extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
-		extendedKeyPair.generateBases();
-		extendedKeyPair.setupEncoding();
-		extendedKeyPair.createExtendedKeyPair();
-		assertNotNull(extendedKeyPair.getExtendedPublicKey());
+    gpsOrchestrator = new GroupSetupProverOrchestrator(extendedKeyPair, proofStore);
 
-		testGroupSetupProver();
+    gpsOrchestrator.executePreChallengePhase();
+    BigInteger tilder =
+        (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
-		ProofSignature proofSignature = groupSetupProver.outputProofSignature();
-		Map<URN, Object> proofElements = proofSignature.getProofSignatureElements();
-		assertNotNull(proofSignature);
-		assertNotNull(proofSignature.getProofSignatureElements());
+    BigInteger tilder_0 =
+        (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
 
-		for (Object element : proofElements.values()) {
-			assertNotNull(element);
-		}
+    BigInteger tilder_Z =
+        (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_Z");
 
-		int bitLength = computeBitLength();
+    assertNotNull(tilder);
+    assertNotNull(tilder_0);
+    assertNotNull(tilder_Z);
+    assertTrue(inRange(tilder, min, max));
+    assertTrue(inRange(tilder_0, min, max));
+    assertTrue(inRange(tilder_Z, min, max));
 
-		BigInteger phatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-		assertEquals(bitLength, phatr.bitLength() + 1);
+    cChallenge = gpsOrchestrator.computeChallenge();
+    assertNotNull(cChallenge);
+    assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
 
-		BigInteger phatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
-		assertEquals(bitLength, phatr_0.bitLength() + 1);
-		BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
-		assertEquals(bitLength, phatr_Z.bitLength() + 1);
+    gpsOrchestrator.executePostChallengePhase(cChallenge);
 
-		Map<URN, BigInteger> edgeResponses =
-				(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
-		Map<URN, BigInteger> vertexResponses =
-				(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
+    proofSig = gpsOrchestrator.createProofSignature();
 
-		for (BigInteger vertexResponse : vertexResponses.values()) {
-			assertEquals(bitLength, vertexResponse.bitLength() + 1);
-		}
+    assertNotNull(proofSig);
+    assertTrue(!proofSig.getProofSignatureElements().isEmpty());
 
-		for (BigInteger edgeResponse : edgeResponses.values()) {
-			assertEquals(bitLength, edgeResponse.bitLength() + 1);
-		}
+    BigInteger hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
+    BigInteger hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");
+    BigInteger hatr_0 = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_0");
 
-		testGroupSetupVerifier(proofSignature);
-	}
+    assertNotNull(hatr_Z);
+    assertNotNull(hatr);
+    assertNotNull(hatr_0);
 
-	private void testGroupSetupVerifier(ProofSignature proofSignature)
-			throws NoSuchAlgorithmException, VerificationException {
-		// TODO needs to be updated to Orchestrator / Verifier composition.
-		GroupSetupVerifier groupSetupVerifier = new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
-		groupSetupVerifier.checkLengths();
+    assertTrue(inRange(hatr_Z, min, max));
+    assertTrue(inRange(hatr, min, max));
+    assertTrue(inRange(hatr_0, min, max));
+  }
 
+  boolean inRange(BigInteger number, BigInteger min, BigInteger max) {
+    return (number.compareTo(min) >= 0) && (number.compareTo(max) <= 0);
+  }
 
-		fail("Test not implemented yet.");
-	}
+  @Test
+  @DisplayName("Test group setup verifying process")
+  void testGroupSetupVerifierOrchestrator() {
+    ProofStore proofStore = new ProofStore<Object>();
+    int bitLength =
+        keyGenParameters.getL_n() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H();
+    BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
+    BigInteger min = max.negate();
 
-	private void testGroupSetupProver() throws NoSuchAlgorithmException, ProofStoreException {
+    // start group setup proving
+    gpsOrchestrator = new GroupSetupProverOrchestrator(extendedKeyPair, proofStore);
 
-    proofStore = new ProofStore<Object>();
-		groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
-		groupSetupProver.executeCompoundPreChallengePhase();
-		BigInteger tilder =
-				(BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
+    gpsOrchestrator.executePreChallengePhase();
+    BigInteger tilder =
+        (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
-		BigInteger tilder_0 =
-				(BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
+    BigInteger tilder_0 =
+        (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_0");
 
-		BigInteger tilder_Z =
-				(BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_Z");
+    BigInteger tilder_Z =
+        (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder_Z");
 
-		assertNotNull(tilder);
-		assertNotNull(tilder_0);
-		assertNotNull(tilder_Z);
+    assertNotNull(tilder);
+    assertNotNull(tilder_0);
+    assertNotNull(tilder_Z);
+    assertTrue(inRange(tilder, min, max));
+    assertTrue(inRange(tilder_0, min, max));
+    assertTrue(inRange(tilder_Z, min, max));
 
-		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());;
+    cChallenge = gpsOrchestrator.computeChallenge();
+    assertNotNull(cChallenge);
+    assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
 
-		assertEquals(cChallenge.bitLength(), keyGenParameters.getL_H());
+    gpsOrchestrator.executePostChallengePhase(cChallenge);
 
-		groupSetupProver.executePostChallengePhase(cChallenge);
+    proofSig = gpsOrchestrator.createProofSignature();
 
-		BigInteger hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
-		BigInteger hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");
-		BigInteger hatr_0 = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_0");
+    assertNotNull(proofSig);
+    assertTrue(!proofSig.getProofSignatureElements().isEmpty());
 
-		assertNotNull(hatr_Z);
-		assertNotNull(hatr);
-		assertNotNull(hatr_0);
+    BigInteger hatr_Z = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_Z");
+    BigInteger hatr = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr");
+    BigInteger hatr_0 = (BigInteger) proofStore.retrieve("groupsetupprover.responses.hatr_0");
 
-		int bitLength = computeBitLength();
+    assertNotNull(hatr_Z);
+    assertNotNull(hatr);
+    assertNotNull(hatr_0);
 
-		assertEquals(bitLength, hatr_Z.bitLength() + 1);
-		assertEquals(bitLength, hatr.bitLength() + 1);
-		assertEquals(bitLength, hatr_0.bitLength() + 1);
-	}
+    assertTrue(inRange(hatr_Z, min, max));
+    assertTrue(inRange(hatr, min, max));
+    assertTrue(inRange(hatr_0, min, max));
+
+    // start group setup verifying
+
+    ProofStore<Object> vproofStore = new ProofStore<Object>();
+
+    GroupSetupVerifierOrchestrator groupSetupVerifierOrchestrator =
+        new GroupSetupVerifierOrchestrator(
+            proofSig, extendedKeyPair.getExtendedPublicKey(), vproofStore);
+    boolean isVerified = groupSetupVerifierOrchestrator.executeVerification(cChallenge);
+    assertTrue(isVerified);
+  }
 }
