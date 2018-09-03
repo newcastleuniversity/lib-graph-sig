@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -14,11 +13,8 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,33 +43,15 @@ class GeoLocationGraphEncodingTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
 
-    BaseRepresentation base =
-        new BaseRepresentation(
-            new QRElement(new QRGroupN(BigInteger.valueOf(4)), new BigInteger("2")),
-            1,
-            BASE.VERTEX);
-
-    bases = new HashMap<URN, BaseRepresentation>();
-
-    bases.put(URN.createZkpgsURN("test.base"), base);
-
-    vertexRepresentative = BigInteger.valueOf(13);
-
-    vertexRepresentatives = new HashMap<URN, BigInteger>();
-    vertexRepresentatives.put(
-        URN.createZkpgsURN("test.vertex.representative"), vertexRepresentative);
-
     graphEncoding =
-        new GeoLocationGraphEncoding(
-            vertexRepresentatives, signerPublicKey, keyGenParameters, graphEncodingParameters);
+        new GeoLocationGraphEncoding(signerPublicKey, keyGenParameters, graphEncodingParameters);
   }
 
   @Test
   @DisplayName("Test creating geolocation graph encoding")
   void testCreatingGraphEncoding() {
     GeoLocationGraphEncoding graphEncoding =
-        new GeoLocationGraphEncoding(
-            vertexRepresentatives, signerPublicKey, keyGenParameters, graphEncodingParameters);
+        new GeoLocationGraphEncoding(signerPublicKey, keyGenParameters, graphEncodingParameters);
 
     assertNotNull(graphEncoding);
   }
@@ -91,7 +69,7 @@ class GeoLocationGraphEncodingTest {
   }
 
   @Test
-  @DisplayName("Test geolocation graph encoding returns vertex representative")
+  @DisplayName("Test geolocation graph encoding returns vertex prime representative")
   void testReturnVertexRepresentative() throws EncodingException {
     graphEncoding.setupEncoding();
     assertNotNull(graphEncoding.getVertexRepresentatives());
@@ -99,29 +77,32 @@ class GeoLocationGraphEncodingTest {
 
     Map<URN, BigInteger> testVertexRepresentatives = graphEncoding.getVertexRepresentatives();
     BigInteger testVertexRepresentative =
-        testVertexRepresentatives.get(URN.createZkpgsURN("test.vertex.representative"));
+        testVertexRepresentatives.get(URN.createZkpgsURN("vertex.representative.e_i_0"));
     assertNotNull(testVertexRepresentative);
-    assertEquals(vertexRepresentative, testVertexRepresentative);
+    assertTrue(testVertexRepresentative.isProbablePrime(80));
   }
 
   @Test
-  @DisplayName("Test geolocation graph encoding returns corresponding country label representative")
+  @DisplayName(
+      "Test geolocation graph encoding returns corresponding country label prime representative")
   void testReturnLabelRepresentative() throws EncodingException {
     graphEncoding.setupEncoding();
     assertNotNull(graphEncoding.getLabelRepresentatives());
     assertTrue(!graphEncoding.getLabelRepresentatives().isEmpty());
 
     Map<URN, BigInteger> testLabelRepresentatives = graphEncoding.getLabelRepresentatives();
-    
+
     // country Andorra
     BigInteger testLabelRepresentative = testLabelRepresentatives.get(URN.createZkpgsURN("AD"));
     assertNotNull(testLabelRepresentative);
     assertEquals(BigInteger.valueOf(2), testLabelRepresentative);
+    assertTrue(testLabelRepresentative.isProbablePrime(80));
 
     // country Wallis and Futuna
     testLabelRepresentative = testLabelRepresentatives.get(URN.createZkpgsURN("WF"));
     assertNotNull(testLabelRepresentative);
     assertEquals(BigInteger.valueOf(1543), testLabelRepresentative);
+    assertTrue(testLabelRepresentative.isProbablePrime(80));
   }
 
   @Test
@@ -131,6 +112,10 @@ class GeoLocationGraphEncodingTest {
     Map<URN, BigInteger> vertexPrimeRepresentatives = graphEncoding.getVertexRepresentatives();
     assertNotNull(vertexPrimeRepresentatives);
     assertTrue(vertexPrimeRepresentatives.size() > 0);
+
+    for (BigInteger vertexPrimeRepresentative : vertexPrimeRepresentatives.values()) {
+      assertTrue(vertexPrimeRepresentative.isProbablePrime(80));
+    }
   }
 
   @Test
@@ -143,5 +128,9 @@ class GeoLocationGraphEncodingTest {
     assertTrue(!testLabelRepresentatives.isEmpty());
     int numberOfCountries = 249;
     assertEquals(numberOfCountries, testLabelRepresentatives.size());
+
+    for (BigInteger labelPrimeRepresentative : testLabelRepresentatives.values()) {
+      assertTrue(labelPrimeRepresentative.isProbablePrime(80));
+    }
   }
 }
