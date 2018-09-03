@@ -25,8 +25,9 @@ GSVertex extends eu.prismacloud.primitives.zkpgs.graph.GSVertex,
 GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
 	private static Logger gslog = GSLoggerConfiguration.getGSlog();
 	private static GraphMLProvider graphMLProvider;
-	private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-	private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
+	// TODO Ioannis, please do not hardcode constants like that in general-purpose classes.
+//	private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
+//	private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
 	Graph<
 	eu.prismacloud.primitives.zkpgs.graph.GSVertex,
 	eu.prismacloud.primitives.zkpgs.graph.GSEdge>
