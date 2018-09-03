@@ -2,7 +2,12 @@ package eu.prismacloud.primitives.zkpgs.parameters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.util.URN;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.util.Map;
 import javax.json.JsonArray;
 import javax.json.JsonReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,20 +25,18 @@ class JsonIsoCountriesTest {
 
   @Test
   void parseParamFile() {
-    reader = jsonIsoCountries.parseParamFile();
-    assertNotNull(reader);
+    InputStream encodingStream = jsonIsoCountries.parseEncodingFile();
+    assertNotNull(encodingStream);
   }
 
   @Test
-  void build() {
-    reader = jsonIsoCountries.parseParamFile();
-    jsonArray = reader.readArray();
-    assertNotNull(jsonArray);
+  void getCountryMap() {
+    Map<URN, BigInteger> countryMap = jsonIsoCountries
+        .getCountryMap();
+    assertNotNull(countryMap);
+    assertTrue(!countryMap.isEmpty());
+
   }
 
-  @Test
-  void getIndex() {
-    int index = jsonIsoCountries.getIndex("GB");
-    assertEquals(76, index);
-  }
+
 }
