@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class GraphEncodingTest {
+class GeoLocationGraphEncodingTest {
   private KeyGenParameters keygenParams;
   private Map<URN, BaseRepresentation> bases;
   private BigInteger vertexRepresentative;
