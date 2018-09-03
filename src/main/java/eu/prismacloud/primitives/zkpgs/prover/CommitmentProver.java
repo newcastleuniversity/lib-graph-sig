@@ -79,24 +79,24 @@ public class CommitmentProver implements IProver {
    */
   @Override
   public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
-	  Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>(1);
-	  GroupElement witness = executePreChallengePhase();
-	  if (proofStage == STAGE.ISSUING) {
-		  String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-	      witnesses.put(URN.createZkpgsURN(tildeUURN), witness);
-	  } else {
-		  String tildeC_iURN = URNType.buildURNComponent(URNType.TILDECI, CommitmentProver.class);
-		  witnesses.put(URN.createZkpgsURN(tildeC_iURN), witness);
-	  }
-	  return witnesses;
+    Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>(1);
+    GroupElement witness = executePreChallengePhase();
+    if (proofStage == STAGE.ISSUING) {
+      String tildeUURN = getProverURN(URNType.TILDEU);
+      witnesses.put(URN.createZkpgsURN(tildeUURN), witness);
+    } else {
+      String tildeC_iURN = getProverURN(URNType.TILDECI, index);
+      witnesses.put(URN.createZkpgsURN(tildeC_iURN), witness);
+    }
+    return witnesses;
   }
-  
-  public GroupElement executePreChallengePhase() throws ProofStoreException {
-	  this.baseS = signerPublicKey.getBaseS();
-	    this.proofStage = STAGE.PROVING;
 
-	    createWitnessRandomness();
-	    return computeWitness();
+  public GroupElement executePreChallengePhase() throws ProofStoreException {
+    this.baseS = signerPublicKey.getBaseS();
+    this.proofStage = STAGE.PROVING;
+
+    createWitnessRandomness();
+    return computeWitness();
   }
 
   public enum STAGE {
@@ -128,21 +128,19 @@ public class CommitmentProver implements IProver {
             + keyGenParameters.getL_H();
 
     tildevPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(tildevPrimeBitLength);
-    String tildevPrimeURN =
-        URNType.buildURNComponent(URNType.TILDEVPRIME, PossessionProver.class, index);
+    String tildevPrimeURN = getProverURN(URNType.TILDEVPRIME, index);
     proofStore.store(tildevPrimeURN, tildevPrime);
 
     int mBitLength =
         keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
 
     tildem_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
-    String tildem_0URN = URNType.buildURNComponent(URNType.TILDEM0, CommitmentProver.class, index);
+    String tildem_0URN = getProverURN(URNType.TILDEM0, index);
     proofStore.store(tildem_0URN, tildem_0);
 
     Map<URN, BigInteger> vertexWitnessRandomness = new HashMap<URN, BigInteger>();
-    String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, CommitmentProver.class, index);
-    String tildem_i_jURN =
-        URNType.buildURNComponent(URNType.TILDEMIJ, CommitmentProver.class, index);
+    String tildem_iURN = getProverURN(URNType.TILDEMI, index);
+    String tildem_i_jURN = getProverURN(URNType.TILDEMIJ, index);
 
     if (baseCollection.size() > 1) {
       for (BaseRepresentation baseRepresentation : vertexIterator) {
@@ -166,7 +164,7 @@ public class CommitmentProver implements IProver {
 
     tilder_i = CryptoUtilsFacade.computeRandomNumber(tilder_iLength);
 
-    tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, index);
+    tilder_iURN = getProverURN(URNType.TILDERI, index);
 
     try {
       proofStore.store(tilder_iURN, tilder_i);
@@ -174,7 +172,6 @@ public class CommitmentProver implements IProver {
       gslog.log(Level.SEVERE, e.getMessage());
     }
   }
-
 
   public GroupElement computeWitness() {
     Map<URN, GroupElement> baseMap = new HashMap<>();
@@ -204,11 +201,11 @@ public class CommitmentProver implements IProver {
       GroupElement sMulti = baseS.modPow(tildevPrime);
       GroupElement tildeU = sMulti.multiply(R_0.modPow(tildem_0));
 
-//      String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-//      witnesses.put(URN.createZkpgsURN(tildeUURN), tildeU);
-//
-//      gslog.info("witness U: " + tildeU);
-      
+      //      String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+      //      witnesses.put(URN.createZkpgsURN(tildeUURN), tildeU);
+      //
+      //      gslog.info("witness U: " + tildeU);
+
       return tildeU;
     } else {
 
@@ -218,8 +215,7 @@ public class CommitmentProver implements IProver {
       //      Map<URN, BigInteger> witnesses = (Map<URN, BigInteger>)
       // proofStore.retrieve(tildem_iURN);
 
-      String tildem_iURN =
-          URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, index);
+     String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, index);
       tildem_i = (BigInteger) proofStore.retrieve(tildem_iURN);
       GroupElement baseR = signerPublicKey.getBaseR();
       GroupElement tildeC_i = baseR.modPow(tildem_i).multiply(baseS.modPow(tilder_i));
@@ -228,10 +224,10 @@ public class CommitmentProver implements IProver {
       //      exponentsMap.put(
       //          URN.createZkpgsURN("commitment.exponent.m_" + vertex.getBaseIndex()), tildem_i);
 
-
-//      witnesses = new HashMap<URN, GroupElement>();
-//      String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-//      witnesses.put(URN.createZkpgsURN(tildeC_iURN), tildeC_i);
+      //      witnesses = new HashMap<URN, GroupElement>();
+      //      String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU,
+      // CommitmentProver.class);
+      //      witnesses.put(URN.createZkpgsURN(tildeC_iURN), tildeC_i);
       return tildeC_i;
     }
   }
@@ -324,8 +320,7 @@ public class CommitmentProver implements IProver {
    * @throws Exception the exception
    */
   public Map<URN, BigInteger> computeResponsesProving() throws Exception {
-    String tilder_iURN =
-        URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, this.index);
+    String tilder_iURN = getProverURN(URNType.TILDERI, index);
     tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
     String C_iURN = "prover.commitments.C_" + this.index;
@@ -336,12 +331,28 @@ public class CommitmentProver implements IProver {
 
     BigInteger hatr_i = tilder_i.add(this.cChallenge.multiply(r_i));
 
-    String hatr_iURN = URNType.buildURNComponent(URNType.HATRI, CommitmentProver.class, this.index);
+    String hatr_iURN = getProverURN(URNType.HATRI, index);
 
     responses.put(URN.createZkpgsURN(hatr_iURN), hatr_i);
     gslog.info("store hatr_i " + hatr_i);
     proofStore.store(hatr_iURN, hatr_i);
     return responses;
+  }
+
+  public String getProverURN(URNType t) {
+    if (URNType.isEnumerable(t)) {
+      throw new RuntimeException(
+          "URNType " + t + " is enumerable and should be evaluated with an index.");
+    }
+    return CommitmentProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+  }
+
+  public String getProverURN(URNType t, int index) {
+    if (!URNType.isEnumerable(t)) {
+      throw new RuntimeException(
+          "URNType " + t + " is not enumerable and should not be evaluated with an index.");
+    }
+    return CommitmentProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
   }
 
   @Override
