@@ -21,10 +21,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class GeoLocationGraphEncodingTest {
-  private KeyGenParameters keygenParams;
-  private Map<URN, BaseRepresentation> bases;
-  private BigInteger vertexRepresentative;
-  private Map<URN, BigInteger> vertexRepresentatives;
   private SignerKeyPair gsk;
   private SignerPublicKey signerPublicKey;
   private GraphEncodingParameters graphEncodingParameters;
