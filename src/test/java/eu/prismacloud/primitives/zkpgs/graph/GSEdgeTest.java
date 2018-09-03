@@ -40,7 +40,7 @@ class GSEdgeTest {
   @Test
   void getLabelRepresentatives() {
     gsEdge = new GSEdge(e_i, e_j);
-    List<BigInteger> labelRepresentatives = new ArrayList<>();
+    ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(6113));
     gsEdge.setLabelRepresentatives(labelRepresentatives);
     assertNotNull(gsEdge.getLabelRepresentatives());
@@ -50,7 +50,7 @@ class GSEdgeTest {
   @Test
   void setLabelRepresentatives() {
     gsEdge = new GSEdge(e_i, e_j);
-    List<BigInteger> labelRepresentatives = new ArrayList<>();
+    ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(7243));
     gsEdge.setLabelRepresentatives(labelRepresentatives);
     assertNotNull(gsEdge.getLabelRepresentatives());
@@ -60,7 +60,7 @@ class GSEdgeTest {
   @Test
   void getLabels() {
     gsEdge = new GSEdge(e_i, e_j);
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     labels.add("UK");
     gsEdge.setLabels(labels);
     assertNotNull(gsEdge.getLabels());

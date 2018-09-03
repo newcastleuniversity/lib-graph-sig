@@ -18,29 +18,24 @@ class GSGraphTest {
 
   @Test
   void createGraph() throws ImportException {
-    Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
-    GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
-
-    g = graph.createGraph(SIGNER_GRAPH_FILE);
-    assertNotNull(g);
+    GSGraph<GSVertex, GSEdge> gsgraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+    assertNotNull(gsgraph);
+    assertNotNull(gsgraph.getGraph());
   }
 
   @Test
   void encodeGraph() throws ImportException {
-    Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-
     GraphEncodingParameters graphEncodingParameters =
         new GraphEncodingParameters(1000, 120, 50000, 256, 16);
 
-    GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
+    GSGraph<GSVertex, GSEdge> gsgraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+    assertNotNull(gsgraph);
+    assertNotNull(gsgraph.getGraph());
 
-    g = graph.createGraph(SIGNER_GRAPH_FILE);
-    assertNotNull(g);
-
-    graph.encodeRandomGeoLocationGraph(graphEncodingParameters);
-    Set<GSEdge> edges = g.edgeSet();
-    Set<GSVertex> vertices = g.vertexSet();
+    gsgraph.encodeRandomGeoLocationGraph(graphEncodingParameters);
+    Set<GSEdge> edges = gsgraph.getGraph().edgeSet();
+    Set<GSVertex> vertices = gsgraph.getGraph().vertexSet();
 
     assertFalse(edges.isEmpty());
     assertFalse(vertices.isEmpty());

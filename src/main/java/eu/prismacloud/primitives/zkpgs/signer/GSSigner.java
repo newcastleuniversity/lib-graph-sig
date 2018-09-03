@@ -50,12 +50,7 @@ public class GSSigner { // implements ISigner {
    * @throws ImportException the import exception
    */
   public GSGraph<GSVertex, GSEdge> initGraph() throws ImportException {
-    Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-
-    GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
-
-    g = graph.createGraph(SIGNER_GRAPH_FILE);
-    GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
+    GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
     return gsGraph;
   }
 

@@ -38,7 +38,7 @@ public class GraphMLProvider {
   public static GraphMLImporter<GSVertex, GSEdge> createImporter() {
     VertexProvider<GSVertex> vertexProvider =
         (id, attributes) -> {
-          List<String> labels = new ArrayList<String>();
+          ArrayList<String> labels = new ArrayList<String>();
           GSVertex gv = new GSVertex(id, labels);
           if (attributes.containsKey("Country")) {
             String label = attributes.get("Country").getValue();
@@ -51,7 +51,7 @@ public class GraphMLProvider {
     EdgeProvider<GSVertex, GSEdge> edgeProvider =
         (from, to, label, attributes) -> {
           GSEdge ge = new GSEdge(from, to);
-          List<String> labels = new ArrayList<String>();
+          ArrayList<String> labels = new ArrayList<String>();
           if (!EMPTY_LABEL.equals(label)) {
             if (attributes.containsKey("Country")) {
               label = attributes.get("Country").getValue();

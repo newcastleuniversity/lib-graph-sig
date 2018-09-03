@@ -200,11 +200,9 @@ public class RecipientOrchestrator {
 		GraphRepresentation graphRepresentation = new GraphRepresentation(extendedPublicKey);
 		Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
-		GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
-		g = graph.createGraph(RECIPIENT_GRAPH_FILE);
-		graph.encodeRandomGeoLocationGraph(this.graphEncodingParameters);
+		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(RECIPIENT_GRAPH_FILE);
+		gsGraph.encodeRandomGeoLocationGraph(this.graphEncodingParameters);
 		GraphMLProvider.createImporter();
-		GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 
 		if (!gsGraph.getGraph().vertexSet().isEmpty()) {
 			graphRepresentation.encode(gsGraph);

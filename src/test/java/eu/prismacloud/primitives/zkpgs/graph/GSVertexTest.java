@@ -25,17 +25,15 @@ class GSVertexTest {
 
   @BeforeEach
   void setUp() throws ImportException {
-    Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-
     GraphEncodingParameters graphEncodingParameters =
         new GraphEncodingParameters(1000, 120, 50000, 256, 16);
 
-    GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
+    GSGraph<GSVertex, GSEdge> gsgraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+    assertNotNull(gsgraph);
+    assertNotNull(gsgraph.getGraph());
 
-    g = graph.createGraph(SIGNER_GRAPH_FILE);
-
-    graph.encodeRandomGeoLocationGraph(graphEncodingParameters);
-    vertices = g.vertexSet();
+    gsgraph.encodeRandomGeoLocationGraph(graphEncodingParameters);
+    vertices = gsgraph.getGraph().vertexSet();
   }
 
   @Test
@@ -48,7 +46,7 @@ class GSVertexTest {
 
   @Test
   void setLabels() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
     labels.add("UK");
     vertex.setLabels(labels);
@@ -59,7 +57,7 @@ class GSVertexTest {
 
   @Test
   void getId() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
 
     assertNotNull(vertex.getId());
@@ -68,7 +66,7 @@ class GSVertexTest {
 
   @Test
   void setId() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
 
     assertNotNull(vertex.getId());
@@ -78,9 +76,9 @@ class GSVertexTest {
 
   @Test
   void getLabelPrimeRepresentatives() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
-    List<BigInteger> labelRepresentatives = new ArrayList<>();
+    ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(1259));
     vertex.setLabelRepresentatives(labelRepresentatives);
     assertNotNull(vertex.getLabelPrimeRepresentatives());
@@ -89,9 +87,9 @@ class GSVertexTest {
 
   @Test
   void setLabelPrimeRepresentatives() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
-    List<BigInteger> labelRepresentatives = new ArrayList<>();
+    ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(2389));
     vertex.setLabelRepresentatives(labelRepresentatives);
     assertNotNull(vertex.getLabelPrimeRepresentatives());
@@ -100,7 +98,7 @@ class GSVertexTest {
 
   @Test
   void getVertexPrimeRepresentative() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
     vertex.setVertexRepresentative(BigInteger.valueOf(3061));
     assertNotNull(vertex.getVertexRepresentative());
@@ -109,7 +107,7 @@ class GSVertexTest {
 
   @Test
   void setVertexPrimeRepresentative() {
-    List<String> labels = new ArrayList<>();
+    ArrayList<String> labels = new ArrayList<>();
     GSVertex vertex = new GSVertex("1", labels);
     vertex.setVertexRepresentative(BigInteger.valueOf(5351));
     assertNotNull(vertex.getVertexRepresentative());

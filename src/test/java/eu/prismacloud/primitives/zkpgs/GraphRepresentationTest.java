@@ -30,9 +30,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 class GraphRepresentationTest {
   private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-  Graph<GSVertex, GSEdge> graph;
-
-  Graph<GSVertex, GSEdge> graphi;
+  
+//  Graph<GSVertex, GSEdge> graphi;
   GraphEncodingParameters graphEncodingParameters;
   ExtendedPublicKey extendedPublicKey;
   GSGraph<GSVertex, GSEdge> gsGraph;
@@ -58,13 +57,12 @@ class GraphRepresentationTest {
 
   @BeforeEach
   void setUp() throws ImportException {
-    File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
-    graph = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-    GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
-    importer.importGraph(graph, file);
+//    File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
+//    graph = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
+//    GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
+//    importer.importGraph(graph, file);
     graphEncodingParameters = new GraphEncodingParameters(100, 120, 500, 256, 16);
-    gsGraph = new GSGraph<>(graph);
-    graphi = gsGraph.createGraph(SIGNER_GRAPH_FILE);
+    gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
   }
 
   @Test

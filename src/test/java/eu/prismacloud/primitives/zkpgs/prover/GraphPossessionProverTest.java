@@ -441,13 +441,11 @@ class GraphPossessionProverTest {
 	private void createGraphExample() throws ImportException {
 		// TODO The graph encoding does only produce an empty collection.
 		GraphRepresentation graphRepresentation = new GraphRepresentation(epk);
-		Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
-		GSGraph<GSVertex, GSEdge> graph = new GSGraph<GSVertex, GSEdge>(g);
-		g = graph.createGraph(SIGNER_GRAPH_FILE);
-		graph.encodeRandomGeoLocationGraph(this.graphEncodingParameters); // TODO: Double computation
-		GraphMLProvider.createImporter();
-		GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
+		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+		gsGraph.encodeRandomGeoLocationGraph(this.graphEncodingParameters); // TODO: Double computation
+//		GraphMLProvider.createImporter();
+//		GSGraph<GSVertex, GSEdge> gsGraph = new GSGraph<>(g);
 
 		if (!gsGraph.getGraph().vertexSet().isEmpty()) {
 			graphRepresentation.encode(gsGraph);

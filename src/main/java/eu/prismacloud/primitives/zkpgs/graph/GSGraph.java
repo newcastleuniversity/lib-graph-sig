@@ -5,65 +5,66 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.File;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
-import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.io.GraphMLImporter;
 import org.jgrapht.io.ImportException;
 
-public class GSGraph<
-GSVertex extends eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
-	private static Logger gslog = GSLoggerConfiguration.getGSlog();
-	private static GraphMLProvider graphMLProvider;
-	// TODO Ioannis, please do not hardcode constants like that in general-purpose classes.
-//	private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-//	private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
-	Graph<
-	eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-	eu.prismacloud.primitives.zkpgs.graph.GSEdge>
-	graph;
-
-	private SimpleGraph<GSVertex, GSEdge> g;
-	private GraphMLImporter<GSVertex, GSEdge> importer;
+/**
+ * Encapsulates a graph of the graph signature scheme.
+ * 
+ * <p>The method factory method createGraph(String filename) is used to instantiate such a
+ * graph from a serialized graphml representation.
+ *
+ * @param <V> vertex type, required to be a subclass of GSVertex
+ * @param <E> edge type, required to be a subclass of GSEdge
+ */
+public class GSGraph<V extends eu.prismacloud.primitives.zkpgs.graph.GSVertex,
+E extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> implements Serializable, Cloneable {
+	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3556647651640740630L;
+	
+	private DefaultUndirectedGraph<V,E> graph;
 
 	/**
 	 * Creates a new GSGraph with the corresponding vertices and edges after parsing a graphml file.
 	 *
 	 * @param graph the graph
 	 */
-	public GSGraph(
-			Graph<
-			eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-			eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+	GSGraph(
+			DefaultUndirectedGraph<V,E>
 			graph) {
+		super();
 		this.graph = graph;
 	}
 
 	/**
-	 * Creates a graph structure with a number of vertices and edges after importing the graphml file.
+	 * Factory method that creates a graph structure with a number of vertices and edges after importing the graphml file.
 	 *
 	 * @param graphFile the graph file
-	 * @return the graph
+	 * @return GSGraph encapsulating a jgrapht graph
 	 * @throws ImportException the import exception
 	 */
-	public Graph<GSVertex, GSEdge> createGraph(String graphFile) throws ImportException {
-		graph = new DefaultUndirectedGraph<>(eu.prismacloud.primitives.zkpgs.graph.GSEdge.class);
+	public static GSGraph<GSVertex, GSEdge> createGraph(final String graphFile) throws ImportException {
+		DefaultUndirectedGraph<GSVertex, GSEdge> graph = 
+				new DefaultUndirectedGraph<>(GSEdge.class);
 
-		importer = (GraphMLImporter<GSVertex, GSEdge>) GraphMLProvider.createImporter();
+		GraphMLImporter<GSVertex, GSEdge> importer = (GraphMLImporter<GSVertex, GSEdge>) GraphMLProvider.createImporter();
 		File file = GraphMLProvider.getGraphMLFile(graphFile);
 		importer.importGraph((Graph<GSVertex, GSEdge>) graph, file);
 
-		return (Graph<GSVertex, GSEdge>) graph;
+		return new GSGraph<GSVertex, GSEdge>(graph);
 	}
 
 	/**
@@ -84,17 +85,18 @@ GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
 	 * @param graphEncodingParameters the graph encoding parameters
 	 * @deprecated
 	 */
+	@Deprecated
 	public void encodeRandomGeoLocationGraph(GraphEncodingParameters graphEncodingParameters) {
 		JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
 		BigInteger vertexPrimeRepresentative;
 		BigInteger labelPrimeRepresentative;
 
-		Set<eu.prismacloud.primitives.zkpgs.graph.GSVertex> vertexSet = this.graph.vertexSet();
-		List<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
-		List<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
+		Set<V> vertexSet = this.graph.vertexSet();
+		ArrayList<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
+		ArrayList<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
 		Map<URN, BigInteger> countryMap = jsonIsoCountries
 				.getCountryMap();
-		for (eu.prismacloud.primitives.zkpgs.graph.GSVertex vertex : vertexSet) {
+		for (V vertex : vertexSet) {
 			vertexLabelRepresentatives = new ArrayList<>();
 
 			if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
@@ -112,7 +114,7 @@ GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
 			vertex.setLabelRepresentatives(vertexLabelRepresentatives);
 		}
 
-		Set<eu.prismacloud.primitives.zkpgs.graph.GSEdge> edgeSet = graph.edgeSet();
+		Set<E> edgeSet = graph.edgeSet();
 
 		// TODO does not seem to establish edge encoding (product of the two vertices).
 		for (eu.prismacloud.primitives.zkpgs.graph.GSEdge edge : edgeSet) {
@@ -135,10 +137,26 @@ GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
 	 *
 	 * @return the graph
 	 */
-	public Graph<
-	eu.prismacloud.primitives.zkpgs.graph.GSVertex,
-	eu.prismacloud.primitives.zkpgs.graph.GSEdge>
+	public Graph<V,E>
 	getGraph() {
 		return graph;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public GSGraph<V, E> clone() {
+		GSGraph<V, E> theClone = null;
+
+		try {
+			theClone = (GSGraph<V, E>) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen
+			throw new InternalError(e);
+		}
+
+		// Cloning mutable members
+		theClone.graph = (DefaultUndirectedGraph<V, E>) graph.clone();
+
+		return theClone;
 	}
 }

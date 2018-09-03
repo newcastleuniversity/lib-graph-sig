@@ -190,11 +190,10 @@ private List<String> contextList;
 
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
 
-    graph = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-    GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
-    importer.importGraph(graph, file);
-    gsGraph = new GSGraph<>(graph);
-    graph = gsGraph.createGraph(SIGNER_GRAPH_FILE);
+//    graph = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
+//    GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
+//    importer.importGraph(graph, file);
+    gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
 
     graphRepresentation.encode(
         gsGraph);
