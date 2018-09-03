@@ -132,12 +132,6 @@ public class PairWiseDifferenceVerifier implements IVerifier {
 				&& CryptoUtilsFacade.isInPMRange(hatr_BariBarj, l_hatr);
 	}
 
-	@Override
-	public boolean isSetupComplete() {
-		// Can only be instantiated with complete setup
-		return true;
-	}
-
 	public String getVerifierURN(URNType t) {
 		if (URNType.isEnumerable(t)) {
 			throw new RuntimeException(

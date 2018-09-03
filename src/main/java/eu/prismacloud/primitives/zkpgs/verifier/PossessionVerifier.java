@@ -114,12 +114,6 @@ public class PossessionVerifier implements IVerifier {
 	}
 
 	@Override
-	public boolean isSetupComplete() {
-		// Only instantiable with complete setup
-		return true;
-	}
-
-	@Override
 	public List<URN> getGovernedURNs() {
 		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
 	}

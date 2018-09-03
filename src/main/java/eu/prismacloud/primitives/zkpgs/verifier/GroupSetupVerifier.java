@@ -175,12 +175,6 @@ public class GroupSetupVerifier implements IVerifier {
 		return hatZ;
 	}
 
-	@Override
-	public boolean isSetupComplete() {
-		// Class cannot be instantiated without complete setup;
-		return true;
-	}
-
 	public String getVerifierURN(URNType t) {
 		if (URNType.isEnumerable(t)) {
 			throw new RuntimeException(

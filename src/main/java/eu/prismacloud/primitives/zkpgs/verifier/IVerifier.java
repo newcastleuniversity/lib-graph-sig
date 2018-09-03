@@ -50,14 +50,6 @@ public interface IVerifier {
 	boolean checkLengths();
 	
 	/**
-	 * Verifies if the component verifier is setup consistently to commence the 
-	 * verification on challenge and responses.
-	 * 
-	 * @return
-	 */
-	boolean isSetupComplete();
-	
-	/**
 	 * Returns a list of the URN identifiers of the data in the ProofStore
 	 * that this verifier governs.
 	 * 

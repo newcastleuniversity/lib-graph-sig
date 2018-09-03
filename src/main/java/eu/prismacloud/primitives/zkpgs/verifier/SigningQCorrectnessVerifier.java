@@ -100,12 +100,6 @@ public class SigningQCorrectnessVerifier implements IVerifier {
 	}
 
 	@Override
-	public boolean isSetupComplete() {
-		// Always initialized by constructor.
-		return true;
-	}
-
-	@Override
 	public List<URN> getGovernedURNs() {
 		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
 	}
