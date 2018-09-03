@@ -6,10 +6,12 @@ import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.jgrapht.Graph;
@@ -89,13 +91,14 @@ GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
 		Set<eu.prismacloud.primitives.zkpgs.graph.GSVertex> vertexSet = this.graph.vertexSet();
 		List<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
 		List<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
-
+		Map<URN, BigInteger> countryMap = jsonIsoCountries
+				.getCountryMap();
 		for (eu.prismacloud.primitives.zkpgs.graph.GSVertex vertex : vertexSet) {
 			vertexLabelRepresentatives = new ArrayList<>();
 
 			if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
 				for (String label : vertex.getLabels()) {
-					labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
+					labelPrimeRepresentative = countryMap.get(URN.createZkpgsURN(label));
 					Assert.notNull(labelPrimeRepresentative, "JsonIsoCountries returned null as a vertex label.");
 					vertexLabelRepresentatives.add(labelPrimeRepresentative);
 				}
@@ -115,7 +118,7 @@ GSEdge extends eu.prismacloud.primitives.zkpgs.graph.GSEdge> {
 
 			if ((edge.getLabels() != null) && (!edge.getLabels().isEmpty())) {
 				for (String label : edge.getLabels()) {
-					labelPrimeRepresentative = jsonIsoCountries.getCountryPrime(label);
+					labelPrimeRepresentative = countryMap.get(URN.createZkpgsURN(label));
 					Assert.notNull(labelPrimeRepresentative, "JsonIsoCountries returned null as a edge label.");
 					edgeLabelRepresentatives.add(labelPrimeRepresentative);
 				}
