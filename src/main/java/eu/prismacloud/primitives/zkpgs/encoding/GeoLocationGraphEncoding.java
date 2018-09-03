@@ -57,8 +57,6 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 	/**
 	 * Instantiates a new Graph encoding.
 	 *
-	 * @param bases the bases
-	 * @param vertexPrimeRepresentatives the vertex prime representatives
 	 * @param publicKey the country labels
 	 * @param keyGenParameters the key gen parameters
 	 * @param graphEncodingParameters the graph encoding parameters
