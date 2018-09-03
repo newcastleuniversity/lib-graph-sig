@@ -34,8 +34,6 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
-import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
-import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;

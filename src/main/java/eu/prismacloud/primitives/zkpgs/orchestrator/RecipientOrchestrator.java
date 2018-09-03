@@ -31,8 +31,6 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.SigningQCorrectnessVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory;
-import eu.prismacloud.primitives.zkpgs.verifier.VerifierFactory.VerifierType;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
