@@ -13,14 +13,11 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** The type Graph encoding. */
 public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 
-  /** */
   private static final long serialVersionUID = 6958443506399975449L;
 
   private final SignerPublicKey signerPublicKey;
@@ -32,29 +29,12 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
   private Map<URN, Object> certifiedPrimeRepresenatives = new HashMap<URN, Object>();
 
   /**
-   * Instantiates a new graph encoding setting the vertex representatives externally.
+   * Creates a new geolocation graph encoding with the corresponding signer's public key. The
+   * geolocation graph encoding is comprised of a map of label prime representatives that represent
+   * countries according to their UN country code, and a map of vertex prime representatives used to
+   * encode vertices in graphs.
    *
-   * @param vertexRepresentatives the vertex prime representatives
-   * @param publicKey the country labels
-   * @param keyGenParameters the key gen parameters
-   * @param graphEncodingParameters the graph encoding parameters
-   */
-  public GeoLocationGraphEncoding(
-      final Map<URN, BigInteger> vertexRepresentatives,
-      final SignerPublicKey publicKey,
-      final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters) {
-
-    this.vertexRepresentatives = vertexRepresentatives;
-    this.signerPublicKey = publicKey;
-    this.keyGenParameters = keyGenParameters;
-    this.graphEncodingParameters = graphEncodingParameters;
-  }
-
-  /**
-   * Instantiates a new Graph encoding.
-   *
-   * @param publicKey the country labels
+   * @param publicKey the signer's public key
    * @param keyGenParameters the key gen parameters
    * @param graphEncodingParameters the graph encoding parameters
    */
@@ -69,7 +49,12 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
     this.graphEncodingParameters = graphEncodingParameters;
   }
 
-  /** Setups the graph encoding. */
+  /**
+   * Setups the graph encoding used to encode graphs by first generating a map fo vertex prime
+   * representatives and creating a map that holds the country label prime representatives. The
+   * method checks if the label representatives are in the correct range as specified in the graph
+   * encoding parameters.
+   */
   public void setupEncoding() throws EncodingException {
 
     generateVertexRepresentatives();
@@ -77,9 +62,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
     JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
     countryLabels = jsonIsoCountries.getCountryMap();
 
-    Iterator<BigInteger> labelRepIter = countryLabels.values().iterator();
-    while (labelRepIter.hasNext()) {
-      BigInteger label = labelRepIter.next();
+    for (BigInteger label : countryLabels.values()) {
       if (!CryptoUtilsFacade.isInRange(
           label,
           graphEncodingParameters.getLeastLabelRepresentative(),
@@ -90,7 +73,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
   }
 
   /**
-   * Gets vertex prime representatives.
+   * Returns a map of vertex prime representatives used to encode vertices.
    *
    * @return the vertex prime representatives
    */
@@ -100,7 +83,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
   }
 
   /**
-   * Gets label prime representatives.
+   * Returns a map of label prime representatives used to encode countries.
    *
    * @return the label prime representatives
    */

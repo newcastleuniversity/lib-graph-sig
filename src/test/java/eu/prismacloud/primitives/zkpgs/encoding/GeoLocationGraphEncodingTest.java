@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -12,6 +11,7 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -127,6 +127,11 @@ class GeoLocationGraphEncodingTest {
 
     for (BigInteger labelPrimeRepresentative : testLabelRepresentatives.values()) {
       assertTrue(labelPrimeRepresentative.isProbablePrime(80));
+      assertTrue(
+          CryptoUtilsFacade.isInRange(
+              labelPrimeRepresentative,
+              graphEncodingParameters.getLeastLabelRepresentative(),
+              graphEncodingParameters.getUpperBoundLabelRepresentatives()));
     }
   }
 }
