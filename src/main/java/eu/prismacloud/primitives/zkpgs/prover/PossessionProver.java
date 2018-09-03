@@ -31,6 +31,14 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A PossessionProver is responsible for proving the possession of a graph signature 
+ * and its corresponding secrets.
+ * 
+ * <p>The PossessionProver expects the graph signature to be blinded by a
+ * ProverOrchestrator. To preserve multi-use unlinkability, hence, GSSignature.blind()
+ * must be called before the proof is executed.
+ */
 public class PossessionProver implements IProver {
 	public static final String URNID = "possessionprover";
 

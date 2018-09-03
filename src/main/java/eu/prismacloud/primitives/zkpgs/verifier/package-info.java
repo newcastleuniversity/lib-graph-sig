@@ -11,7 +11,7 @@
  * 
  * <p>Normally, each verifier instance is only responsible for a single proof clause
  * and will, in turn, only produce a single hat-value. Hence, verifiers are usually
- * instantiated and called by an IVerificationOrchestrator, which is responsible for
+ * instantiated and called by an IVerifierOrchestrator, which is responsible for
  * organizing the work of multiple verifiers and to combine their hat-values in
  * the final verification step.
  * 
@@ -25,6 +25,7 @@
  * <p>A typical call sequence for a IVerifier will be as follows:
  * <ol>
  *   <li>IVerifier verifier = new IVerifier(public value, extendedPublicKey, proofStore);
+ *   The verifier may relay on values in the ProofStore.
  *   <li>if (!verifier.checkLengths()) abort!
  *   <li>Get BigInteger challenge from orchestrator.
  *   <li>GroupElement hatValue = verifier.executeVerification(challenge);
