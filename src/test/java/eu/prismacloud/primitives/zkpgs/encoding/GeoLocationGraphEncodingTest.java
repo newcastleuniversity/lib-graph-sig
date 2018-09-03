@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.encoding;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class GeoLocationGraphEncodingTest {
@@ -67,6 +69,7 @@ class GeoLocationGraphEncodingTest {
   }
 
   @Test
+  @DisplayName("Test creating geolocation graph encoding")
   void testCreatingGraphEncoding() {
     GeoLocationGraphEncoding graphEncoding =
         new GeoLocationGraphEncoding(
@@ -76,7 +79,9 @@ class GeoLocationGraphEncodingTest {
   }
 
   @Test
-  void setupGraphEncoding() throws EncodingException {
+  @DisplayName(
+      "Test geolocation graph encoding setup creates vertex and label representatives maps")
+  void setupGraphEncodingSetup() throws EncodingException {
     graphEncoding.setupEncoding();
     assertNotNull(graphEncoding.getVertexRepresentatives());
     assertTrue(!graphEncoding.getVertexRepresentatives().isEmpty());
@@ -86,10 +91,57 @@ class GeoLocationGraphEncodingTest {
   }
 
   @Test
-  void getVertexPrimeRepresentatives() {
+  @DisplayName("Test geolocation graph encoding returns vertex representative")
+  void testReturnVertexRepresentative() throws EncodingException {
+    graphEncoding.setupEncoding();
+    assertNotNull(graphEncoding.getVertexRepresentatives());
+    assertTrue(!graphEncoding.getVertexRepresentatives().isEmpty());
 
+    Map<URN, BigInteger> testVertexRepresentatives = graphEncoding.getVertexRepresentatives();
+    BigInteger testVertexRepresentative =
+        testVertexRepresentatives.get(URN.createZkpgsURN("test.vertex.representative"));
+    assertNotNull(testVertexRepresentative);
+    assertEquals(vertexRepresentative, testVertexRepresentative);
+  }
+
+  @Test
+  @DisplayName("Test geolocation graph encoding returns corresponding country label representative")
+  void testReturnLabelRepresentative() throws EncodingException {
+    graphEncoding.setupEncoding();
+    assertNotNull(graphEncoding.getLabelRepresentatives());
+    assertTrue(!graphEncoding.getLabelRepresentatives().isEmpty());
+
+    Map<URN, BigInteger> testLabelRepresentatives = graphEncoding.getLabelRepresentatives();
+    
+    // country Andorra
+    BigInteger testLabelRepresentative = testLabelRepresentatives.get(URN.createZkpgsURN("AD"));
+    assertNotNull(testLabelRepresentative);
+    assertEquals(BigInteger.valueOf(2), testLabelRepresentative);
+
+    // country Wallis and Futuna
+    testLabelRepresentative = testLabelRepresentatives.get(URN.createZkpgsURN("WF"));
+    assertNotNull(testLabelRepresentative);
+    assertEquals(BigInteger.valueOf(1543), testLabelRepresentative);
+  }
+
+  @Test
+  @DisplayName("Test geolocation graph encoding returns vertex prime representatives maps")
+  void getVertexPrimeRepresentatives() throws EncodingException {
+    graphEncoding.setupEncoding();
     Map<URN, BigInteger> vertexPrimeRepresentatives = graphEncoding.getVertexRepresentatives();
     assertNotNull(vertexPrimeRepresentatives);
     assertTrue(vertexPrimeRepresentatives.size() > 0);
+  }
+
+  @Test
+  @DisplayName(
+      "Test geolocation graph encoding returns label prime representatives with  the required number of countries")
+  void getLabelRepresentatives() throws EncodingException {
+    graphEncoding.setupEncoding();
+    Map<URN, BigInteger> testLabelRepresentatives = graphEncoding.getLabelRepresentatives();
+    assertNotNull(testLabelRepresentatives);
+    assertTrue(!testLabelRepresentatives.isEmpty());
+    int numberOfCountries = 249;
+    assertEquals(numberOfCountries, testLabelRepresentatives.size());
   }
 }
