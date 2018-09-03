@@ -1,12 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.encoding;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
@@ -63,29 +63,27 @@ class GeoLocationGraphEncodingTest {
 
     graphEncoding =
         new GeoLocationGraphEncoding(
-            vertexRepresentatives,
-            signerPublicKey,
-            keyGenParameters,
-            graphEncodingParameters);
+            vertexRepresentatives, signerPublicKey, keyGenParameters, graphEncodingParameters);
   }
 
   @Test
   void testCreatingGraphEncoding() {
     GeoLocationGraphEncoding graphEncoding =
         new GeoLocationGraphEncoding(
-            vertexRepresentatives,
-            signerPublicKey,
-            keyGenParameters,
-            graphEncodingParameters);
+            vertexRepresentatives, signerPublicKey, keyGenParameters, graphEncodingParameters);
 
     assertNotNull(graphEncoding);
   }
 
   @Test
-  void setupGraphEncoding() {
-	  fail("Test not implemented yet.");
-  }
+  void setupGraphEncoding() throws EncodingException {
+    graphEncoding.setupEncoding();
+    assertNotNull(graphEncoding.getVertexRepresentatives());
+    assertTrue(!graphEncoding.getVertexRepresentatives().isEmpty());
 
+    assertNotNull(graphEncoding.getLabelRepresentatives());
+    assertNotNull(!graphEncoding.getLabelRepresentatives().isEmpty());
+  }
 
   @Test
   void getVertexPrimeRepresentatives() {
