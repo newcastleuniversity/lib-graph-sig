@@ -229,7 +229,7 @@ class GroupSetupVerifierTest {
   void testExecuteVerification() {
     BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 
-    Map<URN, GroupElement> hatValues = groupSetupVerifier.executeVerification(cChallenge);
+    Map<URN, GroupElement> hatValues = groupSetupVerifier.executeCompoundVerification(cChallenge);
 
     assertNotNull(hatValues);
 

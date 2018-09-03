@@ -118,7 +118,7 @@ class PairWiseDifferenceVerifierTest {
   void testComputeHatR() throws ProofStoreException {
     log.info("Checking the verifier's computation of hatR");
 
-    Map<URN, GroupElement> responses = verifier.executeVerification(cChallenge);
+    Map<URN, GroupElement> responses = verifier.executeCompoundVerification(cChallenge);
     String hatRURN = verifier.getVerifierURN(URNType.HATR);
 
     hatR = responses.get(URN.createZkpgsURN(hatRURN));
@@ -161,7 +161,7 @@ class PairWiseDifferenceVerifierTest {
     proofStore.store(verifier.getVerifierURN(URNType.HATRBARIBARJ, testIndex), hatr_BariBarj);
 
     log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-    Object output = verifier.executeVerification(cChallenge);
+    Object output = verifier.executeCompoundVerification(cChallenge);
 
     assertNull(
         output,

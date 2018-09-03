@@ -20,11 +20,27 @@ public interface IVerifier {
 	 * ProofStore under URNs that correspond to the component verifier.
 	 * 
 	 * @param cChallenge the challenge of the overall proof.
-	 * @return hat-value to be included in the overall verification.
+	 * @return Map with multiple hat-value to be included in the overall verification.
 	 * 
 	 * @throws ProofStoreException
 	 */
-	Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException;
+	Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException;
+	
+	/**
+	 * Evaluates the verification computation, producing a verifier-side hat-value.
+	 * 
+	 * <p>In terms of overall proof-consistency, the hat-value produced by the component
+	 * verifier must equal the tilde-value of the corresponding prover. 
+	 * 
+	 * <p>The method relies upon the public values and responses being stored in the
+	 * ProofStore under URNs that correspond to the component verifier.
+	 * 
+	 * @param cChallenge the challenge of the overall proof.
+	 * @return GroupElement hat-value to be included in the overall verification.
+	 * 
+	 * @throws ProofStoreException
+	 */
+	GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException;
 	
 	/**
 	 * Checks the lengths of inputed prover-responses (hat-values).

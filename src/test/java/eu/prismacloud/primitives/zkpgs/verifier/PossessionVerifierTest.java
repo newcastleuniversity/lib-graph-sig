@@ -73,9 +73,10 @@ class PossessionVerifierTest {
 		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
 		epk = extendedKeyPair.getExtendedPublicKey();
-		proofStore = new ProofStore<Object>();
 
 		oracle = new GSSigningOracle(signerKeyPair, keyGenParameters);
+		
+		
 	}
 
 	@BeforeEach
@@ -99,8 +100,7 @@ class PossessionVerifierTest {
 		
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
-		Map<URN, GroupElement> witnesses = verifier.executeVerification(cChallenge);
-  GroupElement tildeZ = witnesses.get(URN.createZkpgsURN(prover.getProverURN(URNType.TILDEZ)));
+		tildeZ = prover.executePreChallengePhase();
 
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
@@ -121,7 +121,8 @@ class PossessionVerifierTest {
 	@Test
 	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
-
+		
+		verifier.executeCompoundVerification(cChallenge);
 		Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
   String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
   GroupElement hatZ = responses.get(URN.createZkpgsURN(hatZURN));
@@ -150,7 +151,7 @@ class PossessionVerifierTest {
 		proofStore.store("verifier.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-		Object output = verifier.executeVerification(cChallenge);
+		Object output = verifier.executeCompoundVerification(cChallenge);
 
 		assertNull(output, "The PossionVerifier should have aborted outputting null "
 				+ "upon receiving ill-sized inputs, but produced a non-null output.");

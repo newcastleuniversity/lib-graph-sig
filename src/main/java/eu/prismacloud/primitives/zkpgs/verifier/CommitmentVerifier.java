@@ -219,7 +219,11 @@ public class CommitmentVerifier implements IVerifier {
     }
   }
   
-  public Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException {
+  public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+  }
+  
+  public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException {
 	  throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
   

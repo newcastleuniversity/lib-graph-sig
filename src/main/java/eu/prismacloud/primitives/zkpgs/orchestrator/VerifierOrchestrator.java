@@ -209,7 +209,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
     try {
 
-			Map<URN, GroupElement> responses = possessionVerifier.executeVerification(cChallenge);
+			Map<URN, GroupElement> responses = possessionVerifier.executeCompoundVerification(cChallenge);
 			String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
 			hatZ = responses.get(URN.createZkpgsURN(hatZURN));
 

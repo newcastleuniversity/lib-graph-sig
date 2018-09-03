@@ -140,7 +140,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
     try {
 
-      Map<URN, GroupElement> hatMap = verifier.executeVerification(cChallenge);
+      Map<URN, GroupElement> hatMap = verifier.executeCompoundVerification(cChallenge);
       String hatAURN = URNType.buildURNComponent(URNType.HATA, SigningQCorrectnessProver.class);
       hatA = (GroupElement) hatMap.get(URN.createZkpgsURN(hatAURN));
     } catch (ProofStoreException e) {

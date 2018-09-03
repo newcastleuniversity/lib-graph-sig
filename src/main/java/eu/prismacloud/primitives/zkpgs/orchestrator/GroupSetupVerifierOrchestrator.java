@@ -68,7 +68,7 @@ public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
       return false;
     }
 
-    hatValues = gsVerifier.executeVerification(cChallenge);
+    hatValues = gsVerifier.executeCompoundVerification(cChallenge);
 
     try {
       computeChallenge();

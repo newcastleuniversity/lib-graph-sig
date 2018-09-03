@@ -73,12 +73,12 @@ public class PossessionVerifier implements IVerifier {
 	}
 
 	@Override
-	public Map<URN, GroupElement> executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
 		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
 		hate = (BigInteger) proofStore.retrieve("verifier.hate");
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
 		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
-		
+
 		this.cChallenge = cChallenge;
 
 		// Aborting verification with output null, if lengths check rejects hat-values.
@@ -102,9 +102,14 @@ public class PossessionVerifier implements IVerifier {
 
 		hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0).multiply(basesProduct);
 
-    Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
-    String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
-    responses.put(URN.createZkpgsURN(hatZURN), hatZ);
+		return hatZ;
+	}
+
+	@Override
+	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException {
+		Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
+		String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
+		responses.put(URN.createZkpgsURN(hatZURN), executeVerification(cChallenge));
 		return responses;
 	}
 
