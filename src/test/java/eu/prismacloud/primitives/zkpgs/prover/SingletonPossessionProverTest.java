@@ -115,7 +115,7 @@ class SingletonPossessionProverTest {
   @Test
   void testPreChallengePhase() throws ProofStoreException {
 
-    GroupElement tildeZ = prover.executePreChallengePhase();
+    tildeZ = prover.executePreChallengePhase();
     tildee = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEE));
     assertNotNull(tildee);
     tildem_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEM0));

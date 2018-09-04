@@ -35,7 +35,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
-class PossessionVerifierTest {
+class SingletonPossessionVerifierTest {
 
 	private Logger log = GSLoggerConfiguration.getGSlog();
 
