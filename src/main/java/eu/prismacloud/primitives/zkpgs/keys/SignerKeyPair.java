@@ -25,6 +25,7 @@ public class SignerKeyPair implements Serializable, IKeyPair {
 	private GroupElement R;
 	private GroupElement R_0;
 	private GroupElement Z;
+	@SuppressWarnings("unused")
 	private Group cg;
 	//  private final Logger log = GSLoggerConfiguration.getGSlog();
 	private QRGroup qrGroup;

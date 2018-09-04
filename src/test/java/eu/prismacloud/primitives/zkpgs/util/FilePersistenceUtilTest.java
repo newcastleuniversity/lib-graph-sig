@@ -85,13 +85,13 @@ class FilePersistenceUtilTest {
     SignerPublicKey signerPublicKey = signerKeyPair.getPublicKey();
     SignerPrivateKey signerPrivateKey = signerKeyPair.getPrivateKey();
     assertNotNull(signerPublicKey.getQRGroup());
-    assertNotNull(signerPrivateKey.getQrGroup());
+    assertNotNull(signerPrivateKey.getQRGroup());
     QRGroupPQ qrGroup = (QRGroupPQ) signerPublicKey.getQRGroup();
     GroupElement baseS = signerPublicKey.getBaseS();
 
     assertTrue(
         qrGroup.verifySGenerator(
-            baseS.getValue(), signerPrivateKey.getpPrime(), signerPrivateKey.getqPrime()));
+            baseS.getValue(), signerPrivateKey.getPPrime(), signerPrivateKey.getQPrime()));
 
     assertTrue(qrGroup.isElement(baseS.getValue()));
     assertTrue(qrGroup.isElement(signerPublicKey.getBaseZ().getValue()));

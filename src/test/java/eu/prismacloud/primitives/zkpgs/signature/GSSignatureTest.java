@@ -128,7 +128,7 @@ class GSSignatureTest {
     GroupElement Sv1 = (Sv.multiply(commitment));
     Q = (baseZ.multiply(Sv1.modInverse()));
 
-    BigInteger order = privateKey.getpPrime().multiply(privateKey.getqPrime());
+    BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
     BigInteger d = e.modInverse(order);
     A = Q.modPow(d);
     GroupElement sigma = A.modPow(e);

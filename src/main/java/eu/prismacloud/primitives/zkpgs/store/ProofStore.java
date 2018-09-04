@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.store;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * The type Proof store.
@@ -22,7 +20,6 @@ import java.util.logging.Logger;
  * @param <T> the type parameter
  */
 public class ProofStore<T> {
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private final Map<URN, Set<T>> elements;
 
 	/**

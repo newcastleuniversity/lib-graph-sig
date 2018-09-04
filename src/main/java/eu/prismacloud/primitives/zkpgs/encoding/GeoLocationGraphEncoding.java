@@ -5,7 +5,6 @@ import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
-import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -56,6 +55,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 	 * method checks if the label representatives are in the correct range as specified in the graph
 	 * encoding parameters.
 	 */
+	@Override
 	public void setupEncoding() throws EncodingException {
 
 		generateVertexRepresentatives();

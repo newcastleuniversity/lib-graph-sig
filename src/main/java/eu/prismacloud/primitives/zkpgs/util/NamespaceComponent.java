@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
 import java.io.Serializable;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -14,7 +13,7 @@ import java.util.regex.Pattern;
 public class NamespaceComponent implements Serializable {
 
   private static final long serialVersionUID = 3696359233528942468L;
-  private static Logger gslog = GSLoggerConfiguration.getGSlog();
+  
   private String content;
   /** regular expression for namespace identifier */
   private static Pattern nidPattern = Pattern.compile("^[0-9a-zA-Z]+[0-9a-zA-Z-]{0,31}$");

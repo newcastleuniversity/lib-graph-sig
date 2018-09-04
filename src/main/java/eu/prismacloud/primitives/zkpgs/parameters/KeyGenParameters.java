@@ -11,6 +11,11 @@ import java.util.List;
 
 /** Class for key generation parameters displayed in table:params of the topocert documentation. */
 public class KeyGenParameters implements Serializable, IContextProducer {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -308383629163712559L;
+
 	/** Bit length of the special RSA modulus */
 	private int l_n = 2048;
 

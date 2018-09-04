@@ -2,7 +2,12 @@ package eu.prismacloud.primitives.zkpgs.exception;
 
 public class EncodingException extends Exception {
 
-  public EncodingException(String message) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7646351251608339821L;
+
+public EncodingException(String message) {
     super(message);
   }
 

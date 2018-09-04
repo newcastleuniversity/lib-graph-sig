@@ -54,7 +54,7 @@ class SignerPrivateKeyTest {
 
   @Test
   void getpPrime() {
-    BigInteger pPrime = privateKey.getpPrime();
+    BigInteger pPrime = privateKey.getPPrime();
     assertNotNull(pPrime);
     assertEquals(keyGenParameters.getL_n() / 2, pPrime.bitLength() + 1);
     BigInteger p = qrGroup.getP();
@@ -65,7 +65,7 @@ class SignerPrivateKeyTest {
 
   @Test
   void getqPrime() {
-    BigInteger qPrime = privateKey.getqPrime();
+    BigInteger qPrime = privateKey.getQPrime();
 
     assertNotNull(qPrime);
     assertEquals(keyGenParameters.getL_n() / 2, qPrime.bitLength() + 1);

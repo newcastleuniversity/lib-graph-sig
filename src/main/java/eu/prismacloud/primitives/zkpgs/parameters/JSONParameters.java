@@ -1,8 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.parameters;
 
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.InputStream;
-import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -12,7 +10,6 @@ public class JSONParameters {
 
   private static final String GS_PARAM_FILE = "zkgs_params.json";
   private InputStream paramStream;
-  private static Logger gslog = GSLoggerConfiguration.getGSlog();
   private KeyGenParameters keyGenParameters;
   private GraphEncodingParameters graphEncodingParameters;
   private JsonReader reader;

@@ -6,10 +6,8 @@ package eu.prismacloud.primitives.zkpgs.context;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Holds the context during setup and signing proofs, before an ExtendedPublicKey is established.
@@ -21,7 +19,7 @@ public class SetupGSContext implements IContext, IContextProducer {
 	private final SignerPublicKey publicKey;
 	private final KeyGenParameters keyGenParameters;
 
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	//private Logger gslog = GSLoggerConfiguration.getGSlog();
 
 	public SetupGSContext(
 			final SignerPublicKey signerPublicKey) {

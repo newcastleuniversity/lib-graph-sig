@@ -5,7 +5,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.Serializable;
 import java.math.BigInteger;

@@ -5,7 +5,6 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * The GraphRepresentation holds a GSGraph encoded with an IGraphEncoding

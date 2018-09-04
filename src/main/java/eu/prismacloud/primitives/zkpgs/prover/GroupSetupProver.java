@@ -12,14 +12,13 @@ import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
 
 /** The type Group setup prover. */
 public class GroupSetupProver implements IProver {
@@ -42,10 +41,10 @@ public class GroupSetupProver implements IProver {
   private KeyGenParameters keyGenParameters;
   private Map<URN, BigInteger> vertexResponses;
   private Map<URN, BigInteger> edgeResponses;
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
+
   private BaseCollection baseCollection;
 
-  public GroupSetupProver(ExtendedKeyPair extendedKeyPair, ProofStore ps) {
+  public GroupSetupProver(ExtendedKeyPair extendedKeyPair, ProofStore<Object> ps) {
     Assert.notNull(extendedKeyPair, "Extended key pair must not be null");
     Assert.notNull(ps, "Proof store must not be null");
 
@@ -311,7 +310,8 @@ public class GroupSetupProver implements IProver {
     return GroupSetupProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
   }
 
-  public List<URN> getGovernedURNs() {
+  @Override
+public List<URN> getGovernedURNs() {
     throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
   }
 }

@@ -9,7 +9,6 @@ public class ExtendedPrivateKey implements IPrivateKey {
 
   private final SignerPrivateKey signerPrivateKey;
   private Map<URN, BigInteger> discLogOfBases;
-  private Map<URN, BigInteger> discLogOfEdgeBases;
 
   public ExtendedPrivateKey(
       SignerPrivateKey signerPrivateKey, Map<URN, BigInteger> discLogOfBases) {

@@ -1,12 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 

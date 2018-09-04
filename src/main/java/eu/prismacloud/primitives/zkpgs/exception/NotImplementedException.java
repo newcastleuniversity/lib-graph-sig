@@ -2,7 +2,12 @@ package eu.prismacloud.primitives.zkpgs.exception;
 
 public class NotImplementedException extends RuntimeException {
 
-	  public NotImplementedException(String message) {
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2781980547771986969L;
+
+	public NotImplementedException(String message) {
 	    super(message);
 	  }
 

@@ -9,7 +9,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -57,7 +56,7 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 		this.baseRepresentationMap = new HashMap<URN, BaseRepresentation>();
 		this.discLogOfBases = new HashMap<URN, BigInteger>();
 	}
-	
+
 	/**
 	 * Instantiates a new Extended key pair for a default case of a 
 	 * geo-location graph encoding
@@ -118,6 +117,7 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	 *
 	 * @return the public key
 	 */
+	@Override
 	public SignerPublicKey getPublicKey() {
 		return publicKey;
 	}
@@ -127,6 +127,7 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	 *
 	 * @return the private key
 	 */
+	@Override
 	public SignerPrivateKey getPrivateKey() {
 		return privateKey;
 	}
@@ -143,16 +144,16 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	/** Certify prime representatives. */
 	public void certifyPrimeRepresentatives() {
 		// TODO Certification needs to be reimplemented
-		Group qrGroup = publicKey.getQRGroup();
-		BigInteger x_R_V = qrGroup.createRandomElement().getValue();
+		//		Group qrGroup = publicKey.getQRGroup();
+		//		BigInteger x_R_V = qrGroup.createRandomElement().getValue();
 
-		GroupElement R_V = baseS.modPow(x_R_V);
+		//GroupElement R_V = baseS.modPow(x_R_V);
 
 		//BaseRepresentation baseV = new BaseRepresentation(R_V, 0, BASE.VERTEX);
 
-		BigInteger x_R_L = qrGroup.createRandomElement().getValue();
+		//BigInteger x_R_L = qrGroup.createRandomElement().getValue();
 
-		GroupElement R_L = baseS.modPow(x_R_L);
+		//GroupElement R_L = baseS.modPow(x_R_L);
 
 		//BaseRepresentation baseL = new BaseRepresentation(R_L, 0, BASE.VERTEX);
 
@@ -188,29 +189,28 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 
 	/** Generate bases. */
 	public void generateBases() {
-		// TODO generateGroupBases(baseS); corresponding method does not work.
 		generateVertexBases(baseS);
 		generateEdgeBases(baseS);
 	}
-	
-	
 
-// TODO METHOD FAULTY: Does not generate the right bases
-// Z etc. should be part of the SignerKeyPair, not the ExtendedKeyPair
-//	private void generateGroupBases(final GroupElement baseS) {
-//
-//		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
-//		R_Z = baseS.modPow(x_RZ);
-//
-//		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
-//
-//		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
-//		R_Z = baseS.modPow(x_RZ);
-//
-//		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
-//	}
 
-	
+
+	// TODO METHOD FAULTY: Does not generate the right bases
+	// Z etc. should be part of the SignerKeyPair, not the ExtendedKeyPair
+	//	private void generateGroupBases(final GroupElement baseS) {
+	//
+	//		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+	//		R_Z = baseS.modPow(x_RZ);
+	//
+	//		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
+	//
+	//		x_RZ = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
+	//		R_Z = baseS.modPow(x_RZ);
+	//
+	//		discLogOfBases.put(URN.createZkpgsURN("discretelogs.base.R_Z"), x_RZ);
+	//	}
+
+
 	/**
 	 * Generates a map of a base representation drawn uniformly at random from the signer's 
 	 * setup group. The discrete logarithms of the bases with respect to the main base S
@@ -229,20 +229,20 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 		GroupElement R_i;
 
 		for (int i = 0; i < graphEncodingParameters.getL_V(); i++) {
-			
+
 			x_Ri = CryptoUtilsFacade.computeRandomNumber(KeyGenParameters.getKeyGenParameters().getL_n());
 			R_i = S.modPow(x_Ri);
-			
+
 			/* The base representation receives as global index the current 
 			 * length of the overall base representation map plus 1, 
 			 * making an index counting from 1;
 			 */
 			int index = baseRepresentationMap.size()+1;
-			
+
 			BaseRepresentation base = new BaseRepresentation(R_i, index, BASE.VERTEX);
 			baseRepresentationMap.put(
 					URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index), base);
-			
+
 			discLogOfBases.put(URN.createZkpgsURN("discretelogs.vertex.R_V_" + index), x_Ri);
 		}
 	}
@@ -256,7 +256,7 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	public Map<URN, BigInteger> getVertexRepresentatives() {
 		return this.graphEncoding.getVertexRepresentatives();
 	}
-	
+
 	/**
 	 * Gets label representatives.
 	 *
@@ -267,10 +267,7 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 		return this.graphEncoding.getLabelRepresentatives();
 	}
 
-	private void createExtendedPrivateKey() {
-		this.extendedPrivateKey = new ExtendedPrivateKey(privateKey, discLogOfBases);
-	}
-
+	@Override
 	public KeyGenParameters getKeyGenParameters() {
 		return this.keyGenParameters;
 	}
@@ -284,7 +281,7 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	public GraphEncodingParameters getGraphEncodingParameters() {
 		return graphEncodingParameters;
 	}
-	
+
 
 	/**
 	 * Setups a new graph encoding.
@@ -292,10 +289,11 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	 * @return the graph encoding
 	 */
 
+	@Override
 	public void setupEncoding() throws EncodingException {
 		this.graphEncoding.setupEncoding();
 	}
-	
+
 	@Override
 	public BigInteger getVertexRepresentative(String id) {
 		return graphEncoding.getVertexRepresentative(id);

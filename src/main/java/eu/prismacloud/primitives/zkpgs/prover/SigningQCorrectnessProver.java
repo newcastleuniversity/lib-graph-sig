@@ -1,7 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
-import eu.prismacloud.primitives.zkpgs.context.IContext;
-import eu.prismacloud.primitives.zkpgs.context.SetupGSContext;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -18,8 +16,6 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,18 +37,16 @@ public class SigningQCorrectnessProver implements IProver {
   private final GSSignature gsSignature;
   private final BigInteger n_2;
   private BigInteger tilded;
-  private List<String> challengeList;
   private BigInteger cPrime;
   private BigInteger hatd;
   private BigInteger d;
   private GroupElement Q;
-  private GroupElement A;
-
+  
   public SigningQCorrectnessProver(
       final GSSignature gsSignature,
       final BigInteger n_2,
       final SignerKeyPair skp,
-      final ProofStore ps) {
+      final ProofStore<Object> ps) {
     this.proofStore = ps;
     this.signerPublicKey = skp.getPublicKey();
     this.signerPrivateKey = skp.getPrivateKey();
@@ -71,7 +65,7 @@ public class SigningQCorrectnessProver implements IProver {
 
     this.Q = (QRElement) proofStore.retrieve("issuing.signer.Q");
 
-    BigInteger order = signerPrivateKey.getpPrime().multiply(signerPrivateKey.getqPrime());
+    BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
 
     this.tilded =
         CryptoUtilsFacade.computeRandomNumber(
@@ -97,7 +91,7 @@ public class SigningQCorrectnessProver implements IProver {
       throws ProofStoreException {
     this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
 
-    BigInteger order = signerPrivateKey.getpPrime().multiply(signerPrivateKey.getqPrime());
+    BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
     hatd = (tilded.subtract(cPrime.multiply(d))).mod(order);
     Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>(1);
     responses.put(

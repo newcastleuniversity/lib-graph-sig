@@ -11,8 +11,6 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
 import java.math.BigInteger;
@@ -191,7 +189,7 @@ public class GSUtils implements INumberUtils {
   private BigInteger generatePrimeWithNegativeMin(BigInteger min, BigInteger max) {
     max = max.subtract(BigInteger.ONE);
     BigInteger positiveMin = min.add(BigInteger.ONE).negate();
-    BigInteger negativeMin = min;
+    BigInteger negativeMin = min; // TODO Value never used may be a bug!
     BigInteger maxPlusMin = max.add(positiveMin);
     BigInteger prime;
 

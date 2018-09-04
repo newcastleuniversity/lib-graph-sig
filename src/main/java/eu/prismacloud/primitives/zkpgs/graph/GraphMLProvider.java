@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.graph;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import org.jgrapht.io.EdgeProvider;
 import org.jgrapht.io.GraphMLImporter;
 import org.jgrapht.io.VertexProvider;

@@ -305,8 +305,8 @@ private List<String> contextList;
 
   public GroupElement computeA() {
     gslog.info("compute A");
-    pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getpPrime();
-    qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getqPrime();
+    pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getPPrime();
+    qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getQPrime();
 
     d = e.modInverse(pPrime.multiply(qPrime));
     // TODO Remove logging of values that can break security (secret key or modInverse mod order;

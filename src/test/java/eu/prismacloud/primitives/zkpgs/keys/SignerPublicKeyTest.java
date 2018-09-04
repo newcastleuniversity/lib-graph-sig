@@ -62,8 +62,8 @@ class SignerPublicKeyTest {
     assertTrue(
         qrGroup.verifySGenerator(
             baseS.getValue(),
-            signerKeyPair.getPrivateKey().getpPrime(),
-            signerKeyPair.getPrivateKey().getqPrime()));
+            signerKeyPair.getPrivateKey().getPPrime(),
+            signerKeyPair.getPrivateKey().getQPrime()));
     assertTrue(qrGroup.isElement(baseS.getValue()));
   }
 

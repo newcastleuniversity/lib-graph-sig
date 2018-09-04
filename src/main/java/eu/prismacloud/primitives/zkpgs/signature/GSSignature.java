@@ -39,7 +39,6 @@ public class GSSignature implements Serializable {
   private final BigInteger ePrime; // ePrime is e minus the l_E offset
   private final BigInteger v;
   private final GroupElement baseS;
-  private final GroupElement baseZ;
   private BaseCollection encodedBases;
 
   // TODO this constructor seems broken. The graph signature should not hold the commitment in state.
@@ -60,7 +59,6 @@ public class GSSignature implements Serializable {
     this.encodedBases = encodedBases;
     this.keyGenParameters = keyGenParameters;
     this.baseS = this.signerPublicKey.getBaseS();
-    this.baseZ = this.signerPublicKey.getBaseZ();
   }
 
   public GSSignature(
@@ -69,7 +67,6 @@ public class GSSignature implements Serializable {
     this.keyGenParameters = signerPublicKey.getKeyGenParameters();
     this.ePrimeOffset = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
     this.baseS = signerPublicKey.getBaseS();
-    this.baseZ = signerPublicKey.getBaseZ();
     this.A = A;
     this.e = e;
     this.ePrime = e.subtract(ePrimeOffset);
@@ -96,8 +93,6 @@ public class GSSignature implements Serializable {
   public BigInteger getV() {
     return v;
   }
-
-  // TODO Lift computations to GSSigner; GSSignature should not have knowledge of the sk.
 
   /**
    * Computes a blinding on this graph signature, which will yield a new uniformly at random chosen

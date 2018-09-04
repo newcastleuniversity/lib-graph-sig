@@ -141,6 +141,7 @@ public enum URNType {
 		case TILDEU: return "witnesses";
 		case TILDECI: return "witnesses";
 		case TILDEZ: return "witnesses";
+		case TILDERIJ: return "witnesses";
 		case HATA: return "responses";
 		case HATD: return "responses";
 		case HATE: return "responses";

@@ -47,11 +47,11 @@ public class SignerPrivateKey implements Serializable, IPrivateKey {
     this.qrGroup = qrGroup;
   }
 
-  public BigInteger getpPrime() {
+  public BigInteger getPPrime() {
     return pPrime;
   }
 
-  public BigInteger getqPrime() {
+  public BigInteger getQPrime() {
     return qPrime;
   }
 
@@ -67,11 +67,19 @@ public class SignerPrivateKey implements Serializable, IPrivateKey {
     return x_Z;
   }
 
-  public QRGroup getQrGroup() {
+  public QRGroup getQRGroup() {
     return qrGroup;
   }
   
   public KeyGenParameters getKeyGenParameters() {
 	  return this.keyGenParameters;
   }
+
+public BigInteger getP() {
+	return p;
+}
+
+public BigInteger getQ() {
+	return q;
+}
 }

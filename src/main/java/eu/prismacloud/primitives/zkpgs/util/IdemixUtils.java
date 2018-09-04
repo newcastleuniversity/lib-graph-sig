@@ -131,8 +131,7 @@ public class IdemixUtils extends Utils implements INumberUtils {
 	@Override
 	public BigInteger computeHash(List<String> list, int hashLength) throws NoSuchAlgorithmException {
 		Vector<BigInteger> hlist = new Vector<BigInteger>();
-		BigInteger value;
-
+	
 		for (String element : list) {
 			hlist.add(new BigInteger(element));
 		}

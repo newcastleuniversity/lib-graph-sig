@@ -260,8 +260,8 @@ class CRTTest {
   void computeCRTRandomExp() {
     log.info("@Test: computeCRTRandom");
 
-    BigInteger pPrime = signerPrivateKey.getpPrime();
-    BigInteger qPrime = signerPrivateKey.getqPrime();
+    BigInteger pPrime = signerPrivateKey.getPPrime();
+    BigInteger qPrime = signerPrivateKey.getQPrime();
     BigInteger modN = signerPublicKey.getModN();
 
 
@@ -327,8 +327,8 @@ class CRTTest {
      *  was multiplying group elements with exponents.
      */
 
-    BigInteger pPrime = signerPrivateKey.getpPrime();
-    BigInteger qPrime = signerPrivateKey.getqPrime();
+    BigInteger pPrime = signerPrivateKey.getPPrime();
+    BigInteger qPrime = signerPrivateKey.getQPrime();
     BigInteger modN = signerPublicKey.getModN();
 
     log.info("@Test: computeCRTRandom");

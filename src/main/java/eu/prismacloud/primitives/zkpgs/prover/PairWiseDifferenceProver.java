@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
-import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -17,7 +16,6 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +42,6 @@ public class PairWiseDifferenceProver implements IProver {
 
 	public static final String URNID = "pairwiseprover";
 	
-	private Map<URN, GroupElement> witnesses;
 	private BigInteger m_Bari;
 	private BigInteger m_Barj;
 	private BigInteger r_Bari;
@@ -76,7 +73,6 @@ public class PairWiseDifferenceProver implements IProver {
 	private String tildea_BariBarjURN;
 	private String tildeb_BariBarjURN;
 	private String tilder_BariBarjURN;
-	@SuppressWarnings("unused")
 	private String basetildeR_BariBarjURN;
 	
 	private List<URNType> urnTypes;
@@ -123,7 +119,6 @@ public class PairWiseDifferenceProver implements IProver {
 		this.index = index;
 		this.proofStore = proofStore;
 		this.keyGenParameters = this.epk.getKeyGenParameters();
-		this.witnesses = new HashMap<URN, GroupElement>();
 	}
 
 	public PairWiseDifferenceProver() {}
@@ -289,7 +284,7 @@ public class PairWiseDifferenceProver implements IProver {
 
 		tildea_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
 		tildeb_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
-		tilder_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tildeab);
+		tilder_BariBarj = CryptoUtilsFacade.computeRandomNumber(l_tilder);
 
 		storeWitnessRandomness();
 	}
@@ -347,6 +342,7 @@ public class PairWiseDifferenceProver implements IProver {
 		this.cChallenge = challenge;
 	}
 
+	@Override
 	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
 		setChallenge(cChallenge);
 		return computeResponses();
@@ -464,6 +460,7 @@ public class PairWiseDifferenceProver implements IProver {
 		return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
 	}
 	
+	@Override
 	public List<URN> getGovernedURNs() {
 		if (urnTypes == null) {
 			  urnTypes = Collections.emptyList();

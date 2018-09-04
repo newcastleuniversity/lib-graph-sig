@@ -20,9 +20,12 @@ import java.util.Map;
  */
 public class CryptoUtilsFacade {
   private static final String GS = "GS";
-  private static final String IDEMIX = "IDEMIX";
+  
+  @SuppressWarnings("unused")
+private static final String IDEMIX = "IDEMIX";
 
-  private enum cryptoUtil {
+  @SuppressWarnings("unused")
+private enum cryptoUtil {
     GS,
     IDEMIX
   };

@@ -62,7 +62,7 @@ class SignerKeyPairTest {
     assertTrue(qrGroup.isElement(baseS.getValue()));
     assertTrue(
         qrGroup.verifySGenerator(
-            baseS.getValue(), signerPrivateKey.getpPrime(), signerPrivateKey.getqPrime()));
+            baseS.getValue(), signerPrivateKey.getPPrime(), signerPrivateKey.getQPrime()));
   }
 
   @Test
@@ -70,11 +70,11 @@ class SignerKeyPairTest {
     log.info("@Test: getPrivateKey");
     assertNotNull(signerKeyPair.getPrivateKey());
 
-    assertNotNull(signerKeyPair.getPrivateKey().getpPrime());
-    assertTrue(signerKeyPair.getPrivateKey().getpPrime().isProbablePrime(80));
+    assertNotNull(signerKeyPair.getPrivateKey().getPPrime());
+    assertTrue(signerKeyPair.getPrivateKey().getPPrime().isProbablePrime(80));
 
-    assertNotNull(signerKeyPair.getPrivateKey().getqPrime());
-    assertTrue(signerKeyPair.getPrivateKey().getqPrime().isProbablePrime(80));
+    assertNotNull(signerKeyPair.getPrivateKey().getQPrime());
+    assertTrue(signerKeyPair.getPrivateKey().getQPrime().isProbablePrime(80));
 
     assertNotNull(signerKeyPair.getPrivateKey().getX_r());
     assertNotNull(signerKeyPair.getPrivateKey().getX_r0());

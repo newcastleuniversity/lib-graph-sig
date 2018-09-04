@@ -2,8 +2,6 @@ package eu.prismacloud.primitives.zkpgs.signer;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
-import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -17,8 +15,6 @@ import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 
-import org.jgrapht.Graph;
-
 /**
  * Oracle for Graph Signatures computed non-interactively with a valid SignerKeyPair, but without
  * involvement of a Recipient. The GSSigningOracle determines a master secret key randomly.
@@ -26,6 +22,7 @@ import org.jgrapht.Graph;
 public class GSSigningOracle {
 	private final SignerKeyPair signerKeyPair;
 	private final KeyGenParameters keyGenParameters;
+	@SuppressWarnings("unused")
 	private GraphEncodingParameters graphEncodingParameters;
 	private final GroupElement baseS;
 	private final GroupElement baseZ;
@@ -124,7 +121,7 @@ public class GSSigningOracle {
 		GroupElement basesEncoded = signerKeyPair.getPublicKey().getQRGroup().getOne();
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
-			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
+			BaseRepresentation vertexBase = vertexIter.next();
 			if (vertexBase.getBase() != null && vertexBase.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(vertexBase.getBase().modPow(vertexBase.getExponent()));
 			}
@@ -132,7 +129,7 @@ public class GSSigningOracle {
 		
 		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
 		while (edgeIter.hasNext()) {
-			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
+			BaseRepresentation edgeBase = edgeIter.next();
 			if (edgeBase.getBase() != null && edgeBase.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(edgeBase.getBase().modPow(edgeBase.getExponent()));
 			}
@@ -140,7 +137,7 @@ public class GSSigningOracle {
 		
 		BaseIterator r0Iter = baseCollection.createIterator(BASE.BASE0);
 		while (r0Iter.hasNext()) {
-			BaseRepresentation r0Base = (BaseRepresentation) r0Iter.next();
+			BaseRepresentation r0Base = r0Iter.next();
 			if (r0Base.getBase() != null && r0Base.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(r0Base.getBase().modPow(r0Base.getExponent()));
 			}
@@ -201,8 +198,8 @@ public class GSSigningOracle {
 	 * @return A GroupElement to complete the signature
 	 */
 	public GroupElement computeA(GroupElement Q, BigInteger e) {
-		BigInteger pPrime = signerKeyPair.getPrivateKey().getpPrime();
-		BigInteger qPrime = signerKeyPair.getPrivateKey().getqPrime();
+		BigInteger pPrime = signerKeyPair.getPrivateKey().getPPrime();
+		BigInteger qPrime = signerKeyPair.getPrivateKey().getQPrime();
 
 		BigInteger d = e.modInverse(pPrime.multiply(qPrime));
 		GroupElement A = Q.modPow(d);
