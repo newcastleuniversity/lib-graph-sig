@@ -86,11 +86,10 @@ class GraphPossessionProverTest {
 		extendedKeyPair.generateBases();
 		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
+		epk = extendedKeyPair.getExtendedPublicKey();
 
 		log.info("Initializing GSSigningOracle");
 		oracle = new GSSigningOracle(skp, keyGenParameters, graphEncodingParameters);
-
-		epk = extendedKeyPair.getExtendedPublicKey();
 	}
 
 	@BeforeEach

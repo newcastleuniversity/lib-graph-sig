@@ -7,9 +7,6 @@ import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.store.Base;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
@@ -34,8 +31,6 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 	private ExtendedPrivateKey extendedPrivateKey;
 	private Map<URN, BaseRepresentation> baseRepresentationMap;
 	private IGraphEncoding graphEncoding;
-//	private GroupElement R_Z;
-//	private BigInteger x_RZ;
 
 	/**
 	 * Instantiates a new Extended key pair for a default case of a 
@@ -147,20 +142,21 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
 
 	/** Certify prime representatives. */
 	public void certifyPrimeRepresentatives() {
+		// TODO Certification needs to be reimplemented
 		Group qrGroup = publicKey.getQRGroup();
 		BigInteger x_R_V = qrGroup.createRandomElement().getValue();
 
 		GroupElement R_V = baseS.modPow(x_R_V);
 
-		BaseRepresentation baseV = new BaseRepresentation(R_V, 0, BASE.VERTEX);
+		//BaseRepresentation baseV = new BaseRepresentation(R_V, 0, BASE.VERTEX);
 
 		BigInteger x_R_L = qrGroup.createRandomElement().getValue();
 
 		GroupElement R_L = baseS.modPow(x_R_L);
 
-		BaseRepresentation baseL = new BaseRepresentation(R_L, 0, BASE.VERTEX);
+		//BaseRepresentation baseL = new BaseRepresentation(R_L, 0, BASE.VERTEX);
 
-		// TODO graphEncoding.certify(getVertexRepresentatives(), baseV, getLabelRepresentatives(), baseL);
+		//graphEncoding.certify(getVertexRepresentatives(), baseV, getLabelRepresentatives(), baseL);
 	}
 
 	/**

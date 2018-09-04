@@ -13,6 +13,7 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
@@ -26,22 +27,21 @@ import java.util.logging.Logger;
 public class PossessionVerifier implements IVerifier {
 	public static final String URNID = "possessionverifier";
 
-	private ExtendedPublicKey extendedPublicKey;
-	private ProofStore<Object> proofStore;
-	private KeyGenParameters keyGenParameters;
-	private GroupElement baseZ;
-	private GroupElement baseS;
-	private BaseCollection baseCollection;
-	private GroupElement baseR0;
+	private final ExtendedPublicKey extendedPublicKey;
+	private final ProofStore<Object> proofStore;
+	private final KeyGenParameters keyGenParameters;
+	private final GroupElement baseZ;
+	private final GroupElement baseS;
+	private final BaseCollection baseCollection;
+	private final GroupElement baseR0;
 	private GroupElement APrime;
-	private BigInteger cChallenge;
 	private BigInteger hatvPrime;
 	private BigInteger hate;
 	private GroupElement hatZ;
 	private BigInteger hatm_0;
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	// private Logger gslog = GSLoggerConfiguration.getGSlog();
 
-	public PossessionVerifier(ExtendedPublicKey epk, ProofStore<Object> ps) {
+	public PossessionVerifier(BaseCollection basesInSignature, ExtendedPublicKey epk, ProofStore<Object> ps) {
 		Assert.notNull(epk, "The extended public key must not be null.");
 		Assert.notNull(ps, "The ProofStore must not be null.");
 
@@ -52,7 +52,7 @@ public class PossessionVerifier implements IVerifier {
 		this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
 		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
 
-		this.baseCollection = epk.getBaseCollection();
+		this.baseCollection = basesInSignature;
 		this.baseR0 = extendedPublicKey.getPublicKey().getBaseR_0();
 	}
 
@@ -66,10 +66,30 @@ public class PossessionVerifier implements IVerifier {
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
 		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
 
-		/** TODO check lengths for hatm_i vertices and hatm_i_j edges */
+		boolean vertexLengthsCorrect = true;
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation baseRepresentation : vertexIterator) {
+			BigInteger hatm = (BigInteger) proofStore.retrieve(
+					URNType.buildURNComponent(URNType.HATMI, this.getClass(), baseRepresentation.getBaseIndex()));
+			if (!CryptoUtilsFacade.isInPMRange(hatm, l_m)) {
+				vertexLengthsCorrect = false;
+			}
+		}
+
+		boolean edgeLengthsCorrect = true;
+		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
+		for (BaseRepresentation baseRepresentation : edgeIterator) {
+			BigInteger hatm = (BigInteger) proofStore.retrieve(
+					URNType.buildURNComponent(URNType.HATMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
+			if (!CryptoUtilsFacade.isInPMRange(hatm, l_m)) {
+				edgeLengthsCorrect = false;
+			} 
+		}
+
 		return CryptoUtilsFacade.isInPMRange(hate, l_hate)
 				&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
-				&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m);
+				&& CryptoUtilsFacade.isInPMRange(hatm_0, l_m)
+				&& vertexLengthsCorrect && edgeLengthsCorrect;
 	}
 
 	@Override
@@ -79,37 +99,57 @@ public class PossessionVerifier implements IVerifier {
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
 		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
 
-		this.cChallenge = cChallenge;
-
 		// Aborting verification with output null, if lengths check rejects hat-values.
 		if (!checkLengths()) return null;
 
 		QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
-		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
-		for (BaseRepresentation baseRepresentation : baseIterator) {
+		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation baseRepresentation : vertexIterator) {
+			BigInteger hatm = (BigInteger) proofStore.retrieve(
+					URNType.buildURNComponent(URNType.HATMI, this.getClass(), baseRepresentation.getBaseIndex()));
+			Assert.notNull(hatm, "Hat value could not be retrieved.");
+
 			basesProduct =
 					basesProduct.multiply(
-							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+							baseRepresentation.getBase().modPow(hatm));
 		}
-		GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
-		GroupElement aPrimeMulti = APrime.modPow(keyGenParameters.getLowerBoundE());
 
-		GroupElement divide = baseZ.multiply(aPrimeMulti.modInverse());
-		GroupElement result = divide.modPow(cChallenge.negate());
+		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
+		for (BaseRepresentation baseRepresentation : edgeIterator) {
+			BigInteger hatm = (BigInteger) proofStore.retrieve(
+					URNType.buildURNComponent(URNType.HATMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
+			Assert.notNull(hatm, "Hat value could not be retrieved.");
+
+			basesProduct =
+					basesProduct.multiply(
+							baseRepresentation.getBase().modPow(hatm));
+		}
+
+		BigInteger offsetExp = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
+
+		GroupElement aPrimeMulti = APrime.modPow(offsetExp);
+
+		GroupElement baseZdividedAPrime = baseZ.multiply(aPrimeMulti.modInverse());
+		GroupElement adjustedZ = baseZdividedAPrime.modPow(cChallenge.negate());
+
+		GroupElement baseR0hatm_0 = baseR0.modPow(hatm_0);
 		GroupElement aPrimeHate = APrime.modPow(hate);
 		GroupElement baseShatvPrime = baseS.modPow(hatvPrime);
 
-		hatZ = result.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0).multiply(basesProduct);
+		hatZ = adjustedZ.multiply(aPrimeHate).multiply(baseShatvPrime).multiply(baseR0hatm_0).multiply(basesProduct);
 
 		return hatZ;
 	}
 
 	@Override
 	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException {
+		GroupElement hatValue = executeVerification(cChallenge);
+		if (hatValue == null) return null; // Abort returning null.
+
 		Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
 		String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
-		responses.put(URN.createZkpgsURN(hatZURN), executeVerification(cChallenge));
+		responses.put(URN.createZkpgsURN(hatZURN), hatValue);
 		return responses;
 	}
 

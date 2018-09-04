@@ -135,7 +135,7 @@ class PairWiseDifferenceProverTest {
    */
   @Test
   void testPreChallengePhase() throws ProofStoreException {
-    GroupElement tildeR = prover.executePreChallengePhase();
+    tildeR = prover.executePreChallengePhase();
     tildea_BariBarj =
         (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.TILDEABARIBARJ, testIndex));
     assertNotNull(tildea_BariBarj);

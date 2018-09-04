@@ -94,7 +94,6 @@ class SingletonPossessionVerifierTest {
 
 		proofStore.store("bases.exponent.m_0", testM);
 		
-    /** TODO test with encoded bases for the possession verifier */
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
 		tildeZ = prover.executePreChallengePhase();
@@ -102,14 +101,13 @@ class SingletonPossessionVerifierTest {
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
 
-		log.info("Retrieving hat-values");
-		hate = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATE));
-		hatvPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
-		hatm_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATM0));
-
 		storeVerifierView(sigmaM.getA());
+		
+		// Setting up a separate base collection for the verifier side, exponents purged.
+		BaseCollection verifierBaseCollection = baseCollection.clone();
+		verifierBaseCollection.removeExponents();
 
-		verifier = new PossessionVerifier(epk, proofStore);
+		verifier = new PossessionVerifier(verifierBaseCollection, epk, proofStore);
 	}
 
   /** The test checks whether the PossessionVerifier computes hatZ correctly. */
@@ -166,6 +164,11 @@ class SingletonPossessionVerifierTest {
 	}
 
 	private void storeVerifierView(GroupElement aPrime) throws Exception {
+		log.info("Retrieving hat-values");
+		hate = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATE));
+		hatvPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
+		hatm_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATM0));
+		
 		proofStore.store("verifier.hate", hate);
 		proofStore.store("verifier.hatvPrime", hatvPrime);
 		proofStore.store("verifier.hatm_0", hatm_0);

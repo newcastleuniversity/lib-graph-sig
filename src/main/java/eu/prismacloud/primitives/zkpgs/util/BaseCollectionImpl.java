@@ -7,13 +7,14 @@ import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /** Base service class for the iterator. */
-public class BaseCollectionImpl implements BaseCollection, Serializable, IContextProducer {
+public class BaseCollectionImpl implements BaseCollection, Serializable, IContextProducer, Cloneable {
 
 	private static final long serialVersionUID = 4214821047875971751L;
-	private List<BaseRepresentation> bases;
+	private ArrayList<BaseRepresentation> bases;
 
 	@Override
 	public BaseIterator createIterator(BASE type) {
@@ -38,7 +39,7 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		return bases;
 	}
 
-	public void setBases(List<BaseRepresentation> bases) {
+	public void setBases(ArrayList<BaseRepresentation> bases) {
 		this.bases = bases;
 	}
 
@@ -70,5 +71,32 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		for (BaseRepresentation baseRepresentation : bases) {
 			baseRepresentation.addToChallengeContext(ctxList);
 		}
+	}
+	
+	@Override
+	public void removeExponents() {
+		Iterator<BaseRepresentation> baseIter = bases.iterator();
+		
+		while (baseIter.hasNext()) {
+			BaseRepresentation baseRepresentation = (BaseRepresentation) baseIter.next();
+			baseRepresentation.setExponent(null);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public BaseCollectionImpl clone() {
+		BaseCollectionImpl theClone = null;
+		try {
+			theClone = (BaseCollectionImpl) super.clone();
+		} catch(CloneNotSupportedException e) {
+			// Should never happen
+			throw new InternalError(e);
+		}
+		
+		// Clone mutable fields
+		theClone.bases = (ArrayList<BaseRepresentation>) this.bases.clone();
+		
+		return theClone;
 	}
 }

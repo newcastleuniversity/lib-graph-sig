@@ -205,7 +205,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
   public void preChallengePhase() {
 
-    PossessionVerifier possessionVerifier = new PossessionVerifier(extendedPublicKey, proofStore);
+    PossessionVerifier possessionVerifier = new PossessionVerifier(baseCollection, extendedPublicKey, proofStore);
 
     try {
 
