@@ -61,69 +61,6 @@ implements Serializable, Cloneable {
 		return new GSGraph<GSVertex, GSEdge>(graph);
 	}
 
-	//	/**
-	//	 * Encodes a graph that has been constructed from an imported graphml file with random vertex
-	//	 * prime representatives. Selects a random prime vertex prime representative for each vertex and
-	//	 * its prime representatives for the labels. The edge prime representative is selected and its
-	//	 * prime representatives for the labels.
-	//	 *
-	//	 * <p>The labels are enforced to be geo-location labels (UN ISO country codes) and restricted to a
-	//	 * single label.
-	//	 *
-	//	 * <p>Note that the method comes with a slight risk of a collision between randomly chosen vertex
-	//	 * identifiers, making the graph representation ambiguous. It will also make it impossible for a
-	//	 * verifier to effectively determine vertex identifiers for his queries. Further, the method is
-	//	 * computationally intensive as many random prime numbers will be chosen.
-	//	 *
-	//	 * @param graphEncodingParameters the graph encoding parameters
-	//	 * @deprecated
-	//	 */
-	//	@Deprecated
-	//	public void encodeRandomGeoLocationGraph(GraphEncodingParameters graphEncodingParameters) {
-	//		JsonIsoCountries jsonIsoCountries = new JsonIsoCountries();
-	//		BigInteger vertexPrimeRepresentative;
-	//		BigInteger labelPrimeRepresentative;
-	//
-	//		Set<V> vertexSet = this.graph.vertexSet();
-	//		ArrayList<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
-	//		ArrayList<BigInteger> edgeLabelRepresentatives = new ArrayList<>();
-	//		Map<URN, BigInteger> countryMap = jsonIsoCountries.getCountryMap();
-	//		for (V vertex : vertexSet) {
-	//			vertexLabelRepresentatives = new ArrayList<>();
-	//
-	//			if ((vertex.getLabels() != null) && (!vertex.getLabels().isEmpty())) {
-	//				for (String label : vertex.getLabels()) {
-	//					labelPrimeRepresentative = countryMap.get(URN.createZkpgsURN(label));
-	//					Assert.notNull(
-	//							labelPrimeRepresentative, "JsonIsoCountries returned null as a vertex label.");
-	//					vertexLabelRepresentatives.add(labelPrimeRepresentative);
-	//				}
-	//			}
-	//
-	//			vertexPrimeRepresentative =
-	//					CryptoUtilsFacade.generateRandomPrime(graphEncodingParameters.getlPrime_V());
-	//			// TODO not correct: Needs to encode systematically.
-	//			vertex.setVertexRepresentative(vertexPrimeRepresentative);
-	//			vertex.setLabelRepresentatives(vertexLabelRepresentatives);
-	//		}
-	//
-	//		Set<E> edgeSet = graph.edgeSet();
-	//
-	//		// TODO does not seem to establish edge encoding (product of the two vertices).
-	//		for (eu.prismacloud.primitives.zkpgs.graph.GSEdge edge : edgeSet) {
-	//
-	//			if ((edge.getLabels() != null) && (!edge.getLabels().isEmpty())) {
-	//				for (String label : edge.getLabels()) {
-	//					labelPrimeRepresentative = countryMap.get(URN.createZkpgsURN(label));
-	//					Assert.notNull(
-	//							labelPrimeRepresentative, "JsonIsoCountries returned null as a edge label.");
-	//					edgeLabelRepresentatives.add(labelPrimeRepresentative);
-	//				}
-	//				edge.setLabelRepresentatives(edgeLabelRepresentatives);
-	//			}
-	//		}
-	//	}
-
 	/**
 	 * Encodes a graph that has been constructed from an imported graphml file with a specified encoding. 
 	 * Vertex and label representatives are obtained from an IGraphEncoding.
