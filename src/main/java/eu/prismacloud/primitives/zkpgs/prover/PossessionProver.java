@@ -14,7 +14,6 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.GraphUtils;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -40,7 +39,7 @@ import java.util.logging.Logger;
 public class PossessionProver implements IProver {
 	public static final String URNID = "possessionprover";
 
-	private Logger log = GSLoggerConfiguration.getGSlog();
+	//private Logger log = GSLoggerConfiguration.getGSlog();
 
 	private final GSSignature blindedSignature;
 	private final ExtendedPublicKey extendedPublicKey;
@@ -204,10 +203,10 @@ public class PossessionProver implements IProver {
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
 		}
 
-		log.log(
-				Level.INFO,
-				"||TildeZ Graph: "
-						+ GraphUtils.iteratedGraphToExpString(witnessBases.iterator(), proofStore));
+//		log.log(
+//				Level.INFO,
+//				"||TildeZ Graph: "
+//						+ GraphUtils.iteratedGraphToExpString(witnessBases.iterator(), proofStore));
 
 		tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0).multiply(baseProduct);
 
@@ -287,10 +286,10 @@ public class PossessionProver implements IProver {
 			}
 		}
 
-		log.log(
-				Level.INFO,
-				"||hatZ Graph: "
-						+ GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
+//		log.log(
+//				Level.INFO,
+//				"||hatZ Graph: "
+//						+ GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
 
 		hate = tildee.add(this.c.multiply(ePrime));
 		hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
@@ -346,16 +345,16 @@ public class PossessionProver implements IProver {
 				baseZnegC.multiply(aPrimeHatE).multiply(baseSHatVPrime).multiply(baseR_0HatM_0);
 
 		// Iterate over the graph components as recorded by the PossessionProver
-		log.log(
-				Level.INFO,
-				"||Self-Verify Graph: "
-						+ GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
+//		log.log(
+//				Level.INFO,
+//				"||Self-Verify Graph: "
+//						+ GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
 
 		for (BaseRepresentation baseRepresentation : graphResponses) {
-			log.info("Including base " + GraphUtils.graphTypeToString(baseRepresentation)
-			+ baseRepresentation.getBaseIndex() + " with exponent "
-			+ GraphUtils.expKeyToString(baseRepresentation, proofStore) 
-			+ " = " + baseRepresentation.getExponent());
+//			log.info("Including base " + GraphUtils.graphTypeToString(baseRepresentation)
+//			+ baseRepresentation.getBaseIndex() + " with exponent "
+//			+ GraphUtils.expKeyToString(baseRepresentation, proofStore) 
+//			+ " = " + baseRepresentation.getExponent());
 			verifier =
 					verifier.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 		}
