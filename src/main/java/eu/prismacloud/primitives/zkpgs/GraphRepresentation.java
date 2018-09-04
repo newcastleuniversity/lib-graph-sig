@@ -8,11 +8,11 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,188 +22,186 @@ import org.jgrapht.Graph;
 
 /** The type Graph representation. */
 public class GraphRepresentation {
-	private static final Logger gslog = GSLoggerConfiguration.getGSlog();
+  private static final Logger gslog = GSLoggerConfiguration.getGSlog();
+  private final Map<URN, BaseRepresentation> bases;
+  private final ExtendedPublicKey extendedPublicKey;
+  private final GraphEncodingParameters encodingParameters;
+  private Map<URN, BaseRepresentation> encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
+  private Map<URN, BaseRepresentation> excludedBases = new HashMap<URN, BaseRepresentation>();
 
-	private final Map<URN, BaseRepresentation> allBases;
-	private final ExtendedPublicKey extendedPublicKey;
-	private final GraphEncodingParameters encodingParameters;
-	private Map<URN, BaseRepresentation> encodedBases = new LinkedHashMap<URN, BaseRepresentation>();
+  public GraphRepresentation(ExtendedPublicKey epk) {
+    this.extendedPublicKey = epk;
+    this.encodingParameters = epk.getGraphEncodingParameters();
+    this.bases = epk.getBases();
+  }
 
-	public GraphRepresentation(ExtendedPublicKey epk) {
-		this.extendedPublicKey = epk;
-		this.encodingParameters = epk.getGraphEncodingParameters();
-		this.allBases = epk.getBases();
-	}
+  /**
+   * Encodes a graph structure created from a graphml file and associates a random base with the
+   * vertex and edge encoding. Note that the random base for a vertex is selected uniformly from the
+   * number of vertices and the random base for an edge is selected uniformly from the number of
+   * edges.
+   *
+   * <p>The exponent of each vertex base is calculated by multiplying the vertex prime
+   * representative with the list of the label representatives. Similarly, the exponent for each
+   * edge base is computed by multiplying the vertex prime representatives that comprise the edge
+   * and the label representatives of the edge.
+   *
+   * @param gsGraph the graph to encode
+   * @return the encoded bases
+   */
+  public Map<URN, BaseRepresentation> encode(GSGraph<GSVertex, GSEdge> gsGraph) {
+    Graph<GSVertex, GSEdge> graph;
+    graph = gsGraph.getGraph();
 
-	/**
-	 * Encodes a graph structure created from a graphml file and associates a random base with the
-	 * vertex and edge encoding. Note that the random base for a vertex is selected uniformly from the
-	 * number of vertices and the random base for an edge is selected uniformly from the number of
-	 * edges. The exponent of each vertex base is calculated by multiplying the vertex prime
-	 * representative with the list of the label representatives. Similarly, the exponent for each
-	 * edge base is computed by multiplying the vertex prime representatives that comprise the edge
-	 * and the label representatives of the edge.
-	 *
-	 * @param gsGraph the graph to encode
-	 * @param graphEncodingParameters the graph encoding parameters
-	 * @param extendedPublicKey the extended public key
-	 * @return the graph representation that includes the encoded bases
-	 */
-	public GraphRepresentation encode(
-			GSGraph<GSVertex, GSEdge> gsGraph) {
+    encodeVertices(graph);
+    encodeEdges(graph);
 
-		Graph<GSVertex, GSEdge> graph;
-		gsGraph.encodeRandomGeoLocationGraph(encodingParameters);
-		graph = gsGraph.getGraph();
+    return bases;
+  }
 
-		encodeVertices(graph, allBases);
-		encodeEdges(graph, allBases);
+  private void encodeVertices(Graph<GSVertex, GSEdge> graph) {
+    int baseIndex;
+    Map<URN, BigInteger> vertexRepresentatives = extendedPublicKey.getVertexRepresentatives();
+    Map<URN, BigInteger> labelRepresentatives = extendedPublicKey.getLabelRepresentatives();
 
-		return new GraphRepresentation(extendedPublicKey); // TODO new object does not contain anything of value...
-	}
+    String label = "";
+    Set<GSVertex> vertexSet = graph.vertexSet();
+    for (GSVertex vertex : vertexSet) {
+      BaseRepresentation base = extendedPublicKey.getRandomVertexBase(excludedBases);
+      excludedBases.put(URN.createZkpgsURN("bases.vertex.R_i_" + base.getBaseIndex()), base);
 
-	private void encodeVertices(Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
+      baseIndex = base.getBaseIndex();
+      BigInteger vertexRepresentative =
+          vertexRepresentatives.get(URN.createZkpgsURN("vertex.representative.e_i_" + baseIndex));
+      Assert.notNull(vertexRepresentative, "cannot find vertex prime representative");
 
-		Set<GSVertex> vertexSet = graph.vertexSet();
-		for (GSVertex vertex : vertexSet) {
-			List<BigInteger> vertexLabelRepresentatives = vertex.getLabelPrimeRepresentatives();
-			BigInteger vertexRepresentative = vertex.getVertexRepresentative();
+      vertex.setVertexRepresentative(vertexRepresentative);
+      List<String> labels = vertex.getLabels();
+      if (!labels.isEmpty()) {
+        for (String lbl : labels) {
+          if (!"".equals(lbl)) {
+            label = lbl;
+            break;
+          }
+        }
+      }
 
-			BigInteger exponentEncoding = encodeVertex(vertexRepresentative, vertexLabelRepresentatives);
-			Assert.notNull(exponentEncoding, "Exponent encoding returned null.");
+      BigInteger labelRepresentative = labelRepresentatives.get(URN.createZkpgsURN(label));
+      Assert.notNull(labelRepresentative, "cannot find label prime representative");
 
-			BaseRepresentation base = extendedPublicKey.getRandomVertexBase(encodedBases);
-					
-			Assert.notNull(base, "cannot find base index");
+      List<BigInteger> vertexLabelRepresentatives = new ArrayList<>();
 
-			base.setExponent(exponentEncoding);
+      vertexLabelRepresentatives.add(labelRepresentative);
 
-			encodedBases.replace(URN.createZkpgsURN("bases.vertex.R_" + base.getBaseIndex()), base);
-		}
-	}
+      BigInteger exponentEncoding = encodeVertex(vertexRepresentative, vertexLabelRepresentatives);
+      Assert.notNull(exponentEncoding, "Exponent encoding returned null.");
 
-	private void encodeEdges(Graph<GSVertex, GSEdge> graph, Map<URN, BaseRepresentation> bases) {
+      Assert.notNull(base, "cannot find base index");
 
-		Set<GSEdge> edgeSet = graph.edgeSet();
+      base.setExponent(exponentEncoding);
 
-		for (GSEdge edge : edgeSet) {
-			GSVertex e_i = edge.getE_i();
-			GSVertex e_j = edge.getE_j();
-			List<BigInteger> edgeLabels = edge.getLabelRepresentatives();
-			Assert.notNull(edgeLabels, "Edge label set was found to be null.");
+      //      gslog.info("base index: " + base.getBaseIndex());
+      //      gslog.info("vertex id " + vertex.getId());
+      bases.replace(URN.createZkpgsURN("bases.vertex.R_" + base.getBaseIndex()), base);
+    }
+  }
 
-			BigInteger exponentEncoding =
-					encodeEdge(
-							e_i.getVertexRepresentative(), e_j.getVertexRepresentative(), edgeLabels);
+  private void encodeEdges(Graph<GSVertex, GSEdge> graph) {
 
-			Assert.notNull(exponentEncoding, "Edge label exponent was found to be null.");
+    Set<GSEdge> edgeSet = graph.edgeSet();
 
-			BaseRepresentation base = extendedPublicKey.getRandomEdgeBase(encodedBases);
-			
-			Assert.notNull(base, "cannot find base index");
+    for (GSEdge edge : edgeSet) {
+      GSVertex e_i = edge.getE_i();
+      GSVertex e_j = edge.getE_j();
+      List<BigInteger> edgeLabels = edge.getLabelRepresentatives();
 
-			base.setExponent(exponentEncoding);
-			
-			encodedBases.replace(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
-		}
-	}
+      Assert.notNull(edgeLabels, "Edge label set was found to be null.");
+      Assert.notNull(e_i, "vertex edge was found to be null");
+      Assert.notNull(e_j, "vertex edge was found to be null");
 
-//	/**
-//	 * Generate a uniformly random base index from a range of [min, max] and 
-//	 * return the associated base. 
-//	 * The bases returned must be different from the previous one.
-//	 * 
-//	 * <p>The current method does not work correctly because the state of which bases
-//	 * have been already enumerated will not be kept across calls.
-//	 * Also, error-prone, as it depends on external indexes.
-//	 * 
-//	 * @deprecated
-//	 */
-//	private BaseRepresentation generateRandomBase(BigInteger min, BigInteger max) {
-//		// TODO: The bases need to be selected randomly either from the vertex or the edge bases, not
-//		// over all bases.
-//		// TODO Could lead to base collisions. Must be without replacement!
-//		int randomBaseIndex = CryptoUtilsFacade.computeRandomNumber(min, max).intValue();
-//		List<Integer> crossoutBaseIndex = new ArrayList<Integer>(allBases.size());
-//
-//		BaseRepresentation resultBase = null;
-//
-//		for (BaseRepresentation baseRepresentation : allBases.values()) {
-//			if (baseRepresentation.getBaseIndex() == randomBaseIndex) {
-//				if (!crossoutBaseIndex.contains(randomBaseIndex)) {
-//					crossoutBaseIndex.add(randomBaseIndex);
-//					resultBase = baseRepresentation;
-//				}
-//			}
-//		}
-//
-//		return resultBase;
-//	}
-	
+      BigInteger exponentEncoding =
+          encodeEdge(e_i.getVertexRepresentative(), e_j.getVertexRepresentative(), edgeLabels);
 
-	/**
-	 * Return the encoded bases.
-	 *
-	 * @return the encoded bases
-	 */
-	public Map<URN, BaseRepresentation> getEncodedBases() {
-		return encodedBases;
-	}
+      //      gslog.info("exponent encoding: " + exponentEncoding);
+      Assert.notNull(exponentEncoding, "Edge label exponent was found to be null.");
 
-	/**
-	 * Return encoded base collection.
-	 *
-	 * @return the encoded base collection
-	 */
-	public BaseCollection getEncodedBaseCollection() {
-		BaseCollectionImpl baseCollection = new BaseCollectionImpl();
-		baseCollection.setBases(new ArrayList<BaseRepresentation>(encodedBases.values()));
-		return baseCollection;
-	}
+      BaseRepresentation base = extendedPublicKey.getRandomEdgeBase(excludedBases);
+      excludedBases.put(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
 
-	/*
-	 * Encode a vertex with a vertex prime representative and a list of label prime representatives. The vertex prime representative is multiplied with the list of label prime representatives.
-	 */
+      Assert.notNull(base, "cannot find base index");
 
-	private BigInteger encodeVertex(
-			BigInteger vertexPrimeRepresentative, List<BigInteger> labelRepresentatives) {
+      base.setExponent(exponentEncoding);
+      //      gslog.info("base index: " + base.getBaseIndex());
+      //      gslog.info(
+      //          "edge_i id: " + edge.getE_i().getId() + " edge_j id: " + edge.getE_j().getId() +
+      // "\n");
+      bases.replace(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
+    }
+  }
 
-		Assert.notNull(vertexPrimeRepresentative, "vertex prime representative does not exist");
-		Assert.notNull(labelRepresentatives, "labels prime representative does not exist");
+  /**
+   * Return the encoded bases.
+   *
+   * @return the encoded bases
+   */
+  public Map<URN, BaseRepresentation> getEncodedBases() {
+    return bases;
+  }
 
-		BigInteger e_k = BigInteger.ONE;
-		if (labelRepresentatives != null) {
-			for (BigInteger labelRepresentative : labelRepresentatives) {
-				if (labelRepresentative != null) {
-					e_k = e_k.multiply(labelRepresentative);
-				}
-			}
-		}
+  /**
+   * Return encoded base collection.
+   *
+   * @return the encoded base collection
+   */
+  public BaseCollection getEncodedBaseCollection() {
+    BaseCollectionImpl baseCollection = new BaseCollectionImpl();
+    baseCollection.setBases(new ArrayList<BaseRepresentation>(bases.values()));
+    return baseCollection;
+  }
 
-		// TODO A vertex can have multiple labels, not just one.
-		return vertexPrimeRepresentative.multiply(e_k);
-	}
+  /*
+   * Encode a vertex with a vertex prime representative and a list of label prime representatives. The vertex prime representative is multiplied with the list of label prime representatives.
+   */
 
-	/*
-	 * Encode an edge with the prime representatives of its vertices and a list of label prime representatives of the edge. The vertex prime representatives are multiplied with the list of label prime representatives.
-	 */
+  private BigInteger encodeVertex(
+      BigInteger vertexPrimeRepresentative, List<BigInteger> labelRepresentatives) {
 
-	// TODO An edge can have multiple labels, not just one.
-	private BigInteger encodeEdge(
-			BigInteger e_i, BigInteger e_j, List<BigInteger> labelRepresentatives) {
+    Assert.notNull(vertexPrimeRepresentative, "vertex prime representative does not exist");
+    Assert.notNull(labelRepresentatives, "labels prime representative does not exist");
 
-		Assert.notNull(e_i, "Vertex representative e_i was found null.");
-		Assert.notNull(e_j, "Vertex representative e_j was found null.");
+    BigInteger e_k = BigInteger.ONE;
+    if (labelRepresentatives != null) {
+      for (BigInteger labelRepresentative : labelRepresentatives) {
+        if (labelRepresentative != null) {
+          e_k = e_k.multiply(labelRepresentative);
+        }
+      }
+    }
 
-		BigInteger e_k = BigInteger.ONE;
-		if (labelRepresentatives != null) {
-			for (BigInteger labelRepresentative : labelRepresentatives) {
-				if (labelRepresentative != null) {
-					e_k = e_k.multiply(labelRepresentative);
-				}
-			}
-		}
+    // TODO A vertex can have multiple labels, not just one.
+    return vertexPrimeRepresentative.multiply(e_k);
+  }
 
-		return e_i.multiply(e_j.multiply(e_k));
-	}
+  /*
+   * Encode an edge with the prime representatives of its vertices and a list of label prime representatives of the edge. The vertex prime representatives are multiplied with the list of label prime representatives.
+   */
+
+  // TODO An edge can have multiple labels, not just one.
+  private BigInteger encodeEdge(
+      BigInteger e_i, BigInteger e_j, List<BigInteger> labelRepresentatives) {
+
+    Assert.notNull(e_i, "Vertex representative e_i was found null.");
+    Assert.notNull(e_j, "Vertex representative e_j was found null.");
+
+    BigInteger e_k = BigInteger.ONE;
+    if (labelRepresentatives != null) {
+      for (BigInteger labelRepresentative : labelRepresentatives) {
+        if (labelRepresentative != null) {
+          e_k = e_k.multiply(labelRepresentative);
+        }
+      }
+    }
+
+    return e_i.multiply(e_j.multiply(e_k));
+  }
 }
