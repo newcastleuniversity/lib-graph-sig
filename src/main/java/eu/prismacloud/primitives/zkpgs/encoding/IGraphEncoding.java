@@ -17,6 +17,19 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
  * these representatives to appropriate bases for a specific graph signature).
  */
 public interface IGraphEncoding {
+	
+	/**
+	 * Method to setup the encoding and check its consistency.
+	 * Should be called before the encoding is put to work.
+	 * 
+	 * <p>Subsequent methods are entitled to throw an
+	 * InternalError at runtime if the encoding is used without having been
+	 * initialized through this method.
+	 * 
+	 * @throws EncodingException when the encoding is inconsistent
+	 * or faulty.
+	 */
+	void setupEncoding() throws EncodingException;
 
 	/**
 	 * Returns the GraphEncodingParameters that were used to generate
@@ -43,15 +56,6 @@ public interface IGraphEncoding {
 	 * @return Map of label representatives
 	 */
 	Map<URN, BigInteger> getLabelRepresentatives();
-	
-	/**
-	 * Method to setup the encoding and check its consistency.
-	 * Should be called before the encoding is put to work.
-	 * 
-	 * @throws EncodingException when the encoding is inconsistent
-	 * or faulty.
-	 */
-	void setupEncoding() throws EncodingException;
 	
 	/**
 	 * Returns a prime representative for a vertex based on a String id

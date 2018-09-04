@@ -85,8 +85,8 @@ class GSVertexTest {
     ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(1259));
     vertex.setLabelRepresentatives(labelRepresentatives);
-    assertNotNull(vertex.getLabelPrimeRepresentatives());
-    assertEquals(1, vertex.getLabelPrimeRepresentatives().size());
+    assertNotNull(vertex.getLabelRepresentatives());
+    assertEquals(1, vertex.getLabelRepresentatives().size());
   }
 
   @Test
@@ -96,8 +96,8 @@ class GSVertexTest {
     ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
     labelRepresentatives.add(BigInteger.valueOf(2389));
     vertex.setLabelRepresentatives(labelRepresentatives);
-    assertNotNull(vertex.getLabelPrimeRepresentatives());
-    assertEquals(BigInteger.valueOf(2389), vertex.getLabelPrimeRepresentatives().get(0));
+    assertNotNull(vertex.getLabelRepresentatives());
+    assertEquals(BigInteger.valueOf(2389), vertex.getLabelRepresentatives().get(0));
   }
 
   @Test

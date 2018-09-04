@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.graph;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** A graph vertex for graph representation. */
@@ -22,11 +23,16 @@ public class GSVertex implements Serializable, Cloneable {
 		this.labels = labels;
 	}
 
+	/** 
+	 * Returns an (unmodifiable) list of the string labels of this vertex.
+	 * 
+	 * @return unmodifiable String List of labels.
+	 */
 	public List<String> getLabels() {
-		return labels;
+		return Collections.unmodifiableList(labels);
 	}
 
-	public void setLabels(ArrayList<String> labels) {
+	protected void setLabels(ArrayList<String> labels) {
 		this.labels = labels;
 	}
 
@@ -38,8 +44,13 @@ public class GSVertex implements Serializable, Cloneable {
 		this.id = id;
 	}
 
-	public List<BigInteger> getLabelPrimeRepresentatives() {
-		return labelRepresentatives;
+	/** 
+	 * Returns an (unmodifiable) list of the BigInteger label representatives of this vertex.
+	 * 
+	 * @return unmodifiable BigInteger List of label representatives.
+	 */
+	public List<BigInteger> getLabelRepresentatives() {
+		return Collections.unmodifiableList(labelRepresentatives);
 	}
 
 	protected void setLabelRepresentatives(ArrayList<BigInteger> labelRepresentatives) {

@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /** Base service class for the iterator. */
@@ -47,6 +48,10 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 
 	public void set(int index, BaseRepresentation value) {
 		bases.set(index, value);
+	}
+	
+	public void addAll(Collection<BaseRepresentation> collection) {
+		this.bases.addAll(collection);
 	}
 
 	public int size() {

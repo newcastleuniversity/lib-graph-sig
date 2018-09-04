@@ -7,19 +7,16 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroup;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * The GSSignature class encapsulates the algebraic structure a graph signature along with methods
@@ -77,6 +74,7 @@ public class GSSignature implements Serializable {
     this.e = e;
     this.ePrime = e.subtract(ePrimeOffset);
     this.v = v;
+    this.encodedBases = new BaseCollectionImpl();
   }
 
   public GroupElement getA() {
@@ -114,7 +112,9 @@ public class GSSignature implements Serializable {
     BigInteger r_A = CryptoUtilsFacade.computeRandomNumber(r_ALength);
     GroupElement APrime = A.multiply(baseS.modPow(r_A));
     BigInteger vPrime = v.subtract(e.multiply(r_A));
-    return new GSSignature(this.signerPublicKey, APrime, e, vPrime);
+    GSSignature blindedSignature = new GSSignature(this.signerPublicKey, APrime, e, vPrime);
+    blindedSignature.setEncodedBases(encodedBases);
+    return blindedSignature;
   }
 
   /**

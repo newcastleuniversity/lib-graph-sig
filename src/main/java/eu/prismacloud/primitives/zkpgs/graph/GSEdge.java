@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.graph;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -41,16 +42,26 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 	 *  TODO the List interface of labels and representatives does not 
 	 *  enforce consistency. Error-prone.
 	 */
+	/** 
+	 * Returns an (unmodifiable) list of the BigInteger label representatives of this edge.
+	 * 
+	 * @return unmodifiable BigInteger List of label representatives.
+	 */
 	public List<BigInteger> getLabelRepresentatives() {
-		return labelRepresentatives;
+		return Collections.unmodifiableList(labelRepresentatives);
 	}
 
 	protected void setLabelRepresentatives(ArrayList<BigInteger> labelRepresentatives) {
 		this.labelRepresentatives = labelRepresentatives;
 	}
 
+	/** 
+	 * Returns an (unmodifiable) list of the string labels of this edge.
+	 * 
+	 * @return unmodifiable String List of labels.
+	 */
 	public List<String> getLabels() {
-		return labels;
+		return Collections.unmodifiableList(labels);
 	}
 
 	protected void setLabels(ArrayList<String> labels) {

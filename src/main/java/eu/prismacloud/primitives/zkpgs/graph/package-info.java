@@ -25,8 +25,10 @@
  *   <li>IGraphEncoding encoding = new IGraphEncoding(GraphEncodingParameters params); 
  *   followed by encoding.setupEncoding(). These calls instantiate a graph encoding,
  *   for instance, a GeoLocationGraphEncoding.
- *   <li>gsgraph.encode(encoding); applies the encoding to the given GSGraph.
- *   <li>The GraphRepresentation is then meant to hold a graph in the form of bases and 
+ *   <li>gsgraph.encode(encoding); applies the encoding to the given GSGraph and
+ *   adds the prime representatives to its GSVertex and GSEdge instances.
+ *   <li>GraphRepresentation graphRep = GraphRepresetation.encodeGraph(gsgraph, epk) - 
+ *   The GraphRepresentation is then meant to hold a graph in the form of bases and 
  *   their exponents for a given GSSignature. 
  * </ol>
  */

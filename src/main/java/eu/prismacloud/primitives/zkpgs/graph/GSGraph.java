@@ -31,6 +31,8 @@ implements Serializable, Cloneable {
 	private static final long serialVersionUID = -3556647651640740630L;
 
 	private DefaultUndirectedGraph<V, E> graph;
+	
+	private boolean isEncoded = false;
 
 	/**
 	 * Creates a new GSGraph with the corresponding vertices and edges after parsing a graphml file.
@@ -71,10 +73,19 @@ implements Serializable, Cloneable {
 	 * with a prime number. The encoding is usually on a finite set of distinct strings.
 	 * Thereby, an EncodingException will occur if a vertex id or label is requested which is not
 	 * in this finite set.
+	 * 
+	 * @post The GSGraph will be marked as having been successfully encoded if and only if
+	 * the encodeGraph() method was completed without EncodingException.
 	 */
 	public void encodeGraph(IGraphEncoding encoding) throws EncodingException {
+		Assert.notNull(encoding, "Method encodeGraph() called with a null encoding.");
+		try {
 		encodeVertices(encoding);
 		encodeEdges(encoding);
+		} catch (EncodingException e) {
+			throw e;
+		}
+		this.isEncoded = true;
 	}
 
 	private void encodeVertices(IGraphEncoding encoding) throws EncodingException {
@@ -149,6 +160,17 @@ implements Serializable, Cloneable {
 	 */
 	public Graph<V, E> getGraph() {
 		return graph;
+	}
+	
+	/**
+	 * Checks whether IGraphEncoding on this GSGraph has already been completed
+	 * successfully.
+	 * 
+	 * @return <tt>true</tt> if encodeGraph() was called with a non-null IGraphEncoding
+	 * and completed without an EncodingException being thrown.
+	 */
+	public boolean isEncoded() {
+		return isEncoded;
 	}
 
 	@SuppressWarnings("unchecked")

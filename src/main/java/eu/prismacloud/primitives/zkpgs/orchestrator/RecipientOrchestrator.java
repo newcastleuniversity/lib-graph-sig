@@ -55,7 +55,6 @@ public class RecipientOrchestrator {
 	private final GroupElement baseZ;
 	private final KeyGenParameters keyGenParameters;
 	private final GraphEncodingParameters graphEncodingParameters;
-	private final GroupElement R;
 	private final GSRecipient recipient;
 	private BigInteger n_1;
 	private BigInteger n_2;
@@ -67,7 +66,6 @@ public class RecipientOrchestrator {
 	private List<String> challengeList;
 	private BigInteger cChallenge;
 	private Map<URN, BigInteger> responses;
-	private BaseCollection encodedBasesCollection;
 	private GroupElement A;
 	private BigInteger e;
 	private BigInteger vPrimePrime;
@@ -76,6 +74,7 @@ public class RecipientOrchestrator {
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private BaseRepresentation baseR_0;
 	private GSSignature gsSignature;
+	private final GroupElement R;
 
 	public RecipientOrchestrator(
 			final ExtendedPublicKey extendedPublicKey,
@@ -200,17 +199,11 @@ public class RecipientOrchestrator {
 	}
 
 	private void createGraphRepresentation() throws ImportException, EncodingException {
-		GraphRepresentation graphRepresentation = new GraphRepresentation(extendedPublicKey);
-		Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-
 		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(RECIPIENT_GRAPH_FILE);
 		gsGraph.encodeGraph(extendedPublicKey.getEncoding());
-//		GraphMLProvider.createImporter();
 
-		if (!gsGraph.getGraph().vertexSet().isEmpty()) {
-			graphRepresentation.encode(gsGraph);
-			encodedBases = graphRepresentation.getEncodedBaseCollection();
-		}
+		GraphRepresentation gr = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
+		this.encodedBases = gr.getEncodedBaseCollection();
 
 		encodeR_0();
 	}
@@ -273,8 +266,8 @@ public class RecipientOrchestrator {
 		
 		gsSignature = signatureCandidate;
 
-		encodedBasesCollection.add(baseR_0);
-		Boolean isValidSignature = gsSignature.verify(extendedPublicKey, encodedBasesCollection);
+		encodedBases.add(baseR_0);
+		Boolean isValidSignature = gsSignature.verify(extendedPublicKey, encodedBases);
 
 		if (!isValidSignature) {
 			throw new VerificationException("graph signature is not valid");
@@ -286,7 +279,7 @@ public class RecipientOrchestrator {
 		proofStore.store("recipient.graphsignature.v", v);
 
 		gslog.info("recipient: save encoded bases");
-		BaseIterator baseRepresentations = encodedBasesCollection.createIterator(BASE.ALL);
+		BaseIterator baseRepresentations = encodedBases.createIterator(BASE.ALL);
 		String baseURN = "";
 		for (BaseRepresentation baseRepresentation : baseRepresentations) {
 			baseURN = createBaseURN(baseRepresentation);
@@ -308,7 +301,7 @@ public class RecipientOrchestrator {
 	}
 
 	public BaseCollection getEncodedBasesCollection() {
-		return this.encodedBasesCollection;
+		return this.encodedBases;
 	}
 
 	private ProofSignature extractMessageElements(GSMessage correctnessMsg) {
@@ -320,7 +313,7 @@ public class RecipientOrchestrator {
 				(BigInteger)
 				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.vPrimePrime"));
 		P_2 = (ProofSignature) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.P_2"));
-		encodedBasesCollection =
+		encodedBases =
 				(BaseCollection)
 				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
 

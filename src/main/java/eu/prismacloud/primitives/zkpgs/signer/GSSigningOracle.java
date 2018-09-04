@@ -138,7 +138,9 @@ public class GSSigningOracle {
 			}
 		}
 
-		return this.sign(basesEncoded);
+		GSSignature sigma = this.sign(basesEncoded);
+		sigma.setEncodedBases(baseCollection);
+		return sigma;
 	}
 	
 	/**

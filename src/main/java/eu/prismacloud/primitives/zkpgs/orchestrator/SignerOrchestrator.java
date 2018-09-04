@@ -186,17 +186,12 @@ private List<String> contextList;
   }
 
   private void encodeSignerGraph() throws org.jgrapht.io.ImportException {
-    GraphRepresentation graphRepresentation = new GraphRepresentation(extendedKeyPair.getExtendedPublicKey());
-
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
 
-//    graph = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
-//    GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
-//    importer.importGraph(graph, file);
     gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
 
-    graphRepresentation.encode(
-        gsGraph);
+    GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());
+
 
     this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
     this.basesIterator = encodedBasesCollection.createIterator(BASE.ALL);

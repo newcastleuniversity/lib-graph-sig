@@ -24,7 +24,7 @@ public class ExtendedPublicKey
 implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	/* TODO make the keypair defensive and secure in that it is either completely immutable
 	or only returns clones */
-	
+
 	private static final long serialVersionUID = 603738248933483649L;
 	private final SignerPublicKey signerPublicKey;
 	private Map<URN, BaseRepresentation> bases;
@@ -150,11 +150,15 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	/**
 	 * Returns the vertex base according to the index parameter. If the base does not exist in the
 	 * bases map or the base type is not a vertex, then a IllegalArgumentException is thrown.
+	 * 
+	 * <p>Note that the method returns a reference to a prototypical vertex BaseRepresentation 
+	 * and not a clone. Hence, this method must be used with care and its result should be
+	 * cloned to avoid side-effects of the mutable BaseRepresentation.
 	 *
 	 * @param index the index of the base
 	 * @return the vertex base
 	 */
-	public BaseRepresentation getVertexBase(int index) {
+	protected BaseRepresentation getVertexBase(int index) {
 		BaseRepresentation base =
 				bases.get(URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index));
 		if (base == null) {
@@ -170,11 +174,15 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	/**
 	 * Returns the edge base according to the index parameter. If the base does not exist in the bases
 	 * map or the base type is not an edge, then a IllegalArgumentException is thrown.
+	 * 
+	 * <p>Note that the method returns a reference to a prototypical edge BaseRepresentation 
+	 * and not a clone. Hence, this method must be used with care and its result should be
+	 * cloned to avoid side-effects of the mutable BaseRepresentation.
 	 *
 	 * @param index the index
 	 * @return the edge base
 	 */
-	public BaseRepresentation getEdgeBase(int index) {
+	protected BaseRepresentation getEdgeBase(int index) {
 		BaseRepresentation base =
 				bases.get(URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index));
 		if (base == null) {
@@ -191,6 +199,8 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 * Chooses uniformly at random a vertex base, excluding ones stated as being excludedBases.
 	 *
 	 * <p>The method is not guaranteed to terminate, should all possible vertex bases be excluded.
+	 * 
+	 * <p>The returned value is a clone and independent from the BaseRepresentation prototype.
 	 *
 	 * @param excludedBaseMap Map of bases to exclude
 	 * @return BaseRepresentation of a fresh vertex base.
@@ -202,13 +212,15 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 			candidateBase = getRandomVertexBase();
 		}
 		// Post-Condition: candidate is not null and candidate is not in excludedBases.
-		return candidateBase;
+		return candidateBase.clone();
 	}
 
 	/**
 	 * Chooses uniformly at random an edge base, excluding ones stated as being excludedBases.
 	 *
 	 * <p>The method is not guaranteed to terminate, should all possible edge bases be excluded.
+	 * 
+	 * <p>The returned value is a clone and independent from the BaseRepresentation prototype.
 	 *
 	 * @param excludedBaseMap Map of bases to exclude
 	 * @return BaseRepresentation of a fresh edge base.
@@ -220,11 +232,13 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 			candidateBase = getRandomEdgeBase();
 		}
 		// Post-Condition: candidate is not null and candidate is not in excludedBases.
-		return candidateBase;
+		return candidateBase.clone();
 	}
 
 	/**
 	 * Chooses uniformly at random a vertex base.
+	 * 
+	 * <p>The returned value is a clone and independent from the BaseRepresentation prototype.
 	 *
 	 * @return BaseRepresentation of a fresh vertex base.
 	 */
@@ -236,11 +250,13 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 		SecureRandom secureRandom = new SecureRandom();
 		int index = minIndex + secureRandom.nextInt(range);
 
-		return getVertexBase(index);
+		return getVertexBase(index).clone();
 	}
 
 	/**
 	 * Chooses uniformly at random an edge base.
+	 * 
+	 * <p>The returned value is a clone and independent from the BaseRepresentation prototype.
 	 *
 	 * @return BaseRepresentation of a fresh edge base.
 	 */
@@ -251,7 +267,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 
 		SecureRandom secureRandom = new SecureRandom();
 		int index = minIndex + secureRandom.nextInt(range);
-		return getEdgeBase(index);
+		return getEdgeBase(index).clone();
 	}
 
 	@Override
@@ -268,7 +284,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	public BigInteger getEdgeLabelRepresentative(String label) {
 		return graphEncoding.getEdgeLabelRepresentative(label);
 	}
-	
+
 	@Override
 	public IGraphEncoding getEncoding() {
 		return this.graphEncoding;

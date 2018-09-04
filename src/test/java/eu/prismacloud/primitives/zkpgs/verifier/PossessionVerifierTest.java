@@ -75,8 +75,6 @@ class PossessionVerifierTest {
 		epk = extendedKeyPair.getExtendedPublicKey();
 
 		oracle = new GSSigningOracle(signerKeyPair, keyGenParameters);
-		
-		
 	}
 
 	@BeforeEach

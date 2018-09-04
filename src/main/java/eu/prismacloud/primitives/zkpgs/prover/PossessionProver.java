@@ -91,7 +91,7 @@ public class PossessionProver implements IProver {
     this.proofStore = ps;
     this.blindedSignature = blindedSignature;
     this.keyGenParameters = epk.getKeyGenParameters();
-    this.baseCollection = epk.getBaseCollection();
+    this.baseCollection = blindedSignature.getEncodedBases();
   }
 
   @Override
@@ -109,8 +109,8 @@ public class PossessionProver implements IProver {
 
   @Override
   public GroupElement executePreChallengePhase() throws ProofStoreException {
-    Assert.notNull(baseCollection, "encoded bases collection must not be null");
-    Assert.notNull(keyGenParameters, "keygen parameters must not be null");
+    Assert.notNull(baseCollection, "Encoded bases collection must not be null");
+    Assert.notNull(keyGenParameters, "Keygen parameters must not be null");
 
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();

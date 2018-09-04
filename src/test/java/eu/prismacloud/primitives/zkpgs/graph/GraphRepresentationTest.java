@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
@@ -68,37 +69,35 @@ class GraphRepresentationTest {
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
 
     gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+    
+    GeoLocationGraphEncoding encoding = new GeoLocationGraphEncoding(graphEncodingParameters);
+    encoding.setupEncoding();
+    
+    gsGraph.encodeGraph(encoding);
   }
 
   @Test
   void encodeGraph() {
-    GraphRepresentation graphRepresentation = new GraphRepresentation(extendedPublicKey);
+    GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
 
-    Map<URN, BaseRepresentation> encodedBases = graphRepresentation.encode(gsGraph);
-    int numberOfBases = graphEncodingParameters.getL_V() + graphEncodingParameters.getL_E();
+    Map<URN, BaseRepresentation> encodedBases = graphRepresentation.getEncodedBases();
+    assertNotNull(encodedBases);
     assertNotNull(graphRepresentation);
     assertNotNull(encodedBases);
-    assertEquals(numberOfBases, encodedBases.size());
     assertNotNull(graphRepresentation.getEncodedBaseCollection());
-    assertEquals(numberOfBases, graphRepresentation.getEncodedBaseCollection().size());
     assertNotNull(graphRepresentation.getEncodedBases());
-    assertEquals(numberOfBases, graphRepresentation.getEncodedBases().size());
   }
 
   @Test
-//  @RepeatedTest(10)
   void testBaseCollection() {
-    GraphRepresentation graphRepresentation = new GraphRepresentation(extendedPublicKey);
-
-    Map<URN, BaseRepresentation> encodedBases = graphRepresentation.encode(gsGraph);
+    GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
+    
+    Map<URN, BaseRepresentation> encodedBases = graphRepresentation.getEncodedBases();
     assertNotNull(encodedBases);
     gslog.info("encoded bases: " + encodedBases.size());
-    int numberOfBases = graphEncodingParameters.getL_V() + graphEncodingParameters.getL_E();
     assertNotNull(graphRepresentation);
 
     BaseCollection baseCollection = graphRepresentation.getEncodedBaseCollection();
-
-    assertEquals(numberOfBases, baseCollection.size());
 
     // create an iterator that includes only the bases with an exponent
     BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
