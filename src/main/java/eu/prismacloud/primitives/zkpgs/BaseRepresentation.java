@@ -74,7 +74,16 @@ public class BaseRepresentation implements Serializable, IContextProducer, Clone
 
 	@Override
 	public BaseRepresentation clone() {
-		return new BaseRepresentation(this.base, this.exponent, this.baseIndex, this.baseType);
+		
+		BaseRepresentation theClone = null;
+		try {
+			theClone = (BaseRepresentation) super.clone();
+		} catch(CloneNotSupportedException e) {
+			throw new InternalError(e);
+		}
+		
+		// No mutable members to clone
+		return theClone;
 	}
 
 	@Override

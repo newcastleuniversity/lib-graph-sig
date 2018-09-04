@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * The GraphRepresentation holds a GSGraph encoded with an IGraphEncoding
@@ -26,6 +28,8 @@ import java.util.Set;
  * each selected vertex and edge base.
  */
 public class GraphRepresentation {
+	
+	private Logger log = GSLoggerConfiguration.getGSlog();
 	
 	private final ExtendedPublicKey extendedPublicKey;
 	private final GSGraph<GSVertex, GSEdge> gsGraph;
@@ -80,6 +84,12 @@ public class GraphRepresentation {
 			BigInteger vertexRepresentative = vertex.getVertexRepresentative();
 			Assert.notNull(vertexRepresentative, "The GSVertex does not hold a vertex representative");
 
+			log.info("Combining vertex: ("
+					+ vertex 
+					+ ") with vertex representative e_i=" 
+					+ vertex.getVertexRepresentative() 
+					+ ". There are " + vertex.getLabelRepresentatives().size() + " labels.");
+			
 			BigInteger exponentEncoding = encodeVertex(vertexRepresentative, vertex.getLabelRepresentatives());
 			Assert.notNull(exponentEncoding, "Exponent encoding returned null.");
 
@@ -108,13 +118,23 @@ public class GraphRepresentation {
 			// Post-condition: getRandomEdgeBase returns a clone that can be modified.
 			
 			
-			GSVertex v_i = edge.getE_i();
-			GSVertex v_j = edge.getE_j();
+			GSVertex v_i = edge.getV_i();
+			GSVertex v_j = edge.getV_j();
 			List<BigInteger> edgeLabels = edge.getLabelRepresentatives();
 
 			Assert.notNull(edgeLabels, "Edge label set was found to be null.");
 			Assert.notNull(v_i, "vertex edge was found to be null");
 			Assert.notNull(v_j, "vertex edge was found to be null");
+			
+			log.info("Combining edge: ("
+					+ edge.getV_i() + ", " + edge.getV_j() 
+					+ ") with vertex representatives e_i=" 
+					+ edge.getV_i().getVertexRepresentative() 
+					+ " and e_j="
+					+ edge.getV_j().getVertexRepresentative()
+					+ ". There are " + edge.getLabelRepresentatives().size() + " labels. "
+					+ "Vertex representative product="
+					+ edge.getV_i().getVertexRepresentative().multiply(edge.getV_j().getVertexRepresentative()));
 
 			BigInteger exponentEncoding =
 					encodeEdge(v_i.getVertexRepresentative(), v_j.getVertexRepresentative(), edgeLabels);

@@ -52,10 +52,10 @@ class GSGraphTest {
     }
 
     for (GSEdge edge : edges) {
-      assertNotNull(edge.getE_i());
-      assertNotNull(edge.getE_j());
-      assertTrue(edge.getE_i().getVertexRepresentative().isProbablePrime(80));
-      assertTrue(edge.getE_j().getVertexRepresentative().isProbablePrime(80));
+      assertNotNull(edge.getV_i());
+      assertNotNull(edge.getV_j());
+      assertTrue(edge.getV_i().getVertexRepresentative().isProbablePrime(80));
+      assertTrue(edge.getV_j().getVertexRepresentative().isProbablePrime(80));
     }
   }
 

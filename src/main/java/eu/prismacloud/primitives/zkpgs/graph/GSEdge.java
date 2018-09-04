@@ -20,22 +20,22 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 	 */
 	private static final long serialVersionUID = 3689174677400566632L;
 
-	private final GSVertex e_i;
-	private final GSVertex e_j;
+	private final GSVertex v_i;
+	private final GSVertex v_j;
 	private ArrayList<BigInteger> labelRepresentatives = new ArrayList<>();
 	private ArrayList<String> labels = new ArrayList<>();
 
 	public GSEdge(GSVertex e_i, GSVertex e_j) {
-		this.e_i = e_i;
-		this.e_j = e_j;
+		this.v_i = e_i;
+		this.v_j = e_j;
 	}
 
-	public GSVertex getE_i() {
-		return e_i;
+	public GSVertex getV_i() {
+		return v_i;
 	}
 
-	public GSVertex getE_j() {
-		return e_j;
+	public GSVertex getV_j() {
+		return v_j;
 	}
 
 	/*
@@ -71,8 +71,8 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.graph.GSEdge{");
-		sb.append("e_i=").append(e_i);
-		sb.append(", e_j=").append(e_j);
+		sb.append("e_i=").append(v_i);
+		sb.append(", e_j=").append(v_j);
 		sb.append(", labelRepresentatives=").append(labelRepresentatives);
 		sb.append(", labels=").append(labels);
 		sb.append('}');
@@ -83,8 +83,8 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((e_i == null) ? 0 : e_i.hashCode());
-		result = prime * result + ((e_j == null) ? 0 : e_j.hashCode());
+		result = prime * result + ((v_i == null) ? 0 : v_i.hashCode());
+		result = prime * result + ((v_j == null) ? 0 : v_j.hashCode());
 		result = prime * result + ((labelRepresentatives == null) ? 0 : labelRepresentatives.hashCode());
 		result = prime * result + ((labels == null) ? 0 : labels.hashCode());
 		return result;
@@ -99,15 +99,15 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 		if (!(obj instanceof GSEdge))
 			return false;
 		GSEdge other = (GSEdge) obj;
-		if (e_i == null) {
-			if (other.e_i != null)
+		if (v_i == null) {
+			if (other.v_i != null)
 				return false;
-		} else if (!e_i.equals(other.e_i))
+		} else if (!v_i.equals(other.v_i))
 			return false;
-		if (e_j == null) {
-			if (other.e_j != null)
+		if (v_j == null) {
+			if (other.v_j != null)
 				return false;
-		} else if (!e_j.equals(other.e_j))
+		} else if (!v_j.equals(other.v_j))
 			return false;
 		if (labelRepresentatives == null) {
 			if (other.labelRepresentatives != null)

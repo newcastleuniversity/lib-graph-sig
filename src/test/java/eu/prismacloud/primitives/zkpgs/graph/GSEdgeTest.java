@@ -26,15 +26,15 @@ class GSEdgeTest {
   @Test
   void getE_i() {
     gsEdge = new GSEdge(e_i, e_j);
-    assertNotNull(gsEdge.getE_i());
-    assertEquals(BigInteger.valueOf(6701), gsEdge.getE_i().getVertexRepresentative());
+    assertNotNull(gsEdge.getV_i());
+    assertEquals(BigInteger.valueOf(6701), gsEdge.getV_i().getVertexRepresentative());
   }
 
   @Test
   void getE_j() {
     gsEdge = new GSEdge(e_i, e_j);
-    assertNotNull(gsEdge.getE_j());
-    assertEquals(BigInteger.valueOf(7703), gsEdge.getE_j().getVertexRepresentative());
+    assertNotNull(gsEdge.getV_j());
+    assertEquals(BigInteger.valueOf(7703), gsEdge.getV_j().getVertexRepresentative());
   }
 
   @Test

@@ -108,7 +108,7 @@ class GraphPossessionProverTest {
 
 		Iterator<BaseRepresentation> basesVertices =
 				baseCollection.createIterator(BASE.VERTEX).iterator();
-		log.info("||Sigma Vertices: " + GraphUtils.iteratedGraphToExpString(basesVertices, proofStore));
+		log.info("||Sigma Vertex Bases: " + GraphUtils.iteratedGraphToString(basesVertices));
 
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
@@ -130,8 +130,8 @@ class GraphPossessionProverTest {
 			//			base.getBaseIndex() + " was null.");
 		}
 
-		Iterator<BaseRepresentation> basesEdges = baseCollection.createIterator(BASE.VERTEX).iterator();
-		log.info("||Sigma Edges:    " + GraphUtils.iteratedGraphToExpString(basesEdges, proofStore));
+		Iterator<BaseRepresentation> basesEdges = baseCollection.createIterator(BASE.EDGE).iterator();
+		log.info("||Sigma Edge Bases:    " + GraphUtils.iteratedGraphToString(basesEdges));
 
 		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
 		while (edgeIter.hasNext()) {
@@ -153,7 +153,7 @@ class GraphPossessionProverTest {
 		log.info("Attempting to sign base collection.");
 		sigmaG = oracle.sign(baseCollection);
 		assertNotNull(sigmaG.getEncodedBases(), "Encoded bases were left null after testcase setup.");
-		
+
 		sigmaG = sigmaG.blind();
 		assertNotNull(sigmaG.getEncodedBases(), "Encoded bases were null after blinding in testcase setup.");
 
@@ -289,7 +289,6 @@ class GraphPossessionProverTest {
 		assertTrue(inRange(tildevPrime, minV, maxV));
 
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
-
 		for (BaseRepresentation vertexBase : vertexIter) {
 			//			BaseRepresentation vertexBase = (BaseRepresentation) vertexIter.next();
 			BigInteger tildem =
@@ -432,16 +431,43 @@ class GraphPossessionProverTest {
 		assertEquals(tildem_0, hatm_0.subtract(cChallenge.multiply(testM)));
 		assertEquals(tildee, hate.subtract(cChallenge.multiply(sigmaG.getEPrime())));
 
-		// TODO establish the correct bit-lengths
-		//    int bitLength = computeBitLength();
+
+		log.info("Checking graph encoded responses");
+		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation vertexBase : vertexIter) {
+			BigInteger hatm = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATMI, vertexBase.getBaseIndex()));
+			BigInteger tildem =
+					(BigInteger)
+					proofStore.retrieve(prover.getProverURN(URNType.TILDEMI, vertexBase.getBaseIndex()));
+			BigInteger m = vertexBase.getExponent();
+
+			assertEquals(tildem, hatm.subtract(cChallenge.multiply(m)), 
+					"Graph encoding response on vertex base: " + vertexBase.getBaseIndex()
+					+ " was not correct. Secret exponent was: " + m);
+		}
+
+
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
+		for (BaseRepresentation edgeBase : edgeIter) {
+			BigInteger hatm = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATMIJ, edgeBase.getBaseIndex()));
+			BigInteger tildem =
+					(BigInteger)
+					proofStore.retrieve(prover.getProverURN(URNType.TILDEMIJ, edgeBase.getBaseIndex()));
+			BigInteger m = edgeBase.getExponent();
+
+			assertEquals(tildem, hatm.subtract(cChallenge.multiply(m)), 
+					"Graph encoding response on edge base: " + edgeBase.getBaseIndex()
+					+ " was not correct. Secret exponent was: " + m);
+		}
+
+
+
 
 		log.info("hate bitLength " + hate.bitLength());
 		log.info("hatvPrime bitLength " + hatvPrime.bitLength());
 		log.info("hatm_0 bitLength " + hatm_0.bitLength());
 
-		//    assertEquals(bitLength, hatr_Z.bitLength()+1);
-		//    assertEquals(bitLength, hatr.bitLength()+1);
-		//    assertEquals(bitLength, hatr_0.bitLength()+1);
+
 
 		log.info("Calling Prover self-verification.");
 		assertTrue(prover.verify(), "PossessionProver self-verification post-challenge failed.");
