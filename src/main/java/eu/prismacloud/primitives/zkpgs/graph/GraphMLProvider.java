@@ -1,7 +1,5 @@
-package eu.prismacloud.primitives.zkpgs;
+package eu.prismacloud.primitives.zkpgs.graph;
 
-import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
-import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

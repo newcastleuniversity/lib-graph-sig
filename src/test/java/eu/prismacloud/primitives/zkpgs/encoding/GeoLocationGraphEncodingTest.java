@@ -40,14 +40,14 @@ class GeoLocationGraphEncodingTest {
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
 
     graphEncoding =
-        new GeoLocationGraphEncoding(signerPublicKey, keyGenParameters, graphEncodingParameters);
+        new GeoLocationGraphEncoding(graphEncodingParameters);
   }
 
   @Test
   @DisplayName("Test creating geolocation graph encoding")
   void testCreatingGraphEncoding() {
     GeoLocationGraphEncoding graphEncoding =
-        new GeoLocationGraphEncoding(signerPublicKey, keyGenParameters, graphEncodingParameters);
+        new GeoLocationGraphEncoding(graphEncodingParameters);
 
     assertNotNull(graphEncoding);
   }

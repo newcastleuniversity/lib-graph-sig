@@ -15,18 +15,22 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+/**
+ * Realizes a graph encoding that holds the geo-location of vertices in the form
+ * of UN ISO-3166 alpha country codes.
+ * 
+ * <p>Note that the vertex ids are meant to be integers between 0 and l_V 
+ * (even though they will be represented as String). 
+ */
 public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 
   private static final long serialVersionUID = 6958443506399975449L;
 
-  private final SignerPublicKey signerPublicKey;
   private Map<BigInteger, GSSignature> signatureMap;
   private final Map<URN, BigInteger> vertexRepresentatives;
-  private final KeyGenParameters keyGenParameters;
   private final GraphEncodingParameters graphEncodingParameters;
   private Map<URN, BigInteger> countryLabels;
-  private Map<URN, Object> certifiedPrimeRepresenatives = new HashMap<URN, Object>();
+//  private Map<URN, Object> certifiedPrimeRepresenatives = new HashMap<URN, Object>();
 
   /**
    * Creates a new geolocation graph encoding with the corresponding signer's public key. The
@@ -39,18 +43,14 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
    * @param graphEncodingParameters the graph encoding parameters
    */
   public GeoLocationGraphEncoding(
-      final SignerPublicKey publicKey,
-      final KeyGenParameters keyGenParameters,
       final GraphEncodingParameters graphEncodingParameters) {
 
     this.vertexRepresentatives = new LinkedHashMap<URN, BigInteger>();
-    this.signerPublicKey = publicKey;
-    this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
   }
 
   /**
-   * Setups the graph encoding used to encode graphs by first generating a map fo vertex prime
+   * Setups the graph encoding used to encode graphs by first generating a map of vertex prime
    * representatives and creating a map that holds the country label prime representatives. The
    * method checks if the label representatives are in the correct range as specified in the graph
    * encoding parameters.
@@ -94,6 +94,8 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 
   /**
    * Certify prime representatives.
+   * 
+   * TODO Certify is not well structured at the moment and working on the wrong bases.
    *
    * @param vertexPrimeRepresentatives the base representation
    * @param baseV the base v
@@ -104,7 +106,8 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
       Map<URN, BigInteger> vertexPrimeRepresentatives,
       BaseRepresentation baseV,
       Map<URN, BigInteger> labelRepresenatives,
-      BaseRepresentation baseL) {
+      BaseRepresentation baseL,
+      SignerPublicKey signerPublicKey) {
 
     signatureMap = new HashMap<BigInteger, GSSignature>();
     GSSignature gsSignature;
@@ -137,7 +140,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
    *     encoding parameters lPrime_V and l_V are contradicting each other, e.g, if the encoding
    *     bitlength lPrime_V is too small to encode the number of vertices l_V.
    */
-  public void generateVertexRepresentatives() throws EncodingException {
+  private void generateVertexRepresentatives() throws EncodingException {
     BigInteger vertexPrimeRepresentative =
         this.graphEncodingParameters.getLeastVertexRepresentative();
     Assert.notNull(vertexPrimeRepresentative, "Least vertex representative was null.");
@@ -172,4 +175,19 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
   public GraphEncodingParameters getGraphEncodingParameters() {
     return graphEncodingParameters;
   }
+
+@Override
+public BigInteger getVertexRepresentative(String id) {
+	return vertexRepresentatives.get(URN.createZkpgsURN("vertex.representative.e_i_" + id));
+}
+
+@Override
+public BigInteger getVertexLabelRepresentative(String label) {
+	return countryLabels.get(URN.createZkpgsURN(label));
+}
+
+@Override
+public BigInteger getEdgeLabelRepresentative(String label) {
+	return countryLabels.get(URN.createZkpgsURN(label));
+}
 }

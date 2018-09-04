@@ -45,7 +45,7 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 		return labelRepresentatives;
 	}
 
-	public void setLabelRepresentatives(ArrayList<BigInteger> labelRepresentatives) {
+	protected void setLabelRepresentatives(ArrayList<BigInteger> labelRepresentatives) {
 		this.labelRepresentatives = labelRepresentatives;
 	}
 
@@ -53,7 +53,7 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 		return labels;
 	}
 
-	public void setLabels(ArrayList<String> labels) {
+	protected void setLabels(ArrayList<String> labels) {
 		this.labels = labels;
 	}
 

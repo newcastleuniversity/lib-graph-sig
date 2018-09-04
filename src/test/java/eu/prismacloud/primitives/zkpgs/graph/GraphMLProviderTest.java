@@ -1,4 +1,4 @@
-package eu.prismacloud.primitives.zkpgs;
+package eu.prismacloud.primitives.zkpgs.graph;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.graph.GraphMLProvider;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.File;
 import java.util.logging.Logger;

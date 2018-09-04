@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import java.util.Set;
 import org.jgrapht.Graph;
@@ -25,15 +27,17 @@ class GSGraphTest {
   }
 
   @Test
-  void encodeGraph() throws ImportException {
+  void encodeGraph() throws ImportException, EncodingException {
     GraphEncodingParameters graphEncodingParameters =
         new GraphEncodingParameters(1000, 120, 50000, 256, 16);
+    GeoLocationGraphEncoding encoding = new GeoLocationGraphEncoding(graphEncodingParameters);
+    encoding.setupEncoding();
 
     GSGraph<GSVertex, GSEdge> gsgraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
     assertNotNull(gsgraph);
     assertNotNull(gsgraph.getGraph());
 
-    gsgraph.encodeRandomGeoLocationGraph(graphEncodingParameters);
+    gsgraph.encodeGraph(encoding);
     Set<GSEdge> edges = gsgraph.getGraph().edgeSet();
     Set<GSVertex> vertices = gsgraph.getGraph().vertexSet();
 

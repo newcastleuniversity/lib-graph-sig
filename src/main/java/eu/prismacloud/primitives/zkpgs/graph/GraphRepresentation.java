@@ -1,8 +1,6 @@
-package eu.prismacloud.primitives.zkpgs;
+package eu.prismacloud.primitives.zkpgs.graph;
 
-import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
-import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
-import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.util.Assert;

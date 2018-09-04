@@ -2,15 +2,16 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.GraphMLProvider;
-import eu.prismacloud.primitives.zkpgs.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.graph.GraphMLProvider;
+import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -101,6 +102,8 @@ public class RecipientOrchestrator {
 			createGraphRepresentation();
 		} catch (ImportException im) {
 			gslog.log(Level.SEVERE, im.getMessage());
+		} catch (EncodingException e) {
+			gslog.log(Level.SEVERE, e.getMessage());
 		}
 
 		// TODO needs to receive message n_1
@@ -196,13 +199,13 @@ public class RecipientOrchestrator {
 		recipientMSK = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 	}
 
-	private void createGraphRepresentation() throws ImportException {
+	private void createGraphRepresentation() throws ImportException, EncodingException {
 		GraphRepresentation graphRepresentation = new GraphRepresentation(extendedPublicKey);
 		Graph<GSVertex, GSEdge> g = new DefaultUndirectedGraph<GSVertex, GSEdge>(GSEdge.class);
 
 		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(RECIPIENT_GRAPH_FILE);
-		gsGraph.encodeRandomGeoLocationGraph(this.graphEncodingParameters);
-		GraphMLProvider.createImporter();
+		gsGraph.encodeGraph(extendedPublicKey.getEncoding());
+//		GraphMLProvider.createImporter();
 
 		if (!gsGraph.getGraph().vertexSet().isEmpty()) {
 			graphRepresentation.encode(gsGraph);

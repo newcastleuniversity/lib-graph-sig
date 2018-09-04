@@ -42,7 +42,7 @@ public class GSVertex implements Serializable, Cloneable {
 		return labelRepresentatives;
 	}
 
-	public void setLabelRepresentatives(ArrayList<BigInteger> labelRepresentatives) {
+	protected void setLabelRepresentatives(ArrayList<BigInteger> labelRepresentatives) {
 		this.labelRepresentatives = labelRepresentatives;
 	}
 
@@ -50,7 +50,7 @@ public class GSVertex implements Serializable, Cloneable {
 		return vertexRepresentative;
 	}
 
-	public void setVertexRepresentative(BigInteger vertexPrimeRepresentative) {
+	protected void setVertexRepresentative(BigInteger vertexPrimeRepresentative) {
 		this.vertexRepresentative = vertexPrimeRepresentative;
 	}
 

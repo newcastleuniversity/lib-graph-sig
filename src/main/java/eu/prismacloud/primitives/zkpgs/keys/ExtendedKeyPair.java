@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Class representing the extended key pair */
-public final class ExtendedKeyPair implements IKeyPair, IGraphEncoding {
+public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
+	/* TODO make the keypair defensive and secure in that it is either completely immutable
+	or only returns clones */
 
 	private final SignerPublicKey publicKey;
 	private final SignerPrivateKey privateKey;
@@ -53,8 +55,6 @@ public final class ExtendedKeyPair implements IKeyPair, IGraphEncoding {
 		this.privateKey = signerKeyPair.getPrivateKey();
 		this.graphEncoding =
 				new GeoLocationGraphEncoding(
-						publicKey,
-						keyGenParameters,
 						graphEncodingParameters);
 		this.graphEncodingParameters = graphEncodingParameters;
 		this.keyGenParameters = keyGenParameters;
@@ -298,5 +298,25 @@ public final class ExtendedKeyPair implements IKeyPair, IGraphEncoding {
 
 	public void setupEncoding() throws EncodingException {
 		this.graphEncoding.setupEncoding();
+	}
+	
+	@Override
+	public BigInteger getVertexRepresentative(String id) {
+		return graphEncoding.getVertexRepresentative(id);
+	}
+
+	@Override
+	public BigInteger getVertexLabelRepresentative(String label) {
+		return graphEncoding.getVertexLabelRepresentative(label);
+	}
+
+	@Override
+	public BigInteger getEdgeLabelRepresentative(String label) {
+		return graphEncoding.getEdgeLabelRepresentative(label);
+	}
+
+	@Override
+	public IGraphEncoding getEncoding() {
+		return this.graphEncoding;
 	}
 }
