@@ -12,7 +12,7 @@ public interface BaseCollection extends IContextProducer, Cloneable {
 	boolean remove(BaseRepresentation base);
 	
 	/**
-	 * Removes all exponents stored in the base collection by setting them to null.
+	 * Removes all exponents stored in the base collection by setting them to BigInteger.ZERO.
 	 */
 	void removeExponents();
 

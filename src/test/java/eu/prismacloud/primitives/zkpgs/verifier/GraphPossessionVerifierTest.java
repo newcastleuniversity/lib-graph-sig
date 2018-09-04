@@ -170,6 +170,9 @@ class GraphPossessionVerifierTest {
 		// Setting up a separate base collection for the verifier side, exponents purged.
 		BaseCollection verifierBaseCollection = baseCollection.clone();
 		verifierBaseCollection.removeExponents();
+		log.info("||Verifier collection: " 
+		+ GraphUtils.iteratedGraphToExpString(verifierBaseCollection.createIterator(BASE.ALL).iterator(), 
+				proofStore));
 
 		verifier = new PossessionVerifier(verifierBaseCollection, epk, proofStore);
 	}

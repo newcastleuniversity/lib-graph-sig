@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -79,7 +80,7 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		
 		while (baseIter.hasNext()) {
 			BaseRepresentation baseRepresentation = (BaseRepresentation) baseIter.next();
-			baseRepresentation.setExponent(null);
+			baseRepresentation.setExponent(BigInteger.ZERO);
 		}
 	}
 	
