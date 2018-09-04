@@ -111,7 +111,7 @@ public class GSSigningOracle {
 
 	/**
 	 * Creates a fresh signature with uniformly random blinding randomness, 
-	 * on an arbitrary BaseCollection.
+	 * on an arbitrary BaseCollection. The signature will include R_0 if present.
 	 * 
 	 * <p>The method iterates over all bases of the base collection, computing the
 	 * exponentiation over all bases and, finally, submits the product to
@@ -130,11 +130,19 @@ public class GSSigningOracle {
 			}
 		}
 		
-		BaseIterator edgeIter = baseCollection.createIterator(BASE.ALL);
+		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
 		while (edgeIter.hasNext()) {
 			BaseRepresentation edgeBase = (BaseRepresentation) edgeIter.next();
 			if (edgeBase.getBase() != null && edgeBase.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(edgeBase.getBase().modPow(edgeBase.getExponent()));
+			}
+		}
+		
+		BaseIterator r0Iter = baseCollection.createIterator(BASE.BASE0);
+		while (r0Iter.hasNext()) {
+			BaseRepresentation r0Base = (BaseRepresentation) r0Iter.next();
+			if (r0Base.getBase() != null && r0Base.getExponent() != null) {
+				basesEncoded = basesEncoded.multiply(r0Base.getBase().modPow(r0Base.getExponent()));
 			}
 		}
 

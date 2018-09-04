@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -57,8 +56,8 @@ public class PossessionProver implements IProver {
 
 	private final BaseCollection baseCollection;
 
-	private GroupElement baseS;
-	private GroupElement baseR_0;
+	private final GroupElement baseS;
+	private final GroupElement baseR_0;
 
 	private BigInteger hate;
 	private BigInteger hatvPrime;
@@ -92,6 +91,8 @@ public class PossessionProver implements IProver {
 		this.blindedSignature = blindedSignature;
 		this.keyGenParameters = epk.getKeyGenParameters();
 		this.baseCollection = blindedSignature.getEncodedBases();
+		this.baseR_0 = epk.getPublicKey().getBaseR_0();
+		this.baseS = epk.getPublicKey().getBaseS();
 	}
 
 	@Override
@@ -111,9 +112,6 @@ public class PossessionProver implements IProver {
 	public GroupElement executePreChallengePhase() throws ProofStoreException {
 		Assert.notNull(baseCollection, "Encoded bases collection must not be null");
 		Assert.notNull(keyGenParameters, "Keygen parameters must not be null");
-
-		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-		this.baseR_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 
 		createWitnessRandomness();
 		return computetildeZ();
@@ -165,6 +163,11 @@ public class PossessionProver implements IProver {
 		GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
 
 		GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
+		
+		tildem_0 = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
+
+		GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
+		
 		GroupElement baseProduct = extendedPublicKey.getPublicKey().getQRGroup().getOne();
 
 		Vector<BaseRepresentation> witnessBases = new Vector<BaseRepresentation>();
@@ -176,9 +179,12 @@ public class PossessionProver implements IProver {
 					proofStore.retrieve(
 							URNType.buildURNComponent(
 									URNType.TILDEMI, this.getClass(), baseRepresentation.getBaseIndex()));
+			
+			// Reporting
 			BaseRepresentation tildeBase = baseRepresentation.clone();
 			tildeBase.setExponent(vertexWitness);
 			witnessBases.add(tildeBase);
+			
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(vertexWitness));
 		}
 
@@ -190,6 +196,7 @@ public class PossessionProver implements IProver {
 							URNType.buildURNComponent(
 									URNType.TILDEMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
 
+			// Reporting
 			BaseRepresentation tildeBase = baseRepresentation.clone();
 			tildeBase.setExponent(edgeWitness);
 			witnessBases.add(tildeBase);
@@ -201,10 +208,6 @@ public class PossessionProver implements IProver {
 				Level.INFO,
 				"||TildeZ Graph: "
 						+ GraphUtils.iteratedGraphToExpString(witnessBases.iterator(), proofStore));
-
-		tildem_0 = (BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
-
-		GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
 
 		tildeZ = aPrimeEtilde.multiply(sTildeVPrime).multiply(baseR_0tildem_0).multiply(baseProduct);
 
@@ -236,23 +239,20 @@ public class PossessionProver implements IProver {
 
 		BigInteger m_0 = (BigInteger) proofStore.retrieve("bases.exponent.m_0");
 
-		BigInteger m_i;
-		BigInteger hatm_i;
-		String hatm_iURN;
-
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation vertexBase : vertexIterator) {
 			int baseIndex = vertexBase.getBaseIndex();
-			m_i = vertexBase.getExponent();
+			BigInteger m_i = vertexBase.getExponent();
 			BigInteger tildem_i =
 					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMI, baseIndex));
-			hatm_i = tildem_i.add(this.c.multiply(m_i));
+			BigInteger hatm_i = tildem_i.add(this.c.multiply(m_i));
 
+			// Reporting
 			BaseRepresentation vertexResponse = vertexBase.clone();
 			vertexResponse.setExponent(hatm_i);
 			graphResponses.addElement(vertexResponse);
 
-			hatm_iURN = getProverURN(URNType.HATMI, baseIndex);
+			String hatm_iURN = getProverURN(URNType.HATMI, baseIndex);
 
 			responses.put(URN.createZkpgsURN(hatm_iURN), hatm_i);
 
@@ -263,24 +263,20 @@ public class PossessionProver implements IProver {
 			}
 		}
 
-		BigInteger m_i_j;
-		BigInteger hatm_i_j;
-		String hatm_i_jURN;
-
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation edgeBase : edgeIterator) {
 			int baseIndex = edgeBase.getBaseIndex();
-			m_i_j = edgeBase.getExponent();
+			BigInteger m_i_j = edgeBase.getExponent();
 			BigInteger tildem_i_j =
 					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMIJ, baseIndex));
 
-			hatm_i_j = tildem_i_j.add(this.c.multiply(m_i_j));
+			BigInteger hatm_i_j = tildem_i_j.add(this.c.multiply(m_i_j));
 
 			BaseRepresentation edgeResponse = edgeBase.clone();
 			edgeResponse.setExponent(hatm_i_j);
 			graphResponses.addElement(edgeResponse);
 
-			hatm_i_jURN = getProverURN(URNType.HATMIJ, baseIndex);
+			String hatm_i_jURN = getProverURN(URNType.HATMIJ, baseIndex);
 
 			responses.put(URN.createZkpgsURN(hatm_i_jURN), hatm_i_j);
 

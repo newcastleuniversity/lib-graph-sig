@@ -425,6 +425,10 @@ class GraphPossessionProverTest {
 						+ hatvPrime
 						+ "\n   hatm_0 = "
 						+ hatm_0);
+		
+		log.info("hate bitLength " + hate.bitLength());
+		log.info("hatvPrime bitLength " + hatvPrime.bitLength());
+		log.info("hatm_0 bitLength " + hatm_0.bitLength());
 
 		log.info("Checking correspondence between hat and tilde values");
 		assertEquals(tildevPrime, hatvPrime.subtract(cChallenge.multiply(sigmaG.getV())));
@@ -459,16 +463,23 @@ class GraphPossessionProverTest {
 					"Graph encoding response on edge base: " + edgeBase.getBaseIndex()
 					+ " was not correct. Secret exponent was: " + m);
 		}
+	}
+	
+	@Test
+	void testProverSelfVerification() throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
+		tildeZ = prover.executePreChallengePhase();
+		assertNotNull(tildeZ);
+		
+		BigInteger cChallenge = prover.computeChallenge();
+		log.info("challenge: " + cChallenge);
 
+		log.info("challenge bitlength: " + cChallenge.bitLength());
 
+		prover.executePostChallengePhase(cChallenge);
 
-
-		log.info("hate bitLength " + hate.bitLength());
-		log.info("hatvPrime bitLength " + hatvPrime.bitLength());
-		log.info("hatm_0 bitLength " + hatm_0.bitLength());
-
-
-
+		Thread.sleep(3000);
+		
+		
 		log.info("Calling Prover self-verification.");
 		assertTrue(prover.verify(), "PossessionProver self-verification post-challenge failed.");
 	}
