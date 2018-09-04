@@ -26,8 +26,6 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,6 +94,7 @@ class PossessionVerifierTest {
 
 		proofStore.store("bases.exponent.m_0", testM);
 		
+    /** TODO test with encoded bases for the possession verifier */
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
 		tildeZ = prover.executePreChallengePhase();
@@ -113,28 +112,23 @@ class PossessionVerifierTest {
 		verifier = new PossessionVerifier(epk, proofStore);
 	}
 
-	/**
-	 * The test checks whether the PossessionVerifier computes hatZ correctly.
-	 */
+  /** The test checks whether the PossessionVerifier computes hatZ correctly. */
 	@Test
 	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
-		
-		verifier.executeCompoundVerification(cChallenge);
-		Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
-  String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
-  GroupElement hatZ = responses.get(URN.createZkpgsURN(hatZURN));
-
-		assertEquals(tildeZ, hatZ, "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
+    GroupElement hatZ = verifier.executeVerification(cChallenge);
+    assertEquals(
+        tildeZ,
+        hatZ,
+        "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
 	}
 
 	/**
-	 * The test checks whether the PossessionVerifier correctly aborts when 
-	 * inputs (hat-values) with wrong lengths are used. 
-	 * The critical case is that the lengths may be longer than asked for.
+   * The test checks whether the PossessionVerifier correctly aborts when inputs (hat-values) with
+   * wrong lengths are used. The critical case is that the lengths may be longer than asked for.
 	 */
 	@Test
-	void testIllegalLengths() throws Exception{
+  void testIllegalLengths() throws Exception {
 		// Compute hat-values that are too long and store them in the ProofStore.
 		log.info("Replacing correct hat-values with oversized ones.");
 		hate = hate.multiply(BigInteger.TEN);
@@ -149,9 +143,11 @@ class PossessionVerifierTest {
 		proofStore.store("verifier.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-		Object output = verifier.executeCompoundVerification(cChallenge);
+    GroupElement hatZ = verifier.executeVerification(cChallenge);
 
-		assertNull(output, "The PossionVerifier should have aborted outputting null "
+    assertNull(
+        hatZ,
+        "The PossionVerifier should have aborted outputting null "
 				+ "upon receiving ill-sized inputs, but produced a non-null output.");
 	}
 
@@ -176,5 +172,4 @@ class PossessionVerifierTest {
 		proofStore.store("verifier.c", cChallenge);
 		proofStore.store("verifier.APrime", aPrime);
 	}
-
 }
