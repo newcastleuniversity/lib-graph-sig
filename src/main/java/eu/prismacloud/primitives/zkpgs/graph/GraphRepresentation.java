@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  */
 public class GraphRepresentation {
 	
-	private Logger log = GSLoggerConfiguration.getGSlog();
+	//private Logger log = GSLoggerConfiguration.getGSlog();
 	
 	private final ExtendedPublicKey extendedPublicKey;
 	private final GSGraph<GSVertex, GSEdge> gsGraph;
@@ -84,11 +84,11 @@ public class GraphRepresentation {
 			BigInteger vertexRepresentative = vertex.getVertexRepresentative();
 			Assert.notNull(vertexRepresentative, "The GSVertex does not hold a vertex representative");
 
-			log.info("Combining vertex: ("
-					+ vertex 
-					+ ") with vertex representative e_i=" 
-					+ vertex.getVertexRepresentative() 
-					+ ". There are " + vertex.getLabelRepresentatives().size() + " labels.");
+//			log.info("Combining vertex: ("
+//					+ vertex 
+//					+ ") with vertex representative e_i=" 
+//					+ vertex.getVertexRepresentative() 
+//					+ ". There are " + vertex.getLabelRepresentatives().size() + " labels.");
 			
 			BigInteger exponentEncoding = encodeVertex(vertexRepresentative, vertex.getLabelRepresentatives());
 			Assert.notNull(exponentEncoding, "Exponent encoding returned null.");
@@ -126,15 +126,15 @@ public class GraphRepresentation {
 			Assert.notNull(v_i, "vertex edge was found to be null");
 			Assert.notNull(v_j, "vertex edge was found to be null");
 			
-			log.info("Combining edge: ("
-					+ edge.getV_i() + ", " + edge.getV_j() 
-					+ ") with vertex representatives e_i=" 
-					+ edge.getV_i().getVertexRepresentative() 
-					+ " and e_j="
-					+ edge.getV_j().getVertexRepresentative()
-					+ ". There are " + edge.getLabelRepresentatives().size() + " labels. "
-					+ "Vertex representative product="
-					+ edge.getV_i().getVertexRepresentative().multiply(edge.getV_j().getVertexRepresentative()));
+//			log.info("Combining edge: ("
+//					+ edge.getV_i() + ", " + edge.getV_j() 
+//					+ ") with vertex representatives e_i=" 
+//					+ edge.getV_i().getVertexRepresentative() 
+//					+ " and e_j="
+//					+ edge.getV_j().getVertexRepresentative()
+//					+ ". There are " + edge.getLabelRepresentatives().size() + " labels. "
+//					+ "Vertex representative product="
+//					+ edge.getV_i().getVertexRepresentative().multiply(edge.getV_j().getVertexRepresentative()));
 
 			BigInteger exponentEncoding =
 					encodeEdge(v_i.getVertexRepresentative(), v_j.getVertexRepresentative(), edgeLabels);
