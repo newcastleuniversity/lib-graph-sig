@@ -58,7 +58,7 @@ public class GSRecipientTest {
 
   @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
   @Test
-  void testRecipientMessaging() {
+  void testRecipientMessaging() throws IOException {
     GSMessage recMsg = recipient.receiveMessage();
     assertNotNull(recMsg);
 

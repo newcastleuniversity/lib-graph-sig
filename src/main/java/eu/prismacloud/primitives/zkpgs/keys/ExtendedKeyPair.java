@@ -10,12 +10,18 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
 /** Class representing the extended key pair */
-public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo {
+public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -293401766259515133L;
 	/* TODO make the keypair defensive and secure in that it is either completely immutable
 	or only returns clones */
 

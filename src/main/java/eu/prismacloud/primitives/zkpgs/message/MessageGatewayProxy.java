@@ -1,5 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
+import java.io.IOException;
+
 /** Creates a message gateway proxy for sending and receiving messages. */
 public class MessageGatewayProxy {
   private IMessageGateway messageGateway;
@@ -19,7 +21,7 @@ public class MessageGatewayProxy {
    *
    * @param message the message to send using the message gateway
    */
-  public void send(GSMessage message) {
+  public void send(GSMessage message) throws IOException {
     messageGateway.send(message);
   }
 
@@ -28,7 +30,7 @@ public class MessageGatewayProxy {
    *
    * @return the message to receive from the message gateway proxy.
    */
-  public GSMessage receive() {
+  public GSMessage receive() throws IOException {
     GSMessage message = messageGateway.receive();
     return message;
   }

@@ -17,6 +17,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,11 +85,11 @@ public class GSRecipient { // implements IRecipient {
     return this.recipientGraph;
   }
 
-  public void sendMessage(GSMessage recMessageToSigner) {
+  public void sendMessage(GSMessage recMessageToSigner) throws IOException {
     messageGateway.send(recMessageToSigner);
   }
 
-  public GSMessage receiveMessage() {
+  public GSMessage receiveMessage() throws IOException {
     return messageGateway.receive();
   }
 

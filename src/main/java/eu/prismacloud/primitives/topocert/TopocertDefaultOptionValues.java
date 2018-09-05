@@ -10,5 +10,5 @@ public class TopocertDefaultOptionValues {
 	public static final String DEF_EPK = "ExtendedPublicKey-2048.ser";
 	public static final String DEF_PK = "SignerPublicKey-2048.ser";
 	public static final String DEF_SKP = "SignerKeyPair-2048.ser";
-	
+	public static final String DEF_EKP = "ExtendedKeyPair-2048.ser";
 }

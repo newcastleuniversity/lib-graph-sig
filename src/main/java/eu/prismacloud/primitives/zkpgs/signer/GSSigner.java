@@ -10,6 +10,8 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +61,7 @@ public class GSSigner { // implements ISigner {
    *
    * @param signerMessageToRecipient the signer message to recipient
    */
-  public void sendMessage(GSMessage signerMessageToRecipient) {
+  public void sendMessage(GSMessage signerMessageToRecipient) throws IOException {
     messageGateway.send(signerMessageToRecipient);
   }
 
@@ -77,7 +79,7 @@ public class GSSigner { // implements ISigner {
    *
    * @return the gs message
    */
-  public GSMessage receiveMessage() {
+  public GSMessage receiveMessage() throws IOException {
     return messageGateway.receive();
   }
 

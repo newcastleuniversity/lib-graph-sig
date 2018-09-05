@@ -52,13 +52,14 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
   }
 
   @Override
-  public void send(GSMessage msg) {
+  public void send(GSMessage msg) throws IOException {
     if (CLIENT.equals(type)) {
       try {
         clientGateway.send(msg);
         log.info("send message to server: ");
       } catch (IOException e) {
         log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
+        throw e;
       }
 
     } else if (SERVER.equals(type)) {
@@ -67,6 +68,7 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
         log.info("send message to client: ");
       } catch (IOException e) {
         log.log(Level.SEVERE, "SERVER: " + e.getMessage());
+        throw e;
       }
     }
   }

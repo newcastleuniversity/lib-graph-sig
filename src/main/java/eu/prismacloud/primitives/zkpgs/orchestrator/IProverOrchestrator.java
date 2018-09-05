@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import java.io.IOException;
 import java.math.BigInteger;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -22,7 +23,7 @@ public interface IProverOrchestrator {
 	/**
 	 * The orchestrator initializes and sets up an appropriate proof store for the proofs to come.
 	 */
-	void init();
+	void init() throws IOException ;
 
 	/**
 	 * The orchestrator organizes the computations of the pre-challenge phase.
@@ -35,7 +36,7 @@ public interface IProverOrchestrator {
 	 * The orchestrator organizes the computations of the post-challenge phase, based on a challenge.
 	 * @param cChallenge
 	 */
-	void executePostChallengePhase(BigInteger cChallenge);
+	void executePostChallengePhase(BigInteger cChallenge) throws IOException;
 
 	/**
 	 * Establishes the challenge for the current proof, based on the overall proof context.

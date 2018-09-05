@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
@@ -35,6 +36,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.GraphImporter;
+import org.jgrapht.io.ImportException;
 
 /** Signing orchestrator */
 public class SignerOrchestrator {
@@ -58,7 +61,6 @@ public class SignerOrchestrator {
   private final KeyGenParameters keyGenParameters;
   private final GraphEncodingParameters graphEncodingParameters;
   private final GSSigner signer;
-  private BaseIterator basesIterator;
   private final SignerPublicKey signerPublicKey;
   private BigInteger n_1;
   private BigInteger n_2;
@@ -101,33 +103,31 @@ public class SignerOrchestrator {
 private List<String> contextList;
 
   public SignerOrchestrator(
-      ExtendedKeyPair extendedKeyPair,
-      KeyGenParameters keyGenParameters,
-      GraphEncodingParameters graphEncodingParameters) {
+      ExtendedKeyPair extendedKeyPair) {
     this.extendedKeyPair = extendedKeyPair;
-    this.keyGenParameters = keyGenParameters;
-    this.graphEncodingParameters = graphEncodingParameters;
+    this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
+    this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
     this.proofStore = new ProofStore<Object>();
     this.baseS = extendedKeyPair.getPublicKey().getBaseS();
     this.baseZ = extendedKeyPair.getPublicKey().getBaseZ();
     this.modN = extendedKeyPair.getPublicKey().getModN();
     this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
-    this.basesIterator = baseCollection.createIterator(BASE.ALL);
     this.signer = new GSSigner(extendedKeyPair, keyGenParameters);
     this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
   }
 
-  public void round0() {
+  public void round0() throws IOException {
     n_1 = signer.computeNonce();
     messageElements = new HashMap<URN, Object>();
     messageElements.put(URN.createZkpgsURN("nonces.n_1"), n_1);
+
     signer.sendMessage(new GSMessage(messageElements));
 
     /** TODO send message to recipient for the n_1 */
     /** TODO signer send n_1 to recipient */
   }
 
-  public void round2() throws Exception {
+  public void round2() throws ImportException, IOException, ProofStoreException, NoSuchAlgorithmException, VerificationException  {
     encodeSignerGraph();
 
     // TODO needs to receive input message (U, P_1, n_2)
@@ -185,7 +185,7 @@ private List<String> contextList;
     signer.sendMessage(preSignatureMsg);
   }
 
-  private void encodeSignerGraph() throws org.jgrapht.io.ImportException {
+  private void encodeSignerGraph() throws ImportException {
     File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
 
     gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
@@ -194,7 +194,6 @@ private List<String> contextList;
 
 
     this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
-    this.basesIterator = encodedBasesCollection.createIterator(BASE.ALL);
   }
 
   /** Compute challenge. */
@@ -207,7 +206,7 @@ private List<String> contextList;
     return hatc.equals(cChallenge);
   }
 
-  private void extractMessageElements(GSMessage msg) throws Exception {
+  private void extractMessageElements(GSMessage msg) throws ProofStoreException  {
     Map<URN, Object> messageElements = msg.getMessageElements();
 
     commitmentU = (GSCommitment) messageElements.get(URN.createZkpgsURN("recipient.U"));
@@ -239,7 +238,7 @@ private List<String> contextList;
     storeMessageElements(P_1);
   }
 
-  private void storeMessageElements(ProofSignature P_1) throws Exception {
+  private void storeMessageElements(ProofSignature P_1) throws ProofStoreException  {
     for (Map.Entry<URN, BigInteger> response : responses.entrySet()) {
       proofStore.save(response.getKey(), response.getValue());
     }
@@ -275,7 +274,7 @@ private List<String> contextList;
     vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
   }
 
-  public void store() throws Exception {
+  public void store() throws ProofStoreException {
     proofStore.store("issuing.signer.A", A);
     proofStore.store("issuing.signer.Q", Q);
     proofStore.store("issuing.signer.d", d);

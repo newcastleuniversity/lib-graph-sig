@@ -55,7 +55,7 @@ public class GSRecipientServerTest {
   void test1RecipientSide() throws Exception {
 
     recipientOrchestrator =
-        new RecipientOrchestrator(extendedPublicKey, keyGenParameters, graphEncodingParameters);
+        new RecipientOrchestrator(extendedPublicKey);
 
     recipientOrchestrator.round1();
     recipientOrchestrator.round3();

@@ -22,6 +22,8 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.PossessionVerifier;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -73,7 +75,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
     //    this.edgeIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.EDGE);
   }
 
-  public void init() {
+  public void init() throws IOException {
     this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
 
     n_3 = verifier.computeNonce();
@@ -82,7 +84,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
     verifier.sendMessage(new GSMessage(messageElements));
   }
 
-  public void receiveProverMessage() throws VerificationException {
+  public void receiveProverMessage() throws VerificationException, IOException {
     GSMessage proverMessage = verifier.receiveMessage();
     Map<URN, Object> proverMessageElements = proverMessage.getMessageElements();
 

@@ -1,19 +1,20 @@
 package eu.prismacloud.primitives.topocert;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.io.IOException;
-import java.nio.file.ReadOnlyFileSystemException;
-import java.util.Collections;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.jgrapht.io.ImportException;
+
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.zkpgs.orchestrator.RecipientOrchestrator;
+import eu.prismacloud.primitives.zkpgs.orchestrator.SignerOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -71,10 +72,11 @@ public class Topocert {
 		// String Options
 		String graphFilename = (String) parser.getOptionValue(TopocertCmdLineParser.GRAPHFILENAME, TopocertDefaultOptionValues.DEF_GRAPH);
 		String paramsFilename = (String) parser.getOptionValue(TopocertCmdLineParser.KEYGENPARAMS, TopocertDefaultOptionValues.DEF_KEYGEN_PARAMS);
-		String encodingFilename = TopocertDefaultOptionValues.DEF_COUNTRY_ENCODING;
+		// String encodingFilename = TopocertDefaultOptionValues.DEF_COUNTRY_ENCODING;
 
 		String signerKeyFilename = (String) parser.getOptionValue(TopocertCmdLineParser.SIGNERKP, TopocertDefaultOptionValues.DEF_SKP);
 		String signerPKFilename = (String) parser.getOptionValue(TopocertCmdLineParser.SIGNERKP, TopocertDefaultOptionValues.DEF_PK);
+		String ekpFilename = TopocertDefaultOptionValues.DEF_EKP;
 		String epkFilename = (String) parser.getOptionValue(TopocertCmdLineParser.EPK, TopocertDefaultOptionValues.DEF_EPK);
 
 		// Integer Options: Zero or Multiple Queries
@@ -98,7 +100,7 @@ public class Topocert {
 			System.out.println("  Designated extended public key file: " + epkFilename);
 
 			try {
-				topocert.keygen(signerKeyFilename, signerPKFilename, epkFilename);
+				topocert.keygen(signerKeyFilename, ekpFilename, signerPKFilename, epkFilename);
 			} catch (IOException e) {
 				System.err.println("The TOPOCERT keys could not be written to file.");
 				System.err.println(e.getMessage());
@@ -113,33 +115,33 @@ public class Topocert {
 		} else if (signMode != null && signMode.booleanValue()) {
 			// Initialize signing, with specified signer graph file.
 			System.out.println("Entering TOPOCERT Sign mode...");
-			System.out.println("  Using signer keypair from file: " + signerKeyFilename);
+			System.out.println("  Using extended keypair from file: " + ekpFilename);
 
-			SignerKeyPair skp = null;
-			System.out.print("  Reading signer keypair...");
+			ExtendedKeyPair ekp = null;
+			System.out.print("  Establishing extended signer keypair...");
 			try {
-				skp = topocert.readSignerKeyPair(signerKeyFilename);
+				ekp = topocert.readExtendedKeyPair(ekpFilename);
 			} catch(IOException e) {
-				System.err.println("The TOPOCERT signer key pair could not be read.");
+				System.err.println("The TOPOCERT extended signer key pair could not be read.");
 				System.err.println(e.getMessage());
 				System.exit(TopocertErrorCodes.EX_CRITFILE);
 			} catch (ClassNotFoundException e) {
-				System.err.println("The TOPOCERT signer key pair does not correspond the current class.");
+				System.err.println("The TOPOCERT extended signer key pair does not correspond the current class.");
 				System.err.println(e.getMessage());
 				System.exit(TopocertErrorCodes.EX_CRITERR);
 			}
 			System.out.println("   [done]\n");
 
-			topocert.sign(skp, graphFilename);
+			topocert.sign(ekp, graphFilename);
 
 			System.exit(0);
 		} else if (receiveMode != null && receiveMode.booleanValue()) {
 			// Initialize receiving of a signature.
 			System.out.println("Entering TOPOCERT Receive mode...");
 			System.out.println("  Using Signer's extended public key: " + epkFilename);
-			
+
 			topocert.readEPK(epkFilename);
-			
+
 			topocert.receive();
 
 			System.exit(0);
@@ -147,9 +149,9 @@ public class Topocert {
 			// Initialize proving
 			System.out.println("Entering TOPOCERT Prove mode...");
 			System.out.println("  Using Signer's extended public key: " + epkFilename);
-			
+
 			topocert.readEPK(epkFilename);
-			
+
 			topocert.prove(graphFilename);
 
 			System.exit(0);
@@ -169,9 +171,9 @@ public class Topocert {
 				if (iterator.hasNext()) System.out.print(", ");
 			}
 			System.out.println(" ].");
-			
+
 			topocert.readEPK(epkFilename);
-			
+
 			topocert.verify(queryValues);
 
 			System.exit(0);
@@ -183,7 +185,6 @@ public class Topocert {
 
 		System.exit(0);
 	}
-
 
 
 	void readParams(String paramsFilename) {
@@ -217,15 +218,24 @@ public class Topocert {
 		return signerKeyPair;
 	}
 
+	ExtendedKeyPair readExtendedKeyPair(String extendedKeyPairFilename) throws
+	IOException, ClassNotFoundException {
+
+
+		ExtendedKeyPair extendedKeyPair = (ExtendedKeyPair) persistenceUtil.read(extendedKeyPairFilename);
+
+		return extendedKeyPair;
+	}
+
 	ExtendedPublicKey readExtendedPublicKey(String epkFilename) throws
 	IOException, ClassNotFoundException {
 
 		this.epk =
-		           (ExtendedPublicKey) persistenceUtil.read(epkFilename);
+				(ExtendedPublicKey) persistenceUtil.read(epkFilename);
 
 		return epk;
 	}
-	
+
 	void readEPK(String epkFilename) {
 		System.out.print("  Reading extended public key...");
 		try {
@@ -242,9 +252,9 @@ public class Topocert {
 		System.out.println("   [done]\n");
 		System.out.println("  Extended Public Key holds " + epk.getBases().size() + " graph encoding bases.");
 	}
-	
-	
-	void keygen(String signerKeyPairFilename, String signerPKFilename, String epkFilename) throws IOException, EncodingException {
+
+
+	void keygen(String signerKeyPairFilename, String ekpFilename, String signerPKFilename, String epkFilename) throws IOException, EncodingException {
 		// Establishing Signer Key Pair First
 		SignerKeyPair gsk = new SignerKeyPair();
 		System.out.print("  Keygen - Stage I:   Generating SRSA Signer key pair.");
@@ -272,6 +282,10 @@ public class Topocert {
 		ekp.createExtendedKeyPair();
 		System.out.println("   [done]");
 
+		System.out.print("  Keygen: - Stage III: Writing new ExtendedKeyPair...");
+		persistenceUtil.write(ekp, ekpFilename);
+		System.out.println("   [done]");
+
 		System.out.print("  Keygen: - Stage III: Writing new ExtendedPublicKey...");
 		this.epk = ekp.getExtendedPublicKey();
 		persistenceUtil.write(ekp.getExtendedPublicKey(), epkFilename);
@@ -280,27 +294,102 @@ public class Topocert {
 		System.out.println("  Keygen: Completed.");
 	}
 
-	void sign(SignerKeyPair skp, String graphFilename) {
+	void sign(ExtendedKeyPair ekp, String graphFilename) {
 		System.out.println("  Sign: Hosting interactive signing for graph: " + graphFilename + "...");
-		
+		SignerOrchestrator signer = new SignerOrchestrator(ekp);
+		// TODO How does the signer get the graph as input?!
+
+
+		System.out.print("  Sign - Round 0: Starting round0: Sending nonce...");
+		try {
+			signer.round0();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT signer send the nonce to the Recipient in Round 0.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		System.out.println("   [done]");
+
+
+		System.out.print("  Sign - Round 2: Waiting for the Recipient's commitment...");
+		try {
+			signer.round2();
+		} catch (NoSuchAlgorithmException e) {
+			System.err.println("The TOPOCERT signer could not compute the Fiat-Shamir in Round 2 due to missing hash algorithm.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_CRITERR);
+		} catch (ImportException e) {
+			System.err.println("The TOPOCERT signer not import the GraphML file in Round 2.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOINPUT);
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT signer could not read the GraphML file in Round 2.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_IOERR);
+		} catch (ProofStoreException e) {
+			System.err.println("The TOPOCERT signer not store/retrieve elements in the ProofStore in Round 2.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_DATAERR);
+		} catch (VerificationException e) {
+			System.err.println("The TOPOCERT signer could not verify the proof of possession of the Recipient's commitment in Round 2.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_VERIFY);
+		}
+		System.out.println("   [done]");
+
 		System.out.println("  Sign: Completed");
+		signer.close();
 	}
-	
+
 	void receive() {
 		System.out.println("  Receive: Initializing client communication for graph signing...");
-		
+
+		RecipientOrchestrator recipient = new RecipientOrchestrator(epk);
+
+		System.out.print("  Receive - Round 1: Waiting the Signer's nonce...");
+		try {
+			recipient.round1();
+		} catch (ProofStoreException e) {
+			System.err.println("The TOPOCERT Recipient could not complete its commitment in Round 1.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_CRITERR);
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Recipient could not receive the nonce from the Signer in Round 1.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		System.out.println("   [done]");
+
+		System.out.print("  Receive - Round 3: Waiting for the Signer's pre-signature...");
+		try {
+			recipient.round3();
+		} catch (VerificationException e) {
+			System.err.println("The TOPOCERT recipient could not verify the Signer's proof on the presented new signature in Round 3.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_VERIFY);
+		} catch (ProofStoreException e) {
+			System.err.println("The TOPOCERT recipient could not access expected data in the ProofStore in Round 3.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_DATAERR);
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Recipient could not receive the signature from the Signer in Round 3.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+
 		System.out.println("  Receive: Completed");
+		recipient.close();
 	}
-	
+
 	void prove(String graphFilename) {
 		System.out.println("  Prove: Hosting prover for certified graph " + graphFilename + "...");
-		
+
 		System.out.println("  Prove: Completed");
 	}
-	
+
 	void verify(Vector<Integer> vertexQueries) {
 		System.out.println("  Verify: Initializing client communication for geo-location verification...");
-		
+
 		System.out.println("  Verify: Completed");
 	}
 

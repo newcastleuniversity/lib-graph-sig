@@ -28,6 +28,8 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -116,7 +118,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
     //    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
   }
 
-  public void init() {
+  public void init() throws IOException {
     GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
     BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
     BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
@@ -260,7 +262,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
     return cChallenge;
   }
 
-  public void executePostChallengePhase(BigInteger c) {
+  public void executePostChallengePhase(BigInteger c) throws IOException {
     gslog.info("compute post challlenge phase");
     try {
       responses = possessionProver.executePostChallengePhase(cChallenge);

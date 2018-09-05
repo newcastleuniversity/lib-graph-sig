@@ -55,10 +55,10 @@ class RecipientOrchestratorTest {
     extendedKeyPair.setupEncoding();
     extendedKeyPair.createExtendedKeyPair();
     signerOrchestrator =
-        new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
+        new SignerOrchestrator(extendedKeyPair);
     recipientOrchestrator =
         new RecipientOrchestrator(
-            extendedKeyPair.getExtendedPublicKey(), keyGenParameters, graphEncodingParameters);
+            extendedKeyPair.getExtendedPublicKey());
     signerOrchestrator.round0();
     signerOrchestrator.round0();
   }

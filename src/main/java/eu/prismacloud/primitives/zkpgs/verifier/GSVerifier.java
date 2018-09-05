@@ -8,6 +8,8 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,11 +48,11 @@ public class GSVerifier {
     return false;
   }
 
-  public void sendMessage(GSMessage messageToProver) {
+  public void sendMessage(GSMessage messageToProver) throws IOException {
     messageGateway.send(messageToProver);
   }
 
-  public GSMessage receiveMessage() {
+  public GSMessage receiveMessage() throws IOException {
     return messageGateway.receive();
   }
 

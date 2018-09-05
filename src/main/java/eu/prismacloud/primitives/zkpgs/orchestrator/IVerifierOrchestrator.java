@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public interface IVerifierOrchestrator {
 	/**
 	 * The orchestrator initializes and sets up an appropriate proof store for the proofs to come.
 	 */
-	void init();
+	void init() throws IOException;
 
 	/**
 	 * The orchestrator organizes the computations of the verification, based on a challenge.

@@ -13,6 +13,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -100,11 +102,11 @@ public class GSProver {
     }
   }
 
-  public void sendMessage(GSMessage messageToVerifier) {
+  public void sendMessage(GSMessage messageToVerifier) throws IOException {
     messageGateway.send(messageToVerifier);
   }
 
-  public GSMessage receiveMessage() {
+  public GSMessage receiveMessage() throws IOException {
     return messageGateway.receive();
   }
 

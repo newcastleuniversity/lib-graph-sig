@@ -72,7 +72,7 @@ public class GSSignerTest {
 
   @EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
   @Test
-  void testSignerMessaging() {
+  void testSignerMessaging() throws IOException {
 
     gslog.info("test send message to recipient");
     Map<URN, Object> msgList = new HashMap<>();

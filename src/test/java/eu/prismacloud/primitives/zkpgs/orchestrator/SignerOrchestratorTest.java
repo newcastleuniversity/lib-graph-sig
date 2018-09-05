@@ -59,7 +59,7 @@ class SignerOrchestratorTest {
   @Test
   void testCreateSignerOrchestrator() {
     signerOrchestrator =
-        new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
+        new SignerOrchestrator(extendedKeyPair);
 
     assertNotNull(signerOrchestrator);
   }
@@ -67,7 +67,7 @@ class SignerOrchestratorTest {
   @Test
   void round0() throws Exception {
     signerOrchestrator =
-        new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
+        new SignerOrchestrator(extendedKeyPair);
 //    signerOrchestrator.round0();
 
     //    recipientOrchestrator.round1();

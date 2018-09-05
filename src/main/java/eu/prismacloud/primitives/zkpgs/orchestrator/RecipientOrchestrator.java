@@ -32,6 +32,8 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.SigningQCorrectnessVerifier;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -77,12 +79,10 @@ public class RecipientOrchestrator {
 	private final GroupElement R;
 
 	public RecipientOrchestrator(
-			final ExtendedPublicKey extendedPublicKey,
-			final KeyGenParameters keyGenParameters,
-			final GraphEncodingParameters graphEncodingParameters) {
+			final ExtendedPublicKey extendedPublicKey) {
 		this.extendedPublicKey = extendedPublicKey;
-		this.keyGenParameters = keyGenParameters;
-		this.graphEncodingParameters = graphEncodingParameters;
+		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
+		this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
 		this.proofStore = new ProofStore<Object>();
 		this.modN = extendedPublicKey.getPublicKey().getModN();
 		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
@@ -92,7 +92,7 @@ public class RecipientOrchestrator {
 		this.recipient = new GSRecipient(extendedPublicKey, keyGenParameters);
 	}
 
-	public void round1() throws ProofStoreException {
+	public void round1() throws ProofStoreException, IOException {
 		encodedBases = new BaseCollectionImpl();
 
 		generateRecipientMSK();
@@ -234,7 +234,7 @@ public class RecipientOrchestrator {
 		return new ProofSignature(proofSignatureElements);
 	}
 
-	public void round3() throws VerificationException, ProofStoreException {
+	public void round3() throws VerificationException, ProofStoreException, IOException {
 		GSMessage correctnessMsg = recipient.receiveMessage();
 		P_2 = extractMessageElements(correctnessMsg);
 

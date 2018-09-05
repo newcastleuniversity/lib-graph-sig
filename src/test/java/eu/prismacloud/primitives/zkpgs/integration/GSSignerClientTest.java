@@ -56,7 +56,7 @@ public class GSSignerClientTest {
   void test2SignerSide() throws Exception {
     Thread.sleep(3000);
     signerOrchestrator =
-        new SignerOrchestrator(extendedKeyPair, keyGenParameters, graphEncodingParameters);
+        new SignerOrchestrator(extendedKeyPair);
 
     signerOrchestrator.round0();
 

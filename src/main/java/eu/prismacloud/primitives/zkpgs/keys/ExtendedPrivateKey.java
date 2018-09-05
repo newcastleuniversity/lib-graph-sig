@@ -2,12 +2,20 @@ package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.URN;
+
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Map;
 
-public class ExtendedPrivateKey implements IPrivateKey {
+public class ExtendedPrivateKey implements IPrivateKey, Serializable {
 
-  private final SignerPrivateKey signerPrivateKey;
+ 
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3866724172008302196L;
+	
+private final SignerPrivateKey signerPrivateKey;
   private Map<URN, BigInteger> discLogOfBases;
 
   public ExtendedPrivateKey(
