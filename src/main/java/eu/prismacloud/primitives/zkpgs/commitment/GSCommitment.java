@@ -14,6 +14,9 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The GSCommitment provides methods to compute commitments over one or more bases and exponents.
+ */
 public class GSCommitment implements Serializable {
 
     private static final long serialVersionUID = -6253701534775989050L;
@@ -36,6 +39,16 @@ public class GSCommitment implements Serializable {
     }
 
 
+    /**
+     * Create commitment for one base and one message exponent using base S and modulus N.
+     *
+     * @param baseR the base R
+     * @param m     the message exponent
+     * @param rnd   the randomness
+     * @param baseS the base S
+     * @param modN  the modulus N
+     * @return the commitment
+     */
     public static GSCommitment createCommitment(GroupElement baseR, BigInteger m, BigInteger rnd, GroupElement baseS, BigInteger modN) {
         Assert.notNull(m, "message m cannot be null");
         Assert.notNull(baseR, "baseR cannot be null");
@@ -54,6 +67,14 @@ public class GSCommitment implements Serializable {
     }
 
 
+    /**
+     * Create commitment for one base and one message exponent using the ExtendedPublickey.
+     *
+     * @param m     the message exponent
+     * @param baseR the base R
+     * @param epk   the extended public key
+     * @return the commitment
+     */
     public static GSCommitment createCommitment(BigInteger m, GroupElement baseR, ExtendedPublicKey epk) {
         Assert.notNull(m, "message m cannot be null");
         Assert.notNull(baseR, "baseR cannot be null");
@@ -86,6 +107,15 @@ public class GSCommitment implements Serializable {
         return new GSCommitment(basesRMap, exponentMap, r, commimentValue);
     }
 
+    /**
+     * Create commitment with a supplied map of bases and exponents, the randomness and the ExtendedPublicKey.
+     *
+     * @param basesR    the map of bases
+     * @param exponents the map of exponents
+     * @param rnd       the randomness
+     * @param epk       the extended public key
+     * @return the commitment
+     */
     public static GSCommitment createCommitment(Map<URN, GroupElement> basesR,
                                                 Map<URN, BigInteger> exponents, BigInteger rnd,
                                                 ExtendedPublicKey epk) {
@@ -108,18 +138,38 @@ public class GSCommitment implements Serializable {
     }
 
 
+    /**
+     * Returns the commitment value.
+     *
+     * @return the commitment value
+     */
     public GroupElement getCommitmentValue() {
         return commitmentValue;
     }
 
+    /**
+     * Returns the map of bases.
+     *
+     * @return the bases r
+     */
     public Map<URN, GroupElement> getBasesR() {
         return basesR;
     }
 
+    /**
+     * Returns the map of exponents.
+     *
+     * @return the exponents
+     */
     public Map<URN, BigInteger> getExponents() {
         return exponents;
     }
 
+    /**
+     * Returns randomness used for computing the commitment.
+     *
+     * @return the randomness
+     */
     public BigInteger getRandomness() {
         return randomness;
     }
