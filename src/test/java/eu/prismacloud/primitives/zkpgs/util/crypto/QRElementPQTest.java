@@ -3,10 +3,13 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import static org.junit.Assert.fail;
 
 import java.util.logging.Logger;
+
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@Ignore
 class QRElementPQTest {
   private static final Logger log = Logger.getLogger(QRElementPQTest.class.getName());
   private QRElementPQ classUnderTest;

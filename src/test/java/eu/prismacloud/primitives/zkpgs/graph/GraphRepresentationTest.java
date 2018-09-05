@@ -151,6 +151,6 @@ class GraphRepresentationTest {
     gslog.info("graph vertex size: " + vertexSize);
     gslog.info("graph edge size: " + edgeSize);
 
-    assertEquals(vertexSize + edgeSize, baseIterator.size());
+    assertEquals(vertexSize + edgeSize, baseCollection.size());
   }
 }
