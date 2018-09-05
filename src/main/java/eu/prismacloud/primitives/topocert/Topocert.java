@@ -322,7 +322,7 @@ public class Topocert {
 		try {
 			signer.round2();
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println("The TOPOCERT Signer could not compute the Fiat-Shamir in Round 2 due to missing hash algorithm.");
+			System.err.println("The TOPOCERT Signer could not compute the Fiat-Shamir hash in Round 2 due to missing hash algorithm.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_CRITERR);
 		} catch (ImportException e) {
@@ -385,6 +385,10 @@ public class Topocert {
 			System.err.println("The TOPOCERT Recipient could not receive the nonce from the Signer in Round 1.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_NOHOST);
+		} catch (NoSuchAlgorithmException e) {
+			System.err.println("The TOPOCERT Recipient could not compute the Fiat-Shamir hash in Round 2 due to missing hash algorithm.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_CRITERR);
 		}
 		System.out.println("   [done]");
 

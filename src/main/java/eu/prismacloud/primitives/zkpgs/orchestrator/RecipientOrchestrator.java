@@ -93,7 +93,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		this.recipient.init();
 	}
 
-	public void round1() throws ProofStoreException, IOException {
+	public void round1() throws ProofStoreException, IOException, NoSuchAlgorithmException {
 		encodedBases = new BaseCollectionImpl();
 
 		generateRecipientMSK();
@@ -121,16 +121,9 @@ public class RecipientOrchestrator implements IMessagePartner {
 		// TODO needs to move to the new commitment interface.
 		CommitmentProver commitmentProver = new CommitmentProver(U, 0, extendedPublicKey.getPublicKey(), proofStore);
 
-		Map<URN, GroupElement> tildeMap =
-				commitmentProver.executeCompoundPreChallengePhase();
-		String tildeUURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-		tildeU = tildeMap.get(URN.createZkpgsURN( tildeUURN));
+		tildeU = commitmentProver.executePreChallengePhase();
 
-		try {
-			cChallenge = computeChallenge();
-		} catch (NoSuchAlgorithmException ns) {
-			gslog.log(Level.SEVERE, ns.getMessage());
-		}
+		cChallenge = computeChallenge();
 
 		responses = commitmentProver.executePostChallengePhase(cChallenge);
 
