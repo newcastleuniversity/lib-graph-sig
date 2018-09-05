@@ -68,8 +68,8 @@ public class GSProver {
       r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
       m_i = vertexRepresentation.getExponent();
       C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
-      commitment = new GSCommitment(R_i, m_i, r_i, baseS, modN);
-      commitment.setCommitmentValue(C_i);
+      commitment = GSCommitment.createCommitment(m_i, R_i,  extendedPublicKey);
+//      commitment.setCommitmentValue(C_i);
       String commitmentURN = "prover.commitments.C_" + vertexRepresentation.getBaseIndex();
       commitmentMap.put(
           URN.createURN(URN.getZkpgsNameSpaceIdentifier(), commitmentURN), commitment);

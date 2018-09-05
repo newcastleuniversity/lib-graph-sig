@@ -49,7 +49,7 @@ class ProofStoreTest {
 
     proofStore.store("biginteger.2", BigInteger.valueOf(1));
     GSCommitment gsCommitment =
-        new GSCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
+        GSCommitment.createCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     Throwable exception =
@@ -72,8 +72,7 @@ class ProofStoreTest {
 
     proofStore.store("biginteger.2", BigInteger.valueOf(1));
 
-    GSCommitment gsCommitment =
-        new GSCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
+    GSCommitment gsCommitment = GSCommitment.createCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     BigInteger el = (BigInteger) proofStore.retrieve("biginteger.2");
@@ -86,8 +85,7 @@ class ProofStoreTest {
 
     proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
 
-    GSCommitment gsCommitment =
-        new GSCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
+    GSCommitment gsCommitment = GSCommitment.createCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     BigInteger el = (BigInteger) proofStore.retrieve("biginteger.2");
@@ -101,7 +99,7 @@ class ProofStoreTest {
     proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
 
     GSCommitment gsCommitment =
-        new GSCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
+        GSCommitment.createCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     proofStore.remove(URN.createZkpgsURN("biginteger.2"));
@@ -127,7 +125,7 @@ class ProofStoreTest {
     proofStore.add(URN.createZkpgsURN("biginteger.2"), BigInteger.valueOf(1));
 
     GSCommitment gsCommitment =
-        new GSCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
+        GSCommitment.createCommitment(testR, BigInteger.ONE, BigInteger.TEN, testS, testGroup.getModulus());
     proofStore.store("commitments.ci", gsCommitment);
 
     assertNotNull(proofStore.getElements());

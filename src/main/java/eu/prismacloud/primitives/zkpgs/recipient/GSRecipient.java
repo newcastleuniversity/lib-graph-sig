@@ -73,8 +73,8 @@ public class GSRecipient { // implements IRecipient {
     Map<URN, BigInteger> messages = new HashMap<>();
     messages.put(URN.createZkpgsURN("recipient.exponent.m_0"), m_0);
 
-    GSCommitment gsCommitment = new GSCommitment(bases, messages, rnd, this.baseS, this.modN);
-    gsCommitment.setCommitmentValue(commitment);
+    GSCommitment gsCommitment =  GSCommitment.createCommitment(bases, messages, rnd, extendedPublicKey);
+//    gsCommitment.setCommitmentValue(commitment);
 
     return gsCommitment;
   }
