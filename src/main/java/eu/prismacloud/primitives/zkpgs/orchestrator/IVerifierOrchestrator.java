@@ -2,10 +2,9 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 
 
 
@@ -28,11 +27,12 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
  * 
  * <p>Top-level orchestrators should catch exceptions and handle them conservatively.
  */
-public interface IVerifierOrchestrator {
+public interface IVerifierOrchestrator extends IMessagePartner {
 	
 	/**
 	 * The orchestrator initializes and sets up an appropriate proof store for the proofs to come.
 	 */
+	@Override
 	void init() throws IOException;
 
 	/**

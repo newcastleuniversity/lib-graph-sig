@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
@@ -20,9 +21,10 @@ import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.ImportException;
 
 /** Signer */
-public class GSSigner { // implements ISigner {
+public class GSSigner implements IMessagePartner {
   private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-  private GSRecipient recipient;
+
+
   private BigInteger nonce;
   private final ExtendedKeyPair extendedKeyPair;
   private final KeyGenParameters keyGenParameters;
@@ -37,12 +39,15 @@ public class GSSigner { // implements ISigner {
    * Instantiates a new signer.
    *
    * @param extendedKeyPair the extended key pair
-   * @param keyGenParameters the key gen parameters
    */
-  public GSSigner(final ExtendedKeyPair extendedKeyPair, KeyGenParameters keyGenParameters) {
+  public GSSigner(final ExtendedKeyPair extendedKeyPair) {
     this.extendedKeyPair = extendedKeyPair;
-    this.keyGenParameters = keyGenParameters;
+    this.keyGenParameters = extendedKeyPair.getKeyGenParameters();
     this.messageGateway = new MessageGatewayProxy(CLIENT);
+  }
+  
+  public void init() throws IOException {
+	  this.messageGateway.init();
   }
 
   /**
@@ -84,7 +89,7 @@ public class GSSigner { // implements ISigner {
   }
 
   /** Close. */
-  public void close() {
+  public void close() throws IOException {
     messageGateway.close();
   }
 }

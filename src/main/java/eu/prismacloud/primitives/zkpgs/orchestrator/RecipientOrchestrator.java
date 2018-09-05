@@ -10,10 +10,10 @@ import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
-import eu.prismacloud.primitives.zkpgs.graph.GraphMLProvider;
 import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
@@ -31,8 +31,6 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.verifier.SigningQCorrectnessVerifier;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -42,12 +40,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.ImportException;
 
 /** Recipient orchestrator */
-public class RecipientOrchestrator {
+public class RecipientOrchestrator implements IMessagePartner {
 	private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
 	private final ExtendedPublicKey extendedPublicKey;
 	private final ProofStore<Object> proofStore;
@@ -89,7 +85,12 @@ public class RecipientOrchestrator {
 		this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
 		this.R = extendedPublicKey.getPublicKey().getBaseR();
 		this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
-		this.recipient = new GSRecipient(extendedPublicKey, keyGenParameters);
+		this.recipient = new GSRecipient(extendedPublicKey);
+	}
+
+	@Override
+	public void init() throws IOException {
+		this.recipient.init();
 	}
 
 	public void round1() throws ProofStoreException, IOException {
@@ -255,15 +256,15 @@ public class RecipientOrchestrator {
 		SigningQVerifierOrchestrator verifyingQOrchestrator = new SigningQVerifierOrchestrator(P_2, signatureCandidate, n_2, extendedPublicKey, proofStore);
 
 		verifyingQOrchestrator.init();
-		
+
 		verifyingQOrchestrator.checkLengths();
 
 		cChallenge = verifyingQOrchestrator.computeChallenge();
-		
+
 		if(!verifyingQOrchestrator.executeVerification(cChallenge)) {
 			throw new VerificationException("Graph signature proof P_2 could not be verified.");
 		}
-		
+
 		gsSignature = signatureCandidate;
 
 		encodedBases.add(baseR_0);
@@ -320,7 +321,8 @@ public class RecipientOrchestrator {
 		return P_2;
 	}
 
-	public void close() {
+	@Override
+	public void close() throws IOException {
 		recipient.close();
 	}
 }

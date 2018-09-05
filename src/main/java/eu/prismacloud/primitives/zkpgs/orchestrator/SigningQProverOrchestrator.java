@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 	}
 	
 	@Override
-	public void init() {
+	public void init() throws IOException {
 		
 	}
 
@@ -141,4 +142,9 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 
 		    return challengeList;
 		  }
+	  
+	  @Override
+	public void close() throws IOException {
+		  // Intentional No-Operation.
+	  }
 }

@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -47,11 +49,17 @@ class GSVerifierTest {
     extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
     proofStore = new ProofStore<Object>();
-    verifier = new GSVerifier(extendedPublicKey, keyGenParameters);
+    verifier = new GSVerifier(extendedPublicKey);
+    verifier.init();
   }
 
   @Test
   void testGSVerifier() {
 	  fail("Test not implemented yet.");
+  }
+  
+  @AfterAll
+  void tearDown() throws IOException {
+	  verifier.close();
   }
 }

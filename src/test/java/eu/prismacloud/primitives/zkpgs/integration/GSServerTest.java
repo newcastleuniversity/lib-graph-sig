@@ -30,7 +30,7 @@ class GSServerTest {
   void setUp() throws IOException {
     log.info("setup server in port " + PORT);
     server = new GSServer(PORT);
-    server.setup();
+    server.init();
   }
   
   @EnabledOnSuite(name = GSSuite.GSCLIENT_GSSERVER)

@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
@@ -21,7 +22,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GSProver {
+public class GSProver implements IMessagePartner {
 	public static final String URNID = "prover";
 	
   private GroupElement baseR;
@@ -39,16 +40,19 @@ public class GSProver {
   private static final String SERVER = "server";
 
   public GSProver(
-      final ProofStore<Object> proofStore,
       final ExtendedPublicKey extendedPublicKey,
-      final KeyGenParameters keyGenParameters) {
+      final ProofStore<Object> proofStore) {
     this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
+    this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseR = extendedPublicKey.getPublicKey().getBaseR();
     this.proofStore = proofStore;
     this.messageGateway = new MessageGatewayProxy(SERVER);
+  }
+  
+  public void init() throws IOException {
+	  this.messageGateway.init();
   }
 
   public Map<URN, GSCommitment> getCommitmentMap() {
@@ -110,7 +114,7 @@ public class GSProver {
     return messageGateway.receive();
   }
 
-  public void close() {
+  public void close() throws IOException {
     messageGateway.close();
   }
 }

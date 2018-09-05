@@ -299,12 +299,19 @@ public class Topocert {
 		SignerOrchestrator signer = new SignerOrchestrator(ekp);
 		// TODO How does the signer get the graph as input?!
 
+		try {
+			signer.init();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Signer could not establish a connection to the Recipient in Round 0.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
 
 		System.out.print("  Sign - Round 0: Starting round0: Sending nonce...");
 		try {
 			signer.round0();
 		} catch (IOException e) {
-			System.err.println("The TOPOCERT signer send the nonce to the Recipient in Round 0.");
+			System.err.println("The TOPOCERT Signer could not send the nonce to the Recipient in Round 0.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_NOHOST);
 		}
@@ -315,36 +322,57 @@ public class Topocert {
 		try {
 			signer.round2();
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println("The TOPOCERT signer could not compute the Fiat-Shamir in Round 2 due to missing hash algorithm.");
+			System.err.println("The TOPOCERT Signer could not compute the Fiat-Shamir in Round 2 due to missing hash algorithm.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_CRITERR);
 		} catch (ImportException e) {
-			System.err.println("The TOPOCERT signer not import the GraphML file in Round 2.");
+			System.err.println("The TOPOCERT Signer not import the GraphML file in Round 2.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_NOINPUT);
 		} catch (IOException e) {
-			System.err.println("The TOPOCERT signer could not read the GraphML file in Round 2.");
+			System.err.println("The TOPOCERT Signer could not read the GraphML file in Round 2.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_IOERR);
 		} catch (ProofStoreException e) {
-			System.err.println("The TOPOCERT signer not store/retrieve elements in the ProofStore in Round 2.");
+			System.err.println("The TOPOCERT Signer not store/retrieve elements in the ProofStore in Round 2.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_DATAERR);
 		} catch (VerificationException e) {
-			System.err.println("The TOPOCERT signer could not verify the proof of possession of the Recipient's commitment in Round 2.");
+			System.err.println("The TOPOCERT Signer could not verify the proof of possession of the Recipient's commitment in Round 2.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_VERIFY);
+		} catch (EncodingException e) {
+			System.err.println("The TOPOCERT Signer could not encode the graph in Round 2.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_ENCERR);
 		}
 		System.out.println("   [done]");
 
+		
+		
+		try {
+			signer.close();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Signer failed to close the connection to the Recipient soundly.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_IOERR);
+		}
+		
 		System.out.println("  Sign: Completed");
-		signer.close();
 	}
 
 	void receive() {
 		System.out.println("  Receive: Initializing client communication for graph signing...");
 
 		RecipientOrchestrator recipient = new RecipientOrchestrator(epk);
+		
+		try {
+			recipient.init();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Recipient could not open a server socket for the Signer in Round 0.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
 
 		System.out.print("  Receive - Round 1: Waiting the Signer's nonce...");
 		try {
@@ -364,11 +392,11 @@ public class Topocert {
 		try {
 			recipient.round3();
 		} catch (VerificationException e) {
-			System.err.println("The TOPOCERT recipient could not verify the Signer's proof on the presented new signature in Round 3.");
+			System.err.println("The TOPOCERT Recipient could not verify the Signer's proof on the presented new signature in Round 3.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_VERIFY);
 		} catch (ProofStoreException e) {
-			System.err.println("The TOPOCERT recipient could not access expected data in the ProofStore in Round 3.");
+			System.err.println("The TOPOCERT Recipient could not access expected data in the ProofStore in Round 3.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_DATAERR);
 		} catch (IOException e) {
@@ -377,8 +405,15 @@ public class Topocert {
 			System.exit(TopocertErrorCodes.EX_NOHOST);
 		}
 
+		try {
+			recipient.close();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Recipient failed to close the connection to the Signer soundly.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_IOERR);
+		}
+		
 		System.out.println("  Receive: Completed");
-		recipient.close();
 	}
 
 	void prove(String graphFilename) {

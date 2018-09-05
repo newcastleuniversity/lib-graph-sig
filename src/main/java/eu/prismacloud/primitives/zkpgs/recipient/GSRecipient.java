@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class GSRecipient { // implements IRecipient {
+public class GSRecipient implements IMessagePartner {
 
   private final ExtendedPublicKey extendedPublicKey;
   private final KeyGenParameters keyGenParameters;
@@ -42,13 +43,17 @@ public class GSRecipient { // implements IRecipient {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
   private static final String SERVER = "server";
 
-  public GSRecipient(ExtendedPublicKey extendedPublicKey, KeyGenParameters keyGenParameters) {
+  public GSRecipient(ExtendedPublicKey extendedPublicKey) {
     this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
+    this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
     this.modN = extendedPublicKey.getPublicKey().getModN();
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.recipientStore = new ProofStore<Object>();
     this.messageGateway = new MessageGatewayProxy(SERVER);
+  }
+  
+  public void init() throws IOException {
+	  this.messageGateway.init();
   }
 
   public BigInteger generatevPrime() {
@@ -101,7 +106,7 @@ public class GSRecipient { // implements IRecipient {
     return CryptoUtilsFacade.computeRandomNumber(this.keyGenParameters.getL_H());
   }
 
-  public void close() {
+  public void close() throws IOException {
     messageGateway.close();
   }
 }

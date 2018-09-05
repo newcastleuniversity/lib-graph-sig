@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.logging.Logger;
 
 /** Creates a client stream socket and connects it to the specified server host. */
-public class GSClient {
+public class GSClient implements IMessagePartner {
   private static final String HOST = "127.0.0.1";
   private static final int PORT = 9999;
   private static final int TIMEOUT = 5000;
@@ -45,7 +45,7 @@ public class GSClient {
    *
    * @throws IOException If an I/O error occurs, when creating the I/O stream from the server.
    */
-  public void setup() throws IOException {
+  public void init() throws IOException {
     outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
     inFromServer = new ObjectInputStream(clientSocket.getInputStream());
   }

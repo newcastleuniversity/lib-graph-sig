@@ -70,12 +70,13 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
     this.proofStore = proofStore;
     this.keyGenParameters = keyGenParameters;
     this.graphEncodingParameters = graphEncodingParameters;
-    this.verifier = new GSVerifier(extendedPublicKey, keyGenParameters);
-    //    this.vertexIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.VERTEX);
-    //    this.edgeIterator = extendedPublicKey.getBaseCollection().createIterator(BASE.EDGE);
+    this.verifier = new GSVerifier(extendedPublicKey);
   }
 
-  public void init() throws IOException {
+  @Override
+public void init() throws IOException {
+	  this.verifier.init();
+	  
     this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
 
     n_3 = verifier.computeNonce();
@@ -320,7 +321,8 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
     }
   }
 
-  public void close() {
+  @Override
+public void close() throws IOException {
     verifier.close();
   }
 

@@ -2,8 +2,8 @@ package eu.prismacloud.primitives.zkpgs.integration;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-import eu.prismacloud.primitives.zkpgs.GSRecipientTest;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
+import eu.prismacloud.primitives.zkpgs.recipient.GSRecipientTest;
 import eu.prismacloud.primitives.zkpgs.signer.GSSignerTest;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.util.logging.Logger;

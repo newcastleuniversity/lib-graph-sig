@@ -1,122 +1,105 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Creates either a socket-based server or client, while implementing the message gateway interface.
  * The type of the socket-based message gateway is specified during construction of the object.
  */
 public class SocketMessageGatewayImpl implements IMessageGateway {
-  private Logger log = GSLoggerConfiguration.getGSlog();
-  private String type;
-  private GSMessage message;
-  private static final String CLIENT = "client";
-  private static final String SERVER = "server";
-  private GSClient clientGateway;
-  private GSServer serverGateway;
 
-  /**
-   * Instantiates a new socket based message gateway for either a client or a server.
-   *
-   * @param type the type
-   */
-  public SocketMessageGatewayImpl(String type) {
-    this.type = type;
+	private String type;
+	private static final String CLIENT = "client";
+	private static final String SERVER = "server";
+	private GSClient clientGateway;
+	private GSServer serverGateway;
 
-    try {
-      setup(type);
-    } catch (IOException e) {
-      log.log(Level.SEVERE, e.getMessage() + " for " + type);
-    }
-  }
+	/**
+	 * Instantiates a new socket based message gateway for either a client or a server.
+	 *
+	 * @param type the type
+	 */
+	public SocketMessageGatewayImpl(String type) {
+		this.type = type;
+	}
 
-  /**
-   * Delegates the creation of either a client or a server to the appropriate class.
-   *
-   * @param type the type of gateway to create
-   * @throws IOException If an I/O error occurs, when setting up either a client or a server.
-   */
-  public void setup(String type) throws IOException {
-    /** TODO refactor to a factory */
-    if (CLIENT.equals(type)) {
-      clientGateway = new GSClient();
-      clientGateway.setup();
 
-    } else if (SERVER.equals(type)) {
-      serverGateway = new GSServer();
-      serverGateway.setup();
-    }
-  }
 
-  @Override
-  public void send(GSMessage msg) throws IOException {
-    if (CLIENT.equals(type)) {
-      try {
-        clientGateway.send(msg);
-        log.info("send message to server: ");
-      } catch (IOException e) {
-        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
-        throw e;
-      }
+	/**
+	 * Delegates the creation of either a client or a server to the appropriate class.
+	 *
+	 * @param type the type of gateway to create
+	 * @throws IOException If an I/O error occurs, when setting up either a client or a server.
+	 */
+	public void init() throws IOException {
+		/** TODO refactor to a factory */
+		if (CLIENT.equals(type)) {
+			clientGateway = new GSClient();
+			clientGateway.init();
+			if (clientGateway == null) {
+				throw new IOException("The client gateway could not be established.");
+			}
 
-    } else if (SERVER.equals(type)) {
-      try {
-        serverGateway.send(msg);
-        log.info("send message to client: ");
-      } catch (IOException e) {
-        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
-        throw e;
-      }
-    }
-  }
+		} else if (SERVER.equals(type)) {
+			serverGateway = new GSServer();
+			serverGateway.init();
 
-  @Override
-  public GSMessage receive() {
-    GSMessage message = new GSMessage();
-    if (CLIENT.equals(type)) {
-      try {
-        message = clientGateway.receive();
-        log.info("receive message from server:");
-      } catch (ClassNotFoundException e) {
-        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
-      } catch (IOException e) {
-        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
-      }
+			if (serverGateway == null) {
+				throw new IOException("The server gateway could not be established.");
+			}
+		}
+	}
 
-    } else if (SERVER.equals(type)) {
-      try {
-        message = serverGateway.receive();
-        log.info("receive message from client:");
-      } catch (ClassNotFoundException e) {
-        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
-      } catch (IOException e) {
-        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
-      }
-    }
+	@Override
+	public void send(GSMessage msg) throws IOException {
+		if ((CLIENT.equals(type) && clientGateway == null)
+				|| (SERVER.equals(type) && serverGateway == null)) {
+			throw new IOException("Message gateway was not established.");
+		}
 
-    return message;
-  }
+		if (CLIENT.equals(type)) {
+			clientGateway.send(msg);
 
-  @Override
-  public void close() {
-    if (CLIENT.equals(type)) {
-      try {
-        clientGateway.close();
-        log.info("closed connection for client ");
-      } catch (IOException e) {
-        log.log(Level.SEVERE, "CLIENT: " + e.getMessage());
-      }
-    } else if (SERVER.equals(type)) {
-      try {
+		} else if (SERVER.equals(type)) {
 
-        serverGateway.close();
-        log.info("closed connection for server ");
-      } catch (IOException e) {
-        log.log(Level.SEVERE, "SERVER: " + e.getMessage());
-      }
-    }
-  }
+			serverGateway.send(msg);
+
+		}
+	}
+
+	@Override
+	public GSMessage receive() throws IOException {
+		if ((CLIENT.equals(type) && clientGateway == null)
+				|| (SERVER.equals(type) && serverGateway == null)) {
+			throw new IOException("Message gateway was not established.");
+		}
+
+		GSMessage message = new GSMessage();
+		if (CLIENT.equals(type)) {
+			try {
+				message = clientGateway.receive();
+			} catch (ClassNotFoundException e) {
+				throw new IOException("Received message could not be deserialized.", e);
+			}
+
+		} else if (SERVER.equals(type)) {
+			try {
+				message = serverGateway.receive();
+			} catch (ClassNotFoundException e) {
+				throw new IOException("Received message could not be deserialized.", e);
+			}
+		}
+
+		return message;
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (CLIENT.equals(type)) {
+			clientGateway.close();
+		} else if (SERVER.equals(type)) {
+			serverGateway.close();
+
+		}
+	}
 }

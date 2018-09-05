@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
@@ -14,7 +15,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GSVerifier {
+public class GSVerifier implements IMessagePartner {
   private final Map<URN, BigInteger> barV = new HashMap<>();
   private ProofStore<Object> verifierStore;
   private final KeyGenParameters keyGenParameters;
@@ -23,11 +24,15 @@ public class GSVerifier {
   private final ExtendedPublicKey extendedPublicKey;
 
   public GSVerifier(
-      final ExtendedPublicKey extendedPublicKey, final KeyGenParameters keyGenParameters) {
+      final ExtendedPublicKey extendedPublicKey) {
 
     this.extendedPublicKey = extendedPublicKey;
-    this.keyGenParameters = keyGenParameters;
+    this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
     this.messageGateway = new MessageGatewayProxy(CLIENT);
+  }
+  
+  public void init() throws IOException {
+	  this.messageGateway.init();
   }
 
   public Map<URN, BigInteger> getBarV() {
@@ -56,7 +61,7 @@ public class GSVerifier {
     return messageGateway.receive();
   }
 
-  public void close() {
+  public void close() throws IOException {
     messageGateway.close();
   }
 

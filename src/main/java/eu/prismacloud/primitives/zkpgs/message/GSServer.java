@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.util.logging.Logger;
 
 /** Creates a blocking server socket that waits until it receives a message from a client */
-public class GSServer {
+public class GSServer implements IMessagePartner {
   private final ServerSocket serverSocket;
   private static final int PORT = 9999;
   private Socket clientSocket;
@@ -45,7 +45,7 @@ public class GSServer {
    * @throws IOException If an I/O error occurs, when blocking for a connection or creating the I/O
    *     stream for the client.
    */
-  public void setup() throws IOException {
+  public void init() throws IOException {
     clientSocket = serverSocket.accept();
     log.info("Server Socket Established...");
     outToClient = new ObjectOutputStream(clientSocket.getOutputStream());

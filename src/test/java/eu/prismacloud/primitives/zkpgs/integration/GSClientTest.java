@@ -29,7 +29,7 @@ class GSClientTest {
   @BeforeAll
   void setUp() throws IOException {
     client = new GSClient(PORT);
-    client.setup();
+    client.init();
   }
 
   @EnabledOnSuite(name = GSSuite.GSCLIENT_GSSERVER)

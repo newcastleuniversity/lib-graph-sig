@@ -60,7 +60,8 @@ public class GSSignerTest {
     extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
     extendedKeyPair.createExtendedKeyPair();
 
-    signer = new GSSigner(extendedKeyPair, keyGenParameters);
+    signer = new GSSigner(extendedKeyPair);
+    signer.init();
   }
 
   @Test
@@ -103,7 +104,7 @@ public class GSSignerTest {
   }
 
   @AfterAll
-  void tearDown() {
+  void tearDown() throws IOException {
     signer.close();
   }
 }

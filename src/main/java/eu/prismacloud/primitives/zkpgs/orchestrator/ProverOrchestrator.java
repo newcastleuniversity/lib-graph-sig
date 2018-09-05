@@ -114,11 +114,14 @@ public class ProverOrchestrator implements IProverOrchestrator {
     this.baseS = extendedPublicKey.getPublicKey().getBaseS();
     this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
     this.proofStore = proofStore;
-    this.prover = new GSProver(proofStore, extendedPublicKey, keyGenParameters);
+    this.prover = new GSProver(extendedPublicKey, proofStore);
     //    this.vertexIterator = baseCollection.createIterator(BASE.VERTEX);
   }
 
-  public void init() throws IOException {
+  @Override
+public void init() throws IOException {
+	this.prover.init();
+	  
     GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
     BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
     BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
@@ -142,7 +145,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
     commitments = prover.getCommitmentMap();
   }
 
-  public void executePreChallengePhase() {
+  @Override
+public void executePreChallengePhase() {
     this.blindedGraphSignature = graphSignature.blind();
 
     try {
@@ -203,7 +207,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
     proofStore.store(vPrimeURN, this.blindedGraphSignature.getV());
   }
 
-  public ProofSignature createProofSignature() {
+  @Override
+public ProofSignature createProofSignature() {
     String hateURN = "possessionprover.responses.hate";
     BigInteger hate = (BigInteger) proofStore.retrieve(hateURN);
     String hatvPrimeURN = "possessionprover.responses.hatvprime";
@@ -251,7 +256,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
     return new ProofSignature(proofSignatureElements);
   }
 
-  public BigInteger computeChallenge() {
+  @Override
+public BigInteger computeChallenge() {
     gslog.info("compute challenge ");
     challengeList = populateChallengeList();
     try {
@@ -262,7 +268,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
     return cChallenge;
   }
 
-  public void executePostChallengePhase(BigInteger c) throws IOException {
+  @Override
+public void executePostChallengePhase(BigInteger c) throws IOException {
     gslog.info("compute post challlenge phase");
     try {
       responses = possessionProver.executePostChallengePhase(cChallenge);
@@ -387,7 +394,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		tildeZ = tildeMap.get(URN.createZkpgsURN(possessionProver.getProverURN(URNType.TILDEZ)));
   }
 
-  public void close() {
+  @Override
+public void close() throws IOException {
     prover.close();
   }
 }
