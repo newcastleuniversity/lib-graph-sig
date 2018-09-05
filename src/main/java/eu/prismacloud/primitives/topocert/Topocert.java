@@ -50,6 +50,9 @@ public class Topocert {
 		String paramsFile = (String) parser.getOptionValue(TopocertCmdLineParser.KEYGENPARAMS, TopocertDefaultOptionValues.DEF_KEYGEN_PARAMS);
 		String encodingFile = TopocertDefaultOptionValues.DEF_COUNTRY_ENCODING;
 		
+		String signerKeyFile = (String) parser.getOptionValue(TopocertCmdLineParser.SIGNERKP, TopocertDefaultOptionValues.DEF_SKP);
+		String epkFile = (String) parser.getOptionValue(TopocertCmdLineParser.EPK, TopocertDefaultOptionValues.DEF_EPK);
+		
 		// Integer Options: Zero or Multiple Queries
 		@SuppressWarnings("unchecked")
 		Vector<Integer> queryValues = (Vector<Integer>) parser.getOptionValues(TopocertCmdLineParser.GEOSEPQUERY);
@@ -63,18 +66,27 @@ public class Topocert {
 		} else if (keygenMode != null && keygenMode.booleanValue()) {
 			// Initialize TOPOCERT keygen
 			System.out.println("Entering TOPOCERT key generation...");
+			System.out.println("  Writing signer keypair to file: " + signerKeyFile);
+			System.out.println("  Writing extended public key to file: " + epkFile);
+			
 			System.exit(0);
 		} else if (signMode != null && signMode.booleanValue()) {
-			System.out.println("Entering TOPOCERT Sign mode...");
 			// Initialize signing, with specified signer graph file.
+			System.out.println("Entering TOPOCERT Sign mode...");
+			System.out.println("  Using signer keypair from file: " + signerKeyFile);
+			
 			System.exit(0);
 		} else if (receiveMode != null && receiveMode.booleanValue()) {
-			System.out.println("Entering TOPOCERT Receive mode...");
 			// Initialize receiving of a signature.
+			System.out.println("Entering TOPOCERT Receive mode...");
+			System.out.println("  Using Signer's extended public key: " + epkFile);
+			
 			System.exit(0);
 		} else if (proveMode != null && proveMode.booleanValue()) {
 			// Initialize proving
 			System.out.println("Entering TOPOCERT Prove mode...");
+			System.out.println("  Using Signer's extended public key: " + epkFile);
+			
 			System.exit(0);
 		} else if (verifyMode != null && verifyMode.booleanValue()) {
 			// Initialize verifying, specifying queries
@@ -84,6 +96,7 @@ public class Topocert {
 				System.exit(2);
 			}
 			System.out.println("Entering TOPOCERT Verify mode...");
+			System.out.println("  Using Signer's extended public key: " + epkFile);
 			System.out.print("  Queried vertices: [ ");
 			for (Iterator<Integer> iterator = queryValues.iterator(); iterator.hasNext();) {
 				Integer queriedVertex = (Integer) iterator.next();
