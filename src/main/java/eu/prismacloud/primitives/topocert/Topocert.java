@@ -1,6 +1,9 @@
 package eu.prismacloud.primitives.topocert;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.IOException;
+import java.nio.file.ReadOnlyFileSystemException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Vector;
@@ -9,6 +12,8 @@ import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
+import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -76,15 +81,9 @@ public class Topocert {
 		@SuppressWarnings("unchecked")
 		Vector<Integer> queryValues = (Vector<Integer>) parser.getOptionValues(TopocertCmdLineParser.GEOSEPQUERY);
 
+		// Initialize Topocert and Read Parameters
 		Topocert topocert = new Topocert();
-		try {
-			topocert.readKeyGenParams(paramsFilename);
-		} catch (Exception e) {
-			System.err.println("The TOPOCERT keygen and graph encoding "
-					+ "parameters could not be parsed from file: " + paramsFilename + ".");
-			System.err.println(e.getMessage());
-			System.exit(TopocertErrorCodes.EX_CONFIG);
-		}
+		topocert.readParams(paramsFilename);
 
 		//
 		// Main Behavior Branching
@@ -116,17 +115,42 @@ public class Topocert {
 			System.out.println("Entering TOPOCERT Sign mode...");
 			System.out.println("  Using signer keypair from file: " + signerKeyFilename);
 
+			SignerKeyPair skp = null;
+			System.out.print("  Reading signer keypair...");
+			try {
+				skp = topocert.readSignerKeyPair(signerKeyFilename);
+			} catch(IOException e) {
+				System.err.println("The TOPOCERT signer key pair could not be read.");
+				System.err.println(e.getMessage());
+				System.exit(TopocertErrorCodes.EX_CRITFILE);
+			} catch (ClassNotFoundException e) {
+				System.err.println("The TOPOCERT signer key pair does not correspond the current class.");
+				System.err.println(e.getMessage());
+				System.exit(TopocertErrorCodes.EX_CRITERR);
+			}
+			System.out.println("   [done]\n");
+
+			topocert.sign(skp, graphFilename);
+
 			System.exit(0);
 		} else if (receiveMode != null && receiveMode.booleanValue()) {
 			// Initialize receiving of a signature.
 			System.out.println("Entering TOPOCERT Receive mode...");
 			System.out.println("  Using Signer's extended public key: " + epkFilename);
+			
+			topocert.readEPK(epkFilename);
+			
+			topocert.receive();
 
 			System.exit(0);
 		} else if (proveMode != null && proveMode.booleanValue()) {
 			// Initialize proving
 			System.out.println("Entering TOPOCERT Prove mode...");
 			System.out.println("  Using Signer's extended public key: " + epkFilename);
+			
+			topocert.readEPK(epkFilename);
+			
+			topocert.prove(graphFilename);
 
 			System.exit(0);
 		} else if (verifyMode != null && verifyMode.booleanValue()) {
@@ -145,6 +169,10 @@ public class Topocert {
 				if (iterator.hasNext()) System.out.print(", ");
 			}
 			System.out.println(" ].");
+			
+			topocert.readEPK(epkFilename);
+			
+			topocert.verify(queryValues);
 
 			System.exit(0);
 		} else {
@@ -156,7 +184,23 @@ public class Topocert {
 		System.exit(0);
 	}
 
-	public void readKeyGenParams(String paramsFilename) {
+
+
+	void readParams(String paramsFilename) {
+		System.out.print("Reading parameters from file: " + paramsFilename +"...");
+		try {
+			readKeyGenParams(paramsFilename);
+		} catch (Exception e) {
+			System.err.println("The TOPOCERT keygen and graph encoding "
+					+ "parameters could not be parsed from file: " + paramsFilename + ".");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_CONFIG);
+		}
+		System.out.println("   [done]");
+		System.out.println("  Setup for key bitlength: " + getKeyGenParams().getL_n() + "\n");
+	}
+
+	void readKeyGenParams(String paramsFilename) {
 		JSONParameters parameters = new JSONParameters(paramsFilename);
 		keyGenParams = parameters.getKeyGenParameters();
 		graphEncParams = parameters.getGraphEncodingParameters();
@@ -165,7 +209,42 @@ public class Topocert {
 		//		String defEpkFile = "ExtendedPublicKey-" + keyGenParams.getL_n() + ".ser";
 	}
 
-	public void keygen(String signerKeyPairFilename, String signerPKFilename, String epkFilename) throws IOException, EncodingException {
+	SignerKeyPair readSignerKeyPair(String signerKeyPairFilename) throws
+	IOException, ClassNotFoundException {
+
+		SignerKeyPair signerKeyPair = (SignerKeyPair) persistenceUtil.read(signerKeyPairFilename);
+
+		return signerKeyPair;
+	}
+
+	ExtendedPublicKey readExtendedPublicKey(String epkFilename) throws
+	IOException, ClassNotFoundException {
+
+		this.epk =
+		           (ExtendedPublicKey) persistenceUtil.read(epkFilename);
+
+		return epk;
+	}
+	
+	void readEPK(String epkFilename) {
+		System.out.print("  Reading extended public key...");
+		try {
+			readExtendedPublicKey(epkFilename);
+		} catch(IOException e) {
+			System.err.println("The TOPOCERT extended public keu could not be read.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_CRITFILE);
+		} catch (ClassNotFoundException e) {
+			System.err.println("The TOPOCERT extended public key does not correspond the current class.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_CRITERR);
+		}
+		System.out.println("   [done]\n");
+		System.out.println("  Extended Public Key holds " + epk.getBases().size() + " graph encoding bases.");
+	}
+	
+	
+	void keygen(String signerKeyPairFilename, String signerPKFilename, String epkFilename) throws IOException, EncodingException {
 		// Establishing Signer Key Pair First
 		SignerKeyPair gsk = new SignerKeyPair();
 		System.out.print("  Keygen - Stage I:   Generating SRSA Signer key pair.");
@@ -193,11 +272,42 @@ public class Topocert {
 		ekp.createExtendedKeyPair();
 		System.out.println("   [done]");
 
-		System.out.print("  Keygen: writing new ExtendedPublicKey...");
+		System.out.print("  Keygen: - Stage III: Writing new ExtendedPublicKey...");
 		this.epk = ekp.getExtendedPublicKey();
 		persistenceUtil.write(ekp.getExtendedPublicKey(), epkFilename);
 		System.out.println("   [done]");
+
+		System.out.println("  Keygen: Completed.");
+	}
+
+	void sign(SignerKeyPair skp, String graphFilename) {
+		System.out.println("  Sign: Hosting interactive signing for graph: " + graphFilename + "...");
 		
-		System.out.println("  Keygen: completed.");
+		System.out.println("  Sign: Completed");
+	}
+	
+	void receive() {
+		System.out.println("  Receive: Initializing client communication for graph signing...");
+		
+		System.out.println("  Receive: Completed");
+	}
+	
+	void prove(String graphFilename) {
+		System.out.println("  Prove: Hosting prover for certified graph " + graphFilename + "...");
+		
+		System.out.println("  Prove: Completed");
+	}
+	
+	void verify(Vector<Integer> vertexQueries) {
+		System.out.println("  Verify: Initializing client communication for geo-location verification...");
+		
+		System.out.println("  Verify: Completed");
+	}
+
+
+
+
+	public KeyGenParameters getKeyGenParams() {
+		return this.keyGenParams;
 	}
 }

@@ -9,7 +9,7 @@ public class TopocertErrorCodes {
 	public static final int EX_UNAVAILABLE = 69;	/* service unavailable */
 	public static final int EX_SOFTWARE	= -1;	/* internal software error */
 	public static final int EX_CRITERR = -2;	/* system error (e.g. unable to clone) */
-	public static final int EX_OSFILE =	-3;	/* critical file missing */
+	public static final int EX_CRITFILE =	-3;	/* critical file missing */
 	public static final int EX_CANTCREAT = 73;/* can't create (user) output file */
 	public static final int EX_IOERR = 74; /* input/output error */
 
