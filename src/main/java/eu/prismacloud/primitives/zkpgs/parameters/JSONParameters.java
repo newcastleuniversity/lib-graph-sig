@@ -19,14 +19,39 @@ public class JSONParameters {
     reader = parseParamFile();
     build();
   }
-
-  /** Parse param file. */
-  public JsonReader parseParamFile() {
-
-    paramStream = JsonIsoCountries.class.getClassLoader().getResourceAsStream(GS_PARAM_FILE);
-
-    return Json.createReader(paramStream);
+  
+  /**
+   * Initializes a JSON Parameters setup based on a given params file.
+   * 
+   * @param filename JSON params file for keygen and graph encoding.
+   */
+  public JSONParameters(String filename) {
+    reader = parseParamFile();
+    build();
   }
+
+  /**
+   * Parses a default parameters file for keygen and graph encoding parameters.
+   * This method uses a default filename.
+   * 
+   * @return JsonReader reading from the params file.
+   */
+  public JsonReader parseParamFile() {
+	  return parseParamFile(GS_PARAM_FILE);
+  }
+  
+  /**
+   * Parses a specified parameters file for keygen and graph encoding parameters.
+   * This method uses a default filename.
+   *  
+   * @param filename
+   * @return JsonReader reading from the params file.
+   */
+  public JsonReader parseParamFile(String filename) {
+	    paramStream = JsonIsoCountries.class.getClassLoader().getResourceAsStream(filename);
+
+	    return Json.createReader(paramStream);
+	  }
 
   public KeyGenParameters getKeyGenParameters() {
     return this.keyGenParameters;
