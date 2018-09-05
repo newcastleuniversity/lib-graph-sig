@@ -323,7 +323,7 @@ public class PairWiseDifferenceProver implements IProver {
 	private void storeWitness() {
 		basetildeR_BariBarjURN = "pairwiseprover.basetildeR_BariBarj_" + index;
 		try {
-			proofStore.store(tildea_BariBarjURN, basetildeR_BariBarj);
+			proofStore.store(basetildeR_BariBarjURN, basetildeR_BariBarj);
 		} catch (Exception e) {
 			gslog.log(Level.SEVERE, e.getMessage());
 		}
