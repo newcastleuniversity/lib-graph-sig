@@ -58,14 +58,20 @@ public class GSSignatureValidator {
 	}
 
 	private GroupElement computeQ() throws ProofStoreException {
-		gslog.info("compute Q");
 		GroupElement basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
 
-		BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
-		for (BaseRepresentation baseRepresentation : baseIterator) {
+		BaseIterator vertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
+		for (BaseRepresentation vertexBase : vertexIterator) {
 			basesProduct =
 					basesProduct.multiply(
-							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+							vertexBase.getBase().modPow(vertexBase.getExponent()));
+		}
+		
+		BaseIterator edgeIterator = encodedBasesCollection.createIterator(BASE.EDGE);
+		for (BaseRepresentation edgeBase : edgeIterator) {
+			basesProduct =
+					basesProduct.multiply(
+							edgeBase.getBase().modPow(edgeBase.getExponent()));
 		}
 
 		GroupElement R_0 = signerPublicKey.getBaseR_0();
@@ -88,7 +94,7 @@ public class GSSignatureValidator {
 		return Q;
 	}
 
-	private void computehatQ() throws VerificationException {
+	private void verifyAgainstHatQ() throws VerificationException {
 		GroupElement hatQ = sigma.getA().modPow(sigma.getE());
 
 		if (hatQ.compareTo(Q) != 0) {
@@ -109,7 +115,7 @@ public class GSSignatureValidator {
 	private boolean verifySignature() throws ProofStoreException {
 		computeQ();
 		try {
-			computehatQ();
+			verifyAgainstHatQ();
 		} catch (VerificationException ve) {
 			gslog.log(Level.SEVERE, ve.getMessage());
 			return false;

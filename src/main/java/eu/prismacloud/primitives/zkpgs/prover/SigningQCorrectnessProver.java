@@ -26,85 +26,85 @@ import java.util.logging.Logger;
  */
 public class SigningQCorrectnessProver implements IProver {
 
-  public static final String URNID = "issuing.signer";
+	public static final String URNID = "issuing.signer";
 
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
+	//private Logger gslog = GSLoggerConfiguration.getGSlog();
 
-  private final ProofStore<Object> proofStore;
-  private final SignerPublicKey signerPublicKey;
-  private final SignerPrivateKey signerPrivateKey;
-  private final KeyGenParameters keyGenParameters;
-  private final GSSignature gsSignature;
-  private final BigInteger n_2;
-  private BigInteger tilded;
-  private BigInteger hatd;
-  private BigInteger d;
-  private GroupElement Q;
-  
-  public SigningQCorrectnessProver(
-      final GSSignature gsSignature,
-      final BigInteger n_2,
-      final SignerKeyPair skp,
-      final ProofStore<Object> ps) {
-    this.proofStore = ps;
-    this.signerPublicKey = skp.getPublicKey();
-    this.signerPrivateKey = skp.getPrivateKey();
-    this.gsSignature = gsSignature;
-    this.keyGenParameters = skp.getKeyGenParameters();
-    this.n_2 = n_2;
-  }
+	private final ProofStore<Object> proofStore;
+	private final SignerPublicKey signerPublicKey;
+	private final SignerPrivateKey signerPrivateKey;
+	private final KeyGenParameters keyGenParameters;
+	private final GSSignature gsSignature;
+	private final BigInteger n_2;
+	private BigInteger tilded;
+	private BigInteger hatd;
+	private BigInteger d;
+	private GroupElement Q;
 
-  @Override
-  public void executePrecomputation() {
-    // NO PRE-COMPUTATION IS NEEDED: NO-OP.
-  }
+	public SigningQCorrectnessProver(
+			final GSSignature gsSignature,
+			final BigInteger n_2,
+			final SignerKeyPair skp,
+			final ProofStore<Object> ps) {
+		this.proofStore = ps;
+		this.signerPublicKey = skp.getPublicKey();
+		this.signerPrivateKey = skp.getPrivateKey();
+		this.gsSignature = gsSignature;
+		this.keyGenParameters = skp.getKeyGenParameters();
+		this.n_2 = n_2;
+	}
 
-  @Override
-  public GroupElement executePreChallengePhase() throws ProofStoreException {
+	@Override
+	public void executePrecomputation() {
+		// NO PRE-COMPUTATION IS NEEDED: NO-OP.
+	}
 
-    this.Q = (QRElement) proofStore.retrieve("issuing.signer.Q");
+	@Override
+	public GroupElement executePreChallengePhase() throws ProofStoreException {
 
-    BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
+		this.Q = (QRElement) proofStore.retrieve("issuing.signer.Q");
 
-    this.tilded =
-        CryptoUtilsFacade.computeRandomNumber(
-            NumberConstants.TWO.getValue(), order.subtract(BigInteger.ONE));
+		BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
 
-    proofStore.store(URNType.buildURNComponent(URNType.TILDED, this.getClass()), tilded);
-    GroupElement tildeA = Q.modPow(tilded);
-    
-    return tildeA;
-  }
-  
-  @Override
-  public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
-	  GroupElement tildeA = executePreChallengePhase();
-	  Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>();
-	    String tildeAURN = URNType.buildURNComponent(URNType.TILDEA, SigningQCorrectnessProver.class);
-	    witnesses.put(URN.createZkpgsURN(tildeAURN), tildeA);
-	    return witnesses;
-	  }
+		this.tilded =
+				CryptoUtilsFacade.computeRandomNumber(
+						NumberConstants.TWO.getValue(), order.subtract(BigInteger.ONE));
 
-  @Override
-  public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
-      throws ProofStoreException {
-    this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
+		proofStore.store(URNType.buildURNComponent(URNType.TILDED, this.getClass()), tilded);
+		GroupElement tildeA = Q.modPow(tilded);
 
-    BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
-    hatd = (tilded.subtract(cChallenge.multiply(d))).mod(order);
-    Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>(1);
-    responses.put(
-        URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, this.getClass())), hatd);
-    return responses;
-  }
+		return tildeA;
+	}
 
-  @Override
-  public boolean verify() {
-    return false;
-  }
+	@Override
+	public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
+		GroupElement tildeA = executePreChallengePhase();
+		Map<URN, GroupElement> witnesses = new HashMap<URN, GroupElement>();
+		String tildeAURN = URNType.buildURNComponent(URNType.TILDEA, SigningQCorrectnessProver.class);
+		witnesses.put(URN.createZkpgsURN(tildeAURN), tildeA);
+		return witnesses;
+	}
 
-  @Override
-  public List<URN> getGovernedURNs() {
-    throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-  }
+	@Override
+	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
+			throws ProofStoreException {
+		this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
+
+		BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
+		hatd = (tilded.subtract(cChallenge.multiply(d))).mod(order);
+		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>(1);
+		responses.put(
+				URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, this.getClass())), hatd);
+		return responses;
+	}
+
+	@Override
+	public boolean verify() {
+		return false;
+	}
+
+	@Override
+	public List<URN> getGovernedURNs() {
+		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+	}
 }

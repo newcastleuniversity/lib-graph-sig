@@ -29,7 +29,7 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 public class SigningQProverOrchestrator implements IProverOrchestrator {
 
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
-	
+
 	private final GSSignature gsSignature;
 	private final BigInteger nonce;
 	private final ExtendedKeyPair ekp;
@@ -38,9 +38,9 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 	private final ProofStore<Object> proofStore;
 	private final SigningQCorrectnessProver prover;
 	private List<String> contextList;
-	
+
 	private BigInteger cPrime;
-	
+
 	private List<String> challengeList;
 
 	private GroupElement R_0;
@@ -58,10 +58,10 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 		this.proofStore = ps;
 		this.prover = new SigningQCorrectnessProver(gsSignature, nonce, ekp.getBaseKeyPair(), ps);
 	}
-	
+
 	@Override
 	public void init() throws IOException {
-		
+
 	}
 
 	@Override
@@ -99,52 +99,52 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 	@Override
 	public ProofSignature createProofSignature() {
 		HashMap<URN, Object> p2ProofSignatureElements = new HashMap<URN, Object>();
-	    p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.hatd"), hatd);
-	    p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.cPrime"), cPrime);
+		p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.hatd"), hatd);
+		p2ProofSignatureElements.put(URN.createZkpgsURN("P_2.cPrime"), cPrime);
 
-	    ProofSignature P_2 = new ProofSignature(p2ProofSignatureElements);
+		ProofSignature P_2 = new ProofSignature(p2ProofSignatureElements);
 
 		return P_2;
 	}
 
-	
-	  private List<String> populateChallengeList() {
-		    challengeList = new ArrayList<String>();
-		    GSContext gsContext =
-		        new GSContext(
-		            epk);
-		    contextList = gsContext.computeChallengeContext();
 
-		    challengeList.addAll(contextList);
+	private List<String> populateChallengeList() {
+		challengeList = new ArrayList<String>();
+		GSContext gsContext =
+				new GSContext(
+						epk);
+		contextList = gsContext.computeChallengeContext();
 
-		    R_0 = ekp.getExtendedPublicKey().getPublicKey().getBaseR_0();
+		challengeList.addAll(contextList);
 
-		    /** TODO add context to list of elements in challenge */
-		    challengeList.add(String.valueOf(epk.getPublicKey().getModN()));
-		    challengeList.add(String.valueOf(epk.getPublicKey().getBaseS()));
-		    challengeList.add(String.valueOf(epk.getPublicKey().getBaseZ()));
-		    challengeList.add(String.valueOf(epk.getPublicKey().getBaseR()));
-		    challengeList.add(String.valueOf(R_0));
+		R_0 = ekp.getExtendedPublicKey().getPublicKey().getBaseR_0();
 
-//		    for (BaseRepresentation baseRepresentation : basesIterator) {
-//		      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-//		    }
+		/** TODO add context to list of elements in challenge */
+		challengeList.add(String.valueOf(epk.getPublicKey().getModN()));
+		challengeList.add(String.valueOf(epk.getPublicKey().getBaseS()));
+		challengeList.add(String.valueOf(epk.getPublicKey().getBaseZ()));
+		challengeList.add(String.valueOf(epk.getPublicKey().getBaseR()));
+		challengeList.add(String.valueOf(R_0));
 
-		    String uCommitmentURN = "recipient.U";
-		    U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
-		    GroupElement commitmentU = U.getCommitmentValue();
+		//		    for (BaseRepresentation baseRepresentation : basesIterator) {
+		//		      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+		//		    }
 
-		    challengeList.add(String.valueOf(commitmentU));
-		    /** TODO fix hatU computation */
-		    // TODO Including hat U. Actually not really proof context for this particular ZPK.
-//		    challengeList.add(String.valueOf(hatU));
-//		    challengeList.add(String.valueOf(n_1));
+		String uCommitmentURN = "recipient.U";
+		U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
+		GroupElement commitmentU = U.getCommitmentValue();
 
-		    return challengeList;
-		  }
-	  
-	  @Override
+		challengeList.add(String.valueOf(commitmentU));
+		/** TODO fix hatU computation */
+		// TODO Including hat U. Actually not really proof context for this particular ZPK.
+		//		    challengeList.add(String.valueOf(hatU));
+		//		    challengeList.add(String.valueOf(n_1));
+
+		return challengeList;
+	}
+
+	@Override
 	public void close() throws IOException {
-		  // Intentional No-Operation.
-	  }
+		// Intentional No-Operation.
+	}
 }

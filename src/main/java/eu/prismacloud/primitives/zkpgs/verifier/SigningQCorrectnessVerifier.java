@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /** */
 public class SigningQCorrectnessVerifier implements IVerifier {
 
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	//private Logger gslog = GSLoggerConfiguration.getGSlog();
 
 	private final KeyGenParameters keyGenParameters;
 

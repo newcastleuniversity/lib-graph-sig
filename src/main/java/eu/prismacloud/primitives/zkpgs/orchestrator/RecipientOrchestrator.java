@@ -238,9 +238,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		gslog.info("Validating incoming graph signature.");
 		GSSignature signatureCandidate = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+		signatureCandidate.setEncodedBases(encodedBases);
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
-
+		
 		if(!sigmaValidator.verify()) {
 			throw new VerificationException("The signature is inconsistent.");
 		}
