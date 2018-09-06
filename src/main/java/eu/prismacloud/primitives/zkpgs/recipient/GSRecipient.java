@@ -62,26 +62,7 @@ public class GSRecipient implements IMessagePartner {
   }
 
   public GSCommitment commit(BaseCollection encodedBases, BigInteger rnd) {
-    BaseIterator base0Iterator = encodedBases.createIterator(BASE.BASE0);
-    
-    if (base0Iterator.hasNext()){
-      baseRepresentationR_0 = encodedBases.createIterator(BASE.BASE0).next();
-    }
-
-    R_0 = baseRepresentationR_0.getBase();
-    m_0 = baseRepresentationR_0.getExponent();
-    R_0com = R_0.modPow(m_0);
-    GroupElement baseScom = baseS.modPow(rnd);
-
-    GroupElement commitment = R_0com.multiply(baseScom);
-
-    Map<URN, GroupElement> bases = new HashMap<>();
-    bases.put(URN.createZkpgsURN("recipient.bases.R_0"), R_0);
-    Map<URN, BigInteger> messages = new HashMap<>();
-    messages.put(URN.createZkpgsURN("recipient.exponent.m_0"), m_0);
-
-    GSCommitment gsCommitment =  GSCommitment.createCommitment(bases, messages, rnd, extendedPublicKey);
-//    gsCommitment.setCommitmentValue(commitment);
+    GSCommitment gsCommitment =  GSCommitment.createCommitment(encodedBases, rnd, extendedPublicKey);
 
     return gsCommitment;
   }

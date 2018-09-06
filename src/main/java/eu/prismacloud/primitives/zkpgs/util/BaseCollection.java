@@ -11,6 +11,10 @@ public interface BaseCollection extends IContextProducer, Cloneable {
 
 	boolean remove(BaseRepresentation base);
 	
+	BaseRepresentation get(int index);
+	
+	BaseRepresentation getFirst();
+	
 	/**
 	 * Removes all exponents stored in the base collection by setting them to BigInteger.ZERO.
 	 */

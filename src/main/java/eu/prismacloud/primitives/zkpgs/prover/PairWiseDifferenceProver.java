@@ -100,10 +100,10 @@ public class PairWiseDifferenceProver implements IProver {
 
 		Assert.notNull(C_i, "commitment i must not be null");
 		Assert.notNull(C_j, "commitment j must not be null");
-		Assert.notNull(C_i.getExponents(), "commitment  message must not be null");
 		Assert.notNull(C_i.getRandomness(), "commitment randomness must not be null");
-		Assert.notNull(C_j.getExponents(), "commitment message must not be null");
 		Assert.notNull(C_j.getRandomness(), "commitment randomness must not be null");
+		Assert.notNull(C_i.getBaseCollection(), "the base collection must not be null");
+		Assert.notNull(C_j.getBaseCollection(), "the base collection must not be null");
 		Assert.notNull(index, "component prover index must not be null");
 		Assert.notNull(proofStore, "ProofStore must not be null");
 
@@ -112,9 +112,9 @@ public class PairWiseDifferenceProver implements IProver {
 		this.epk = extendedPublicKey;
 		this.baseS = epk.getPublicKey().getBaseS();
 		this.baseR = epk.getPublicKey().getBaseR();
-		this.m_Bari = C_i.getExponents().get(URN.createZkpgsURN("commitment.exponent.m"));
+		this.m_Bari = C_i.getBaseCollection().getFirst().getExponent();
 		this.r_Bari = C_i.getRandomness();
-		this.m_Barj = C_j.getExponents().get(URN.createZkpgsURN("commitment.exponent.m"));
+		this.m_Barj = C_j.getBaseCollection().getFirst().getExponent();
 		this.r_Barj = C_j.getRandomness();
 		this.index = index;
 		this.proofStore = proofStore;

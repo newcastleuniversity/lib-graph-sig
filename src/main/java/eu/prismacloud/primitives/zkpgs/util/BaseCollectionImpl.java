@@ -44,8 +44,14 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		this.bases = bases;
 	}
 
+	@Override
 	public BaseRepresentation get(int index) {
 		return bases.get(index);
+	}
+	
+	@Override
+	public BaseRepresentation getFirst() {
+		return get(0);
 	}
 
 	public void set(int index, BaseRepresentation value) {
@@ -56,6 +62,7 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		this.bases.addAll(collection);
 	}
 
+	@Override
 	public int size() {
 		return bases.size();
 	}
@@ -79,7 +86,7 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		Iterator<BaseRepresentation> baseIter = bases.iterator();
 		
 		while (baseIter.hasNext()) {
-			BaseRepresentation baseRepresentation = (BaseRepresentation) baseIter.next();
+			BaseRepresentation baseRepresentation = baseIter.next();
 			baseRepresentation.setExponent(BigInteger.ZERO);
 		}
 	}

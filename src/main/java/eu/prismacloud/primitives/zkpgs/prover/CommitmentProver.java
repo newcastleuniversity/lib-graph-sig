@@ -18,7 +18,6 @@ import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class CommitmentProver implements IProver {
 	
 	private final STAGE proofStage;
 
-	private BaseCollection baseCollection;
+	private final BaseCollection baseCollection;
 
 	private BigInteger cChallenge;
 
@@ -84,6 +83,7 @@ public class CommitmentProver implements IProver {
 		this.index = index;
 		this.proofStore = ps;
 		this.com = com;
+		this.baseCollection = com.getBaseCollection();
 	}
 	
 	/** 
@@ -108,6 +108,7 @@ public class CommitmentProver implements IProver {
 		this.proofStore = ps;
 		this.index = -1;
 		this.com = com;
+		this.baseCollection = com.getBaseCollection();
 	}
 
 	@Override
@@ -157,35 +158,33 @@ public class CommitmentProver implements IProver {
 				+ keyGenParameters.getL_H();
 
 		BigInteger tildevPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(tildevPrimeBitLength);
-		String tildevPrimeURN = getProverURN(URNType.TILDEVPRIME, index);
+		String tildevPrimeURN = getProverURN(URNType.TILDEVPRIME);
 		proofStore.store(tildevPrimeURN, tildevPrime);
 
 		int mBitLength =
 				keyGenParameters.getL_m() + keyGenParameters.getL_statzk() + keyGenParameters.getL_H() + 1;
 
 		tildem_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
-		String tildem_0URN = getProverURN(URNType.TILDEM0, index);
+		String tildem_0URN = getProverURN(URNType.TILDEM0);
 		proofStore.store(tildem_0URN, tildem_0);
 
 		Map<URN, BigInteger> vertexWitnessRandomness = new HashMap<URN, BigInteger>();
-		String tildem_iURN = getProverURN(URNType.TILDEMI, index);
-		String tildem_i_jURN = getProverURN(URNType.TILDEMIJ, index);
 
 		if (baseCollection.size() > 1) {
 			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 			for (BaseRepresentation baseRepresentation : vertexIterator) {
-				urnVertex = URN.createZkpgsURN(tildem_iURN + baseRepresentation.getBaseIndex());
+				urnVertex = URN.createZkpgsURN(getProverURN(URNType.TILDEMI, baseRepresentation.getBaseIndex()));
 				BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
 				vertexWitnessRandomness.put(urnVertex, tildem_i);
-				proofStore.store(tildem_iURN + baseRepresentation.getBaseIndex(), tildem_i);
+				proofStore.store(getProverURN(URNType.TILDEMI, baseRepresentation.getBaseIndex()), tildem_i);
 			}
 
 			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 			for (BaseRepresentation baseRepresentation : edgeIterator) {
-				urnEdge = URN.createZkpgsURN(tildem_i_jURN + baseRepresentation.getBaseIndex());
+				urnEdge = URN.createZkpgsURN(getProverURN(URNType.TILDEMIJ, baseRepresentation.getBaseIndex()));
 				BigInteger tildem_i_j = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
 				vertexWitnessRandomness.put(urnEdge, tildem_i_j);
-				proofStore.store(tildem_i_jURN + baseRepresentation.getBaseIndex(), tildem_i_j);
+				proofStore.store(getProverURN(URNType.TILDEMIJ, baseRepresentation.getBaseIndex()), tildem_i_j);
 			}
 		}
 	}
