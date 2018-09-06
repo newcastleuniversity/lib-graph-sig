@@ -62,9 +62,9 @@ public class PossessionProver implements IProver {
 	private BigInteger hatvPrime;
 	private BigInteger hatm_0;
 
-	private List<URNType> urnTypes;
-	private List<EnumeratedURNType> enumeratedTypes;
-	private List<URN> governedURNs;
+	private transient List<URNType> urnTypes;
+	private transient List<EnumeratedURNType> enumeratedTypes;
+	private transient List<URN> governedURNs;
 
 	/**
 	 * Constructs a new PossessionProver for a given GSSignature.
@@ -321,7 +321,7 @@ public class PossessionProver implements IProver {
 	 */
 	@Override
 	public boolean verify() {
-		if (this.c == null) return false;
+		if (this.c == null || this.tildeZ == null) return false;
 		// This verification uses the verification equation of the TOPOCERT GSPossessionVerifier
 		// Modified with the correctness proof of the corresponding proof, that is,
 		// The equation must be equal to tildeZ.
@@ -395,14 +395,12 @@ public class PossessionProver implements IProver {
 		if (enumeratedTypes == null) {
 			enumeratedTypes = new ArrayList<EnumeratedURNType>(baseCollection.size());
 			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-			int vertexIndex = 1;
-			for (@SuppressWarnings("unused") BaseRepresentation baseRepresentation : vertexIterator) {
-				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, vertexIndex++));
+			for (BaseRepresentation base : vertexIterator) {
+				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, base.getBaseIndex()));
 			}
 			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
-			int edgeIndex = 1;
-			for (@SuppressWarnings("unused") BaseRepresentation baseRepresentation : edgeIterator) {
-				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, edgeIndex++));
+			for (BaseRepresentation base : edgeIterator) {
+				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMIJ, base.getBaseIndex()));
 			}
 		}
 

@@ -218,6 +218,33 @@ public enum URNType {
 
 		return proverID + URN.DOT + URNType.getClass(t) + URN.DOT + URNType.getSuffix(t);
 	}
+	
+	/**
+	 * Creates an URN for a prover/verifier class with the IProver/IVerifier interface.
+	 * 
+	 * @param t URNType to use.
+	 * @param c Governing class.
+	 * 
+	 * @return URN representing that data.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static URN buildURN(URNType t, Class c) {
+		return URN.createZkpgsURN(buildURNComponent(t, c));
+	}
+	
+	/**
+	 * Creates an URN for a prover/verifier class with the IProver/IVerifier interface.
+	 * 
+	 * @param t URNType to use.
+	 * @param c Governing class.
+	 * @param index Index of the URN created.
+	 * 
+	 * @return URN representing that data.
+	 */
+	@SuppressWarnings("rawtypes")
+	public static URN buildURN(URNType t, Class c, int index) {
+		return URN.createZkpgsURN(buildURNComponent(t, c, index));
+	}
 
 	/**
 	 * Builds an URN Component for a prover class fulfilling the IProver interface.
@@ -243,7 +270,6 @@ public enum URNType {
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
 		}
-
 
 		return proverID + URN.DOT + URNType.getClass(t) + URN.DOT + URNType.getSuffix(t) + index;
 	}

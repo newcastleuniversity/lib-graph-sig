@@ -325,6 +325,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
 			BigInteger tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 			String commURN = "prover.commitments.C_i_" + vertex.getBaseIndex();
 			GSCommitment com = commitments.get(URN.createZkpgsURN(commURN));
+			Assert.notNull(com, "Commitment submitted to CommitmentProver must not be null.");
+			
 			commitmentProver = new CommitmentProver(com, vertex.getBaseIndex(), extendedPublicKey.getPublicKey(), proofStore);
 
 			GroupElement tildeCommitment = commitmentProver.executePreChallengePhase();

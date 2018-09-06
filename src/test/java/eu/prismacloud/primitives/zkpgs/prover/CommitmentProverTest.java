@@ -135,7 +135,7 @@ class CommitmentProverTest {
 
         proofStore.store(tildem_iURN, tildem_i);
 
-        String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+//        String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
         GroupElement tildeC_i = cprover.executePreChallengePhase();
 
         assertNotNull(tildeC_i);
