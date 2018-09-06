@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
@@ -66,7 +67,7 @@ public class GSSignerTest {
 
   @Test
   void initGraph() throws ImportException {
-    GSGraph<GSVertex, GSEdge> gsGraph = signer.initGraph();
+    GSGraph<GSVertex, GSEdge> gsGraph = signer.initGraph(DefaultValues.SIGNER_GRAPH_FILE);
     assertNotNull(gsGraph);
     assertNotNull(gsGraph.getGraph());
   }

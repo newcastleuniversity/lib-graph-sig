@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -37,7 +38,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 class GraphRepresentationTest {
-  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   DefaultUndirectedGraph<GSVertex, GSEdge> graph;
 
   Graph<GSVertex, GSEdge> graphi;
@@ -68,7 +68,7 @@ class GraphRepresentationTest {
     extendedKeyPair.createExtendedKeyPair();
     extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
 
-    gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+    gsGraph = GSGraph.createGraph(DefaultValues.SIGNER_GRAPH_FILE);
     
     GeoLocationGraphEncoding encoding = new GeoLocationGraphEncoding(graphEncodingParameters);
     encoding.setupEncoding();

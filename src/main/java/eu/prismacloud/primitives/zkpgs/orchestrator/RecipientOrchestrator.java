@@ -1,7 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
+import eu.prismacloud.primitives.topocert.TopocertDefaultOptionValues;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -24,10 +26,12 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignatureValidator;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -44,7 +48,7 @@ import org.jgrapht.io.ImportException;
 
 /** Recipient orchestrator */
 public class RecipientOrchestrator implements IMessagePartner {
-	private static final String RECIPIENT_GRAPH_FILE = "recipient-infra.graphml";
+	
 	private final ExtendedPublicKey extendedPublicKey;
 	private final ProofStore<Object> proofStore;
 	private final BigInteger modN;
@@ -74,8 +78,9 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private BaseRepresentation baseR_0;
 	private GSSignature gsSignature;
 	private final GroupElement R;
+	private final String graphFilename;
 
-	public RecipientOrchestrator(
+	public RecipientOrchestrator(final String graphFilename,
 			final ExtendedPublicKey extendedPublicKey) {
 		this.extendedPublicKey = extendedPublicKey;
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
@@ -87,25 +92,31 @@ public class RecipientOrchestrator implements IMessagePartner {
 		this.R = extendedPublicKey.getPublicKey().getBaseR();
 		this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 		this.recipient = new GSRecipient(extendedPublicKey);
+		this.graphFilename = graphFilename;
 	}
-
+	
+	public RecipientOrchestrator(final ExtendedPublicKey extendedPublicKey) {
+		this(DefaultValues.RECIPIENT_GRAPH_FILE, extendedPublicKey);
+	}
+	
 	@Override
 	public void init() throws IOException {
 		this.recipient.init();
-	}
-
-	public void round1() throws ProofStoreException, IOException, NoSuchAlgorithmException {
+		
 		encodedBases = new BaseCollectionImpl();
 
 		generateRecipientMSK();
 
 		try {
-			createGraphRepresentation();
+			createGraphRepresentation(graphFilename);
 		} catch (ImportException im) {
-			gslog.log(Level.SEVERE, im.getMessage());
+			throw new IOException(im.getMessage());
 		} catch (EncodingException e) {
-			gslog.log(Level.SEVERE, e.getMessage());
+			throw new IOException(e.getMessage());
 		}
+	}
+
+	public void round1() throws ProofStoreException, IOException, NoSuchAlgorithmException {
 
 		// TODO needs to receive message n_1
 		GSMessage msg = recipient.receiveMessage();
@@ -192,8 +203,8 @@ public class RecipientOrchestrator implements IMessagePartner {
 		recipientMSK = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 	}
 
-	private void createGraphRepresentation() throws ImportException, EncodingException {
-		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(RECIPIENT_GRAPH_FILE);
+	private void createGraphRepresentation(String filename) throws ImportException, EncodingException {
+		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(filename);
 		gsGraph.encodeGraph(extendedPublicKey.getEncoding());
 
 		GraphRepresentation gr = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
@@ -316,6 +327,14 @@ public class RecipientOrchestrator implements IMessagePartner {
 				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
 
 		return P_2;
+	}
+	
+	public void serializeFinalSignature(String filename) throws IOException, NullPointerException {
+		Assert.notNull(gsSignature, "The signature was null.");
+		
+		FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
+		
+		persistenceUtil.write(gsSignature, filename);
 	}
 
 	@Override

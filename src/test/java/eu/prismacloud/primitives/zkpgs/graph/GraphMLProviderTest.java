@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.graph.GraphMLProvider;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 /** */
 class GraphMLProviderTest {
-  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   @BeforeEach
@@ -28,7 +28,7 @@ class GraphMLProviderTest {
 
   @Test
   void getGraphMLFile() {
-    File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
+    File file = GraphMLProvider.getGraphMLFile(DefaultValues.SIGNER_GRAPH_FILE);
     assertNotNull(file);
   }
 
@@ -40,7 +40,7 @@ class GraphMLProviderTest {
 
     GraphImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
     assertNotNull(importer);
-    File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
+    File file = GraphMLProvider.getGraphMLFile(DefaultValues.SIGNER_GRAPH_FILE);
     assertNotNull(file);
 
     importer.importGraph(graph, file);

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 /** */
 class GSVertexTest {
-  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
   private Set<GSEdge> edges;
   private Set<GSVertex> vertices;
   private GSEdge edge;
@@ -32,7 +32,7 @@ class GSVertexTest {
     GeoLocationGraphEncoding encoding = new GeoLocationGraphEncoding(graphEncodingParameters);
     encoding.setupEncoding();
 
-    GSGraph<GSVertex, GSEdge> gsgraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+    GSGraph<GSVertex, GSEdge> gsgraph = GSGraph.createGraph(DefaultValues.SIGNER_GRAPH_FILE);
     assertNotNull(gsgraph);
     assertNotNull(gsgraph.getGraph());
 

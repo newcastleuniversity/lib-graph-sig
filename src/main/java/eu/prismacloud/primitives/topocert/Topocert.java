@@ -68,6 +68,7 @@ public class Topocert {
 		String signerPKFilename = (String) parser.getOptionValue(TopocertCmdLineParser.SIGNERKP, TopocertDefaultOptionValues.DEF_PK);
 		String ekpFilename = TopocertDefaultOptionValues.DEF_EKP;
 		String epkFilename = (String) parser.getOptionValue(TopocertCmdLineParser.EPK, TopocertDefaultOptionValues.DEF_EPK);
+		String sigmaFilename = (String) parser.getOptionValue(TopocertCmdLineParser.GSSIGNATURE, TopocertDefaultOptionValues.DEF_GSSIGNATURE);
 
 		// Integer Options: Zero or Multiple Queries
 		@SuppressWarnings("unchecked")
@@ -148,7 +149,7 @@ public class Topocert {
 
 			topocert.readEPK(epkFilename);
 
-			topocert.receive();
+			topocert.receive(graphFilename, sigmaFilename);
 
 			System.exit(0);
 		} else if (proveMode != null && proveMode.booleanValue()) {
@@ -302,7 +303,7 @@ public class Topocert {
 
 	void sign(ExtendedKeyPair ekp, String graphFilename) {
 		System.out.println("  Sign: Hosting interactive signing for graph: " + graphFilename + "...");
-		SignerOrchestrator signer = new SignerOrchestrator(ekp);
+		SignerOrchestrator signer = new SignerOrchestrator(graphFilename, ekp);
 		// TODO How does the signer get the graph as input?!
 
 		try {
@@ -367,10 +368,10 @@ public class Topocert {
 		System.out.println("  Sign: Completed");
 	}
 
-	void receive() {
+	void receive(String graphFilename, String sigmaFilename) {
 		System.out.println("  Receive: Initializing client communication for graph signing...");
 
-		RecipientOrchestrator recipient = new RecipientOrchestrator(epk);
+		RecipientOrchestrator recipient = new RecipientOrchestrator(graphFilename, epk);
 		
 		try {
 			recipient.init();
@@ -418,7 +419,19 @@ public class Topocert {
 		try {
 			recipient.close();
 		} catch (IOException e) {
-			System.err.println("The TOPOCERT Recipient failed to close the connection to the Signer soundly.");
+			System.err.println("The TOPOCERT Recipient could not receive the signature from the Signer in Round 3.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		
+		try {
+			recipient.serializeFinalSignature(sigmaFilename);
+		} catch (NullPointerException e) {
+			System.err.println("The graph signature of the Recipient was not correctly assembled; returned null.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_DATAERR);
+		} catch (IOException e) {
+			System.err.println("The Recipient could not write the obtained graph signature to disk.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_IOERR);
 		}

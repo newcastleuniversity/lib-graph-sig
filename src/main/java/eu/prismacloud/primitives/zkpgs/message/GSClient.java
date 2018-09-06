@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 /** Creates a client stream socket and connects it to the specified server host. */
 public class GSClient implements IMessagePartner {
-  private static final String HOST = "127.0.0.1";
+  private static final String DEF_HOST = "127.0.0.1";
   private static final int PORT = 9999;
   private static final int TIMEOUT = 5000;
   private final Socket clientSocket;
@@ -26,7 +26,7 @@ public class GSClient implements IMessagePartner {
    */
   public GSClient() throws IOException {
     clientSocket = new Socket();
-    clientSocket.connect(new InetSocketAddress(HOST, PORT), TIMEOUT);
+    clientSocket.connect(new InetSocketAddress(DEF_HOST, PORT), TIMEOUT);
   }
 
   /**
@@ -37,7 +37,7 @@ public class GSClient implements IMessagePartner {
    */
   public GSClient(int port) throws IOException {
     clientSocket = new Socket();
-    clientSocket.connect(new InetSocketAddress(HOST, port), TIMEOUT);
+    clientSocket.connect(new InetSocketAddress(DEF_HOST, port), TIMEOUT);
   }
 
   /**

@@ -22,8 +22,6 @@ import org.jgrapht.io.ImportException;
 
 /** Signer */
 public class GSSigner implements IMessagePartner {
-  private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-
 
   private BigInteger nonce;
   private final ExtendedKeyPair extendedKeyPair;
@@ -56,8 +54,10 @@ public class GSSigner implements IMessagePartner {
    * @return the gs graph
    * @throws ImportException the import exception
    */
-  public GSGraph<GSVertex, GSEdge> initGraph() throws ImportException {
-    GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+  public GSGraph<GSVertex, GSEdge> initGraph(String filename) throws ImportException {
+    GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(filename);
+    // TODO this method does not actually initialize the encoding.
+    
     return gsGraph;
   }
 

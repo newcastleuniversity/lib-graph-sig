@@ -10,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
@@ -52,8 +53,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 class GraphPossessionVerifierTest {
 	
-	private static final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
-
 	private Logger log = GSLoggerConfiguration.getGSlog();
 
 	private SignerKeyPair signerKeyPair;
@@ -99,8 +98,8 @@ class GraphPossessionVerifierTest {
 		assertNotNull(testM, "Test message, a random number, could not be generated.");
 
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
-		createGraphExample();
-		encodeR_0(testM);
+		GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
+		
 		assertNotNull(baseCollection);
 		assertTrue(baseCollection.size() > 0);
 		log.info("Size of the base collection: " + baseCollection.size());
@@ -260,29 +259,5 @@ class GraphPossessionVerifierTest {
 
 		proofStore.store("verifier.c", cChallenge);
 		proofStore.store("verifier.APrime", aPrime);
-	}
-	
-	private void createGraphExample() throws ImportException, EncodingException {
-		log.info("Reading the graph from graphml file: " + SIGNER_GRAPH_FILE);
-		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
-		Assert.notNull(gsGraph, "Graph could not be created from graphml file.");
-
-		log.info("Encoding the graph with a fresh GeoLocationGraphEncoding");
-		IGraphEncoding encoding = new GeoLocationGraphEncoding(graphEncodingParameters);
-		encoding.setupEncoding();
-		gsGraph.encodeGraph(encoding);
-
-		GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, epk);
-		baseCollection = graphRepresentation.getEncodedBaseCollection();
-		Assert.notNull(baseCollection, "BaseCollection of encoded graph was found null.");
-	}
-
-	private void encodeR_0(BigInteger m_0) throws ProofStoreException {
-		BaseRepresentation baseR_0 =
-				new BaseRepresentation(signerKeyPair.getPublicKey().getBaseR_0(), m_0, -1, BASE.BASE0);
-		baseCollection.add(baseR_0);
-
-		proofStore.store("bases.R_0", baseR_0);
-		proofStore.store("bases.exponent.m_0", m_0);
 	}
 }

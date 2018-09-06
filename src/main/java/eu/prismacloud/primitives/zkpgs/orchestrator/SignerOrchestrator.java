@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -45,7 +46,6 @@ import java.util.logging.Logger;
  */
 public class SignerOrchestrator implements IMessagePartner {
 
-	private final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
 	private final ExtendedKeyPair extendedKeyPair;
 	private final ProofStore<Object> proofStore;
 	private final GroupElement baseS;
@@ -95,9 +95,11 @@ public class SignerOrchestrator implements IMessagePartner {
 	private BigInteger qPrime;
 	private GroupElement basesProduct;
 	private List<String> contextList;
+	private final String graphFilename;
 
-	public SignerOrchestrator(
+	public SignerOrchestrator(String graphFilename,
 			ExtendedKeyPair extendedKeyPair) {
+		this.graphFilename = graphFilename;
 		this.extendedKeyPair = extendedKeyPair;
 		this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
 		this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
@@ -108,6 +110,10 @@ public class SignerOrchestrator implements IMessagePartner {
 		this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
 		this.signer = new GSSigner(extendedKeyPair);
 		this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
+	}
+	
+	public SignerOrchestrator(ExtendedKeyPair extendedKeyPair) {
+		this(DefaultValues.SIGNER_GRAPH_FILE, extendedKeyPair);
 	}
 
 	@Override
@@ -182,9 +188,9 @@ public class SignerOrchestrator implements IMessagePartner {
 	}
 
 	private void encodeSignerGraph() throws ImportException, EncodingException {
-		File file = GraphMLProvider.getGraphMLFile(SIGNER_GRAPH_FILE);
+		File file = GraphMLProvider.getGraphMLFile(graphFilename);
 
-		gsGraph = GSGraph.createGraph(SIGNER_GRAPH_FILE);
+		gsGraph = GSGraph.createGraph(graphFilename);
 		gsGraph.encodeGraph(extendedKeyPair.getEncoding());
 
 		GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());

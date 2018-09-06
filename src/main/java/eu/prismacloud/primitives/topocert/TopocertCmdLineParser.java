@@ -44,6 +44,9 @@ public class TopocertCmdLineParser extends CmdLineParser {
 	
 	public static final Option EPK = 
 			new CmdLineParser.Option.StringOption('P', "epk");
+	
+	public static final Option GSSIGNATURE = 
+			new CmdLineParser.Option.StringOption('G', "gs");
 
 	public static final Option HELP = 
 			new CmdLineParser.Option.BooleanOption('h', "help");
@@ -71,6 +74,7 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		super.addOption(VERIFY);
 		super.addOption(GRAPHFILENAME);
 		super.addOption(GEOSEPQUERY);
+		super.addOption(GSSIGNATURE);
 		super.addOption(KEYGENPARAMS);
 		super.addOption(SIGNERKP);
 		super.addOption(EPK);
@@ -92,6 +96,8 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		addHelp(GEOSEPQUERY, "  Names verifier-known (Integer) vertices which are to be "
 				+ "checked in a geo-separation proof."
 				+ "\n               The option should be included at least twice for two vertices to check.");
+		
+		addHelp(GSSIGNATURE, "Specifies the filename of the graph signature obtained by the Recipient.");
 
 		addHelp(KEYGENPARAMS, " Specifies Json file for keygen and graph encoding parameters.");
 		
@@ -107,7 +113,7 @@ public class TopocertCmdLineParser extends CmdLineParser {
 	 */
 	public void printUsage() {
 		System.err.println("usage: topocert [mode: {{-s,--keygen} {-s,--sign} {-r,--receive} {-p,--prove} {-v,--verify}}]"
-				+"\n                [{-g,--graph} filename] [{-q,--query} vertex id]"
+				+"\n                [{-g,--graph} filename] [{-q,--query} vertex id] [{-G,--gs} filename]"
 				+"\n                [{-P,--params} filename] [{-S,--signkey} filename] [{-P,--epk} filename]"
 				+"\n                [{-h,--help}]");
 		System.err.println();
@@ -118,6 +124,7 @@ public class TopocertCmdLineParser extends CmdLineParser {
 	}
 
 	public Option[] getStdOptions() {
-		return new CmdLineParser.Option[] {KEYGEN, SIGN, RECEIVE, PROVE, VERIFY, GRAPHFILENAME, GEOSEPQUERY, HELP};
+		return new CmdLineParser.Option[] {KEYGEN, SIGN, RECEIVE, PROVE, VERIFY, GRAPHFILENAME, GEOSEPQUERY, GSSIGNATURE,
+				KEYGENPARAMS, SIGNERKP, EPK, HELP};
 	}
 }

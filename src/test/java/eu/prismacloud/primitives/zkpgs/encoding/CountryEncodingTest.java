@@ -4,6 +4,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class CountryEncodingTest {
-  private static final String COUNTRY_ENCODING_FILE = "country_encoding.json";
   private InputStream paramStream;
   private JsonReader reader;
   private Map<URN, BigInteger> countriesLabel;
@@ -36,7 +36,7 @@ class CountryEncodingTest {
   void setUp() {
     jsonb = JsonbBuilder.create();
     paramStream =
-        CountryEncodingTest.class.getClassLoader().getResourceAsStream(COUNTRY_ENCODING_FILE);
+        CountryEncodingTest.class.getClassLoader().getResourceAsStream(DefaultValues.COUNTRY_ENCODING_FILE);
   }
 
   @Test
