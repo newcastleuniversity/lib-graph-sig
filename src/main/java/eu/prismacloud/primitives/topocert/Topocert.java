@@ -24,18 +24,6 @@ import jargs.gnu.CmdLineParser;
 
 public class Topocert {
 
-	//  public abstract void graphEncodingSetup(IGraph graph, KeyGenParameters params);
-
-	//    ArrayList<IVertex> vertices = new ArrayList<IVertex>();
-	//            ArrayList<IEdge> edges = new ArrayList<IEdge>();
-	//            ArrayList<ILabel> labels = new ArrayList<ILabel>();
-	//    IGraph graphEnc = new GSGraph(vertices, edges, labels);
-	//    IParams encParams = new EncParams(2048, 1632, 256, 256, 1, 597, 120, 2724, 80, 256, 80, 80 ,
-	// 1000, 120, 50000, 256, 16);
-	//            Topocert tpc = new Topocert();
-	//
-	//            tpc.setup(graphEnc, encParams);
-
 	private KeyGenParameters keyGenParams;
 	private GraphEncodingParameters graphEncParams;
 	private FilePersistenceUtil persistenceUtil;
@@ -89,13 +77,15 @@ public class Topocert {
 			System.exit(0);
 		}
 		
-		if ((keygenMode == null || !keygenMode.booleanValue()) 
-			&& (signMode == null || !signMode.booleanValue())
-			&& (receiveMode == null || !receiveMode.booleanValue())
-			&& (proveMode == null || !proveMode.booleanValue())
-			&& (verifyMode == null || !verifyMode.booleanValue())
-		   ) {
-			System.err.println("Please specify exactly one more for TOPOCERT to run in.\n");
+		// Checking that there is exactly one mode specified.
+		int numberOfModes = 0;
+		if (keygenMode != null && keygenMode.booleanValue()) numberOfModes++;
+		if (signMode != null && signMode.booleanValue()) numberOfModes++;
+		if (receiveMode != null && receiveMode.booleanValue()) numberOfModes++;
+		if (proveMode != null && proveMode.booleanValue()) numberOfModes++;
+		if (verifyMode != null && verifyMode.booleanValue()) numberOfModes++;
+		if (numberOfModes == 0 || numberOfModes > 1) {
+			System.err.println("Please specify exactly one mode for TOPOCERT to run in.\n");
 			parser.printUsage();
 			System.exit(TopocertErrorCodes.EX_USAGE);
 		}
