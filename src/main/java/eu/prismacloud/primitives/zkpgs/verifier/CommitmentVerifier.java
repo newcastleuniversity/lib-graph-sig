@@ -194,24 +194,6 @@ public class CommitmentVerifier implements IVerifier {
 		return hatU;
 	}
 
-	private void populateBases(Map<URN, GroupElement> basesMap) {
-		basesMap.put(URN.createZkpgsURN("baseRepresentationMap.S"), baseS);
-		//    basesMap.put(URN.createZkpgsURN("baseRepresentationMap.baseR_0"),baseR_0);
-
-		for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
-			basesMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getBase());
-		}
-	}
-
-	private void populateExponents(Map<URN, BigInteger> exponentsMap) {
-		exponentsMap.put(URN.createZkpgsURN("exponents.hatvPrime"), hatvPrime);
-		//    exponentsMap.put(URN.createZkpgsURN("exponents.hatm_0"), hatm_0);
-
-		for (Map.Entry<URN, BaseRepresentation> baseRepresentation : baseRepresentationMap.entrySet()) {
-			exponentsMap.put(baseRepresentation.getKey(), baseRepresentation.getValue().getExponent());
-		}
-	}
-
 
         @Override
         public GroupElement executeVerification (BigInteger cChallenge) throws ProofStoreException {

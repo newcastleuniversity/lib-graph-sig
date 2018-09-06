@@ -142,6 +142,10 @@ public class Topocert {
 				handleException(e, "The TOPOCERT extended signer key pair does not correspond the current class.",
 						TopocertErrorCodes.EX_CRITERR);
 			}
+			if (ekp == null) {
+				System.err.println("Extended signer keypair could not be established; returned null.");
+				System.exit(TopocertErrorCodes.EX_SOFTWARE);
+			}
 			System.out.println("   [done]\n");
 
 			topocert.sign(ekp, graphFilename);
@@ -505,7 +509,7 @@ public class Topocert {
 		System.err.println(e.getMessage() + "\n");
 		
 		if (Topocert.verbose) {
-			System.err.println(e.getStackTrace());
+			System.err.println(e);
 		}
 		
 		System.exit(exitCode);

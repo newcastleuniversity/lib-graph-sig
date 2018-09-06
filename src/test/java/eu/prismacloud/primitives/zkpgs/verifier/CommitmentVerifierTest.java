@@ -100,7 +100,7 @@ public class CommitmentVerifierTest {
 
     String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
     Map<URN, GroupElement> witnesses = cprover.executeCompoundPreChallengePhase();
-    GroupElement tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
+    tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
 
     String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
     gslog.info("tilder_iUrn: " + tilder_iURN);

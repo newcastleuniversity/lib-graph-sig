@@ -98,7 +98,8 @@ class GraphPossessionVerifierTest {
 		assertNotNull(testM, "Test message, a random number, could not be generated.");
 
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
-		GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
+		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
+		baseCollection = gr.getEncodedBaseCollection();
 		
 		assertNotNull(baseCollection);
 		assertTrue(baseCollection.size() > 0);
