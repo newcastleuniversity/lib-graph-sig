@@ -119,7 +119,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		/** TODO generalize commit prover */
 		// TODO needs to get access to commitment secrets (recipientGraph)
 		// TODO needs to move to the new commitment interface.
-		CommitmentProver commitmentProver = new CommitmentProver(U, 0, extendedPublicKey.getPublicKey(), proofStore);
+		CommitmentProver commitmentProver = new CommitmentProver(U, extendedPublicKey.getPublicKey(), proofStore);
 
 		tildeU = commitmentProver.executePreChallengePhase();
 

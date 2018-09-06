@@ -26,9 +26,10 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	or only returns clones */
 
 	private static final long serialVersionUID = 603738248933483649L;
+	
 	private final SignerPublicKey signerPublicKey;
 	private Map<URN, BaseRepresentation> bases;
-	private final transient GraphEncodingParameters graphEncodingParameters;
+	private final GraphEncodingParameters graphEncodingParameters;
 	private BaseCollectionImpl baseCollection;
 	private final IGraphEncoding graphEncoding;
 

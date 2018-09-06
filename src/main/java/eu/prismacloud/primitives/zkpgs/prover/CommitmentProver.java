@@ -46,11 +46,12 @@ public class CommitmentProver implements IProver {
 	private final KeyGenParameters keyGenParameters;
 	private final GSCommitment com;
 	private final GroupElement baseS;
+	
+	private final STAGE proofStage;
 
 	private BaseCollection baseCollection;
 
 	private BigInteger cChallenge;
-	private STAGE proofStage;
 
 	private final Map<URN, BigInteger> responses = new LinkedHashMap<URN, BigInteger>();
 
@@ -60,10 +61,18 @@ public class CommitmentProver implements IProver {
 	
 	private BigInteger tilder_i;
 
-
-	// TODO Demote public key, EPK not really needed.
+	/**
+	 * Establishes a CommitmentProver for proving a commitment with a given index in Prove mode.
+	 * 
+	 * @param com The commitment to be proven.
+	 * @param index The index of the commitment.
+	 * @param spk The SignerPublicKey used.
+	 * @param ps The ProofStore used.
+	 */
 	public CommitmentProver(
 			final GSCommitment com, final int index, final SignerPublicKey spk, final ProofStore<Object> ps) {
+		this.proofStage = STAGE.PROVING;
+		
 		Assert.notNull(com, "Commitment must not be null");
 		Assert.notNull(index, "index must not be null");
 		Assert.notNull(ps, "proof store must not be null");
@@ -74,6 +83,30 @@ public class CommitmentProver implements IProver {
 		this.baseS = spk.getBaseS();
 		this.index = index;
 		this.proofStore = ps;
+		this.com = com;
+	}
+	
+	/** 
+	 * Establishes a CommitmentProver for the Sign mode, that is, a CommitmentProver 
+	 * used by the Recipient to provide hidden (committed) values to the Signer.
+	 * 
+	 * @param com commitment to be proven.
+	 * @param spk Signer Public Key to be used.
+	 * @param ps ProofStore to be used.
+	 */
+	public CommitmentProver(
+			final GSCommitment com, final SignerPublicKey spk, final ProofStore<Object> ps) {
+		this.proofStage = STAGE.ISSUING;
+		
+		Assert.notNull(com, "Commitment must not be null");
+		Assert.notNull(ps, "proof store must not be null");
+		Assert.notNull(spk, "extended public key must not be null");
+
+		this.signerPublicKey = spk;
+		this.keyGenParameters = spk.getKeyGenParameters();
+		this.baseS = spk.getBaseS();
+		this.proofStore = ps;
+		this.index = -1;
 		this.com = com;
 	}
 
@@ -103,18 +136,13 @@ public class CommitmentProver implements IProver {
 
 	@Override
 	public GroupElement executePreChallengePhase() throws ProofStoreException {
-		this.proofStage = STAGE.PROVING;
-
 		createWitnessRandomness();
 		return computeWitness();
 	}
 
-	//  @Override
-	public void createWitnessRandomness() throws ProofStoreException {
+	private void createWitnessRandomness() throws ProofStoreException {
 		if (proofStage == STAGE.ISSUING) {
-
 			witnessRandomnessIssuing();
-
 		} else {
 			witnessRandomnessProving();
 		}
