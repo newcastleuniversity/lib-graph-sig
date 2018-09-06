@@ -62,26 +62,21 @@ public class GSProver implements IMessagePartner {
 
   public void computeCommitments(BaseIterator vertexRepresentations) throws ProofStoreException  {
     GSCommitment commitment;
-    GroupElement R_i;
-    BigInteger m_i;
-    GroupElement C_i;
-
+    
     this.commitmentMap = new HashMap<URN, GSCommitment>();
 
-    int i = 0;
     for (BaseRepresentation vertexRepresentation : vertexRepresentations) {
-      R_i = vertexRepresentation.getBase();
-      /** TODO check lenght of randomness r */
+      GroupElement R_i = vertexRepresentation.getBase();
+      /** TODO check length of randomness r */
       r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
-      m_i = vertexRepresentation.getExponent();
-      C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
+      BigInteger m_i = vertexRepresentation.getExponent();
+      GroupElement C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
       commitment = GSCommitment.createCommitment(m_i, R_i,  extendedPublicKey);
 //      commitment.setCommitmentValue(C_i);
       String commitmentURN = "prover.commitments.C_" + vertexRepresentation.getBaseIndex();
       commitmentMap.put(
           URN.createURN(URN.getZkpgsNameSpaceIdentifier(), commitmentURN), commitment);
       proofStore.store(commitmentURN, commitment);
-      i++;
     }
 
     String commmitmentMapURN = "prover.commitments.C_i";

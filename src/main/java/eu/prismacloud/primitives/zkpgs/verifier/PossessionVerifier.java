@@ -12,7 +12,6 @@ import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -21,7 +20,6 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /** */
 public class PossessionVerifier implements IVerifier {

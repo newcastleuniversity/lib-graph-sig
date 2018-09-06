@@ -40,9 +40,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
     private GSSignature blindedGraphSignature;
     private GSProver prover;
     private ExtendedPublicKey extendedPublicKey;
-    private GraphRepresentation graphRepresentation;
     private KeyGenParameters keyGenParameters;
-    private GeoLocationGraphEncoding graphEncoding;
     private GraphEncodingParameters graphEncodingParameters;
     private GroupElement tildeZ;
     private Map<URN, BaseRepresentation> vertices;

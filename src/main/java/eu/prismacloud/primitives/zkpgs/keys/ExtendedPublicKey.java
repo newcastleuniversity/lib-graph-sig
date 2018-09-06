@@ -21,7 +21,7 @@ import java.util.Map;
 
 /** The type Extended public key. */
 public class ExtendedPublicKey
-implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
+implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo, IBaseProvider {
 	/* TODO make the keypair defensive and secure in that it is either completely immutable
 	or only returns clones */
 
@@ -112,6 +112,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 *
 	 * @return the key gen parameters
 	 */
+	@Override
 	public KeyGenParameters getKeyGenParameters() {
 		return this.signerPublicKey.getKeyGenParameters();
 	}
@@ -121,6 +122,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 *
 	 * @return the graph encoding parameters
 	 */
+	@Override
 	public GraphEncodingParameters getGraphEncodingParameters() {
 		return graphEncodingParameters;
 	}
@@ -149,7 +151,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	}
 
 	/**
-	 * Returns the vertex base according to the index parameter. If the base does not exist in the
+	 * Returns the PROTOTYPE vertex base according to the index parameter. If the base does not exist in the
 	 * bases map or the base type is not a vertex, then a IllegalArgumentException is thrown.
 	 * 
 	 * <p>Note that the method returns a reference to a prototypical vertex BaseRepresentation 
@@ -159,7 +161,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 * @param index the index of the base
 	 * @return the vertex base
 	 */
-	protected BaseRepresentation getVertexBase(int index) {
+	protected BaseRepresentation getPrototypeVertexBase(int index) {
 		BaseRepresentation base =
 				bases.get(URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index));
 		if (base == null) {
@@ -173,7 +175,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	}
 
 	/**
-	 * Returns the edge base according to the index parameter. If the base does not exist in the bases
+	 * Returns the PROTOTYPE edge base according to the index parameter. If the base does not exist in the bases
 	 * map or the base type is not an edge, then a IllegalArgumentException is thrown.
 	 * 
 	 * <p>Note that the method returns a reference to a prototypical edge BaseRepresentation 
@@ -183,7 +185,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 * @param index the index
 	 * @return the edge base
 	 */
-	protected BaseRepresentation getEdgeBase(int index) {
+	protected BaseRepresentation getPrototypeEdgeBase(int index) {
 		BaseRepresentation base =
 				bases.get(URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index));
 		if (base == null) {
@@ -194,6 +196,34 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 					"Edge base candidate " + index + " is not classified as an edge.");
 		}
 		return base;
+	}
+	
+	/**
+	 * Returns the vertex base according to the index parameter. If the base does not exist in the
+	 * bases map or the base type is not a vertex, then a IllegalArgumentException is thrown.
+	 * 
+	 * <p>The result is a clone of the vertex base prototype
+	 *
+	 * @param index the index of the base
+	 * @return the vertex base
+	 */
+	@Override
+	public BaseRepresentation getVertexBase(int index) {
+		return getPrototypeVertexBase(index).clone();
+	}
+
+	/**
+	 * Returns the edge base according to the index parameter. If the base does not exist in the bases
+	 * map or the base type is not an edge, then a IllegalArgumentException is thrown.
+	 * 
+	 * <p>The result is a clone of the edge base prototype.
+	 *
+	 * @param index the index
+	 * @return the edge base
+	 */
+	@Override
+	public BaseRepresentation getEdgeBase(int index) {
+		return getPrototypeEdgeBase(index).clone();
 	}
 
 	/**
@@ -206,6 +236,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 * @param excludedBaseMap Map of bases to exclude
 	 * @return BaseRepresentation of a fresh vertex base.
 	 */
+	@Override
 	public BaseRepresentation getRandomVertexBase(Map<URN, BaseRepresentation> excludedBaseMap) {
 		Collection<BaseRepresentation> excludedBases = excludedBaseMap.values();
 		BaseRepresentation candidateBase = null;
@@ -226,6 +257,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 * @param excludedBaseMap Map of bases to exclude
 	 * @return BaseRepresentation of a fresh edge base.
 	 */
+	@Override
 	public BaseRepresentation getRandomEdgeBase(Map<URN, BaseRepresentation> excludedBaseMap) {
 		Collection<BaseRepresentation> excludedBases = excludedBaseMap.values();
 		BaseRepresentation candidateBase = null;
@@ -243,6 +275,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 *
 	 * @return BaseRepresentation of a fresh vertex base.
 	 */
+	@Override
 	public BaseRepresentation getRandomVertexBase() {
 		int minIndex = 1;
 		int maxIndex = graphEncodingParameters.getL_V();
@@ -251,7 +284,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 		SecureRandom secureRandom = new SecureRandom();
 		int index = minIndex + secureRandom.nextInt(range);
 
-		return getVertexBase(index).clone();
+		return getPrototypeVertexBase(index).clone();
 	}
 
 	/**
@@ -261,6 +294,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 	 *
 	 * @return BaseRepresentation of a fresh edge base.
 	 */
+	@Override
 	public BaseRepresentation getRandomEdgeBase() {
 		int minIndex = graphEncodingParameters.getL_V() + 1;
 		int maxIndex = graphEncodingParameters.getL_V() + graphEncodingParameters.getL_E();
@@ -268,7 +302,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo {
 
 		SecureRandom secureRandom = new SecureRandom();
 		int index = minIndex + secureRandom.nextInt(range);
-		return getEdgeBase(index).clone();
+		return getPrototypeEdgeBase(index).clone();
 	}
 
 	@Override

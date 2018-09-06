@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent.Type;
 import java.io.Serializable;
+import java.util.StringTokenizer;
 
 /**
  * Class represents a Uniform Resource Name (URN)
@@ -135,5 +136,40 @@ public final class URN implements Serializable {
 		int result = this.namespaceIdentifier.hashCode();
 		result = 31 * result + this.namespaceSpecific.hashCode();
 		return result;
+	}
+
+	/**
+	 * Checks whether the namespace-specifc component starts with a String prefix.
+	 * 
+	 * @param prefix String prefix the namespace-specific component must start with.
+	 * 
+	 * @return <tt>true</tt> if and only if the namespace-specific component of this URN
+	 * starts with the given prefix.
+	 */
+	public boolean matchesPrefix(String prefix) {
+		return namespaceSpecific.getContent().startsWith(prefix);
+	}
+
+	/**
+	 * Returns the index of an enumerated URN. 
+	 * It returns -1 if this URN does not have an index.
+	 * 
+	 * @return index
+	 */
+	public int getIndex() {
+		StringTokenizer tokenizer = new StringTokenizer(namespaceSpecific.getContent(), ".");
+		while (tokenizer.hasMoreTokens()) {
+			String token = (String) tokenizer.nextToken();
+
+			if (!tokenizer.hasMoreTokens()) {
+				try {
+					int index = Integer.parseInt(token);
+					return index;
+				} catch (NumberFormatException e) {
+					return -1;
+				}
+			}
+		}
+		return -1;
 	}
 }
