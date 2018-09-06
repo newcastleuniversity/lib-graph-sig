@@ -171,7 +171,6 @@ public class CommitmentProver implements IProver {
             BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
             for (BaseRepresentation baseRepresentation : vertexIterator) {
                 urnVertex = URN.createZkpgsURN(getProverURN(URNType.TILDEMI, baseRepresentation.getBaseIndex()));
-                gslog.info("vertex urn: " + urnVertex);
                 BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(mBitLength);
                 vertexWitnessRandomness.put(urnVertex, tildem_i);
                 proofStore.store(getProverURN(URNType.TILDEMI, baseRepresentation.getBaseIndex()), tildem_i);
