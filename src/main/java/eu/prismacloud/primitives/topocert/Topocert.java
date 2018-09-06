@@ -13,8 +13,10 @@ import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.orchestrator.ProverOrchestrator;
 import eu.prismacloud.primitives.zkpgs.orchestrator.RecipientOrchestrator;
 import eu.prismacloud.primitives.zkpgs.orchestrator.SignerOrchestrator;
+import eu.prismacloud.primitives.zkpgs.orchestrator.VerifierOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -427,12 +429,36 @@ public class Topocert {
 	void prove(String graphFilename) {
 		System.out.println("  Prove: Hosting prover for certified graph " + graphFilename + "...");
 
+		ProverOrchestrator prover = new ProverOrchestrator(epk);
+		// TODO How to pass graph file to prover?!
+		
+		
+		try {
+			prover.init();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Prover could not open a socket to receive messages from the Verifier.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		
 		System.out.println("  Prove: Completed");
 	}
 
 	void verify(Vector<Integer> vertexQueries) {
 		System.out.println("  Verify: Initializing client communication for geo-location verification...");
 
+		VerifierOrchestrator verifier = new VerifierOrchestrator(epk);
+		// TODO How to pass query to verifier?!
+		
+		
+		try {
+			verifier.init();
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Verifier could not open a connection to the Prover.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		
 		System.out.println("  Verify: Completed");
 	}
 

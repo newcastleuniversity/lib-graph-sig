@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
@@ -59,7 +60,7 @@ public class GSProver implements IMessagePartner {
     return this.commitmentMap;
   }
 
-  public void computeCommitments(BaseIterator vertexRepresentations) throws Exception {
+  public void computeCommitments(BaseIterator vertexRepresentations) throws ProofStoreException  {
     GSCommitment commitment;
     GroupElement R_i;
     BigInteger m_i;

@@ -115,7 +115,7 @@ public class GSProverServerTest {
 
     proverOrchestrator =
         new ProverOrchestrator(
-            extendedPublicKey, proofStore, keyGenParameters, graphEncodingParameters);
+            extendedPublicKey);
     proverOrchestrator.init();
     proverOrchestrator.executePreChallengePhase();
     BigInteger cChallenge = proverOrchestrator.computeChallenge();

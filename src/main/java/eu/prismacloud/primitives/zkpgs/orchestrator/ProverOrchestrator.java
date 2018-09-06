@@ -35,19 +35,11 @@ import java.util.logging.Logger;
 public class ProverOrchestrator implements IProverOrchestrator {
 
     private BaseCollection baseCollection;
-    private GroupElement baseZ;
-    private GroupElement baseS;
     private BigInteger n_3;
-    private BigInteger modN;
     private GSSignature graphSignature;
     private GSSignature blindedGraphSignature;
-    private ProofOperation proofCommand;
     private GSProver prover;
-    private Map<URN, BaseRepresentation> vertexRepresentations;
     private ExtendedPublicKey extendedPublicKey;
-    private BigInteger R_0;
-    private BigInteger tildem_0;
-    private BigInteger tildevPrime;
     private GraphRepresentation graphRepresentation;
     private KeyGenParameters keyGenParameters;
     private GeoLocationGraphEncoding graphEncoding;
@@ -61,29 +53,17 @@ public class ProverOrchestrator implements IProverOrchestrator {
     private Map<URN, GSCommitment> commitments;
     private BigInteger r_i;
     private GSCommitment commitment;
-    private BigInteger r_BariBarj;
     private Map<URN, BigInteger> edgeWitnesses;
     private Map<URN, BigInteger> vertexWitnesses;
-    private BigInteger tildem_i;
-    private BigInteger tilder_i;
     private Map<URN, GroupElement> pairWiseWitnesses;
     private List<String> challengeList = new ArrayList<String>();
     private GroupElement tildeR_BariBarj;
     private BigInteger c;
     private ProofStore<Object> proofStore;
-    private URN r_BariBarjURN;
-    private BigInteger a_BariBarj;
-    private BigInteger b_BariBarj;
-    private URN a_BariBarjURN;
-    private URN b_BariBarjURN;
     private Map<URN, BaseRepresentation> encodedBases;
     private Map<URN, BaseRepresentation> encodedVertexBases;
     private Logger gslog = GSLoggerConfiguration.getGSlog();
     private List<String> contextList;
-    private GroupSetupProver groupSetupProver;
-    private BigInteger groupSetupChallenge;
-    private ProofSignature proofSignatureP;
-    private GSVerifier verifier;
     private BigInteger cChallenge;
     private BaseIterator vertexIterator;
     private PossessionProver possessionProver;
@@ -93,18 +73,12 @@ public class ProverOrchestrator implements IProverOrchestrator {
     private Map<URN, BigInteger> responses;
 
     public ProverOrchestrator(
-            final ExtendedPublicKey extendedPublicKey,
-            final ProofStore<Object> proofStore,
-            final KeyGenParameters keyGenParameters,
-            final GraphEncodingParameters graphEncodingParameters) {
+            final ExtendedPublicKey extendedPublicKey) {
 
         this.extendedPublicKey = extendedPublicKey;
-        this.keyGenParameters = keyGenParameters;
-        this.graphEncodingParameters = graphEncodingParameters;
-        this.modN = extendedPublicKey.getPublicKey().getModN();
-        this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-        this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
-        this.proofStore = proofStore;
+        this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
+        this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
+        this.proofStore = new ProofStore<Object>();
         this.prover = new GSProver(extendedPublicKey, proofStore);
     }
 
@@ -129,8 +103,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
         // TODO I prefer to have specific exceptions, not just throwing Exception.
         try {
             prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
-        } catch (Exception ep) {
-            gslog.log(Level.SEVERE, "Commitments not computed correctly.", ep);
+        } catch (ProofStoreException e1) {
+            gslog.log(Level.SEVERE, "Commitments not computed correctly; values not found in the ProofStore.", e1.getMessage());
         }
         commitments = prover.getCommitmentMap();
     }
@@ -358,7 +332,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
         String tildeC_iURN;
         for (BaseRepresentation vertex : vertexIterator) {
             witnessRandomnessURN = "possessionprover.witnesses.randomness.vertex.tildem_i_" + vertex.getBaseIndex();
-            tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
+            BigInteger tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
             String commURN = "prover.commitments.C_i_" + vertex.getBaseIndex();
             GSCommitment com = commitments.get(URN.createZkpgsURN(commURN));
             commitmentProver = new CommitmentProver(com, vertex.getBaseIndex(), extendedPublicKey.getPublicKey(), proofStore);

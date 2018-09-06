@@ -77,7 +77,7 @@ public class GSVerifierClientTest {
 
     verifierOrchestrator =
         new VerifierOrchestrator(
-            extendedPublicKey, proofStore, keyGenParameters, graphEncodingParameters);
+            extendedPublicKey);
     verifierOrchestrator.init();
     verifierOrchestrator.receiveProverMessage();
     verifierOrchestrator.preChallengePhase();

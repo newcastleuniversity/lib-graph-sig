@@ -62,15 +62,12 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
   private BaseCollection baseCollection;
 
   public VerifierOrchestrator(
-      final ExtendedPublicKey extendedPublicKey,
-      final ProofStore<Object> proofStore,
-      final KeyGenParameters keyGenParameters,
-      final GraphEncodingParameters graphEncodingParameters) {
+      final ExtendedPublicKey extendedPublicKey) {
 
     this.extendedPublicKey = extendedPublicKey;
-    this.proofStore = proofStore;
-    this.keyGenParameters = keyGenParameters;
-    this.graphEncodingParameters = graphEncodingParameters;
+    this.proofStore = new ProofStore<Object>();
+    this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
+    this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
     this.verifier = new GSVerifier(extendedPublicKey);
   }
 
