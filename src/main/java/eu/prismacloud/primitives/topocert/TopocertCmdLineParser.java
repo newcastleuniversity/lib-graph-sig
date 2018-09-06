@@ -47,6 +47,9 @@ public class TopocertCmdLineParser extends CmdLineParser {
 	
 	public static final Option GSSIGNATURE = 
 			new CmdLineParser.Option.StringOption('G', "gs");
+	
+	public static final Option VERBOSE = 
+			new CmdLineParser.Option.BooleanOption("verbose");
 
 	public static final Option HELP = 
 			new CmdLineParser.Option.BooleanOption('h', "help");
@@ -78,6 +81,7 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		super.addOption(KEYGENPARAMS);
 		super.addOption(SIGNERKP);
 		super.addOption(EPK);
+		super.addOption(VERBOSE);
 		super.addOption(HELP);
 
 		addHelp(KEYGEN, " Generates the Signer KeyPair with given keygen options.");
@@ -105,6 +109,8 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		
 		addHelp(EPK, "    Specifies the filename of the Signer's ExtendedPublicKey.");
 		
+		addHelp(VERBOSE, "Switches to verbose outputs and error messages incl. stack traces.");
+		
 		addHelp(HELP, "   Outputs this usage help.");
 	}
 
@@ -115,6 +121,7 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		System.err.println("usage: topocert [mode: {{-s,--keygen} {-s,--sign} {-r,--receive} {-p,--prove} {-v,--verify}}]"
 				+"\n                [{-g,--graph} filename] [{-q,--query} vertex id] [{-G,--gs} filename]"
 				+"\n                [{-P,--params} filename] [{-S,--signkey} filename] [{-P,--epk} filename]"
+				+"\n                [{--verbose}"
 				+"\n                [{-h,--help}]");
 		System.err.println();
 		for (Iterator<String> iterator = optionHelpList.iterator(); iterator.hasNext();) {
@@ -125,6 +132,6 @@ public class TopocertCmdLineParser extends CmdLineParser {
 
 	public Option[] getStdOptions() {
 		return new CmdLineParser.Option[] {KEYGEN, SIGN, RECEIVE, PROVE, VERIFY, GRAPHFILENAME, GEOSEPQUERY, GSSIGNATURE,
-				KEYGENPARAMS, SIGNERKP, EPK, HELP};
+				KEYGENPARAMS, SIGNERKP, EPK, VERBOSE, HELP};
 	}
 }
