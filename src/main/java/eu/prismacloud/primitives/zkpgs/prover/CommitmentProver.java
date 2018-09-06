@@ -292,7 +292,7 @@ public class CommitmentProver implements IProver {
 
 		BigInteger hatvPrime = tildevPrime.add(cChallenge.multiply(vPrime));
 		BigInteger hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
-		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
+		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvprime";
 		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
 		String cChallengeURN = "issuing.commitmentprover.commitment.C";
 
