@@ -192,7 +192,7 @@ public class CommitmentProver implements IProver {
 	private void witnessRandomnessProving() throws ProofStoreException {
 		int tilder_iLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
-		BigInteger tilder_i = CryptoUtilsFacade.computeRandomNumber(tilder_iLength);
+		tilder_i = CryptoUtilsFacade.computeRandomNumber(tilder_iLength);
 
 		String tilder_iURN = getProverURN(URNType.TILDERI, index);
 
