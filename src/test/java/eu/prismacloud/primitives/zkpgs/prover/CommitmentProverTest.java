@@ -77,14 +77,8 @@ class CommitmentProverTest {
 
         baseCollection = new BaseCollectionImpl();
         baseCollection.add(baseR0);
-        Map<URN, BaseRepresentation> baseMap = new HashMap<>();
-        baseMap.put(URN.createZkpgsURN("prover.bases.R_0"), baseR0);
-
-        GroupElement R0 = epk.getPublicKey().getBaseR_0();
-        BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
-
-        GSCommitment C_i = GSCommitment.createCommitment(baseMap, r_i, epk);
+        
+        GSCommitment C_i = GSCommitment.createCommitment(baseCollection, r_i, epk);
 
         cprover = new CommitmentProver(C_i, 0, extendedKeyPair.getPublicKey(), proofStore);
     }
