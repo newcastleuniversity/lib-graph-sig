@@ -69,8 +69,7 @@ class CommitmentProverTest {
     void setUp() throws Exception {
         proofStore = new ProofStore<Object>();
         testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        //    log.info("Creating test signature with GSSigningOracle on testM: " + testM);
-        //    sigmaM = oracle.sign(testM).blind();
+        r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
 
         baseR0 = new BaseRepresentation(epk.getPublicKey().getBaseR_0(), 0, BASE.BASE0);
         baseR0.setExponent(testM);
