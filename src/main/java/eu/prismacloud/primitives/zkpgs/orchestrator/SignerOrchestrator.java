@@ -8,7 +8,10 @@ import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
-import eu.prismacloud.primitives.zkpgs.graph.*;
+import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
+import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
+import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
@@ -31,7 +34,6 @@ import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 import org.jgrapht.Graph;
 import org.jgrapht.io.ImportException;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -46,161 +48,159 @@ import java.util.logging.Logger;
  */
 public class SignerOrchestrator implements IMessagePartner {
 
-	private final ExtendedKeyPair extendedKeyPair;
-	private final ProofStore<Object> proofStore;
-	private final GroupElement baseS;
-	private final BigInteger modN;
-	private final GroupElement baseZ;
-	private final BaseCollection baseCollection;
-	private final KeyGenParameters keyGenParameters;
-	private final GraphEncodingParameters graphEncodingParameters;
-	private final GSSigner signer;
-	private final SignerPublicKey signerPublicKey;
-	private BigInteger n_1;
-	private BigInteger n_2;
-	private ProofSignature P_1;
-	private GSCommitment U;
-	private IMessageGateway messageGateway;
-	private Map<URN, Object> messageElements;
-	private GSRecipient recipient;
-	private GSCommitment commitmentU;
-	private BigInteger cChallenge;
-	private BigInteger hatvPrime;
-	private BigInteger hatm_0;
-	private Map<URN, BigInteger> responses;
-	private GroupElement hatU;
-	private List<String> challengeList;
-	private BigInteger hatc;
-	private GSSignature gsSignature;
-	private BigInteger e;
-	private BigInteger vbar;
-	private BigInteger vPrimePrime;
-	private GroupElement Q;
-	private GroupElement R_i;
-	private GroupElement R_i_j;
-	private BigInteger d;
-	private GroupElement A;
-	private BaseCollection encodedBasesCollection;
-	private GSGraph<GSVertex, GSEdge> gsGraph;
-	private BigInteger order;
-	private BigInteger hatd;
-	private BigInteger cPrime;
-	private Map<URN, Object> p2ProofSignatureElements;
-	private ProofSignature P_2;
-	private Map<URN, Object> correctnessMessageElements;
-	private Graph<GSVertex, GSEdge> graph;
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
-	private GroupElement R_0;
-	private BigInteger pPrime;
-	private BigInteger qPrime;
-	private GroupElement basesProduct;
-	private List<String> contextList;
-	private final String graphFilename;
+    private final ExtendedKeyPair extendedKeyPair;
+    private final ProofStore<Object> proofStore;
+    private final GroupElement baseS;
+    private final BigInteger modN;
+    private final GroupElement baseZ;
+    private final BaseCollection baseCollection;
+    private final KeyGenParameters keyGenParameters;
+    private final GraphEncodingParameters graphEncodingParameters;
+    private final GSSigner signer;
+    private final SignerPublicKey signerPublicKey;
+    private BigInteger n_1;
+    private BigInteger n_2;
+    private ProofSignature P_1;
+    private GSCommitment U;
+    private IMessageGateway messageGateway;
+    private Map<URN, Object> messageElements;
+    private GSRecipient recipient;
+    private GSCommitment commitmentU;
+    private BigInteger cChallenge;
+    private BigInteger hatvPrime;
+    private BigInteger hatm_0;
+    private Map<URN, BigInteger> responses;
+    private GroupElement hatU;
+    private List<String> challengeList;
+    private BigInteger hatc;
+    private GSSignature gsSignature;
+    private BigInteger e;
+    private BigInteger vbar;
+    private BigInteger vPrimePrime;
+    private GroupElement Q;
+    private GroupElement R_i;
+    private GroupElement R_i_j;
+    private BigInteger d;
+    private GroupElement A;
+    private BaseCollection encodedBasesCollection;
+    private GSGraph<GSVertex, GSEdge> gsGraph;
+    private BigInteger order;
+    private BigInteger hatd;
+    private BigInteger cPrime;
+    private Map<URN, Object> p2ProofSignatureElements;
+    private ProofSignature P_2;
+    private Map<URN, Object> correctnessMessageElements;
+    private Graph<GSVertex, GSEdge> graph;
+    private Logger gslog = GSLoggerConfiguration.getGSlog();
+    private GroupElement R_0;
+    private BigInteger pPrime;
+    private BigInteger qPrime;
+    private GroupElement basesProduct;
+    private List<String> contextList;
+    private final String graphFilename;
 
-	public SignerOrchestrator(String graphFilename,
-			ExtendedKeyPair extendedKeyPair) {
-		this.graphFilename = graphFilename;
-		this.extendedKeyPair = extendedKeyPair;
-		this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
-		this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
-		this.proofStore = new ProofStore<Object>();
-		this.baseS = extendedKeyPair.getPublicKey().getBaseS();
-		this.baseZ = extendedKeyPair.getPublicKey().getBaseZ();
-		this.modN = extendedKeyPair.getPublicKey().getModN();
-		this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
-		this.signer = new GSSigner(extendedKeyPair);
-		this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
-	}
-	
-	public SignerOrchestrator(ExtendedKeyPair extendedKeyPair) {
-		this(DefaultValues.SIGNER_GRAPH_FILE, extendedKeyPair);
-	}
+    public SignerOrchestrator(String graphFilename,
+                              ExtendedKeyPair extendedKeyPair) {
+        this.graphFilename = graphFilename;
+        this.extendedKeyPair = extendedKeyPair;
+        this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
+        this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
+        this.proofStore = new ProofStore<Object>();
+        this.baseS = extendedKeyPair.getPublicKey().getBaseS();
+        this.baseZ = extendedKeyPair.getPublicKey().getBaseZ();
+        this.modN = extendedKeyPair.getPublicKey().getModN();
+        this.baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
+        this.signer = new GSSigner(extendedKeyPair);
+        this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
+    }
 
-	@Override
-	public void init() throws IOException {
-		signer.init();
-	}
+    public SignerOrchestrator(ExtendedKeyPair extendedKeyPair) {
+        this(DefaultValues.SIGNER_GRAPH_FILE, extendedKeyPair);
+    }
 
-	public void round0() throws IOException {
-		n_1 = signer.computeNonce();
-		messageElements = new HashMap<URN, Object>();
-		messageElements.put(URN.createZkpgsURN("nonces.n_1"), n_1);
+    @Override
+    public void init() throws IOException {
+        signer.init();
+    }
 
-		signer.sendMessage(new GSMessage(messageElements));
-	}
+    public void round0() throws IOException {
+        n_1 = signer.computeNonce();
+        messageElements = new HashMap<URN, Object>();
+        messageElements.put(URN.createZkpgsURN("nonces.n_1"), n_1);
 
-	public void round2() throws ImportException, IOException, ProofStoreException, NoSuchAlgorithmException, VerificationException, EncodingException  {
-		encodeSignerGraph();
+        signer.sendMessage(new GSMessage(messageElements));
+    }
 
-		// Extracting incoming commitment and proof P_1.
-		GSMessage msg = signer.receiveMessage();
-		extractMessageElements(msg);
+    public void round2() throws ImportException, IOException, ProofStoreException, NoSuchAlgorithmException, VerificationException, EncodingException {
+        encodeSignerGraph();
 
-		verifyRecipientCommitment();
-		
+        // Extracting incoming commitment and proof P_1.
+        GSMessage msg = signer.receiveMessage();
+        extractMessageElements(msg);
 
-		// Preparing Signature computation
-		computeRandomness();
-		createPartialSignature(extendedKeyPair.getExtendedPublicKey());
-		storeSignatureElements();
-
-		// Initalizing proof of correctness of Q/A computation.
-		HashMap<URN, Object> preSignatureElements = prepareProvingSigningQ();
-
-		GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
-
-		signer.sendMessage(preSignatureMsg);
-	}
-
-	private HashMap<URN, Object> prepareProvingSigningQ() throws ProofStoreException {
-		SigningQProverOrchestrator signingQOrchestrator = new SigningQProverOrchestrator(gsSignature, n_2, extendedKeyPair, proofStore);
-
-		signingQOrchestrator.executePreChallengePhase();
-
-		cPrime = signingQOrchestrator.computeChallenge();
-
-		signingQOrchestrator.executePostChallengePhase(cPrime);
-		this.hatd = responses.get(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
-
-		P_2 = signingQOrchestrator.createProofSignature();
-
-		HashMap<URN, Object> preSignatureElements = new HashMap<URN, Object>();
-		preSignatureElements.put(URN.createZkpgsURN("proofsignature.A"), A);
-		preSignatureElements.put(URN.createZkpgsURN("proofsignature.e"), e);
-		preSignatureElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
-		preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
-		preSignatureElements.put(
-				URN.createZkpgsURN("proofsignature.encoding"), this.encodedBasesCollection);
-		return preSignatureElements;
-	}
-
-	private void verifyRecipientCommitment() throws NoSuchAlgorithmException, IOException, VerificationException {
-		CommitmentVerifier commitmentVerifier =
-				new CommitmentVerifier(STAGE.ISSUING, extendedKeyPair.getExtendedPublicKey(), proofStore);
-
-		hatU =
-				commitmentVerifier.computeWitness(
-						cChallenge,
-						responses);
-
-		hatc = computeChallenge();
-
-		if (!verifyChallenge()) {
-			gslog.info("throws verification exception");
-			signer.close();
-			throw new VerificationException("Challenge verification failed");
-		}
-	}
-
-	private void encodeSignerGraph() throws ImportException, EncodingException {
-		File file = GraphMLProvider.getGraphMLFile(graphFilename);
-
-		gsGraph = GSGraph.createGraph(graphFilename);
-		gsGraph.encodeGraph(extendedKeyPair.getEncoding());
-
-		GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());
+        verifyRecipientCommitment();
 
 
+        // Preparing Signature computation
+        computeRandomness();
+        createPartialSignature(extendedKeyPair.getExtendedPublicKey());
+        storeSignatureElements();
+
+        // Initalizing proof of correctness of Q/A computation.
+        HashMap<URN, Object> preSignatureElements = prepareProvingSigningQ();
+
+        GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
+
+        signer.sendMessage(preSignatureMsg);
+    }
+
+    private HashMap<URN, Object> prepareProvingSigningQ() throws ProofStoreException {
+        SigningQProverOrchestrator signingQOrchestrator = new SigningQProverOrchestrator(gsSignature, n_2, extendedKeyPair, proofStore);
+
+        signingQOrchestrator.executePreChallengePhase();
+
+        cPrime = signingQOrchestrator.computeChallenge();
+
+        signingQOrchestrator.executePostChallengePhase(cPrime);
+        this.hatd = responses.get(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
+
+        P_2 = signingQOrchestrator.createProofSignature();
+
+        HashMap<URN, Object> preSignatureElements = new HashMap<URN, Object>();
+        preSignatureElements.put(URN.createZkpgsURN("proofsignature.A"), A);
+        preSignatureElements.put(URN.createZkpgsURN("proofsignature.e"), e);
+        preSignatureElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
+        preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
+        preSignatureElements.put(
+                URN.createZkpgsURN("proofsignature.encoding"), this.encodedBasesCollection);
+        return preSignatureElements;
+    }
+
+    private void verifyRecipientCommitment() throws NoSuchAlgorithmException, IOException, VerificationException {
+        CommitmentVerifier commitmentVerifier =
+                new CommitmentVerifier(STAGE.ISSUING, extendedKeyPair.getExtendedPublicKey(), proofStore);
+
+        hatU =
+                commitmentVerifier.computeWitness(
+                        cChallenge,
+                        responses);
+
+        hatc = computeChallenge();
+
+        if (!verifyChallenge()) {
+            gslog.info("throws verification exception");
+            signer.close();
+            throw new VerificationException("Challenge verification failed");
+        }
+    }
+
+    private void encodeSignerGraph() throws ImportException, EncodingException {
+
+        gsGraph = GSGraph.createGraph(graphFilename);
+        Assert.notNull(gsGraph, "Graph could not be created from graphml file.");
+        gsGraph.encodeGraph(extendedKeyPair.getEncoding());
+
+        GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());
 
         this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
     }
