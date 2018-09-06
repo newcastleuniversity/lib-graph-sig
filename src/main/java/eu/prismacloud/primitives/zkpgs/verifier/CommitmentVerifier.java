@@ -13,13 +13,17 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-/** The type Commitment verifier. */
+/**
+ * The type Commitment verifier.
+ */
 public class CommitmentVerifier implements IVerifier {
 
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
@@ -208,24 +212,25 @@ public class CommitmentVerifier implements IVerifier {
 		}
 	}
 
-	@Override
-	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
 
-	@Override
-	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
+        @Override
+        public GroupElement executeVerification (BigInteger cChallenge) throws ProofStoreException {
+                throw new ProofStoreException("");
+        }
 
-	@Override
-	public List<URN> getGovernedURNs() {
-		throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
-	}
+        @Override
+        public Map<URN, GroupElement> executeCompoundVerification (BigInteger cChallenge) throws ProofStoreException {
+            throw new ProofStoreException("");
+        }
 
-	@Override
-	public boolean checkLengths() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-}
+        @Override
+        public List<URN> getGovernedURNs () {
+            throw new NotImplementedException("Part of the new prover interface not implemented, yet.");
+        }
+
+        @Override
+        public boolean checkLengths () {
+            // TODO Auto-generated method stub
+            return false;
+        }
+    }

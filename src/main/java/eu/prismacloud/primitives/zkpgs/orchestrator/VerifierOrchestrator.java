@@ -286,7 +286,7 @@ public void init() throws IOException {
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation vertex : vertexIterator) {
       witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
-      tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
+      BigInteger hatm_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
       commitmentVerifier = new CommitmentVerifier(STAGE.VERIFYING, extendedPublicKey, proofStore);
 

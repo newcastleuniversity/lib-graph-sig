@@ -7,11 +7,7 @@ import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
-import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
-import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
-import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
-import eu.prismacloud.primitives.zkpgs.graph.GraphMLProvider;
-import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
+import eu.prismacloud.primitives.zkpgs.graph.*;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
@@ -20,22 +16,20 @@ import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
 import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.SigningQCorrectnessProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
+import eu.prismacloud.primitives.zkpgs.prover.SigningQCorrectnessProver;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
+import org.jgrapht.Graph;
+import org.jgrapht.io.ImportException;
+
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -45,11 +39,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.jgrapht.Graph;
-import org.jgrapht.io.ImportException;
 
-/** Signing orchestrator */
+/**
+ * Signing orchestrator
+ */
 public class SignerOrchestrator implements IMessagePartner {
+
 	private final String SIGNER_GRAPH_FILE = "signer-infra.graphml";
 	private final ExtendedKeyPair extendedKeyPair;
 	private final ProofStore<Object> proofStore;
@@ -194,163 +189,166 @@ public class SignerOrchestrator implements IMessagePartner {
 		GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());
 
 
-		this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
-	}
 
-	/** Compute challenge. */
-	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-		challengeList = populateChallengeList();
-		return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-	}
+        this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
+    }
 
-	public Boolean verifyChallenge() {
-		return hatc.equals(cChallenge);
-	}
+    /**
+     * Compute challenge.
+     */
+    public BigInteger computeChallenge() throws NoSuchAlgorithmException {
+        challengeList = populateChallengeList();
+        return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+    }
 
-	private void extractMessageElements(GSMessage msg) throws ProofStoreException  {
-		Map<URN, Object> messageElements = msg.getMessageElements();
+    public Boolean verifyChallenge() {
+        return hatc.equals(cChallenge);
+    }
 
-		commitmentU = (GSCommitment) messageElements.get(URN.createZkpgsURN("recipient.U"));
-		//    proofStore.store("recipient.U", commitmentU );
+    private void extractMessageElements(GSMessage msg) throws ProofStoreException {
+        Map<URN, Object> messageElements = msg.getMessageElements();
 
-		P_1 = (ProofSignature) messageElements.get(URN.createZkpgsURN("recipient.P_1"));
-		Map<URN, Object> proofSignatureElements = P_1.getProofSignatureElements();
+        commitmentU = (GSCommitment) messageElements.get(URN.createZkpgsURN("recipient.U"));
+        //    proofStore.store("recipient.U", commitmentU );
 
-		cChallenge =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.c"));
-		//    proofStore.store("proofsignature.P_1.c", cChallenge );
+        P_1 = (ProofSignature) messageElements.get(URN.createZkpgsURN("recipient.P_1"));
+        Map<URN, Object> proofSignatureElements = P_1.getProofSignatureElements();
 
-		hatvPrime =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatvPrime"));
-		//    proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
+        cChallenge =
+                (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.c"));
+        //    proofStore.store("proofsignature.P_1.c", cChallenge );
 
-		hatm_0 =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatm_0"));
-		//    proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
+        hatvPrime =
+                (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatvPrime"));
+        //    proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
 
-		responses =
-				(Map<URN, BigInteger>)
-				proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses"));
-		//    proofStore.store("proofsignature.P_1.responses", responses);
+        hatm_0 =
+                (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatm_0"));
+        //    proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
 
-		n_2 = (BigInteger) messageElements.get(URN.createZkpgsURN("recipient.n_2"));
-		//    proofStore.store("recipient.n_2", n_2);
+        responses =
+                (Map<URN, BigInteger>)
+                        proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses"));
+        //    proofStore.store("proofsignature.P_1.responses", responses);
 
-		storeMessageElements(P_1);
-	}
+        n_2 = (BigInteger) messageElements.get(URN.createZkpgsURN("recipient.n_2"));
+        //    proofStore.store("recipient.n_2", n_2);
 
-	private void storeMessageElements(ProofSignature P_1) throws ProofStoreException  {
-		for (Map.Entry<URN, BigInteger> response : responses.entrySet()) {
-			proofStore.save(response.getKey(), response.getValue());
-		}
+        storeMessageElements(P_1);
+    }
 
-		proofStore.store("proofsignature.P_1.c", cChallenge);
-		proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
-		proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
-		proofStore.store("recipient.P_1", P_1);
-		proofStore.store("recipient.U", commitmentU);
-		proofStore.store("recipient.n_2", n_2);
-	}
+    private void storeMessageElements(ProofSignature P_1) throws ProofStoreException {
+        for (Map.Entry<URN, BigInteger> response : responses.entrySet()) {
+            proofStore.save(response.getKey(), response.getValue());
+        }
 
-	public void createPartialSignature(ExtendedPublicKey extendedPublicKey) {
-		computeQ();
-		computeA();
+        proofStore.store("proofsignature.P_1.c", cChallenge);
+        proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
+        proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
+        proofStore.store("recipient.P_1", P_1);
+        proofStore.store("recipient.U", commitmentU);
+        proofStore.store("recipient.n_2", n_2);
+    }
 
-		/** TODO check if we need to verify pre-signature */
+    public void createPartialSignature(ExtendedPublicKey extendedPublicKey) {
+        computeQ();
+        computeA();
+
+        /** TODO check if we need to verify pre-signature */
 		/* TODO this call of the graph signature is broken, the constructor only stores in
     state but does not do any compuation. */
-		gsSignature =
-				new GSSignature(
-						extendedPublicKey, U, encodedBasesCollection, keyGenParameters, A, e, vPrimePrime);
-		Boolean isValidSignature = gsSignature.verify(signerPublicKey, basesProduct);
+        gsSignature =
+                new GSSignature(
+                        extendedPublicKey, U, encodedBasesCollection, keyGenParameters, A, e, vPrimePrime);
+        Boolean isValidSignature = gsSignature.verify(signerPublicKey, basesProduct);
 
-		gslog.info("signer isValidSignature: " + isValidSignature);
-	}
+        gslog.info("signer isValidSignature: " + isValidSignature);
+    }
 
-	public void computeRandomness() {
-		e =
-				CryptoUtilsFacade.computePrimeInRange(
-						keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
-		vbar = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
-		vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
-	}
+    public void computeRandomness() {
+        e =
+                CryptoUtilsFacade.computePrimeInRange(
+                        keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
+        vbar = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_v() - 1);
+        vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
+    }
 
-	public void store() throws ProofStoreException {
-		proofStore.store("issuing.signer.A", A);
-		proofStore.store("issuing.signer.Q", Q);
-		proofStore.store("issuing.signer.d", d);
-		proofStore.store("issuing.signer.vPrimePrime", vPrimePrime);
-		proofStore.store("issuing.signer.context", contextList);
-	}
+    public void store() throws ProofStoreException {
+        proofStore.store("issuing.signer.A", A);
+        proofStore.store("issuing.signer.Q", Q);
+        proofStore.store("issuing.signer.d", d);
+        proofStore.store("issuing.signer.vPrimePrime", vPrimePrime);
+        proofStore.store("issuing.signer.context", contextList);
+    }
 
-	public GroupElement computeQ() {
-		gslog.info("compute Q");
+    public GroupElement computeQ() {
+        gslog.info("compute Q");
 
-		basesProduct = signerPublicKey.getQRGroup().getOne();
-		for (BaseRepresentation baseRepresentation : encodedBasesCollection.createIterator(BASE.ALL)) {
-			basesProduct =
-					basesProduct.multiply(
-							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-		}
+        basesProduct = signerPublicKey.getQRGroup().getOne();
+        for (BaseRepresentation baseRepresentation : encodedBasesCollection.createIterator(BASE.ALL)) {
+            basesProduct =
+                    basesProduct.multiply(
+                            baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+        }
 
-		// TODO Signer must not assume knowledge of m_0
-		basesProduct = basesProduct.multiply(U.getCommitmentValue());
-		GroupElement Sv = baseS.modPow(vPrimePrime);
+        // TODO Signer must not assume knowledge of m_0
+        basesProduct = basesProduct.multiply(U.getCommitmentValue());
+        GroupElement Sv = baseS.modPow(vPrimePrime);
 
-		GroupElement result = Sv.multiply(basesProduct);
+        GroupElement result = Sv.multiply(basesProduct);
 
-		Q = baseZ.multiply(result.modInverse());
-		return Q;
-	}
+        Q = baseZ.multiply(result.modInverse());
+        return Q;
+    }
 
-	public GroupElement computeA() {
-		gslog.info("compute A");
-		pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getPPrime();
-		qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getQPrime();
+    public GroupElement computeA() {
+        gslog.info("compute A");
+        pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getPPrime();
+        qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getQPrime();
 
-		d = e.modInverse(pPrime.multiply(qPrime));
-		// TODO Remove logging of values that can break security (secret key or modInverse mod order;
+        d = e.modInverse(pPrime.multiply(qPrime));
+        // TODO Remove logging of values that can break security (secret key or modInverse mod order;
 
-		A = Q.modPow(d);
-		return A;
-	}
+        A = Q.modPow(d);
+        return A;
+    }
 
-	@Override
-	public void close() throws IOException {
-		signer.close();
-	}
+    @Override
+    public void close() throws IOException {
+        signer.close();
+    }
 
-	private List<String> populateChallengeList() {
-		challengeList = new ArrayList<String>();
-		GSContext gsContext =
-				new GSContext(
-						extendedKeyPair.getExtendedPublicKey());
-		contextList = gsContext.computeChallengeContext();
+    private List<String> populateChallengeList() {
+        challengeList = new ArrayList<String>();
+        GSContext gsContext =
+                new GSContext(
+                        extendedKeyPair.getExtendedPublicKey());
+        contextList = gsContext.computeChallengeContext();
 
-		challengeList.addAll(contextList);
+        challengeList.addAll(contextList);
 
-		R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
-		GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
+        R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
+        GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
 
-		/** TODO add context to list of elements in challenge */
-		challengeList.add(String.valueOf(modN));
-		challengeList.add(String.valueOf(baseS));
-		challengeList.add(String.valueOf(baseZ));
-		challengeList.add(String.valueOf(R_0));
+        /** TODO add context to list of elements in challenge */
+        challengeList.add(String.valueOf(modN));
+        challengeList.add(String.valueOf(baseS));
+        challengeList.add(String.valueOf(baseZ));
+        challengeList.add(String.valueOf(R_0));
 
-		//	    for (BaseRepresentation baseRepresentation : basesIterator) {
-		//	      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-		//	    }
+        //	    for (BaseRepresentation baseRepresentation : basesIterator) {
+        //	      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
+        //	    }
 
-		String uCommitmentURN = "recipient.U";
-		U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
-		GroupElement commitmentU = U.getCommitmentValue();
+        String uCommitmentURN = "recipient.U";
+        U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
+        GroupElement commitmentU = U.getCommitmentValue();
 
-		challengeList.add(String.valueOf(commitmentU));
-		/** TODO fix hatU computation */
-		challengeList.add(String.valueOf(hatU));
-		challengeList.add(String.valueOf(n_1));
+        challengeList.add(String.valueOf(commitmentU));
+        /** TODO fix hatU computation */
+        challengeList.add(String.valueOf(hatU));
+        challengeList.add(String.valueOf(n_1));
 
-		return challengeList;
-	}
+        return challengeList;
+    }
 }
