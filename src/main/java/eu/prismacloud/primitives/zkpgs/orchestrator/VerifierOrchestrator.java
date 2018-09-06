@@ -285,13 +285,11 @@ public void init() throws IOException {
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     for (BaseRepresentation vertex : vertexIterator) {
       witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
-      tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
+      BigInteger hatm_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
-      commitmentVerifier = new CommitmentVerifier();
+      commitmentVerifier = new CommitmentVerifier( cChallenge, vertex.getBaseIndex(), extendedPublicKey, proofStore, extendedPublicKey);
 
-      GroupElement hatCommitment =
-          commitmentVerifier.computeWitness(
-              cChallenge, vertex, proofStore, extendedPublicKey, keyGenParameters);
+      GroupElement hatCommitment = commitmentVerifier.computeWitness();
 
       commitmentVerifierList.add(commitmentVerifier);
       hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
