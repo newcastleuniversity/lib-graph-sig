@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.topocert;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Vector;
@@ -159,7 +160,7 @@ public class Topocert {
 
 			topocert.readEPK(epkFilename);
 
-			topocert.prove(graphFilename);
+			topocert.prove(graphFilename, sigmaFilename);
 
 			System.exit(0);
 		} else if (verifyMode != null && verifyMode.booleanValue()) {
@@ -439,11 +440,28 @@ public class Topocert {
 		System.out.println("  Receive: Completed");
 	}
 
-	void prove(String graphFilename) {
+	void prove(String graphFilename, String sigmaFilename) {
 		System.out.println("  Prove: Hosting prover for certified graph " + graphFilename + "...");
 
 		ProverOrchestrator prover = new ProverOrchestrator(epk);
 		// TODO How to pass graph file to prover?!
+
+ 
+			try {
+				prover.readSignature(sigmaFilename);
+			} catch (NullPointerException e) {
+				System.err.println("The Prover's graph signature was null.");
+				System.err.println(e.getMessage());
+				System.exit(TopocertErrorCodes.EX_DATAERR);
+			} catch (ClassNotFoundException e) {
+				System.err.println("The signature file did not match the GSSignature class.");
+				System.err.println(e.getMessage());
+				System.exit(TopocertErrorCodes.EX_CRITFILE);
+			} catch (IOException e) {
+				System.err.println("The Prover could not read the graph signature from disk.");
+				System.err.println(e.getMessage());
+				System.exit(TopocertErrorCodes.EX_CANTCREAT);
+			}
 		
 		
 		try {
@@ -452,6 +470,18 @@ public class Topocert {
 			System.err.println("The TOPOCERT Prover could not open a socket to receive messages from the Verifier.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		
+		prover.executePreChallengePhase();
+		
+		BigInteger cChallenge = prover.computeChallenge();
+		
+		try {
+			prover.executePostChallengePhase(cChallenge);
+		} catch (IOException e) {
+			System.err.println("The Prover not send the proof to the Verifier.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_IOERR);
 		}
 		
 		System.out.println("  Prove: Completed");
@@ -470,6 +500,18 @@ public class Topocert {
 			System.err.println("The TOPOCERT Verifier could not open a connection to the Prover.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_NOHOST);
+		}
+		
+		try {
+			verifier.receiveProverMessage();
+		} catch (VerificationException e) {
+			System.err.println("The proof provided by the TOPOCERT Prover could not be verified. Illegal message lengths.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_VERIFY);
+		} catch (IOException e) {
+			System.err.println("The TOPOCERT Verifier not receive the proof from the Prover.");
+			System.err.println(e.getMessage());
+			System.exit(TopocertErrorCodes.EX_IOERR);
 		}
 		
 		System.out.println("  Verify: Completed");

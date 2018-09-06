@@ -127,42 +127,32 @@ public class SignerOrchestrator implements IMessagePartner {
 		messageElements.put(URN.createZkpgsURN("nonces.n_1"), n_1);
 
 		signer.sendMessage(new GSMessage(messageElements));
-
-		/** TODO send message to recipient for the n_1 */
-		/** TODO signer send n_1 to recipient */
 	}
 
 	public void round2() throws ImportException, IOException, ProofStoreException, NoSuchAlgorithmException, VerificationException, EncodingException  {
 		encodeSignerGraph();
 
-		// TODO needs to receive input message (U, P_1, n_2)
-		// TODO value store needs to be populated (note this is on a different computer...)
-
+		// Extracting incoming commitment and proof P_1.
 		GSMessage msg = signer.receiveMessage();
 		extractMessageElements(msg);
 
-		CommitmentVerifier commitmentVerifier =
-				new CommitmentVerifier(STAGE.ISSUING, extendedKeyPair.getExtendedPublicKey(), proofStore);
+		verifyRecipientCommitment();
+		
 
-		hatU =
-				commitmentVerifier.computeWitness(
-						cChallenge,
-						responses);
-
-		hatc = computeChallenge();
-
-// TODO Temporarily deactivated due to failing CommitmentVerifier.
-//		if (!verifyChallenge()) {
-//			gslog.info("throws verification exception");
-//			signer.close();
-//			throw new VerificationException("Challenge verification failed");
-//		}
-
+		// Preparing Signature computation
 		computeRandomness();
 		createPartialSignature(extendedKeyPair.getExtendedPublicKey());
-		store();
+		storeSignatureElements();
 
 		// Initalizing proof of correctness of Q/A computation.
+		HashMap<URN, Object> preSignatureElements = prepareProvingSigningQ();
+
+		GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
+
+		signer.sendMessage(preSignatureMsg);
+	}
+
+	private HashMap<URN, Object> prepareProvingSigningQ() throws ProofStoreException {
 		SigningQProverOrchestrator signingQOrchestrator = new SigningQProverOrchestrator(gsSignature, n_2, extendedKeyPair, proofStore);
 
 		signingQOrchestrator.executePreChallengePhase();
@@ -181,10 +171,25 @@ public class SignerOrchestrator implements IMessagePartner {
 		preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
 		preSignatureElements.put(
 				URN.createZkpgsURN("proofsignature.encoding"), this.encodedBasesCollection);
+		return preSignatureElements;
+	}
 
-		GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
+	private void verifyRecipientCommitment() throws NoSuchAlgorithmException, IOException, VerificationException {
+		CommitmentVerifier commitmentVerifier =
+				new CommitmentVerifier(STAGE.ISSUING, extendedKeyPair.getExtendedPublicKey(), proofStore);
 
-		signer.sendMessage(preSignatureMsg);
+		hatU =
+				commitmentVerifier.computeWitness(
+						cChallenge,
+						responses);
+
+		hatc = computeChallenge();
+
+		if (!verifyChallenge()) {
+			gslog.info("throws verification exception");
+			signer.close();
+			throw new VerificationException("Challenge verification failed");
+		}
 	}
 
 	private void encodeSignerGraph() throws ImportException, EncodingException {
@@ -208,7 +213,7 @@ public class SignerOrchestrator implements IMessagePartner {
         return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
     }
 
-    public Boolean verifyChallenge() {
+    private Boolean verifyChallenge() {
         return hatc.equals(cChallenge);
     }
 
@@ -261,9 +266,6 @@ public class SignerOrchestrator implements IMessagePartner {
         computeQ();
         computeA();
 
-        /** TODO check if we need to verify pre-signature */
-		/* TODO this call of the graph signature is broken, the constructor only stores in
-    state but does not do any compuation. */
         gsSignature =
                 new GSSignature(
                         extendedPublicKey, U, encodedBasesCollection, keyGenParameters, A, e, vPrimePrime);
@@ -280,7 +282,7 @@ public class SignerOrchestrator implements IMessagePartner {
         vPrimePrime = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_v() - 1).add(vbar);
     }
 
-    public void store() throws ProofStoreException {
+    private void storeSignatureElements() throws ProofStoreException {
         proofStore.store("issuing.signer.A", A);
         proofStore.store("issuing.signer.Q", Q);
         proofStore.store("issuing.signer.d", d);
@@ -289,7 +291,6 @@ public class SignerOrchestrator implements IMessagePartner {
     }
 
     public GroupElement computeQ() {
-        gslog.info("compute Q");
 
         basesProduct = signerPublicKey.getQRGroup().getOne();
         for (BaseRepresentation baseRepresentation : encodedBasesCollection.createIterator(BASE.ALL)) {
@@ -298,7 +299,6 @@ public class SignerOrchestrator implements IMessagePartner {
                             baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
         }
 
-        // TODO Signer must not assume knowledge of m_0
         basesProduct = basesProduct.multiply(U.getCommitmentValue());
         GroupElement Sv = baseS.modPow(vPrimePrime);
 
@@ -309,12 +309,10 @@ public class SignerOrchestrator implements IMessagePartner {
     }
 
     public GroupElement computeA() {
-        gslog.info("compute A");
         pPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getPPrime();
         qPrime = extendedKeyPair.getExtendedPrivateKey().getPrivateKey().getQPrime();
 
         d = e.modInverse(pPrime.multiply(qPrime));
-        // TODO Remove logging of values that can break security (secret key or modInverse mod order;
 
         A = Q.modPow(d);
         return A;
@@ -337,7 +335,6 @@ public class SignerOrchestrator implements IMessagePartner {
         R_0 = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0();
         GroupElement R = extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR();
 
-        /** TODO add context to list of elements in challenge */
         challengeList.add(String.valueOf(modN));
         challengeList.add(String.valueOf(baseS));
         challengeList.add(String.valueOf(baseZ));

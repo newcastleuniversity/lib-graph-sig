@@ -63,9 +63,9 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	private List<CommitmentProver> commitmentProverList;
 	private Map<URN, BigInteger> response;
 	private Map<URN, BigInteger> responses;
+	
 
-	public ProverOrchestrator(
-			final ExtendedPublicKey extendedPublicKey) {
+	public ProverOrchestrator(final ExtendedPublicKey extendedPublicKey) {
 
 		this.extendedPublicKey = extendedPublicKey;
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
@@ -76,21 +76,17 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
 	@Override
 	public void init() throws IOException {
+
+		if (graphSignature == null) {
+			throw new IOException("The graph signature has not been read, deserialize from file or read from proof-store.");
+		}
+		
 		this.prover.init();
-
-		GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
-		BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
-		BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
-		gslog.info("graph sig e: " + e);
-
-		this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
-		this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
 
 		GSMessage msg = prover.receiveMessage();
 		Map<URN, Object> messageElements = msg.getMessageElements();
 		n_3 = (BigInteger) messageElements.get(URN.createZkpgsURN("verifier.n_3"));
 
-		// TODO I prefer to have specific exceptions, not just throwing Exception.
 		try {
 			prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
 		} catch (ProofStoreException e1) {
@@ -98,6 +94,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		}
 		commitments = prover.getCommitmentMap();
 	}
+
 
 	@Override
 	public void executePreChallengePhase() {
@@ -267,7 +264,6 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	}
 
 	private List<String> populateChallengeList() {
-		/** TODO populate context list */
 		GSContext gsContext = new GSContext(extendedPublicKey);
 		contextList = gsContext.computeChallengeContext();
 		challengeList.addAll(contextList);
@@ -366,9 +362,28 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		Map<URN, GroupElement> tildeMap = possessionProver.executeCompoundPreChallengePhase();
 		tildeZ = tildeMap.get(URN.createZkpgsURN(possessionProver.getProverURN(URNType.TILDEZ)));
 	}
+	
+	public void constructSignatureFromProofStore() throws ProofStoreException {
+		GroupElement A = (GroupElement) proofStore.retrieve("graphsignature.A");
+		BigInteger e = (BigInteger) proofStore.retrieve("graphsignature.e");
+		BigInteger v = (BigInteger) proofStore.retrieve("graphsignature.v");
+		gslog.info("graph sig e: " + e);
+		this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+		this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
+	}
+	
+	public void readSignature(String filename) throws IOException, ClassNotFoundException {
+
+		FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
+		
+		this.graphSignature = (GSSignature) persistenceUtil.read(filename);
+		this.baseCollection = this.graphSignature.getEncodedBases();
+	}
 
 	@Override
 	public void close() throws IOException {
 		prover.close();
 	}
+	
+	
 }
