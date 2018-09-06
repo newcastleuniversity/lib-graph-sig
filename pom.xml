@@ -89,10 +89,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.sf</groupId>
-            <artifactId>jargs</artifactId>
-            <version>1.0</version>
-        </dependency>
+-      <groupId>jargs.gnu</groupId>
+-      <artifactId>jargs</artifactId>
+-      <version>1.0</version>
+-      <scope>system</scope>
+-      <systemPath>${project.basedir}/lib/jargs/gnu/jargs.jar</systemPath>
+	 </dependency>
     </dependencies>
     <build>
         <plugins>
