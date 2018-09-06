@@ -152,8 +152,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private List<String> populateChallengeList() {
 		/** TODO add context to list of elements in challenge */
 		challengeList = new ArrayList<>();
-		GSContext gsContext =
-				new GSContext(extendedPublicKey);
+		GSContext gsContext = new GSContext(extendedPublicKey);
 		List<String> contextList = gsContext.computeChallengeContext();
 
 		challengeList.addAll(contextList);
@@ -211,7 +210,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		Map<URN, Object> proofSignatureElements = new HashMap<>();
 		BigInteger hatvPrime;
 		BigInteger hatm_0;
-		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
+		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvprime";
 		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
 
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.c"), cChallenge);
