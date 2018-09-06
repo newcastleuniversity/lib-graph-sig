@@ -63,6 +63,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private GroupElement tildeU;
 	private List<String> challengeList;
 	private BigInteger cChallenge;
+	private BigInteger cPrime;
 	private Map<URN, BigInteger> responses;
 	private GroupElement A;
 	private BigInteger e;
@@ -243,6 +244,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
 		
 		sigmaValidator.computeQ();
+		// TODO make computingQ an explicit call.
 		// TODO Temporarily deactivated as seems faulty
 //		if(!sigmaValidator.verify()) {
 //			throw new VerificationException("The signature is inconsistent.");
@@ -251,13 +253,12 @@ public class RecipientOrchestrator implements IMessagePartner {
 		SigningQVerifierOrchestrator verifyingQOrchestrator = new SigningQVerifierOrchestrator(P_2, signatureCandidate, n_2, extendedPublicKey, proofStore);
 
 		verifyingQOrchestrator.init();
-		// TODO Q not found in ProofStore under Store element not present: URN:issuing.recipient.Q
 
 		verifyingQOrchestrator.checkLengths();
 
-		cChallenge = verifyingQOrchestrator.computeChallenge();
+		cPrime = (BigInteger) P_2.get("P_2.cPrime");
 
-		if(!verifyingQOrchestrator.executeVerification(cChallenge)) {
+		if(!verifyingQOrchestrator.executeVerification(cPrime)) {
 			throw new VerificationException("Graph signature proof P_2 could not be verified.");
 		}
 

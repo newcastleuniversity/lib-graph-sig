@@ -37,8 +37,8 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	private final ProofStore<Object> proofStore;
 	private final KeyGenParameters keyGenParameters;
 
-	private BigInteger cChallenge;
 	private BigInteger hatc;
+	private BigInteger cPrime;
 
 	private GroupElement Q;
 
@@ -111,7 +111,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	private boolean verifyChallenge() throws VerificationException {
-		if (!this.cChallenge.equals(hatc)) {
+		if (!this.cPrime.equals(hatc)) {
 			throw new VerificationException("challenge verification failed");
 		}
 		return true;
@@ -137,29 +137,25 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	@Override
-	public boolean executeVerification(BigInteger cChallenge) {
-
-		this.cChallenge = cChallenge;
+	public boolean executeVerification(BigInteger cPrime) {
+		this.cPrime = cPrime;
 
 		if (!checkLengths()) {
 			gslog.log(Level.SEVERE, "Length checks on inputs failed");
 			return false;
 		}
 
-		try {
-
-			Map<URN, GroupElement> hatMap = verifier.executeCompoundVerification(cChallenge);
-			String hatAURN = URNType.buildURNComponent(URNType.HATA, SigningQCorrectnessProver.class);
-			hatA = hatMap.get(URN.createZkpgsURN(hatAURN));
-		} catch (ProofStoreException e) {
-			gslog.log(Level.SEVERE, "ProofStore elements could not be retrieved.", e);
-			return false;
-		}
+			try {
+				hatA = verifier.executeVerification(cPrime);
+			} catch (ProofStoreException e) {
+				gslog.log(Level.SEVERE, "Verification failed. hatA was not produced.", e.getMessage());
+				return false;
+			}
 
 		try {
 			return verifyChallenge();
 		} catch (VerificationException e) {
-			gslog.log(Level.SEVERE, "Verification failed.", e);
+			gslog.log(Level.SEVERE, "Verification failed.", e.getMessage());
 			return false;
 		}
 	}

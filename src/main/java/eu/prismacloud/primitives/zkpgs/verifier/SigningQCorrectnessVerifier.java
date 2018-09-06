@@ -78,13 +78,16 @@ public class SigningQCorrectnessVerifier implements IVerifier {
 		}
 		GroupElement hatA = A.modPow(cPrime.add(hatd.multiply(e)));
 
+		String hatAURN = URNType.buildURNComponent(URNType.HATA, SigningQCorrectnessProver.class);
+		proofStore.store(hatAURN, hatA);
+		
 		return hatA;
 	}
 
 	@Override
 	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cPrime) throws ProofStoreException {
 		Map<URN, GroupElement> responses = new HashMap<URN, GroupElement>();
-		String hatAURN = URNType.buildURNComponent(URNType.TILDEA, SigningQCorrectnessProver.class);
+		String hatAURN = URNType.buildURNComponent(URNType.HATA, SigningQCorrectnessProver.class);
 		responses.put(URN.createZkpgsURN(hatAURN), executeVerification(cPrime));
 
 		return responses;
