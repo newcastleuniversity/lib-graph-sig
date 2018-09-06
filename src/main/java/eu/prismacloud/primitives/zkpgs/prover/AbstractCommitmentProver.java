@@ -2,7 +2,6 @@ package eu.prismacloud.primitives.zkpgs.prover;
 
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
@@ -11,9 +10,7 @@ import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver.STAGE;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -59,6 +56,13 @@ public abstract class AbstractCommitmentProver implements IProver {
 
 	@Override
 	public GroupElement executePreChallengePhase() throws ProofStoreException {
+		// Establish proper conditions for singleton case
+		if (isRestrictedToSingleton() && baseCollection.size() != 1) {
+			throw new InternalError("Cannot run a commitment restricted to a single base R with"
+					+ " a non-one sized base collection.");
+		}
+		// Post-condition: There must be only one base, if restricted to singleton.
+
 		establishWitnessRandomness();
 
 		this.witness = computeWitness();
@@ -74,6 +78,8 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 */
 	@Override
 	public Map<URN, GroupElement> executeCompoundPreChallengePhase() throws ProofStoreException {
+
+
 		Map<URN, GroupElement> witnessMap = new HashMap<URN, GroupElement>(1);
 		GroupElement witness = executePreChallengePhase();
 
@@ -114,6 +120,13 @@ public abstract class AbstractCommitmentProver implements IProver {
 				BigInteger tilde_m_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
 				proofStore.save(getTildeM0URN(), tilde_m_0);
 			}
+			
+			// Treating commitments with singleton Base R
+			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
+			for (@SuppressWarnings("unused") BaseRepresentation base : baseRIterator) {
+				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				proofStore.save(getTildeMURN(), tilde_m);
+			}
 		}
 	}
 
@@ -128,6 +141,11 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 * @throws ProofStoreException
 	 */
 	private GroupElement computeWitness() throws ProofStoreException {
+		/*
+		 * Note that, in the "singleton case", that is, when the commitment
+		 * is restricted to a single R, that base should be enforced.
+		 */
+		
 		// Establishing the blinding randomness witness
 		BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
 		GroupElement witness = signerPublicKey.getBaseS().modPow(tildeRandomness);
@@ -151,6 +169,12 @@ public abstract class AbstractCommitmentProver implements IProver {
 			BigInteger tilde_m_0 = (BigInteger) proofStore.get(getTildeM0URN());
 			witness = witness.multiply(base.getBase().modPow(tilde_m_0));
 		}
+		
+		BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
+		for (BaseRepresentation base : baseRIterator) {
+			BigInteger tilde_m = (BigInteger) proofStore.get(getTildeMURN());
+			witness = witness.multiply(base.getBase().modPow(tilde_m));
+		}
 
 		return witness;
 	}
@@ -158,6 +182,13 @@ public abstract class AbstractCommitmentProver implements IProver {
 	@Override
 	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
 		this.cChallenge = cChallenge;
+		// Establish proper conditions for singleton case
+		if (isRestrictedToSingleton() && baseCollection.size() != 1) {
+			throw new InternalError("Cannot run a commitment restricted to a single base R with"
+					+ " a non-one sized base collection.");
+		}
+		// Post-condition: There must be only one base, if restricted to singleton.
+
 
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
@@ -169,34 +200,44 @@ public abstract class AbstractCommitmentProver implements IProver {
 			responses.put(getHatRandomnessURN(), hatRandomness);
 		}
 
-		// Establishing the witness randomness for all message exponents.
+		// Compute responses for all message exponents.
 		// We are addressing VERTEX, EDGE and MSK in turn.
 		if (!isProvingEquality()) {
 			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-			for (BaseRepresentation base : vertexIterator) {
-				BigInteger tilde_m_i = (BigInteger) proofStore.get(getTildeVertexURN(base.getBaseIndex()));
-				BigInteger m_i = (BigInteger) base.getExponent();
+			for (BaseRepresentation baseRep : vertexIterator) {
+				BigInteger tilde_m_i = (BigInteger) proofStore.get(getTildeVertexURN(baseRep.getBaseIndex()));
+				BigInteger m_i = baseRep.getExponent();
 				BigInteger hat_m_i = tilde_m_i.add(cChallenge.multiply(m_i));
-				proofStore.save(getHatVertexURN(base.getBaseIndex()), hat_m_i);
-				responses.put(getHatVertexURN(base.getBaseIndex()), hat_m_i);
+				proofStore.save(getHatVertexURN(baseRep.getBaseIndex()), hat_m_i);
+				responses.put(getHatVertexURN(baseRep.getBaseIndex()), hat_m_i);
 			}
 
 			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
-			for (BaseRepresentation base : edgeIterator) {
-				BigInteger tilde_m_i_j = (BigInteger) proofStore.get(getTildeEdgeURN(base.getBaseIndex()));
-				BigInteger m_i_j = (BigInteger) base.getExponent();
+			for (BaseRepresentation baseRep : edgeIterator) {
+				BigInteger tilde_m_i_j = (BigInteger) proofStore.get(getTildeEdgeURN(baseRep.getBaseIndex()));
+				BigInteger m_i_j = baseRep.getExponent();
 				BigInteger hat_m_i_j = tilde_m_i_j.add(cChallenge.multiply(m_i_j));
-				proofStore.save(getHatEdgeURN(base.getBaseIndex()), hat_m_i_j);
-				responses.put(getHatEdgeURN(base.getBaseIndex()), hat_m_i_j);
+				proofStore.save(getHatEdgeURN(baseRep.getBaseIndex()), hat_m_i_j);
+				responses.put(getHatEdgeURN(baseRep.getBaseIndex()), hat_m_i_j);
 			}
 
 			BaseIterator baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
-			for (BaseRepresentation base : baseR0Iterator) {
+			for (BaseRepresentation baseRep : baseR0Iterator) {
 				BigInteger tilde_m_0 = (BigInteger) proofStore.get(getTildeM0URN());
-				BigInteger m_0 = (BigInteger) base.getExponent();
+				BigInteger m_0 = baseRep.getExponent();
 				BigInteger hat_m_0 = tilde_m_0.add(cChallenge.multiply(m_0));
 				proofStore.save(getHatM0URN(), hat_m_0);
 				responses.put(getHatM0URN(), hat_m_0);
+			}
+			
+			// Treating messages from singleton cases
+			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
+			for (BaseRepresentation baseRep : baseRIterator) {
+				BigInteger tilde_m = (BigInteger) proofStore.get(getTildeMURN());
+				BigInteger m = baseRep.getExponent();
+				BigInteger hat_m = tilde_m.add(cChallenge.multiply(m));
+				proofStore.save(getHatMURN(), hat_m);
+				responses.put(getHatMURN(), hat_m);
 			}
 		}
 
@@ -273,7 +314,6 @@ public abstract class AbstractCommitmentProver implements IProver {
 	protected abstract URN getWitnessURN();
 
 	protected abstract URN getTildeRandomnessURN();
-	protected abstract URN getTildeRandomnessURN(int index);
 	protected abstract int getTildeRandomnessBitlength();
 
 	protected int getTildeMessageBitLength() {
@@ -284,12 +324,13 @@ public abstract class AbstractCommitmentProver implements IProver {
 	protected abstract URN getTildeVertexURN(int baseIndex);
 	protected abstract URN getTildeEdgeURN(int baseIndex);
 	protected abstract URN getTildeM0URN();
+	protected abstract URN getTildeMURN();
 
 	protected abstract URN getHatRandomnessURN();
-	protected abstract URN getHatRandomnessURN(int index);
 	protected abstract URN getHatVertexURN(int baseIndex);
 	protected abstract URN getHatEdgeURN(int baseIndex);
 	protected abstract URN getHatM0URN();
+	protected abstract URN getHatMURN();
 
 	/**
 	 * States whether this commitment prover is proving equality of its secret
@@ -302,4 +343,12 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 * created by other provers.
 	 */
 	protected abstract boolean isProvingEquality();
+
+	/**
+	 * States whether this commitment prover is restricted to encoding a 
+	 * single message on a single base R.
+	 *  
+	 * @return <tt>true</tt> if the prover uses only a single base R.
+	 */
+	protected abstract boolean isRestrictedToSingleton();
 }

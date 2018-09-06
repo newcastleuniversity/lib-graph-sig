@@ -31,154 +31,153 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 class CommitmentProverTest {
-    private Logger log = GSLoggerConfiguration.getGSlog();
+	private Logger log = GSLoggerConfiguration.getGSlog();
 
-    private KeyGenParameters keyGenParameters;
-    private GraphEncodingParameters graphEncodingParameters;
-    private SignerKeyPair skp;
-    private ExtendedKeyPair extendedKeyPair;
-    private ExtendedPublicKey epk;
-    private BigInteger testM;
-    private ProofStore<Object> proofStore;
+	private KeyGenParameters keyGenParameters;
+	private GraphEncodingParameters graphEncodingParameters;
+	private SignerKeyPair skp;
+	private ExtendedKeyPair extendedKeyPair;
+	private ExtendedPublicKey epk;
+	private BigInteger testM;
+	private ProofStore<Object> proofStore;
 
-    private BaseCollection baseCollection;
-    private CommitmentProver cprover;
-    private BaseRepresentation baseR0;
-    private BigInteger tilder_i;
-    private Logger gslog = GSLoggerConfiguration.getGSlog();
-    private BigInteger r_i;
-    //  private GSUtils gsUtils;
+	private BaseCollection baseCollection;
+	private CommitmentProver cprover;
+	private BaseRepresentation baseR;
+	private BigInteger tilder_i;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private BigInteger r_i;
+	//  private GSUtils gsUtils;
 
-    @BeforeAll
-    void setUpKey() throws IOException, ClassNotFoundException, EncodingException {
-        BaseTest baseTest = new BaseTest();
-        baseTest.setup();
-        baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
-        skp = baseTest.getSignerKeyPair();
-        graphEncodingParameters = baseTest.getGraphEncodingParameters();
-        keyGenParameters = baseTest.getKeyGenParameters();
-        extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
-        extendedKeyPair.generateBases();
-        extendedKeyPair.setupEncoding();
-        extendedKeyPair.createExtendedKeyPair();
+	private BigInteger tildem_0;
 
-        epk = extendedKeyPair.getExtendedPublicKey();
-    }
+	@BeforeAll
+	void setUpKey() throws IOException, ClassNotFoundException, EncodingException {
+		BaseTest baseTest = new BaseTest();
+		baseTest.setup();
+		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+		skp = baseTest.getSignerKeyPair();
+		graphEncodingParameters = baseTest.getGraphEncodingParameters();
+		keyGenParameters = baseTest.getKeyGenParameters();
+		extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
+		extendedKeyPair.generateBases();
+		extendedKeyPair.setupEncoding();
+		extendedKeyPair.createExtendedKeyPair();
 
-    @BeforeEach
-    void setUp() throws Exception {
-        proofStore = new ProofStore<Object>();
-        testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
+		epk = extendedKeyPair.getExtendedPublicKey();
+	}
 
-        baseR0 = new BaseRepresentation(epk.getPublicKey().getBaseR_0(), 0, BASE.BASE0);
-        baseR0.setExponent(testM);
+	@BeforeEach
+	void setUp() throws Exception {
+		proofStore = new ProofStore<Object>();
+		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
 
-        baseCollection = new BaseCollectionImpl();
-        baseCollection.add(baseR0);
-        
-        GSCommitment C_i = GSCommitment.createCommitment(baseCollection, r_i, epk);
+		tildem_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		proofStore.save(URNType.buildURN(URNType.TILDEM0, PossessionProver.class), tildem_0);
 
-        cprover = new CommitmentProver(C_i, 0, extendedKeyPair.getPublicKey(), proofStore);
-    }
+		baseR = new BaseRepresentation(epk.getPublicKey().getBaseR(), 0, BASE.ALL);
+		baseR.setExponent(testM);
 
+		baseCollection = new BaseCollectionImpl();
+		baseCollection.add(baseR);
 
-    @Test
-    @DisplayName("Test pre challenge phase for the commitment prover during issuing")
-    void testPrechallengePhase() {
+		GSCommitment C_i = GSCommitment.createCommitment(baseCollection, r_i, epk);
 
-
-    }
-
-    @Test
-    @DisplayName("Test pre challenge phase for the commmimtment prover during proving")
-    void testPreChallengePhaseProving() throws ProofStoreException {
-        String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
-        BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        proofStore.store(tildem_iURN, tildem_i);
-        String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-        GroupElement tildeC_i = cprover.executePreChallengePhase();
-
-        assertNotNull(tildeC_i);
-        String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
-        gslog.info("tilder_iUrn: " + tilder_iURN);
-        tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
-        assertNotNull(tilder_i);
-    }
-
-    @Test
-    @DisplayName("Test witness randomness is in the correct range")
-    void testCreateWitnessRandomness() throws ProofStoreException {
-        String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
-        BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        proofStore.store(tildem_iURN, tildem_i);
-        cprover.executePreChallengePhase();
-
-        String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
-        gslog.info("tilder_iUrn: " + tilder_iURN);
-        tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
-        assertNotNull(tilder_i);
-
-        int l_tilderi = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
-
-        BigInteger maxTilderi = NumberConstants.TWO.getValue().pow(l_tilderi);
-        BigInteger minTilderi = maxTilderi.negate();
-
-        assertTrue(CryptoUtilsFacade.isInRange(tilder_i, minTilderi, maxTilderi));
-    }
-
-    @Test
-    void testComputeWitness() throws ProofStoreException {
-
-        String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
-        BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-
-        proofStore.store(tildem_iURN, tildem_i);
-
-//        String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-        GroupElement tildeC_i = cprover.executePreChallengePhase();
-
-        assertNotNull(tildeC_i);
-        String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
-        gslog.info("tilder_iUrn: " + tilder_iURN);
-        tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
-        assertNotNull(tilder_i);
-
-        GroupElement baseS = epk.getPublicKey().getBaseS();
-        GroupElement baseR = epk.getPublicKey().getBaseR();
-        GroupElement comm = baseR.modPow(tildem_i).multiply(baseS.modPow(tilder_i));
-
-        assertEquals(comm, tildeC_i);
-    }
+		cprover = new CommitmentProver(C_i, 0, extendedKeyPair.getPublicKey(), proofStore);
+	}
 
 
-    @Test
-    void computeResponses() {
-    }
+	@Test
+	@DisplayName("Test pre challenge phase for the commitment prover during issuing")
+	void testPrechallengePhase() {
 
-    @Test
-    void testPostChallengePhase() throws ProofStoreException {
-        GroupElement baseR = epk.getPublicKey().getBaseR();
-        BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        GSCommitment C_i = GSCommitment.createCommitment(m_i, baseR, epk);
-        Map<URN, GSCommitment> commitmentMap = new HashMap<>();
-        commitmentMap.put(URN.createZkpgsURN("prover.commitments.C_0"), C_i);
 
-        proofStore.store("prover.commitments", commitmentMap);
-        String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
-        BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-        proofStore.store(tildem_iURN, tildem_i);
-        GroupElement tildeC_i = cprover.executePreChallengePhase();
+	}
 
-        assertNotNull(tildeC_i);
-        String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
-        gslog.info("tilder_iUrn: " + tilder_iURN);
-        tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
-        assertNotNull(tilder_i);
-        BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
-        Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
+	@Test
+	@DisplayName("Test pre challenge phase for the commmimtment prover during proving")
+	void testPreChallengePhaseProving() throws ProofStoreException {
+		String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
+		BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		proofStore.store(tildem_iURN, tildem_i);
+		String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
 
-        assertNotNull(responses);
-        assertTrue(responses.size() > 0);
-    }
+		assertNotNull(tildeC_i);
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
+		assertNotNull(tilder_i);
+	}
+
+	@Test
+	@DisplayName("Test witness randomness is in the correct range")
+	void testCreateWitnessRandomness() throws ProofStoreException {
+		String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
+		BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		proofStore.store(tildem_iURN, tildem_i);
+		cprover.executePreChallengePhase();
+
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
+		assertNotNull(tilder_i);
+
+		int l_tilderi = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
+
+		BigInteger maxTilderi = NumberConstants.TWO.getValue().pow(l_tilderi);
+		BigInteger minTilderi = maxTilderi.negate();
+
+		assertTrue(CryptoUtilsFacade.isInRange(tilder_i, minTilderi, maxTilderi));
+	}
+
+	@Test
+	void testComputeWitness() throws ProofStoreException {
+
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
+
+		assertNotNull(tildeC_i);
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
+		assertNotNull(tilder_i);
+
+		GroupElement baseS = epk.getPublicKey().getBaseS();
+		GroupElement baseR = epk.getPublicKey().getBaseR();
+		GroupElement comm = baseR.modPow(tildem_0).multiply(baseS.modPow(tilder_i));
+
+		assertEquals(comm, tildeC_i);
+	}
+
+
+	@Test
+	void computeResponses() {
+	}
+
+	@Test
+	void testPostChallengePhase() throws ProofStoreException {
+		GroupElement baseR = epk.getPublicKey().getBaseR();
+		BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		GSCommitment C_i = GSCommitment.createCommitment(m_i, baseR, epk);
+		Map<URN, GSCommitment> commitmentMap = new HashMap<>();
+		commitmentMap.put(URN.createZkpgsURN("prover.commitments.C_0"), C_i);
+
+		proofStore.store("prover.commitments", commitmentMap);
+		String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
+		BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		proofStore.store(tildem_iURN, tildem_i);
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
+
+		assertNotNull(tildeC_i);
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
+		assertNotNull(tilder_i);
+		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+		Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
+
+		assertNotNull(responses);
+		assertTrue(responses.size() > 0);
+	}
 }

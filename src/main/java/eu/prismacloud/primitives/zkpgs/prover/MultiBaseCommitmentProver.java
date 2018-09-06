@@ -1,24 +1,19 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 
-public class NewCommitmentProver extends AbstractCommitmentProver {
+public class MultiBaseCommitmentProver extends AbstractCommitmentProver implements IProver {
 
 	public static final String URNID = "commitmentprover";
-	
+
 	private transient List<URNType> urnTypes;
 	private transient List<EnumeratedURNType> enumeratedTypes;
 	private transient List<URN> governedURNs;
@@ -30,27 +25,28 @@ public class NewCommitmentProver extends AbstractCommitmentProver {
 	 * @param spk Signer public key
 	 * @param ps ProofStore
 	 */
-	public NewCommitmentProver(final GSCommitment com, final int index,
+	public MultiBaseCommitmentProver(final GSCommitment com, final int index,
 			final SignerPublicKey spk, final ProofStore<Object> ps) {
 		super(com, index, spk, ps);
 	}
-	
+
 	@Override
+	@SuppressWarnings("unchecked") 
 	public List<URN> getGovernedURNs() {
 		if (urnTypes == null) {
-			urnTypes = (List<URNType>) Collections.EMPTY_LIST;
+			urnTypes = Collections.EMPTY_LIST;
 		}
 		if (enumeratedTypes == null) {
-//			enumeratedTypes = new ArrayList<EnumeratedURNType>(baseCollection.size());
-//			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
-//			for (BaseRepresentation base : vertexIterator) {
-//				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, base.getBaseIndex()));
-//			}
-//			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
-//			for (BaseRepresentation base : edgeIterator) {
-//				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMIJ, base.getBaseIndex()));
-//			}
-			
+			//			enumeratedTypes = new ArrayList<EnumeratedURNType>(baseCollection.size());
+			//			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+			//			for (BaseRepresentation base : vertexIterator) {
+			//				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, base.getBaseIndex()));
+			//			}
+			//			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
+			//			for (BaseRepresentation base : edgeIterator) {
+			//				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMIJ, base.getBaseIndex()));
+			//			}
+
 			// Commitments and randomness with index
 			enumeratedTypes.add(new EnumeratedURNType(URNType.TILDECI, getCommitmentIndex()));
 			enumeratedTypes.add(new EnumeratedURNType(URNType.TILDERI, getCommitmentIndex()));
@@ -69,13 +65,7 @@ public class NewCommitmentProver extends AbstractCommitmentProver {
 
 	@Override
 	protected URN getTildeRandomnessURN() {
-		throw new RuntimeException("URNType " + URNType.TILDERI 
-				+ " is enumerable and should be called with a commitment index.");
-	}
-	
-	@Override
-	protected URN getTildeRandomnessURN(int index) {
-		return URNType.buildURN(URNType.TILDERI, this.getClass(), index);
+		return URNType.buildURN(URNType.TILDERI, this.getClass(), getCommitmentIndex());
 	}
 
 	@Override
@@ -95,7 +85,12 @@ public class NewCommitmentProver extends AbstractCommitmentProver {
 
 	@Override
 	protected URN getTildeM0URN() {
-		return URNType.buildURN(URNType.TILDEM0, PossessionProver.class);
+		return URNType.buildURN(URNType.TILDEM0, PossessionProver.class);	
+	}
+
+	@Override
+	protected URN getTildeMURN() {
+		return URNType.buildURN(URNType.TILDEMI, PossessionProver.class, getCommitmentIndex());
 	}
 
 	@Override
@@ -105,14 +100,9 @@ public class NewCommitmentProver extends AbstractCommitmentProver {
 
 	@Override
 	protected URN getHatRandomnessURN() {
-		throw new RuntimeException("URNType " + URNType.HATRI 
-				+ " is enumerable and should be called with a commitment index.");
+		return URNType.buildURN(URNType.HATRI, this.getClass(), getCommitmentIndex());
 	}
-	
-	@Override
-	protected URN getHatRandomnessURN(int index) {
-		return URNType.buildURN(URNType.HATRI, this.getClass(), index);
-	}
+
 
 	@Override
 	protected URN getHatVertexURN(int baseIndex) {
@@ -128,5 +118,16 @@ public class NewCommitmentProver extends AbstractCommitmentProver {
 	protected URN getHatM0URN() {
 		return URNType.buildURN(URNType.HATM0, PossessionProver.class);
 	}
+
+	@Override
+	protected URN getHatMURN() {
+		return URNType.buildURN(URNType.HATMI, PossessionProver.class, getCommitmentIndex());
+	}
+
+	@Override
+	protected boolean isRestrictedToSingleton() {
+		return false;
+	}
+
 
 }

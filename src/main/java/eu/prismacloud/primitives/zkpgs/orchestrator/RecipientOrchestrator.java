@@ -19,6 +19,7 @@ import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.CommitmentProver;
+import eu.prismacloud.primitives.zkpgs.prover.IssuingCommitmentProver;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
@@ -131,7 +132,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		/** TODO generalize commit prover */
 		// TODO needs to get access to commitment secrets (recipientGraph)
 		// TODO needs to move to the new commitment interface.
-		CommitmentProver commitmentProver = new CommitmentProver(U, extendedPublicKey.getPublicKey(), proofStore);
+		IssuingCommitmentProver commitmentProver = new IssuingCommitmentProver(U, extendedPublicKey.getPublicKey(), proofStore);
 
 		tildeU = commitmentProver.executePreChallengePhase();
 

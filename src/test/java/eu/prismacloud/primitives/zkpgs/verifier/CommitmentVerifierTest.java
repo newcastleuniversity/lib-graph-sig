@@ -115,7 +115,7 @@ public class CommitmentVerifierTest {
     proofStore.store("prover.commitments", commitmentMap);
     proofStore.store("prover.commitments.C_0", C_i);
 
-    cChallenge = cprover.computeChallenge();
+    cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 
     String hatm_iURN = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, 0);
     hatm_i = tildem_i.add(cChallenge.multiply(testM));
