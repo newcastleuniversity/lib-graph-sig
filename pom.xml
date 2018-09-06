@@ -89,12 +89,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
--      <groupId>jargs.gnu</groupId>
--      <artifactId>jargs</artifactId>
--      <version>1.0</version>
--      <scope>system</scope>
--      <systemPath>${project.basedir}/lib/jargs/gnu/jargs.jar</systemPath>
-	 </dependency>
+            <groupId>net.sf</groupId>
+            <artifactId>jargs</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -195,12 +193,12 @@
         </plugins>
     </build>
     <profiles>
-</profiles>
-<repositories>
-      <repository>
-	<id>JBoss repository</id>
-	<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-      </repository>
+    </profiles>
+    <repositories>
+        <repository>
+            <id>JBoss repository</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
     </repositories>
 </project>
 
