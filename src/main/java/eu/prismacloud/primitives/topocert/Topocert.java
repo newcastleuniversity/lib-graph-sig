@@ -51,11 +51,11 @@ public class Topocert {
 		try {
 			parser.parse(argv);
 		} catch (CmdLineParser.UnknownOptionException e) {
-			System.err.println(e.getMessage());
+			System.err.println(e.getMessage() + "\n");
 			parser.printUsage();
 			System.exit(TopocertErrorCodes.EX_USAGE);
 		} catch (CmdLineParser.IllegalOptionValueException e) {
-			System.err.println(e.getMessage());
+			System.err.println(e.getMessage() + "\n");
 			parser.printUsage();
 			System.exit(TopocertErrorCodes.EX_USAGE);
 		}
@@ -83,6 +83,23 @@ public class Topocert {
 		@SuppressWarnings("unchecked")
 		Vector<Integer> queryValues = (Vector<Integer>) parser.getOptionValues(TopocertCmdLineParser.GEOSEPQUERY);
 
+		// User needing help?
+		if (offerHelp != null && offerHelp.booleanValue()) {
+			parser.printUsage();
+			System.exit(0);
+		}
+		
+		if ((keygenMode == null || !keygenMode.booleanValue()) 
+			&& (signMode == null || !signMode.booleanValue())
+			&& (receiveMode == null || !receiveMode.booleanValue())
+			&& (proveMode == null || !proveMode.booleanValue())
+			&& (verifyMode == null || !verifyMode.booleanValue())
+		   ) {
+			System.err.println("Please specify exactly one more for TOPOCERT to run in.\n");
+			parser.printUsage();
+			System.exit(TopocertErrorCodes.EX_USAGE);
+		}
+		
 		// Initialize Topocert and Read Parameters
 		Topocert topocert = new Topocert();
 		topocert.readParams(paramsFilename);
@@ -90,10 +107,7 @@ public class Topocert {
 		//
 		// Main Behavior Branching
 		//
-		if (offerHelp != null && offerHelp.booleanValue()) {
-			parser.printUsage();
-			System.exit(0);
-		} else if (keygenMode != null && keygenMode.booleanValue()) {
+		if (keygenMode != null && keygenMode.booleanValue()) {
 			// Initialize TOPOCERT keygen
 			System.out.println("Entering TOPOCERT key generation...");
 			System.out.println("  Designated signer keypair file: " + signerKeyFilename);
