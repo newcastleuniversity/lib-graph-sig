@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -57,8 +58,8 @@ implements Serializable, Cloneable {
 		DefaultUndirectedGraph<GSVertex, GSEdge> graph = new DefaultUndirectedGraph<>(GSEdge.class);
 
 		GraphMLImporter<GSVertex, GSEdge> importer = GraphMLProvider.createImporter();
-		File file = GraphMLProvider.getGraphMLFile(graphFile);
-		importer.importGraph(graph, file);
+        InputStream is = GraphMLProvider.getGraphMLStream(graphFile);
+		importer.importGraph(graph, is);
 
 		return new GSGraph<GSVertex, GSEdge>(graph);
 	}
