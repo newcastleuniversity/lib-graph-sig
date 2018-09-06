@@ -157,7 +157,7 @@ public class CommitmentProver implements IProver {
 				+ (2 * keyGenParameters.getL_statzk())
 				+ keyGenParameters.getL_H();
 
-		BigInteger tildevPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(tildevPrimeBitLength);
+		tildevPrime = CryptoUtilsFacade.computeRandomNumberMinusPlus(tildevPrimeBitLength);
 		String tildevPrimeURN = getProverURN(URNType.TILDEVPRIME);
 		proofStore.store(tildevPrimeURN, tildevPrime);
 
@@ -275,24 +275,16 @@ public class CommitmentProver implements IProver {
 		this.cChallenge = cChallenge;
 
 		if (this.proofStage == STAGE.ISSUING) {
-			try {
 				computeResponsesIssuing();
-			} catch (Exception e) {
-				gslog.log(Level.SEVERE, e.getMessage());
-			}
 
 		} else if (this.proofStage == STAGE.PROVING) {
-			try {
 				return computeResponsesProving();
-			} catch (Exception e) {
-				gslog.log(Level.SEVERE, e.getMessage());
-			}
 		}
 
 		return responses;
 	}
 
-	private void computeResponsesIssuing() throws Exception {
+	private void computeResponsesIssuing() throws ProofStoreException {
 
 		BigInteger vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
 
@@ -300,8 +292,8 @@ public class CommitmentProver implements IProver {
 
 		BigInteger hatvPrime = tildevPrime.add(cChallenge.multiply(vPrime));
 		BigInteger hatm_0 = tildem_0.add(cChallenge.multiply(m_0));
-		String hatvPrimeURN = URNType.buildURNComponent(URNType.HATVPRIME, CommitmentProver.class);
-		String hatm_0URN = URNType.buildURNComponent(URNType.HATM0, CommitmentProver.class, 0);
+		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
+		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
 		String cChallengeURN = "issuing.commitmentprover.commitment.C";
 
 		responses.put(URN.createZkpgsURN(hatvPrimeURN), hatvPrime);
@@ -345,10 +337,11 @@ public class CommitmentProver implements IProver {
 
 	/**
 	 * Compute responses proving.
+	 * @throws ProofStoreException 
 	 *
 	 * @throws Exception the exception
 	 */
-	public Map<URN, BigInteger> computeResponsesProving() throws Exception {
+	public Map<URN, BigInteger> computeResponsesProving() throws ProofStoreException {
 		String tilder_iURN = getProverURN(URNType.TILDERI, index);
 		BigInteger tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
