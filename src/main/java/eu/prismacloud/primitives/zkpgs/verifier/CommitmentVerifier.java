@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -21,51 +22,50 @@ import java.util.logging.Logger;
 /** The type Commitment verifier. */
 public class CommitmentVerifier implements IVerifier {
 
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+
 	private BigInteger hatvPrime;
 	private BigInteger hatm_0;
 	private GSCommitment U;
-	private BigInteger c;
-	private GroupElement baseS;
-	private GroupElement baseR_0;
-	private STAGE proofStage;
+	private final GroupElement baseS;
+	private final GroupElement baseR_0;
+	private final STAGE proofStage;
 	private Map<URN, BaseRepresentation> baseRepresentationMap;
-	private KeyGenParameters keyGenParameters;
+	private final KeyGenParameters keyGenParameters;
 	private GroupElement hatU;
 	private BigInteger hatc;
 	private BigInteger cChallenge;
 	private Map<URN, BigInteger> responses;
-	private ProofStore<Object> proofStore;
-	private ExtendedPublicKey extendedPublicKey;
-	private GSCommitment gscommitment;
+	private final ProofStore<Object> proofStore;
+	private final ExtendedPublicKey extendedPublicKey;
+//	private GSCommitment gscommitment;
 	private GroupElement witness;
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
-	private BaseRepresentation vertex;
 	private BigInteger hatr_i;
 	private BigInteger hatm_i;
-	private GroupElement baseR;
+	private final GroupElement baseR;
 
 	public enum STAGE {
 		ISSUING,
 		VERIFYING
 	};
+	
+	public CommitmentVerifier(final STAGE proofStage, ExtendedPublicKey epk, ProofStore<Object> ps) {
+		this.proofStore = ps;
+		this.extendedPublicKey = epk;
+		this.baseS = this.extendedPublicKey.getPublicKey().getBaseS();
+		this.baseR_0 = this.extendedPublicKey.getPublicKey().getBaseR_0();
+		this.baseR = this.extendedPublicKey.getPublicKey().getBaseR();
+		this.keyGenParameters = this.extendedPublicKey.getKeyGenParameters();
+		this.proofStage = proofStage;
+	}
 
 	public GroupElement computeWitness(
 			final BigInteger cChallenge,
-			final Map<URN, BigInteger> responses,
-			final ProofStore<Object> proofStore,
-			final ExtendedPublicKey extendedPublicKey,
-			final KeyGenParameters keyGenParameters,
-			final STAGE proofStage) {
+			final Map<URN, BigInteger> responses) {
 
-		/** TODO finish implementation for computeWitness in commmitment verifier */
 		this.cChallenge = cChallenge;
 		this.responses = responses;
-		this.proofStore = proofStore;
-		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
-		this.baseRepresentationMap = extendedPublicKey.getBases();
-		this.keyGenParameters = keyGenParameters;
-		this.proofStage = proofStage;
-		this.baseR_0 = this.extendedPublicKey.getPublicKey().getBaseR_0();
+
 
 		if (STAGE.ISSUING == proofStage) {
 
@@ -75,7 +75,7 @@ public class CommitmentVerifier implements IVerifier {
 
 		} else if (STAGE.VERIFYING == proofStage) {
 
-			witness = computeHatCVerifying();
+			witness = computeHatCVerifying(null); //TODO this implementation is faulty. Should iterate over hat values.
 		}
 
 		return witness;
@@ -83,29 +83,18 @@ public class CommitmentVerifier implements IVerifier {
 
 	public GroupElement computeWitness(
 			final BigInteger cChallenge,
-			final BaseRepresentation vertex,
-			final ProofStore<Object> proofStore,
-			final ExtendedPublicKey extendedPublicKey,
-			final KeyGenParameters keyGenParameters) {
-		this.cChallenge = cChallenge;
-		this.vertex = vertex;
-		this.proofStore = proofStore;
-		this.extendedPublicKey = extendedPublicKey;
-		this.keyGenParameters = keyGenParameters;
-		this.baseR = extendedPublicKey.getPublicKey().getBaseR();
-		this.baseS = extendedPublicKey.getPublicKey().getBaseS();
+			final BaseRepresentation vertex) throws VerificationException {
 
-		if (!checkLengthsVerifying()) {
-			gslog.info("check lengths for commitment verifier: " + checkLengthsVerifying() );
-			return null;
 
+		if (!checkLengthsVerifying(vertex)) {
+			throw new VerificationException("Lengths could not be verified.");
 		}
 
-		witness = computeHatCVerifying();
+		witness = computeHatCVerifying(vertex);
 		return witness;
 	}
 
-	private GroupElement computeHatCVerifying() {
+	private GroupElement computeHatCVerifying(BaseRepresentation vertex) {
 		String commitmentURN = "prover.commitments.C_" + vertex.getBaseIndex();
 		GroupElement baseRHatm_i = baseR.modPow(hatm_i);
 		GroupElement baseSHatr_i = baseS.modPow(hatr_i);
@@ -120,7 +109,7 @@ public class CommitmentVerifier implements IVerifier {
 		return hatC_i;
 	}
 
-	public boolean checkLengthsVerifying() {
+	public boolean checkLengthsVerifying(BaseRepresentation vertex) {
 
 		int l_hatr =
 				keyGenParameters.getL_n() + keyGenParameters.getProofOffset();

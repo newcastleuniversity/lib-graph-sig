@@ -10,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -24,6 +25,8 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -124,37 +127,31 @@ public class CommitmentVerifierTest {
 
     hatr_i = responses.get(URN.createZkpgsURN(hatr_iURN));
     gslog.info("hatr_i: " + hatr_i);
-    cverifier = new CommitmentVerifier();
+    cverifier = new CommitmentVerifier(STAGE.VERIFYING, epk, proofStore);
   }
 
   @Test
   @DisplayName("Test witness computation for the commitment verifier")
-  void computeWitness() {
+  void computeWitness() throws VerificationException {
     gslog.info("compute witness");
     GroupElement hatC_i =
         cverifier.computeWitness(
             cChallenge,
-            baseR0,
-            proofStore,
-            extendedKeyPair.getExtendedPublicKey(),
-            keyGenParameters);
+            baseR0);
 
     assertNotNull(hatC_i);
     assertEquals(tildeC_i, hatC_i);
   }
 
   @Test
-  void testCheckLengths() {
+  void testCheckLengths() throws VerificationException {
     gslog.info("compute witness");
     GroupElement hatC_i =
         cverifier.computeWitness(
             cChallenge,
-            baseR0,
-            proofStore,
-            extendedKeyPair.getExtendedPublicKey(),
-            keyGenParameters);
+            baseR0);
 
-    boolean isCorrectLength = cverifier.checkLengthsVerifying();
+    boolean isCorrectLength = cverifier.checkLengthsVerifying(baseR0);
 
     assertTrue(isCorrectLength);
   }

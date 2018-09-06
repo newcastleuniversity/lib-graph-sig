@@ -20,6 +20,7 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
+import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.PossessionVerifier;
 
@@ -206,7 +207,7 @@ public void init() throws IOException {
     /** TODO store pair-wise different vertex encodings from the proof signature */
   }
 
-  public void preChallengePhase() {
+  public void preChallengePhase() throws VerificationException {
 
     PossessionVerifier possessionVerifier = new PossessionVerifier(baseCollection, extendedPublicKey, proofStore);
 
@@ -276,7 +277,7 @@ public void init() throws IOException {
     return challengeList;
   }
 
-  private void computeCommitmentVerifiers() {
+  private void computeCommitmentVerifiers() throws VerificationException {
     CommitmentVerifier commitmentVerifier;
     commitmentVerifierList = new ArrayList<>();
 
@@ -287,11 +288,11 @@ public void init() throws IOException {
       witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
       tildem_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
-      commitmentVerifier = new CommitmentVerifier();
+      commitmentVerifier = new CommitmentVerifier(STAGE.VERIFYING, extendedPublicKey, proofStore);
 
       GroupElement hatCommitment =
           commitmentVerifier.computeWitness(
-              cChallenge, vertex, proofStore, extendedPublicKey, keyGenParameters);
+              cChallenge, vertex);
 
       commitmentVerifierList.add(commitmentVerifier);
       hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();

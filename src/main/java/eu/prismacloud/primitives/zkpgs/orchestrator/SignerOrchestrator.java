@@ -141,16 +141,12 @@ public class SignerOrchestrator implements IMessagePartner {
 		extractMessageElements(msg);
 
 		CommitmentVerifier commitmentVerifier =
-				new CommitmentVerifier();
+				new CommitmentVerifier(STAGE.ISSUING, extendedKeyPair.getExtendedPublicKey(), proofStore);
 
 		hatU =
 				commitmentVerifier.computeWitness(
 						cChallenge,
-						responses,
-						proofStore,
-						extendedKeyPair.getExtendedPublicKey(),
-						keyGenParameters,
-						STAGE.ISSUING);
+						responses);
 
 		hatc = computeChallenge();
 
