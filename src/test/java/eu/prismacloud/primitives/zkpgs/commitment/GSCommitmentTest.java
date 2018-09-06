@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.commitment;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -86,6 +87,27 @@ class GSCommitmentTest {
         assertEquals(result, commitment.getCommitmentValue());
     }
 
+    @Test
+    @DisplayName("Test computing a commitment with multiple bases and exponents with extended public key")
+    void testcomputeCommitmentMultiBaseRep() {
+        BaseRepresentation baseRep_0 = new BaseRepresentation(R_0, 0, BaseRepresentation.BASE.BASE0);
+        baseRep_0.setExponent(m_0);
+        BaseRepresentation baseRep_1 = new BaseRepresentation(R_1, 1, BaseRepresentation.BASE.EDGE);
+        baseRep_1.setExponent(m_1);
+        BaseRepresentation baseRep_2 = new BaseRepresentation(R_2, 2, BaseRepresentation.BASE.VERTEX );
+        baseRep_2.setExponent(m_2);
+
+        Map<URN, BaseRepresentation> baseMap = new HashMap<>();
+        baseMap.put(URN.createZkpgsURN("com.base.0"), baseRep_0);
+        baseMap.put(URN.createZkpgsURN("com.base.1"), baseRep_1);
+        baseMap.put(URN.createZkpgsURN("com.base.2"), baseRep_2);
+        
+        GSCommitment commitment = GSCommitment.createCommitment(baseMap, randomness,  epk);
+        assertNotNull(commitment);
+        GroupElement result = R_0.modPow(m_0).multiply(R_1.modPow(m_1)).multiply(R_2.modPow(m_2)).multiply(epk.getPublicKey().getBaseS().modPow(randomness));
+
+        assertEquals(result, commitment.getCommitmentValue());
+    }
 
     @Test
     @DisplayName("Test computing a commitment with  base and exponent when using modN and base S")
@@ -100,12 +122,27 @@ class GSCommitmentTest {
     @Test
     @DisplayName("Test computing a commitment with  base and exponent when using EPK")
     void testcomputeCommitmentWithEPK() {
-        GSCommitment commitment = GSCommitment.createCommitment( m_0, R_0, epk);
+        GSCommitment commitment = GSCommitment.createCommitment(m_0, R_0, epk);
         assertNotNull(commitment);
         GroupElement result = R_0.modPow(m_0).multiply(epk.getPublicKey().getBaseS().modPow(commitment.getRandomness()));
 
         assertEquals(result, commitment.getCommitmentValue());
     }
+
+    @Test
+    @DisplayName("Test computing a commitment with  base representation when using EPK")
+    void testcomputeCommitmentWithBaseRep() {
+        BaseRepresentation baseRepresentation = new BaseRepresentation(R_0, 0, BaseRepresentation.BASE.BASE0);
+        baseRepresentation.setExponent(m_0);
+
+        GSCommitment commitment = GSCommitment.createCommitment(baseRepresentation, randomness, epk);
+        assertNotNull(commitment);
+        GroupElement baseR = epk.getPublicKey().getBaseR();
+        GroupElement result = baseR.modPow(m_0).multiply(epk.getPublicKey().getBaseS().modPow(randomness));
+
+        assertEquals(result, commitment.getCommitmentValue());
+    }
+
     @Test
     @DisplayName("Test returning commitment value")
     void getCommitmentValue() {
