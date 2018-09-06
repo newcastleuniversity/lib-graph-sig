@@ -37,7 +37,6 @@ public class SigningQCorrectnessProver implements IProver {
   private final GSSignature gsSignature;
   private final BigInteger n_2;
   private BigInteger tilded;
-  private BigInteger cPrime;
   private BigInteger hatd;
   private BigInteger d;
   private GroupElement Q;
@@ -92,7 +91,7 @@ public class SigningQCorrectnessProver implements IProver {
     this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
 
     BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
-    hatd = (tilded.subtract(cPrime.multiply(d))).mod(order);
+    hatd = (tilded.subtract(cChallenge.multiply(d))).mod(order);
     Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>(1);
     responses.put(
         URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, this.getClass())), hatd);

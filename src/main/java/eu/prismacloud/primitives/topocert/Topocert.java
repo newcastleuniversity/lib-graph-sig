@@ -338,7 +338,7 @@ public class Topocert {
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_DATAERR);
 		} catch (VerificationException e) {
-			System.err.println("The TOPOCERT Signer could not verify the proof of possession of the Recipient's commitment in Round 2.");
+			System.err.println("The TOPOCERT Signer could not verify the proof of representation of the Recipient's commitment in Round 2.");
 			System.err.println(e.getMessage());
 			System.exit(TopocertErrorCodes.EX_VERIFY);
 		} catch (EncodingException e) {
