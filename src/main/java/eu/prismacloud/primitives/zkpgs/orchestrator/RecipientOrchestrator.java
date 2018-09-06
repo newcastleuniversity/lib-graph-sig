@@ -242,6 +242,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
 		
+		sigmaValidator.computeQ();
 		// TODO Temporarily deactivated as seems faulty
 //		if(!sigmaValidator.verify()) {
 //			throw new VerificationException("The signature is inconsistent.");

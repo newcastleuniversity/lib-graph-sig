@@ -94,7 +94,7 @@ public class SigningQCorrectnessVerifier implements IVerifier {
 	public boolean checkLengths() {
 		int l_hatd = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 
-		hatd = (BigInteger) proofStore.get(URN.createZkpgsURN("P_2.hatd"));
+		hatd = (BigInteger) P_2.get("P_2.hatd");
 
 		return CryptoUtilsFacade.isInPMRange(hatd, l_hatd);
 	}

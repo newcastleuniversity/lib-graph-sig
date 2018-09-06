@@ -82,9 +82,14 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 	@Override
 	public void init() throws IOException {
-
-		this.Q = (GroupElement) proofStore.retrieve("issuing.recipient.Q");
-		Assert.notNull(Q, "Pre-signature value Q has been found to be null.");
+		try {
+			this.Q = (GroupElement) proofStore.retrieve("issuing.recipient.Q");
+			Assert.notNull(Q, "Pre-signature value Q has been found to be null.");
+		} catch (IllegalStateException e) {
+			throw new IOException("Presignature value Q was not successfully communicated and stored in the ProofStore.");
+		} catch(NullPointerException e) {
+			throw new IOException(e.getMessage());
+		}
 	}
 
 	@Override

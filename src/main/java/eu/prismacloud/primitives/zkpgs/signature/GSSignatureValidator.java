@@ -57,7 +57,7 @@ public class GSSignatureValidator {
 		}
 	}
 
-	private GroupElement computeQ() throws ProofStoreException {
+	public GroupElement computeQ() throws ProofStoreException {
 		GroupElement basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
 
 		BaseIterator vertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
