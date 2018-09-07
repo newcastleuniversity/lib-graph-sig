@@ -53,6 +53,7 @@ public class GraphRepresentation implements IURNGoverner {
      * and the label representatives of the edge.
      *
      * @param gsGraph the graph to encode
+     * @param epk     the Extended Public key
      * @return the encoded bases
      */
     public static GraphRepresentation encodeGraph(GSGraph<GSVertex, GSEdge> gsGraph, ExtendedPublicKey epk) {

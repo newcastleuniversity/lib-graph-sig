@@ -268,8 +268,9 @@ public enum URNType {
 	 * Returns the class of an URNType, that is, whether  the URNType
 	 * holds a secret, a witness or corresponding randomness (tilde-value), 
 	 * a response (hat-value) or a public value (e.g., a commitment value or a base);
-	 * @param t
-	 * @return
+	 *
+	 * @param t the type of the URN
+	 * @return class of an URNType
 	 */
 	public static URNClass getClass(URNType t) {
 		switch(t) {
@@ -456,16 +457,15 @@ public enum URNType {
 	public static URN buildURNbyBaseType(BaseRepresentation base, URNClass urnClass, int index, Class c) {
 		return buildURN(getURNTypebyBaseType(base, urnClass), c, index);
 	}
-	
-	/**
-	 * Creates an URN for a prover/verifier class with the IProver/IVerifier interface.
-	 * 
-	 * @param t URNType to use.
-	 * @param c Governing class.
-	 * 
-	 * @return URN representing that data.
-	 */
-	public static URNType getURNTypebyBaseType(BaseRepresentation base, URNClass urnClass) {
+
+    /**
+     * Creates an URN for a prover/verifier class with the IProver/IVerifier interface.
+     *
+     * @param base     the base
+     * @param urnClass the urn class
+     * @return URN representing that data.
+     */
+    public static URNType getURNTypebyBaseType(BaseRepresentation base, URNClass urnClass) {
 		BASE baseType = base.getBaseType();
 		
 		switch (urnClass) {
@@ -640,7 +640,7 @@ public enum URNType {
 	 * 
 	 * @param urnSuffix suffix of an URN namespace-specific component
 	 * 
-	 * return URNType as given by the suffix.
+	 * @return URNType as given by the suffix.
 	 */
 	protected static URNType parseURNSuffix(String urnSuffix) {
 		URNType[] urnTypes = URNType.values();
@@ -700,10 +700,10 @@ public enum URNType {
 	/**
 	 * Checks whether a urnType is valid for a given suffix.
 	 * 
-	 * param urnType URNType to test.
-	 * @param suffix sesignated suffix.
+	 * @param urnType URNType to test.
+	 * @param suffix designated suffix.
 	 * 
-	 * @return
+	 * @return <tt>true</tt> if urnType is valid
 	 */
 	protected static boolean isTypeValid(URNType urnType, String suffix) {
 		return suffix.equals(URNType.getSuffix(urnType)) ||

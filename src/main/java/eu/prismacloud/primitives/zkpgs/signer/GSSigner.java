@@ -50,9 +50,10 @@ public class GSSigner implements IMessagePartner, IURNGoverner {
   }
 
   /**
-   * Init graph gs graph.
+   * Initialize graph with the specified graphml file name.
    *
-   * @return the gs graph
+   * @param filename the graphml filename
+   * @return the graph structure
    * @throws ImportException the import exception
    */
   public GSGraph<GSVertex, GSEdge> initGraph(String filename) throws ImportException {
@@ -63,9 +64,10 @@ public class GSSigner implements IMessagePartner, IURNGoverner {
   }
 
   /**
-   * Send message gs message.
+   * Sends message using message gateway.
    *
    * @param signerMessageToRecipient the signer message to recipient
+   * @throws IOException the I/O exception
    */
   public void sendMessage(GSMessage signerMessageToRecipient) throws IOException {
     messageGateway.send(signerMessageToRecipient);
@@ -81,9 +83,10 @@ public class GSSigner implements IMessagePartner, IURNGoverner {
   }
 
   /**
-   * Receive message gs message.
+   * Receives message from message gateway.
    *
-   * @return the gs message
+   * @return the received message
+   * @throws IOException the I/O exception
    */
   public GSMessage receiveMessage() throws IOException {
     return messageGateway.receive();

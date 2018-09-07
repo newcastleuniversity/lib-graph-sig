@@ -48,9 +48,9 @@ public class GraphUtils {
 	/**
 	 * Returns a String representation of an iterator over BaseRepresenation instances including the URN keys of their exponents.
 	 * Displays the type of the base, the index of the base, and the URN key of the exponent in the ProofStore.
-	 * 
+	 *
 	 * @param iterator Iterator of BaseRepresentations
-	 * 
+	 * @param ps       the proof store  
 	 * @return compact String representation of the graph.
 	 */
 	public static String iteratedGraphToExpString(Iterator<BaseRepresentation> iterator, ProofStore<Object> ps) {

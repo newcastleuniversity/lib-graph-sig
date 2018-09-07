@@ -39,8 +39,9 @@ public class SafePrime implements Serializable {
   }
 
   /**
-   * Generate random safe prime safe prime.
+   * Generates random safe prime safe prime.
    *
+   * @param keyGenParameters the key gen parameters
    * @return the safe prime
    */
   public SafePrime generateRandomSafePrime(KeyGenParameters keyGenParameters) {

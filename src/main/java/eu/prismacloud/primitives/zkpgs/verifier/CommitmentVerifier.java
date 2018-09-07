@@ -156,7 +156,10 @@ public class CommitmentVerifier implements IVerifier {
 		}
 	}
 
-	/** Computehat U. */
+	/**
+	 * Computehat U.
+	 * @return the group element
+	 */
 	public GroupElement computehatUIssuing() {
 
 		Map<URN, BigInteger> exponentsMap = new HashMap<>();

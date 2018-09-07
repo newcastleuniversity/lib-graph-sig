@@ -74,12 +74,12 @@ public class JacobiSymbol {
   }
 
   /**
-   * Check for congruency
+   * Check if two BigIntegers are congruent with respect to a supplied modulus.
    *
-   * @param a
-   * @param b
-   * @param mod
-   * @return
+   * @param a integer for calculating congruency
+   * @param b integer for calculating congruency
+   * @param mod modulus
+   * @return true if a and b are congruent, false otherwise
    */
   public static boolean isCongruent(BigInteger a, BigInteger b, BigInteger mod) {
     return a.mod(mod).compareTo(b) == 0;  // TODO This congruence function is not quite what we'd want: Rather compute modN divides a-b.
@@ -91,9 +91,9 @@ public class JacobiSymbol {
   /**
    * Compute Jacobi symbol based on Algorithm 1.4 in "Cryptography made simple" book
    *
-   * @param b
-   * @param a
-   * @return
+   * @param a candidate integer
+   * @param b positive odd integer
+   * @return jacobi symbol (a|b)
    */
   public static int computeJacobiSymbolBA(BigInteger a, BigInteger b) {
     // b<= 0 or b (mod 2) = 0

@@ -28,7 +28,6 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
 	/**
 	 * Delegates the creation of either a client or a server to the appropriate class.
 	 *
-	 * @param type the type of gateway to create
 	 * @throws IOException If an I/O error occurs, when setting up either a client or a server.
 	 */
 	public void init() throws IOException {

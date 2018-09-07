@@ -31,6 +31,7 @@ public class GSServer implements IMessagePartner {
   /**
    * Creates a new instance of the server socket with a input port number.
    *
+   * @param port the port number to create the server socket
    * @throws IOException When an I/O error occurs, while creating a new ServerSocket.
    */
   public GSServer(int port) throws IOException {

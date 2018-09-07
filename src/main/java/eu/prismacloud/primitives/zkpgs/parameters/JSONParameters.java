@@ -44,11 +44,11 @@ public class JSONParameters {
    * Parses a specified parameters file for keygen and graph encoding parameters.
    * This method uses a default filename.
    *  
-   * @param filename
+   * @param filename the file name for json file holding parameters
    * @return JsonReader reading from the params file.
    */
   public JsonReader parseParamFile(String filename) {
-	    paramStream = JsonIsoCountries.class.getClassLoader().getResourceAsStream(filename);
+	    paramStream = JSONParameters.class.getClassLoader().getResourceAsStream(filename);
 
 	    return Json.createReader(paramStream);
 	  }

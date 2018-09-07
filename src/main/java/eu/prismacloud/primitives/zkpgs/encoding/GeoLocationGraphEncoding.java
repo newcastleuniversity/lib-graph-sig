@@ -39,8 +39,6 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 	 * countries according to their UN country code, and a map of vertex prime representatives used to
 	 * encode vertices in graphs.
 	 *
-	 * @param publicKey the signer's public key
-	 * @param keyGenParameters the key gen parameters
 	 * @param graphEncodingParameters the graph encoding parameters
 	 */
 	public GeoLocationGraphEncoding(
@@ -99,13 +97,14 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 
 	/**
 	 * Certify prime representatives.
-	 * 
+	 * <p>
 	 * TODO Certify is not well structured at the moment and working on the wrong bases.
 	 *
 	 * @param vertexPrimeRepresentatives the base representation
-	 * @param baseV the base v
-	 * @param labelRepresenatives the public key
-	 * @param baseL the base l
+	 * @param baseV                      the base v
+	 * @param labelRepresenatives        the public key
+	 * @param baseL                      the base l
+	 * @param signerPublicKey            the signer public key
 	 */
 	public void certify(
 			Map<URN, BigInteger> vertexPrimeRepresentatives,

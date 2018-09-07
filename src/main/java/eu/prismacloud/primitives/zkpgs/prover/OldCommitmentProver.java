@@ -330,7 +330,8 @@ public class OldCommitmentProver implements IProver {
     /**
      * Compute responses proving.
      *
-     * @throws ProofStoreException
+     * @return the map with the responses
+     * @throws ProofStoreException when storing or retrieving elements from the proof store
      */
     public Map<URN, BigInteger> computeResponsesProving() throws ProofStoreException {
         String tilder_iURN = getProverURN(URNType.TILDERI, index);

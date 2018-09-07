@@ -23,10 +23,11 @@ public class CommitmentProver extends AbstractCommitmentProver implements IProve
 
 	/**
 	 * Instantiates a new commitment prover for the issuing phase.
-	 * 
-	 * @param com Commitment to be proven.
-	 * @param spk Signer public key
-	 * @param ps ProofStore
+	 *
+	 * @param com   Commitment to be proven.
+	 * @param index the index
+	 * @param spk   Signer public key
+	 * @param ps    ProofStore
 	 */
 	public CommitmentProver(final GSCommitment com, final int index,
 			final SignerPublicKey spk, final ProofStore<Object> ps) {

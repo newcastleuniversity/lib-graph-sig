@@ -576,8 +576,8 @@ public class GSUtils implements INumberUtils {
 	 * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc Evaluate generator S properties
 	 * Input: generator S, modulus modN Output: true or false
 	 *
-	 * @param s the s generator
-	 * @param modN
+	 * @param s the generator S
+	 * @param modN  modulus N
 	 * @return true if s is a generator of QRN or else return false
 	 */
 	public boolean verifySGeneratorOfQRN(final BigInteger s, BigInteger modN) {

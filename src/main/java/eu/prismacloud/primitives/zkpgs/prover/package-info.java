@@ -8,12 +8,12 @@
  * As such, an IProver will receive its dependencies at construction.
  * Provers function in three phases:
  * <ol>
- *   <li>executePrecomputation() - enables the prover to make computations of 
+ *   <li>{@code executePrecomputation()} - enables the prover to make computations of
  *   values needed for its own proofs (as well as a possibly by other provers).
  *   The pre-computation is optional and will be a no-operation in many cases.
- *   <li>executePreChallengePhase() - constructs the witness randomness and witness
+ *   <li>{@code executePreChallengePhase()} - constructs the witness randomness and witness
  *   for the proof clause this prover is concerned with. The witness is calles a tilde-value.
- *   <li>executePostChallengePhase(BigInteger challenge) - takes a BigInteger challenge
+ *   <li>{@code executePostChallengePhase(BigInteger challenge)} - takes a BigInteger challenge
  *   as input to compute the appropriate for the secrets this prover is responsible for.
  * </ol>
  * 
@@ -32,14 +32,14 @@
  * 
  * <p>A typical call sequence for a IProver will be as follows:
  * <ol>
- *   <li>IProver prover = new IProver(public value, extendedPublicKey, proofStore);
+ *   <li>{@code IProver prover = new IProver(public value, extendedPublicKey, proofStore);}
  *   The prover may relay on further data in the ProofStore.
- *   <li>prover.executePrecomputation();
- *   <li>GroupElement tildeValue = prover.executePreChallengePhase();
+ *   <li>{@code prover.executePrecomputation(); }
+ *   <li>{@code GroupElement tildeValue = prover.executePreChallengePhase(); }
  *   <li>The orchestrator will combine the tildeValues of all provers to compute the 
  *   challenge in the FiatShamir heuristic. Then all provers are called with the same
  *   challenge.
- *   <li>Map<URN, BigInteger> responses = prover.executePostChallengePhase(challenge);
+ *   <li> {@code Map&lt;URN, BigInteger&gt; responses = prover.executePostChallengePhase(challenge);}
  *   <li>The responses are then combined by the prover orchestrator to be sent to the 
  *   verifier.
  * </ol>

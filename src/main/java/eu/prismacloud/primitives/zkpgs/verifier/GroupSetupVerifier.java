@@ -108,8 +108,11 @@ public class GroupSetupVerifier implements IVerifier {
 		return isLengthCorrect;
 	}
 
-	/** Compute hat values. */
-	public Map<URN, GroupElement> computeHatValues() {
+    /**
+     * Compute hat values.
+     * @return map of group elements for the hat values
+     */
+    public Map<URN, GroupElement> computeHatValues() {
 		BigInteger hatVertexResponse;
 		BigInteger hatEdgeResponse;
 

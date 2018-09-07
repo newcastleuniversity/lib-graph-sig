@@ -20,10 +20,11 @@ public class MultiBaseCommitmentProver extends AbstractCommitmentProver implemen
 
 	/**
 	 * Instantiates a new commitment prover for the issuing phase.
-	 * 
-	 * @param com Commitment to be proven.
-	 * @param spk Signer public key
-	 * @param ps ProofStore
+	 *
+	 * @param com   Commitment to be proven.
+	 * @param index the index
+	 * @param spk   Signer public key
+	 * @param ps    ProofStore
 	 */
 	public MultiBaseCommitmentProver(final GSCommitment com, final int index,
 			final SignerPublicKey spk, final ProofStore<Object> ps) {

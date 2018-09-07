@@ -20,7 +20,7 @@ public final class QRGroupN extends QRGroup {
 	/**
 	 * Creates an element without guarantee of uniform distribution
 	 * 
-	 * @return
+	 * @return QRElementN without knowing the modulus factorization
 	 */
 	  public QRElementN createElement() {
 // TODO Possible create a second version of this function using the generator to create new random elements.

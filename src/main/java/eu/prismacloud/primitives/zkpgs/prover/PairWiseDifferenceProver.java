@@ -88,7 +88,7 @@ public class PairWiseDifferenceProver implements IProver {
 	 * @param C_j Second commitment, associated with b
 	 * @param index Index of the PairWiseDifferenceProver to store its values in the ProofStore 
 	 * @param extendedPublicKey Signer's ExtendedPublicKey
-	 * @param proofStore
+	 * @param proofStore the proof store for storing or retrieving elements
 	 */
 	// TODO Refactor to dual indexing for commitment pairs.
 	public PairWiseDifferenceProver(

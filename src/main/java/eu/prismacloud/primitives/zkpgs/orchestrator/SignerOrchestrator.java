@@ -207,7 +207,10 @@ public class SignerOrchestrator implements IMessagePartner {
     }
 
     /**
-     * Compute challenge.
+     * Compute challenge by hashing a constructed challenge list.
+     *
+     * @return the computed challenge
+     * @throws NoSuchAlgorithmException if the requested hash algorithm is not found
      */
     public BigInteger computeChallenge() throws NoSuchAlgorithmException {
         challengeList = populateChallengeList();

@@ -33,6 +33,7 @@ public class GSClient implements IMessagePartner {
    * Creates a new client stream socket in the input port number and connects it to the specified
    * port number on the server host.
    *
+   * @param port the port number to connect
    * @throws IOException If an I/O error occurs, when creating a new client socket.
    */
   public GSClient(int port) throws IOException {
