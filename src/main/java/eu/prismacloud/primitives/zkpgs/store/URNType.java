@@ -29,6 +29,7 @@ public enum URNType {
 	CI,
 	U,
 	NONCEI,
+	PI,
 	
 	// Secrets
 	DLRV,
@@ -98,6 +99,7 @@ public enum URNType {
 	HATRBARIBARJ,
 	HATCI,
 	HATU,
+	HATMAP,
 	
 	// Undefined unsafe type.
 	UNDEFINED;
@@ -121,6 +123,7 @@ public enum URNType {
 		case CI: return "C_i_";
 		case U: return "U";
 		case NONCEI: return "n_";
+		case PI: return "P_";
 		
 		case ABARIBARJ: return "a_BariBarj_";
 		case BBARIBARJ: return "b_BariBarj_";
@@ -187,6 +190,8 @@ public enum URNType {
 		case HATRBARIBARJ: return "hatr_BariBarj_";
 		case HATCI: return "hatC_i_";
 		case HATU: return "hatU";
+		case HATMAP: return "hatMap";
+		
 		
 		case UNDEFINED: throw new RuntimeException("URNType " + t + " does not define suffixes.");
 		}
@@ -210,6 +215,7 @@ public enum URNType {
 		case CI: return "commitment";
 		case U: return "commitment";
 		case NONCEI: return "nonce";
+		case PI: return "proofsignature";
 		
 		case ABARIBARJ: return "secret";
 		case BBARIBARJ: return "secret";
@@ -276,6 +282,7 @@ public enum URNType {
 		case HATRBARIBARJ: return "responses";
 		case HATCI: return "responses";
 		case HATU: return "responses";
+		case HATMAP: return "responses";
 		
 		case UNDEFINED: throw new RuntimeException("URNType " + t
 				+ " does not offer namespace components.");
@@ -308,6 +315,7 @@ public enum URNType {
 		case CI: return URNClass.PUBLIC;
 		case U: return URNClass.PUBLIC;
 		case NONCEI: return URNClass.PUBLIC;
+		case PI: return URNClass.PUBLIC;
 		
 		case ABARIBARJ: return URNClass.SECRET;
 		case BBARIBARJ: return URNClass.SECRET;
@@ -374,6 +382,7 @@ public enum URNType {
 		case HATRBARIBARJ: return URNClass.HAT;
 		case HATCI: return URNClass.HAT;
 		case HATU: return URNClass.HAT;
+		case HATMAP: return URNClass.HAT;
 		
 		case UNDEFINED: return URNClass.UNDEFINED;
 		}
@@ -389,6 +398,7 @@ public enum URNType {
 		case EI: return true;
 		case CI: return true;
 		case NONCEI: return true;
+		case PI: return true;
 		
 		case ABARIBARJ: return true;
 		case BBARIBARJ: return true;

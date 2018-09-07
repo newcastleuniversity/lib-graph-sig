@@ -76,10 +76,9 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private ProofSignature P_2;
 	private BigInteger vPrime;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
-	private BaseRepresentation baseR_0;
 	private GSSignature gsSignature;
 	private final GroupElement R;
-	private final String graphFilename;
+	private BaseRepresentation baseR_0;
 
 	public RecipientOrchestrator(final String graphFilename,
 			final ExtendedPublicKey extendedPublicKey) {
@@ -93,7 +92,6 @@ public class RecipientOrchestrator implements IMessagePartner {
 		this.R = extendedPublicKey.getPublicKey().getBaseR();
 		this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 		this.recipient = new GSRecipient(extendedPublicKey);
-		this.graphFilename = graphFilename;
 	}
 	
 	public RecipientOrchestrator(final ExtendedPublicKey extendedPublicKey) {
@@ -107,14 +105,17 @@ public class RecipientOrchestrator implements IMessagePartner {
 		encodedBases = new BaseCollectionImpl();
 
 		generateRecipientMSK();
+		
+		encodeR_0();
 
-		try {
-			createGraphRepresentation(graphFilename);
-		} catch (ImportException im) {
-			throw new IOException(im.getMessage());
-		} catch (EncodingException e) {
-			throw new IOException(e.getMessage());
-		}
+//      RECIPIENT DOES NOT ENCODE A GRAPH AT THIS STAGE.
+//		try {
+//			createGraphRepresentation(graphFilename);
+//		} catch (ImportException im) {
+//			throw new IOException(im.getMessage());
+//		} catch (EncodingException e) {
+//			throw new IOException(e.getMessage());
+//		}
 	}
 
 	public void round1() throws ProofStoreException, IOException, NoSuchAlgorithmException {
@@ -190,10 +191,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 	private void encodeR_0() {
 		baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
+		baseR_0.setExponent(this.recipientMSK);
 		encodedBases.add(baseR_0);
 
 		try {
-			proofStore.store("bases.R_0", baseR_0);
+			proofStore.store("bases.baseR_0", baseR_0);
 			proofStore.store("bases.exponent.m_0", recipientMSK);
 		} catch (ProofStoreException pse) {
 			gslog.log(Level.SEVERE, pse.getMessage());
@@ -204,15 +206,15 @@ public class RecipientOrchestrator implements IMessagePartner {
 		recipientMSK = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 	}
 
-	private void createGraphRepresentation(String filename) throws ImportException, EncodingException {
-		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(filename);
-		gsGraph.encodeGraph(extendedPublicKey.getEncoding());
-
-		GraphRepresentation gr = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
-		this.encodedBases = gr.getEncodedBaseCollection();
-
-		encodeR_0();
-	}
+//	private void createGraphRepresentation(String filename) throws ImportException, EncodingException {
+//		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(filename);
+//		gsGraph.encodeGraph(extendedPublicKey.getEncoding());
+//
+//		GraphRepresentation gr = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
+//		this.encodedBases = gr.getEncodedBaseCollection();
+//
+//		encodeR_0();
+//	}
 
 	/**
 	 * Create proof signature proof signature.
@@ -235,7 +237,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		// TODO check if hatm_0 is needed inside the proofsignature
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.hatm_0"), hatm_0);
 
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses"), responses);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatMap"), responses);
 
 		return new ProofSignature(proofSignatureElements);
 	}

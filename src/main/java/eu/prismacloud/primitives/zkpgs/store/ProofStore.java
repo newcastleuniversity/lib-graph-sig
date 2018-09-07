@@ -208,4 +208,24 @@ public class ProofStore<T> {
 	public int size() {
 		return this.elements.size();
 	}
+	
+	/**
+	 * Stores all elements of an incoming map into the ProofStore
+	 * keeping the same URN keys.
+	 * 
+	 * <p>The method will not overwrite existing URN keys and throw 
+	 * an exception instead.
+	 * 
+	 * @param map Incoming map
+	 * 
+	 * @throws ProofStoreException if an element of the same URN is already present.
+	 */
+	public void saveAll(Map<URN, T> map) throws ProofStoreException {
+		Iterator<Entry<URN, T>> mapIterator = map.entrySet().iterator();
+		while (mapIterator.hasNext()) {
+			Map.Entry<URN, T> entry = (Map.Entry<URN, T>) mapIterator
+					.next();
+			this.add(entry.getKey(), entry.getValue());
+		}
+	}
 }
