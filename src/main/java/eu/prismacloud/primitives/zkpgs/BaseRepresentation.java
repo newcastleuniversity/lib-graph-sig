@@ -18,7 +18,8 @@ public class BaseRepresentation implements Serializable, IContextProducer, Clone
         VERTEX,
         EDGE,
         BASE0,
-        BASER
+        BASER,
+        BASES;
     }
 
     private final int baseIndex;

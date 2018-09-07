@@ -10,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
+import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -25,7 +26,6 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -126,47 +126,34 @@ public class CommitmentVerifierTest {
 		hatr_i = responses.get(URN.createZkpgsURN(hatr_iURN));
 		gslog.info("hatr_i: " + hatr_i);
 		
+		String hatr_iURNverifier = URNType.buildURNComponent(URNType.HATRI, CommitmentVerifier.class, PROVER_INDEX);
+		proofStore.save(URN.createZkpgsURN(hatr_iURNverifier), hatr_i);
+		
 		// Creating a tested verifier.
-		cverifier = new CommitmentVerifier(STAGE.VERIFYING, epk, proofStore);
+		cverifier = new CommitmentVerifier(C_i.getCommitmentValue(), C_i.getBaseCollection(), PROVER_INDEX, epk, proofStore);
 	}
 
 
 
 	@Test
 	@DisplayName("Test witness computation for the commitment verifier")
-	void computeWitness() throws VerificationException {
-		fail("Testcase is faulty, should not work on base index.");
+	void computeWitness() throws VerificationException, ProofStoreException {
 		gslog.info("compute witness");
 		GroupElement hatC_i =
-				cverifier.computeWitness(
-						cChallenge,
-						baseR);
+				cverifier.executeVerification(cChallenge);
 
 		assertNotNull(hatC_i);
 		assertEquals(tildeC_i, hatC_i);
 	}
 
 	@Test
-	void testCheckLengths() throws VerificationException {
-		fail("Testcase is faulty, should not work on base index.");
+	void testCheckLengths() throws VerificationException, ProofStoreException {
 		gslog.info("compute witness");
 		GroupElement hatC_i =
-				cverifier.computeWitness(
-						cChallenge,
-						baseR);
+				cverifier.executeVerification(cChallenge);
 
-		boolean isCorrectLength = cverifier.checkLengthsVerifying(baseR);
+		boolean isCorrectLength = cverifier.checkLengths();
 
 		assertTrue(isCorrectLength);
-	}
-
-	@Test
-	void testComputeHatC() {
-		fail("Test not implemented yet.");
-	}
-
-	@Test
-	void testComputeUHat() {
-		fail("Test not implemented yet.");
 	}
 }

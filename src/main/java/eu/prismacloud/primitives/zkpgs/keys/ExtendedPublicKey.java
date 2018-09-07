@@ -12,6 +12,8 @@ import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -327,5 +329,41 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo, IBasePr
 	@Override
 	public IGraphEncoding getEncoding() {
 		return this.graphEncoding;
+	}
+	
+	/**
+	 * Checks whether a given base is valid under this extended public key;
+	 * 
+	 * @param base BaseRepresentation to be checked.
+	 * 
+	 * @return <tt>true</tt> if the base is certified in this extended public key.
+	 */
+	@Override
+	public boolean isValidBase(BaseRepresentation base) {
+		return isValidBase(base.getBase());
+	}
+
+	/**
+	 * Checks whether a given base is valid under this extended public key;
+	 * 
+	 * @param base GroupElement to be checked.
+	 * 
+	 * @return <tt>true</tt> if the base is certified in this extended public key.
+	 */
+	@Override
+	public boolean isValidBase(GroupElement base) {
+		if (base.equals(getPublicKey().getBaseR())
+			|| base.equals(getPublicKey().getBaseR_0())
+			|| base.equals(getPublicKey().getBaseS())
+			|| base.equals(getPublicKey().getBaseZ())) {
+			return true;
+		}
+		
+		BaseIterator baseIterator = this.baseCollection.createIterator(BASE.ALL);
+		while (baseIterator.hasNext()) {
+			BaseRepresentation epkBase = (BaseRepresentation) baseIterator.next();
+			if (epkBase.getBase().equals(base)) return true;
+		}
+		return false;
 	}
 }

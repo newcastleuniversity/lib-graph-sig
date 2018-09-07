@@ -1,62 +1,136 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
 import java.math.BigInteger;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNClass;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 
 public abstract class AbstractCommitmentVerifier implements IVerifier {
 
-	private final SignerPublicKey signerPublicKey;
+	private final ExtendedPublicKey epk;
 	private final ProofStore<Object> proofStore;
-	private final KeyGenParameters keyGenParameters;
+	private final BaseCollection baseCollection;
+	private final GroupElement commitmentValue;
 	private final int commitmentIndex;
 
-	protected AbstractCommitmentVerifier(final int index, final SignerPublicKey pk, final ProofStore<Object> ps) {
-		
+	protected AbstractCommitmentVerifier(final GroupElement commitmentValue, 
+			final BaseCollection basesInCommitment, final int index, final ExtendedPublicKey epk, final ProofStore<Object> ps) {
+
 		this.proofStore = ps;
-		this.signerPublicKey = pk;
-		this.keyGenParameters = this.signerPublicKey.getKeyGenParameters();
+		this.epk = epk;
+		this.baseCollection = basesInCommitment;
+		this.commitmentValue = commitmentValue;
 		this.commitmentIndex = index;
 	}
-	
+
+	/**
+	 * Executes a compound version of the commitment verification.
+	 * 
+	 * @param cChallenge a BigInteger challenge.
+	 * 
+	 * @return a Map of URN and GroupElement witness.
+	 * @throws VerificationException 
+	 */
 	@Override
-	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException {
+		Map<URN, GroupElement> verifierWitnessMap = new HashMap<URN, GroupElement>(1);
+		GroupElement witness = executeVerification(cChallenge);
+
+		verifierWitnessMap.put(getHatWitnessURN(), witness);
+
+		return verifierWitnessMap;
 	}
 
 	@Override
-	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
-		// TODO Auto-generated method stub
-		return null;
+	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException {
+		if (!checkLengths()) {
+			throw new VerificationException("The proof did not verify. The length check on the responses failed.");
+		}
+
+		if (!checkBasesLegal()) {
+			throw new VerificationException("The proof did not verify. The Prover used bases not certified in the Signer's extended public key.");
+		}
+
+		return computeVerifierWitness(cChallenge);
+	}
+
+	private GroupElement computeVerifierWitness(BigInteger cChallenge) {
+		// Combine the commitment public value with the negated challenge.
+		GroupElement hatWitness = commitmentValue.modPow(cChallenge.negate());
+
+		// Including the randomness response.
+		BigInteger hatRandomness = (BigInteger) proofStore.get(getHatRandomnessURN());
+		hatWitness = hatWitness.multiply(epk.getPublicKey().getBaseS().modPow(hatRandomness));
+
+		// Iterating over all committed bases to include their hat-values
+		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
+
+			BigInteger hatm = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.HAT));
+			hatWitness = hatWitness.multiply(base.getBase().modPow(hatm))
+					;		}
+
+		return hatWitness;
 	}
 
 	@Override
 	public boolean checkLengths() {
-		// TODO Auto-generated method stub
-		return false;
+		// Evaluating the length of the commitment randomness response.
+		BigInteger hatRandomness = (BigInteger) proofStore.get(getHatRandomnessURN());
+
+		// Evaluating the lengths of the message responses.
+		// We are addressing VERTEX, EDGE and MSK in turn.
+		boolean messageLengthCheck = true;
+		if (!isVerifyingEquality()) {
+			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+			for (BaseRepresentation base : baseIterator) {
+				if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
+
+				BigInteger hatm = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.HAT));
+				if (!CryptoUtilsFacade.isInPMRange(hatm, getHatMessageBitlength())) messageLengthCheck = false;
+			}
+		}
+		return CryptoUtilsFacade.isInPMRange(hatRandomness, getHatRandomnessBitlength())
+				&& messageLengthCheck;
 	}
-	
+
+	/**
+	 * Validates whether all bases in the base collection offered to this verifier
+	 * are valid with respect to the given extended public key.
+	 * 
+	 * @return <tt>true</tt> if and only if all bases included are valid.
+	 */
+	public boolean checkBasesLegal() {
+		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		while (baseIterator.hasNext()) {
+			BaseRepresentation base = (BaseRepresentation) baseIterator.next();
+			if (!epk.isValidBase(base)) return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Return the keygen params of the public key.
 	 * 
 	 * @return keygen params.
 	 */
 	protected KeyGenParameters getKeyGenParams() {
-		return signerPublicKey.getKeyGenParameters();
+		return epk.getKeyGenParameters();
 	}
 
 	/**
@@ -67,26 +141,20 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 	protected int getCommitmentIndex() {
 		return this.commitmentIndex;
 	}
-	
+
 	protected URN getURNbyBaseType(BaseRepresentation base, URNClass urnClass) {
-			return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
+		return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
 	}
 
 
-	protected abstract URN getWitnessURN();
+	protected abstract URN getHatWitnessURN();
 
-	protected abstract URN getTildeRandomnessURN();
-	protected abstract int getTildeRandomnessBitlength();
+	protected abstract int getHatRandomnessBitlength();
 
-	protected int getTildeMessageBitLength() {
+	protected int getHatMessageBitlength() {
 		return getKeyGenParams().getL_m() + getKeyGenParams().getL_statzk()
 				+ getKeyGenParams().getL_H() + 1;
 	};
-
-	protected abstract URN getTildeVertexURN(int baseIndex);
-	protected abstract URN getTildeEdgeURN(int baseIndex);
-	protected abstract URN getTildeM0URN();
-	protected abstract URN getTildeMURN();
 
 	protected abstract URN getHatRandomnessURN();
 	protected abstract URN getHatVertexURN(int baseIndex);
@@ -104,7 +172,7 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 	 * @return <tt>true</tt> if the prover relies on witness randomness for messages
 	 * created by other provers.
 	 */
-	protected abstract boolean isProvingEquality();
+	protected abstract boolean isVerifyingEquality();
 
 	/**
 	 * States whether this commitment prover is restricted to encoding a 

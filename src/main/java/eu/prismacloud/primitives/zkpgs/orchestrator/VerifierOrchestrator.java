@@ -21,7 +21,6 @@ import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
 import eu.prismacloud.primitives.zkpgs.verifier.GSVerifier;
 import eu.prismacloud.primitives.zkpgs.verifier.PossessionVerifier;
 
@@ -206,7 +205,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		/** TODO store pair-wise different vertex encodings from the proof signature */
 	}
 
-	public void preChallengePhase() throws VerificationException {
+	public void preChallengePhase() throws VerificationException, ProofStoreException {
 
 		PossessionVerifier possessionVerifier = new PossessionVerifier(baseCollection, extendedPublicKey, proofStore);
 
@@ -276,7 +275,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		return challengeList;
 	}
 
-	private void computeCommitmentVerifiers() throws VerificationException {
+	private void computeCommitmentVerifiers() throws VerificationException, ProofStoreException {
 		CommitmentVerifier commitmentVerifier;
 		commitmentVerifierList = new ArrayList<>();
 
@@ -287,11 +286,18 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
 			BigInteger hatm_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
-			commitmentVerifier = new CommitmentVerifier(STAGE.VERIFYING, extendedPublicKey, proofStore);
+			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
+			GroupElement commitment = (GroupElement) proofStore.retrieve(hatC_iURN);
+			
+			BaseCollection expectedBases = new BaseCollectionImpl();
+			BaseRepresentation base = new BaseRepresentation(extendedPublicKey.getPublicKey().getBaseR(), -1, BASE.BASER);
+			base.setExponent(hatm_i);
+			expectedBases.add(base);
+			
+			commitmentVerifier = new CommitmentVerifier(commitment, expectedBases, vertex.getBaseIndex(), extendedPublicKey, proofStore);
 
 			GroupElement hatCommitment =
-					commitmentVerifier.computeWitness(
-							cChallenge, vertex);
+					commitmentVerifier.executeVerification(cChallenge);
 
 			commitmentVerifierList.add(commitmentVerifier);
 			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();

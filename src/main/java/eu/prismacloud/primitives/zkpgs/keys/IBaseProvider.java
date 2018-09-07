@@ -4,6 +4,7 @@ import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 /**
  * The interface organizes classes that offer access to vertex and edge bases.
@@ -55,4 +56,22 @@ public interface IBaseProvider {
 	 * @return BaseRepresentation of a random edge base.
 	 */
 	BaseRepresentation getRandomEdgeBase();
+	
+	/**
+	 * Checks whether the mentioned base is a legal base under this base provider.
+	 * 
+	 * @param base BaseRepresentation to be checked.
+	 * 
+	 * @return <tt>true</tt> if and only if the base is recognized by the IBaseProvider (e.g., an ExtendedPublicKey).
+	 */
+	boolean isValidBase(BaseRepresentation base);
+	
+	/**
+	 * Checks whether the mentioned base is a legal base under this base provider.
+	 * 
+	 * @param base BaseRepresentation to be checked.
+	 * 
+	 * @return <tt>true</tt> if and only if the base is recognized by the IBaseProvider (e.g., an ExtendedPublicKey).
+	 */
+	boolean isValidBase(GroupElement base);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -25,7 +26,7 @@ public interface IVerifier extends IURNGoverner {
 	 * 
 	 * @throws ProofStoreException if storing or retrieving elements from the proof store fails
 	 */
-	Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException;
+	Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException;
 	
 	/**
 	 * Evaluates the verification computation, producing a verifier-side hat-value.
@@ -41,7 +42,7 @@ public interface IVerifier extends IURNGoverner {
 	 * 
 	 * @throws ProofStoreException if storing or retrieving elements from the proof store fails
 	 */
-	GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException;
+	GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException;
 	
 	/**
 	 * Checks the lengths of inputed prover-responses (hat-values).

@@ -107,7 +107,9 @@ public abstract class AbstractCommitmentProver implements IProver {
 		if (!isProvingEquality()) {
 			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
 			for (BaseRepresentation base : baseIterator) {
-				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
+				
+				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getURNbyBaseType(base, URNClass.TILDE), tilde_m);
 			}
 		}
@@ -131,26 +133,26 @@ public abstract class AbstractCommitmentProver implements IProver {
 		if (!isProvingEquality()) {
 			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 			for (BaseRepresentation base : vertexIterator) {
-				BigInteger tilde_m_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				BigInteger tilde_m_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getTildeVertexURN(base.getBaseIndex()), tilde_m_i);
 			}
 
 			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 			for (BaseRepresentation base : edgeIterator) {
-				BigInteger tilde_m_i_j = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				BigInteger tilde_m_i_j = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getTildeEdgeURN(base.getBaseIndex()), tilde_m_i_j);
 			}
 
 			BaseIterator baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
 			for (@SuppressWarnings("unused") BaseRepresentation base : baseR0Iterator) {
-				BigInteger tilde_m_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				BigInteger tilde_m_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getTildeM0URN(), tilde_m_0);
 			}
 			
 			// Treating commitments with singleton Base R
 			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
 			for (@SuppressWarnings("unused") BaseRepresentation base : baseRIterator) {
-				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getTildeMURN(), tilde_m);
 			}
 		}
@@ -180,6 +182,8 @@ public abstract class AbstractCommitmentProver implements IProver {
 		// We are addressing VERTEX, EDGE and MSK in turn.
 		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : baseIterator) {
+			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
+			
 			BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
 			witness = witness.multiply(base.getBase().modPow(tilde_m));
 		}
@@ -278,9 +282,12 @@ public abstract class AbstractCommitmentProver implements IProver {
 		if (!isProvingEquality()) {
 			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
 			for (BaseRepresentation base : baseIterator) {
+				if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
+				
 				BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
 				BigInteger m = base.getExponent();
 				BigInteger hat_m = tilde_m.add(cChallenge.multiply(m));
+				
 				proofStore.save(getURNbyBaseType(base, URNClass.HAT), hat_m);
 				responses.put(getURNbyBaseType(base, URNClass.HAT), hat_m);
 			}
@@ -428,7 +435,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 	protected abstract URN getTildeRandomnessURN();
 	protected abstract int getTildeRandomnessBitlength();
 
-	protected int getTildeMessageBitLength() {
+	protected int getTildeMessageBitlength() {
 		return getKeyGenParams().getL_m() + getKeyGenParams().getL_statzk()
 				+ getKeyGenParams().getL_H() + 1;
 	};

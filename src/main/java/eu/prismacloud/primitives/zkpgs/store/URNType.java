@@ -96,6 +96,8 @@ public enum URNType {
 	HATABARIBARJ,
 	HATBBARIBARJ,
 	HATRBARIBARJ,
+	HATCI,
+	HATU,
 	
 	// Undefined unsafe type.
 	UNDEFINED;
@@ -183,6 +185,9 @@ public enum URNType {
 		case HATABARIBARJ: return "hata_BariBarj_";
 		case HATBBARIBARJ: return "hatb_BariBarj_";
 		case HATRBARIBARJ: return "hatr_BariBarj_";
+		case HATCI: return "hatC_i_";
+		case HATU: return "hatU";
+		
 		case UNDEFINED: throw new RuntimeException("URNType " + t + " does not define suffixes.");
 		}
 		throw new RuntimeException("URNType " + t + " does not exist.");
@@ -269,6 +274,8 @@ public enum URNType {
 		case HATABARIBARJ: return "responses";
 		case HATBBARIBARJ: return "responses";
 		case HATRBARIBARJ: return "responses";
+		case HATCI: return "responses";
+		case HATU: return "responses";
 		
 		case UNDEFINED: throw new RuntimeException("URNType " + t
 				+ " does not offer namespace components.");
@@ -365,6 +372,8 @@ public enum URNType {
 		case HATABARIBARJ: return URNClass.HAT;
 		case HATBBARIBARJ: return URNClass.HAT;
 		case HATRBARIBARJ: return URNClass.HAT;
+		case HATCI: return URNClass.HAT;
+		case HATU: return URNClass.HAT;
 		
 		case UNDEFINED: return URNClass.UNDEFINED;
 		}
@@ -410,6 +419,7 @@ public enum URNType {
 		case HATABARIBARJ: return true;
 		case HATBBARIBARJ: return true;
 		case HATRBARIBARJ: return true;
+		case HATCI: return true;
 		default: return false;
 		}
 	}

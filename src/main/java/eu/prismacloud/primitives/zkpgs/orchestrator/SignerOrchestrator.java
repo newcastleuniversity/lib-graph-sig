@@ -31,7 +31,8 @@ import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier;
-import eu.prismacloud.primitives.zkpgs.verifier.CommitmentVerifier.STAGE;
+import eu.prismacloud.primitives.zkpgs.verifier.IssuingCommitmentVerifier;
+
 import org.jgrapht.Graph;
 import org.jgrapht.io.ImportException;
 
@@ -139,7 +140,7 @@ public class SignerOrchestrator implements IMessagePartner {
         GSMessage msg = signer.receiveMessage();
         extractMessageElements(msg);
 
-        verifyRecipientCommitment();
+        verifyRecipientCommitment(commitmentU.getCommitmentValue(), commitmentU.getBaseCollection());
 
 
         // Preparing Signature computation
@@ -177,14 +178,11 @@ public class SignerOrchestrator implements IMessagePartner {
         return preSignatureElements;
     }
 
-    private void verifyRecipientCommitment() throws NoSuchAlgorithmException, IOException, VerificationException {
-        CommitmentVerifier commitmentVerifier =
-                new CommitmentVerifier(STAGE.ISSUING, extendedKeyPair.getExtendedPublicKey(), proofStore);
+    private void verifyRecipientCommitment(GroupElement commitmentValue, BaseCollection commitmentBases ) throws NoSuchAlgorithmException, IOException, VerificationException, ProofStoreException {
+        IssuingCommitmentVerifier commitmentVerifier =
+                new IssuingCommitmentVerifier(commitmentValue, commitmentBases, extendedKeyPair.getExtendedPublicKey(), proofStore);
 
-        hatU =
-                commitmentVerifier.computeWitness(
-                        cChallenge,
-                        responses);
+        hatU = commitmentVerifier.executeVerification(cChallenge);
 
         hatc = computeChallenge();
 
