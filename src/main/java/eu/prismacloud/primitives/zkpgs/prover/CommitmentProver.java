@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class CommitmentProver extends AbstractCommitmentProver implements IProve
 			urnTypes = Collections.EMPTY_LIST;
 		}
 		if (enumeratedTypes == null) {
-//			enumeratedTypes = new ArrayList<EnumeratedURNType>(baseCollection.size());
+			enumeratedTypes = new ArrayList<EnumeratedURNType>(baseCollection.size());
 //			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 //			for (BaseRepresentation base : vertexIterator) {
 //				enumeratedTypes.add(new EnumeratedURNType(URNType.TILDEMI, base.getBaseIndex()));
@@ -52,8 +53,8 @@ public class CommitmentProver extends AbstractCommitmentProver implements IProve
 //			}
 			
 			// Commitments and randomness with index
-			enumeratedTypes.add(new EnumeratedURNType(URNType.TILDECI, getCommitmentIndex()));
-			enumeratedTypes.add(new EnumeratedURNType(URNType.TILDERI, getCommitmentIndex()));
+			enumeratedTypes.add(new EnumeratedURNType(URNType.TILDECI, super.getCommitmentIndex()));
+			enumeratedTypes.add(new EnumeratedURNType(URNType.TILDERI, super.getCommitmentIndex()));
 		}
 
 		if (governedURNs == null) {

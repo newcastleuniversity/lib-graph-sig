@@ -76,7 +76,7 @@ public class GSRecipientTest {
 		//    assertNotNull(recipient.receiveMessage());
 
 		Map<URN, Object> msgList = new HashMap<>();
-		msgList.put(URN.createZkpgsURN("test1"), BigInteger.valueOf(888888));
+		msgList.put(URN.createUnsafeZkpgsURN("test1"), BigInteger.valueOf(888888));
 		GSMessage msg = new GSMessage(msgList);
 
 		recipient.sendMessage(msg);

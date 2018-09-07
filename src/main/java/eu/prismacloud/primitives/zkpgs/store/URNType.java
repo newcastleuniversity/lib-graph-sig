@@ -28,6 +28,7 @@ public enum URNType {
 	APRIME,
 	CI,
 	U,
+	NONCEI,
 	
 	// Secrets
 	DLRV,
@@ -42,6 +43,9 @@ public enum URNType {
 	SIGMA,
 	EPRIME,
 	VPRIME,
+	A,
+	E,
+	V,
 	
 	// Witness Randomness and Witnesses (tilde-values)
 	TILDEA,
@@ -114,6 +118,7 @@ public enum URNType {
 		case APRIME: return "APrime";
 		case CI: return "C_i_";
 		case U: return "U";
+		case NONCEI: return "n_";
 		
 		case ABARIBARJ: return "a_BariBarj_";
 		case BBARIBARJ: return "b_BariBarj_";
@@ -127,6 +132,9 @@ public enum URNType {
 		case SIGMA: return "sigma";
 		case EPRIME: return "ePrime";
 		case VPRIME: return "vPrime";
+		case A: return "A";
+		case E: return "e";
+		case V: return "v";
 		
 		case TILDEA: return "tildeA";
 		case TILDED: return "tilded";
@@ -152,7 +160,7 @@ public enum URNType {
 		case TILDEU: return "tildeU";
 		case TILDECI: return "tildeC_i_";
 		case TILDEZ: return "tildeZ";
-		case TILDEBASERBARIBARJ: return "basetildeR_BariBarj_";
+		case TILDEBASERBARIBARJ: return "tildeBaseR_BariBarj_";
 		
 		case HATA: return "hata";
 		case HATD: return "hatd";
@@ -196,6 +204,7 @@ public enum URNType {
 		case APRIME: return "signature";
 		case CI: return "commitment";
 		case U: return "commitment";
+		case NONCEI: return "nonce";
 		
 		case ABARIBARJ: return "secret";
 		case BBARIBARJ: return "secret";
@@ -209,6 +218,9 @@ public enum URNType {
 		case SIGMA: return "signature";
 		case EPRIME: return "signature";
 		case VPRIME: return "signature";
+		case A: return "signature";
+		case E: return "signature";
+		case V: return "signature";
 		
 		case TILDEA: return "witnesses";
 		case TILDED: return "witnesses.randomness";
@@ -288,6 +300,7 @@ public enum URNType {
 		case APRIME: return URNClass.PUBLIC;
 		case CI: return URNClass.PUBLIC;
 		case U: return URNClass.PUBLIC;
+		case NONCEI: return URNClass.PUBLIC;
 		
 		case ABARIBARJ: return URNClass.SECRET;
 		case BBARIBARJ: return URNClass.SECRET;
@@ -301,6 +314,9 @@ public enum URNType {
 		case SIGMA: return URNClass.SECRET;
 		case EPRIME: return URNClass.SECRET;
 		case VPRIME: return URNClass.SECRET;
+		case A: return URNClass.SECRET;
+		case E: return URNClass.SECRET;
+		case V: return URNClass.SECRET;
 		
 		case TILDEA: return URNClass.TILDE;
 		case TILDED: return URNClass.TILDE;
@@ -363,6 +379,7 @@ public enum URNType {
 		case BASERIJ: return true;
 		case EI: return true;
 		case CI: return true;
+		case NONCEI: return true;
 		
 		case ABARIBARJ: return true;
 		case BBARIBARJ: return true;

@@ -7,11 +7,12 @@ import java.util.logging.Logger;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** Test QRGroup */
-@Ignore
+@Disabled
 class QRGroupTest {
   private static final Logger log = Logger.getLogger(QRGroupTest.class.getName());
   private QRGroupPQ classUnderTest;

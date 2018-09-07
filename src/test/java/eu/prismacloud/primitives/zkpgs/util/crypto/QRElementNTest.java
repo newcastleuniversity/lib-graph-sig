@@ -7,9 +7,10 @@ import java.util.logging.Logger;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Ignore
+@Disabled
 class QRElementNTest {
   private static final Logger log = Logger.getLogger(QRElementNTest.class.getName());
 

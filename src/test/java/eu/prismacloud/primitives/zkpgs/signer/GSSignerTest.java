@@ -78,7 +78,7 @@ public class GSSignerTest {
 
     gslog.info("test send message to recipient");
     Map<URN, Object> msgList = new HashMap<>();
-    msgList.put(URN.createZkpgsURN("test1"), BigInteger.valueOf(999999));
+    msgList.put(URN.createUnsafeZkpgsURN("test1"), BigInteger.valueOf(999999));
     GSMessage msg = new GSMessage(msgList);
 
     signer.sendMessage(msg);
