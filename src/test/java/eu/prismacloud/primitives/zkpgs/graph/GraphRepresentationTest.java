@@ -28,11 +28,7 @@ import java.util.logging.Logger;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.ImportException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** */
@@ -77,6 +73,7 @@ class GraphRepresentationTest {
   }
 
   @Test
+  @DisplayName("Test encoding a graph structure")
   void encodeGraph() {
     GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
 
@@ -89,12 +86,14 @@ class GraphRepresentationTest {
   }
 
   @Test
+//  @RepeatedTest(10)
+  @DisplayName("Test creating encoded bases from a graph structure")
   void testBaseCollection() {
     GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
     
     Map<URN, BaseRepresentation> encodedBases = graphRepresentation.getEncodedBases();
     assertNotNull(encodedBases);
-    gslog.info("encoded bases: " + encodedBases.size());
+
     assertNotNull(graphRepresentation);
 
     BaseCollection baseCollection = graphRepresentation.getEncodedBaseCollection();
@@ -105,52 +104,56 @@ class GraphRepresentationTest {
 
       assertNotNull(baseRepresentation.getExponent());
 
-      gslog.info(
-          "baseType: "
-              + baseRepresentation.getBaseType()
-              + " base: "
-              + baseRepresentation.getBaseIndex()
-              + " baseExponent: "
-              + baseRepresentation.getExponent()
-              + "\n");
+//      gslog.info(
+//          "baseType: "
+//              + baseRepresentation.getBaseType()
+//              + " base: "
+//              + baseRepresentation.getBaseIndex()
+//              + " baseExponent: "
+//              + baseRepresentation.getExponent()
+//              + "\n");
     }
 
     BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
     gslog.info("------ vertices: \n");
-    gslog.info("vertices size: " + vertexIterator.size() + "\n");
+
     for (BaseRepresentation vertexRep : vertexIterator) {
 
-      gslog.info(
-          "baseType: "
-              + vertexRep.getBaseType()
-              + " base: "
-              + vertexRep.getBaseIndex()
-              + " baseExponent: "
-              + vertexRep.getExponent()
-              + "\n");
+//      gslog.info(
+//          "baseType: "
+//              + vertexRep.getBaseType()
+//              + " base: "
+//              + vertexRep.getBaseIndex()
+//              + " baseExponent: "
+//              + vertexRep.getExponent()
+//              + "\n");
     }
 
     BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
     gslog.info("----- edges: \n");
-    gslog.info("edges size: " + edgeIterator.size() + "\n");
+
     for (BaseRepresentation edgeRep : edgeIterator) {
 
-      gslog.info(
-          "baseType: "
-              + edgeRep.getBaseType()
-              + " base: "
-              + edgeRep.getBaseIndex()
-              + " baseExponent: "
-              + edgeRep.getExponent()
-              + "\n");
+//      gslog.info(
+//          "baseType: "
+//              + edgeRep.getBaseType()
+//              + " base: "
+//              + edgeRep.getBaseIndex()
+//              + " baseExponent: "
+//              + edgeRep.getExponent()
+//              + "\n");
     }
+
+    gslog.info("encoded bases: " + encodedBases.size());
+    gslog.info("vertices size: " + vertexIterator.size() + "\n");
+    gslog.info("edges size: " + edgeIterator.size() + "\n");
 
     int vertexSize = gsGraph.getGraph().vertexSet().size();
     int edgeSize = gsGraph.getGraph().edgeSet().size();
 
     gslog.info("graph vertex size: " + vertexSize);
     gslog.info("graph edge size: " + edgeSize);
-
+    assertEquals(vertexSize + edgeSize, encodedBases.size());
     assertEquals(vertexSize + edgeSize, baseCollection.size());
   }
 }
