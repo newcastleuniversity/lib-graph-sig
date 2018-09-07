@@ -166,4 +166,25 @@ class CommitmentProverTest {
 		assertNotNull(responses);
 		assertTrue(responses.size() > 0);
 	}
+	
+	@Test
+	void testProverSelfVerification() throws ProofStoreException {
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
+
+		assertNotNull(tildeC_i);
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, cprover.getCommitmentIndex());
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
+		assertNotNull(tilder_i);
+		
+		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+		
+		Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
+		
+		String hatm_iURN = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, PROVER_INDEX);
+		BigInteger hatm_i = tildem_i.add(cChallenge.multiply(testM));
+		proofStore.store(hatm_iURN, hatm_i);
+		
+		assertTrue(cprover.verify(), "The commitment prover's self-verification failed.");
+	}
 }

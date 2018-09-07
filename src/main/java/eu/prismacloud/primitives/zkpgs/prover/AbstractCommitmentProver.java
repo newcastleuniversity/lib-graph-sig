@@ -27,8 +27,8 @@ public abstract class AbstractCommitmentProver implements IProver {
 	private final ProofStore<Object> proofStore;
 	private final GSCommitment com;
 	protected final BaseCollection baseCollection;
-	private transient BigInteger cChallenge;
-	private transient GroupElement witness;
+	private BigInteger cChallenge;
+	private GroupElement witness;
 
 	/**
 	 * Establishes a CommitmentProver.
@@ -108,13 +108,13 @@ public abstract class AbstractCommitmentProver implements IProver {
 			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
 			for (BaseRepresentation base : baseIterator) {
 				if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
-				
+
 				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getURNbyBaseType(base, URNClass.TILDE), tilde_m);
 			}
 		}
 	}
-	
+
 	/**
 	 * Computes the witness randomness named appropriate for the subclass
 	 * and stores the witness randomness in the ProofStore.
@@ -148,7 +148,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 				BigInteger tilde_m_0 = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitlength());
 				proofStore.save(getTildeM0URN(), tilde_m_0);
 			}
-			
+
 			// Treating commitments with singleton Base R
 			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
 			for (@SuppressWarnings("unused") BaseRepresentation base : baseRIterator) {
@@ -173,7 +173,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 		 * Note that, in the "singleton case", that is, when the commitment
 		 * is restricted to a single R, that base should be enforced.
 		 */
-		
+
 		// Establishing the blinding randomness witness
 		BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
 		GroupElement witness = signerPublicKey.getBaseS().modPow(tildeRandomness);
@@ -183,14 +183,14 @@ public abstract class AbstractCommitmentProver implements IProver {
 		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : baseIterator) {
 			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
-			
+
 			BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
 			witness = witness.multiply(base.getBase().modPow(tilde_m));
 		}
 
 		return witness;
 	}
-	
+
 	/** 
 	 * Computes the witness from the established witness randomness.
 	 * The method assumes that the witness randomness has been stored in the 
@@ -207,7 +207,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 		 * Note that, in the "singleton case", that is, when the commitment
 		 * is restricted to a single R, that base should be enforced.
 		 */
-		
+
 		// Establishing the blinding randomness witness
 		BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
 		GroupElement witness = signerPublicKey.getBaseS().modPow(tildeRandomness);
@@ -231,7 +231,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 			BigInteger tilde_m_0 = (BigInteger) proofStore.get(getTildeM0URN());
 			witness = witness.multiply(base.getBase().modPow(tilde_m_0));
 		}
-		
+
 		BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
 		for (BaseRepresentation base : baseRIterator) {
 			BigInteger tilde_m = (BigInteger) proofStore.get(getTildeMURN());
@@ -256,7 +256,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 
 		return responses;
 	}
-	
+
 	/**
 	 * Computes the responses for stored tilde-values and the challenge.
 	 * 
@@ -268,7 +268,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 */
 	private Map<URN, BigInteger> computeResponses(BigInteger cChallenge) throws ProofStoreException {
 		Assert.notNull(cChallenge, "The challenge cannot be null.");
-		
+
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
 		// Response for randomness		
@@ -276,7 +276,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 			BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
 			Assert.notNull(tildeRandomness, "The witness/hat-value for the randomness was found null.");
 			BigInteger hatRandomness = tildeRandomness.add(cChallenge.multiply(com.getRandomness()));
-			
+
 			proofStore.save(getHatRandomnessURN(), hatRandomness);
 			responses.put(getHatRandomnessURN(), hatRandomness);
 		}
@@ -287,12 +287,12 @@ public abstract class AbstractCommitmentProver implements IProver {
 			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
 			for (BaseRepresentation base : baseIterator) {
 				if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
-				
+
 				BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
 				Assert.notNull(tilde_m, "The message witness randomness for base " + base.getBaseIndex() + " was found null.");
 				BigInteger m = base.getExponent();
 				BigInteger hat_m = tilde_m.add(cChallenge.multiply(m));
-				
+
 				proofStore.save(getURNbyBaseType(base, URNClass.HAT), hat_m);
 				responses.put(getURNbyBaseType(base, URNClass.HAT), hat_m);
 			}
@@ -350,7 +350,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 				proofStore.save(getHatM0URN(), hat_m_0);
 				responses.put(getHatM0URN(), hat_m_0);
 			}
-			
+
 			// Treating messages from singleton cases
 			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
 			for (BaseRepresentation baseRep : baseRIterator) {
@@ -374,10 +374,9 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 * @return <tt>true</tt> if the response values are computed correctly. If verify() is called
 	 *     before the challenge is submitted, the method always returns <tt>false</tt>.
 	 */
-	@Override
-	public boolean verify() {
+	public boolean verifyIndividually() {
 		if (this.cChallenge == null || this.witness == null) return false;
-		
+
 		Assert.notNull(com, "The commitment was found null.");
 		Assert.notNull(com.getCommitmentValue(), "The commitment value was found null.");
 
@@ -387,36 +386,79 @@ public abstract class AbstractCommitmentProver implements IProver {
 		try {		
 			// Include the commitment randomness
 			BigInteger hatRandomness = (BigInteger) proofStore.get(getHatRandomnessURN());
-			hatWitness.multiply(signerPublicKey.getBaseS().modPow(hatRandomness));
+			Assert.notNull(hatRandomness, "The hat-value for the randomness cannot be null.");
+			hatWitness = hatWitness.multiply(signerPublicKey.getBaseS().modPow(hatRandomness));
 
 			// Iterate over the message hat values, considering VERTEX, EDGE and m_0 in turn
 			BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 			for (BaseRepresentation base : vertexIterator) {
 				BigInteger hat_m_i = (BigInteger) proofStore.get(getHatVertexURN(base.getBaseIndex()));
-				hatWitness.multiply(base.getBase().modPow(hat_m_i));
+				Assert.notNull(hat_m_i, "The message response for vertex base " + base.getBaseIndex() + " was null.");
+				hatWitness = hatWitness.multiply(base.getBase().modPow(hat_m_i));
 			}
 
 			BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 			for (BaseRepresentation base : edgeIterator) {
 				BigInteger hat_m_i_j = (BigInteger) proofStore.get(getHatEdgeURN(base.getBaseIndex()));
-				hatWitness.multiply(base.getBase().modPow(hat_m_i_j));
+				Assert.notNull(hat_m_i_j, "The message response for edge base " + base.getBaseIndex() + " was null.");
+				hatWitness = hatWitness.multiply(base.getBase().modPow(hat_m_i_j));
 			}
 
 			BaseIterator baseR0Iterator = baseCollection.createIterator(BASE.BASE0);
 			for (BaseRepresentation base : baseR0Iterator) {
 				BigInteger hat_m_0 = (BigInteger) proofStore.get(getHatM0URN());
-				hatWitness.multiply(base.getBase().modPow(hat_m_0));
+				Assert.notNull(hat_m_0, "The message response for  base R_0 was null.");
+				hatWitness = hatWitness.multiply(base.getBase().modPow(hat_m_0));
 			}
-			
+
 			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
 			for (BaseRepresentation base : baseRIterator) {
 				BigInteger hat_m = (BigInteger) proofStore.get(getHatMURN());
-				hatWitness.multiply(base.getBase().modPow(hat_m));
+				Assert.notNull(hat_m, "The message response for base R was null.");
+				hatWitness = hatWitness.multiply(base.getBase().modPow(hat_m));
 			}
-			
+
 		} catch (NullPointerException e) {
 			// Intentionally not throwing an exception. Verify() should be safe to call.
-			throw e;
+			return false;
+		}
+
+		return (this.witness.equals(hatWitness));
+	}
+
+	/**
+	 * Self-verifies the proof responses of the CommitmentProver.
+	 *
+	 * <p>It is required that the bases raised to the responses 
+	 * multiplied by the public value of the commitment to the negated
+	 * challenge yields the witness.
+	 *
+	 * @return <tt>true</tt> if the response values are computed correctly. If verify() is called
+	 *     before the challenge is submitted, the method always returns <tt>false</tt>.
+	 */
+	@Override
+	public boolean verify() {
+		if (this.cChallenge == null || this.witness == null) return false;
+
+		Assert.notNull(com, "The commitment was found null.");
+		Assert.notNull(com.getCommitmentValue(), "The commitment value was found null.");
+
+		// Establish the public commitment value to the negated challenge.
+		GroupElement hatWitness = com.getCommitmentValue().modPow(cChallenge.negate());
+
+		// Include the commitment randomness
+		BigInteger hatRandomness = (BigInteger) proofStore.get(getHatRandomnessURN());
+		Assert.notNull(hatRandomness, "The hat-value for the randomness cannot be null.");
+		hatWitness = hatWitness.multiply(signerPublicKey.getBaseS().modPow(hatRandomness));
+
+		// Iterate over the message hat values, considering VERTEX, EDGE and m_0 in turn
+		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			if (base.getBaseType().equals(BASE.BASES)) continue; // Dealing with randomness separately.
+
+			BigInteger hat_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.HAT));
+			Assert.notNull(hat_m, "The message response for base " + base.getBaseIndex() + " was null.");
+			hatWitness = hatWitness.multiply(base.getBase().modPow(hat_m));
 		}
 
 		return (this.witness.equals(hatWitness));
@@ -439,9 +481,9 @@ public abstract class AbstractCommitmentProver implements IProver {
 	protected int getCommitmentIndex() {
 		return this.commitmentIndex;
 	}
-	
+
 	protected URN getURNbyBaseType(BaseRepresentation base, URNClass urnClass) {
-			return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
+		return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
 	}
 
 

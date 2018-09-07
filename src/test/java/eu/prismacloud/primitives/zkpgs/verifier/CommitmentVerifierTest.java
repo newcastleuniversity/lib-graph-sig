@@ -85,42 +85,48 @@ public class CommitmentVerifierTest {
 	void setUp() throws Exception {
 		proverProofStore = new ProofStore<Object>();
 		verifierProofStore = new ProofStore<Object>();
+		
+		
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 
+		// Establishing the commitment
 		baseR = new BaseRepresentation(epk.getPublicKey().getBaseR(), -1, BASE.BASER);
 		baseR.setExponent(testM);
 
 		baseCollection = new BaseCollectionImpl();
 		baseCollection.add(baseR);
 
-
 		BigInteger r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
-
 		GSCommitment C_i = GSCommitment.createCommitment(baseCollection, r_i, epk);
-
+		
+		
+		// New prover on commitment
 		cprover = new CommitmentProver(C_i, PROVER_INDEX, extendedKeyPair.getPublicKey(), proverProofStore);
 
 		// Establishing tilde- and hat-values for the message
-		String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, PROVER_INDEX);
 		BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-		proverProofStore.store(tildem_iURN, tildem_i);
+		proverProofStore.save(URNType.buildURN(URNType.TILDEMI, PossessionProver.class, PROVER_INDEX), tildem_i);
+
 
 
 		// Running the commitment prover
 		tildeC_i = cprover.executePreChallengePhase();
+		assertNotNull(tildeC_i);
+		
+		
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, PROVER_INDEX);
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proverProofStore.retrieve(tilder_iURN);
 
+		
 		
 		cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 		assertNotNull(cChallenge);
 		
 		String hatm_iURN = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, PROVER_INDEX);
 		hatm_i = tildem_i.add(cChallenge.multiply(testM));
-		proverProofStore.store(hatm_iURN, tildem_i);
+		proverProofStore.store(hatm_iURN, hatm_i);
 		
-		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, PROVER_INDEX);
-		gslog.info("tilder_iUrn: " + tilder_iURN);
-		tilder_i = (BigInteger) proverProofStore.retrieve(tilder_iURN);
-
 		
 		Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
 		
