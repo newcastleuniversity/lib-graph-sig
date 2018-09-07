@@ -267,12 +267,16 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 * up in the ProofStore.
 	 */
 	private Map<URN, BigInteger> computeResponses(BigInteger cChallenge) throws ProofStoreException {
+		Assert.notNull(cChallenge, "The challenge cannot be null.");
+		
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
 		// Response for randomness		
 		{
 			BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
+			Assert.notNull(tildeRandomness, "The witness/hat-value for the randomness was found null.");
 			BigInteger hatRandomness = tildeRandomness.add(cChallenge.multiply(com.getRandomness()));
+			
 			proofStore.save(getHatRandomnessURN(), hatRandomness);
 			responses.put(getHatRandomnessURN(), hatRandomness);
 		}
@@ -285,6 +289,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 				if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
 				
 				BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
+				Assert.notNull(tilde_m, "The message witness randomness for base " + base.getBaseIndex() + " was found null.");
 				BigInteger m = base.getExponent();
 				BigInteger hat_m = tilde_m.add(cChallenge.multiply(m));
 				
@@ -372,6 +377,9 @@ public abstract class AbstractCommitmentProver implements IProver {
 	@Override
 	public boolean verify() {
 		if (this.cChallenge == null || this.witness == null) return false;
+		
+		Assert.notNull(com, "The commitment was found null.");
+		Assert.notNull(com.getCommitmentValue(), "The commitment value was found null.");
 
 		// Establish the public commitment value to the negated challenge.
 		GroupElement hatWitness = com.getCommitmentValue().modPow(cChallenge.negate());
@@ -399,9 +407,16 @@ public abstract class AbstractCommitmentProver implements IProver {
 				BigInteger hat_m_0 = (BigInteger) proofStore.get(getHatM0URN());
 				hatWitness.multiply(base.getBase().modPow(hat_m_0));
 			}
+			
+			BaseIterator baseRIterator = baseCollection.createIterator(BASE.BASER);
+			for (BaseRepresentation base : baseRIterator) {
+				BigInteger hat_m = (BigInteger) proofStore.get(getHatMURN());
+				hatWitness.multiply(base.getBase().modPow(hat_m));
+			}
+			
 		} catch (NullPointerException e) {
 			// Intentionally not throwing an exception. Verify() should be safe to call.
-			return false;
+			throw e;
 		}
 
 		return (this.witness.equals(hatWitness));

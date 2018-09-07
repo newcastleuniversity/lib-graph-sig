@@ -14,6 +14,7 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNClass;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
@@ -69,11 +70,13 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 	}
 
 	private GroupElement computeVerifierWitness(BigInteger cChallenge) {
+		Assert.notNull(cChallenge, "The challenge cannot be null.");
 		// Combine the commitment public value with the negated challenge.
 		GroupElement hatWitness = commitmentValue.modPow(cChallenge.negate());
 
 		// Including the randomness response.
 		BigInteger hatRandomness = (BigInteger) proofStore.get(getHatRandomnessURN());
+		Assert.notNull(hatRandomness, "The response for the commitment randomness, Commitment " + getCommitmentIndex() + " was found null.");
 		hatWitness = hatWitness.multiply(epk.getPublicKey().getBaseS().modPow(hatRandomness));
 
 		// Iterating over all committed bases to include their hat-values
@@ -82,8 +85,9 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness base separately
 
 			BigInteger hatm = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.HAT));
-			hatWitness = hatWitness.multiply(base.getBase().modPow(hatm))
-					;		}
+			Assert.notNull(hatm, "The message response for base " + base.getBaseIndex() + "was found null.");
+			hatWitness = hatWitness.multiply(base.getBase().modPow(hatm));
+		}
 
 		return hatWitness;
 	}

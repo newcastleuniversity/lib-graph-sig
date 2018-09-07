@@ -64,15 +64,20 @@ public static final String URNID = "commitmentverifier";
 	private URN getTildeMURN() {
 		return null;
 	}
+	
+	@Override
+	protected int getHatRandomnessBitlength() {
+		return getKeyGenParams().getL_n() + getKeyGenParams().getProofOffset();
+	}
+	
+	@Override
+	protected int getHatMessageBitlength() {
+		return getKeyGenParams().getL_m() + getKeyGenParams().getProofOffset() + 1;
+	};
 
 	@Override
 	protected URN getHatWitnessURN() {
 		return URNType.buildURN(URNType.HATCI, this.getClass(), getCommitmentIndex());
-	}
-
-	@Override
-	protected int getHatRandomnessBitlength() {
-		return getKeyGenParams().getL_n() + getKeyGenParams().getProofOffset();
 	}
 
 	@Override
