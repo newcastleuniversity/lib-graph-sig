@@ -5,12 +5,15 @@ package eu.prismacloud.primitives.zkpgs.verifier;
 
 import java.util.List;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
 import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNClass;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -46,6 +49,19 @@ public static final String URNID = "commitmentverifier";
 	@Override
 	public List<URN> getGovernedURNs() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	protected URN getURNbyBaseType(BaseRepresentation base, URNClass urnClass) {
+		if (base.getBaseType().equals(BASE.BASER)) {
+			return (urnClass.equals(URNClass.HAT)) ? getHatMURN() : getTildeMURN();
+		} else {
+			return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
+		}
+	}
+
+	private URN getTildeMURN() {
 		return null;
 	}
 
