@@ -7,15 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
-import eu.prismacloud.primitives.zkpgs.encoding.GeoLocationGraphEncoding;
-import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
-import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.graph.GSEdge;
-import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
-import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -30,7 +24,6 @@ import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -42,7 +35,6 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jgrapht.io.ImportException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -100,6 +92,15 @@ class GraphPossessionVerifierTest {
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
 		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
 		baseCollection = gr.getEncodedBaseCollection();
+		
+		BaseRepresentation baseR0 =
+				new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
+		baseR0.setExponent(testM);
+
+		proofStore.store("bases.exponent.m_0", testM);
+
+		baseCollection.add(baseR0);
+		
 		
 		assertNotNull(baseCollection);
 		assertTrue(baseCollection.size() > 0);
@@ -217,16 +218,16 @@ class GraphPossessionVerifierTest {
 	}
 
 	private void storeBlindedGS(GSSignature sigma) throws Exception {
-		String blindedGSURN = "prover.blindedgs";
+		String blindedGSURN = "prover.blindedgs.signature.sigma";
 		proofStore.store(blindedGSURN, sigma);
 
-		String APrimeURN = "prover.blindedgs.APrime";
+		String APrimeURN = "prover.blindedgs.signature.APrime";
 		proofStore.store(APrimeURN, sigma.getA());
 
-		String ePrimeURN = "prover.blindedgs.ePrime";
+		String ePrimeURN = "prover.blindedgs.signature.ePrime";
 		proofStore.store(ePrimeURN, sigma.getEPrime());
 
-		String vPrimeURN = "prover.blindedgs.vPrime";
+		String vPrimeURN = "prover.blindedgs.signature.vPrime";
 		proofStore.store(vPrimeURN, sigma.getV());
 	}
 

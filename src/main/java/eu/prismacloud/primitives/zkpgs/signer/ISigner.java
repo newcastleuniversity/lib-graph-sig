@@ -9,9 +9,11 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
+
 import java.math.BigInteger;
 
-public interface ISigner {
+public interface ISigner extends IURNGoverner {
   SignerKeyPair keyGen(KeyGenParameters gs_params);
 
   GSCommitment commit(GSGraph<GSVertex, GSEdge> gsGraph, BigInteger rnd);

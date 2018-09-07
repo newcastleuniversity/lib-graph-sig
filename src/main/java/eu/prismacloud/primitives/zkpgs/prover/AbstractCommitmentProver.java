@@ -12,6 +12,8 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNClass;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
@@ -63,7 +65,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 		}
 		// Post-condition: There must be only one base, if restricted to singleton.
 
-		establishWitnessRandomness();
+		computeWitnessRandomness();
 
 		this.witness = computeWitness();
 		return witness;
@@ -95,7 +97,31 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 * @throws ProofStoreException if the witness randomness could not be written
 	 * to the ProofStore.
 	 */
-	private void establishWitnessRandomness() throws ProofStoreException {
+	private void computeWitnessRandomness() throws ProofStoreException {
+		// Establishing the witness randomness for the commitment randomness.
+		BigInteger tildeRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeRandomnessBitlength());
+		proofStore.save(getTildeRandomnessURN(), tildeRandomness);
+
+		// Establishing the witness randomness for all message exponents.
+		// We are addressing VERTEX, EDGE and MSK in turn.
+		if (!isProvingEquality()) {
+			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+			for (BaseRepresentation base : baseIterator) {
+				BigInteger tilde_m = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeMessageBitLength());
+				proofStore.save(getURNbyBaseType(base, URNClass.TILDE), tilde_m);
+			}
+		}
+	}
+	
+	/**
+	 * Computes the witness randomness named appropriate for the subclass
+	 * and stores the witness randomness in the ProofStore.
+	 * 
+	 * @throws ProofStoreException if the witness randomness could not be written
+	 * to the ProofStore.
+	 * @deprecated
+	 */
+	private void computeWitnessRandomnessIndividually() throws ProofStoreException {
 		// Establishing the witness randomness for the commitment randomness.
 		BigInteger tildeRandomness = CryptoUtilsFacade.computeRandomNumberMinusPlus(getTildeRandomnessBitlength());
 		proofStore.save(getTildeRandomnessURN(), tildeRandomness);
@@ -152,6 +178,38 @@ public abstract class AbstractCommitmentProver implements IProver {
 
 		// Computations for all bases and corresponding witness randomness.
 		// We are addressing VERTEX, EDGE and MSK in turn.
+		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
+			witness = witness.multiply(base.getBase().modPow(tilde_m));
+		}
+
+		return witness;
+	}
+	
+	/** 
+	 * Computes the witness from the established witness randomness.
+	 * The method assumes that the witness randomness has been stored in the 
+	 * ProofStore.
+	 * 
+	 * @return the GroupElement witness corresponding to the witness randomness
+	 * and the public values (bases), e.g., tildeU or tildeC_i.
+	 * 
+	 * @throws ProofStoreException
+	 * @deprecated
+	 */
+	private GroupElement computeWitnessIndividually() throws ProofStoreException {
+		/*
+		 * Note that, in the "singleton case", that is, when the commitment
+		 * is restricted to a single R, that base should be enforced.
+		 */
+		
+		// Establishing the blinding randomness witness
+		BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
+		GroupElement witness = signerPublicKey.getBaseS().modPow(tildeRandomness);
+
+		// Computations for all bases and corresponding witness randomness.
+		// We are addressing VERTEX, EDGE and MSK in turn.
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation base : vertexIterator) {
 			BigInteger tilde_m_i = (BigInteger) proofStore.get(getTildeVertexURN(base.getBaseIndex()));
@@ -190,6 +248,57 @@ public abstract class AbstractCommitmentProver implements IProver {
 		// Post-condition: There must be only one base, if restricted to singleton.
 
 
+		Map<URN, BigInteger> responses = computeResponses(cChallenge);
+
+		return responses;
+	}
+	
+	/**
+	 * Computes the responses for stored tilde-values and the challenge.
+	 * 
+	 * @param cChallenge The challenge
+	 * @return Map of URN and BigInteger responses.
+	 * 
+	 * @throws ProofStoreException if tilde-values or secret messages could not be looked
+	 * up in the ProofStore.
+	 */
+	private Map<URN, BigInteger> computeResponses(BigInteger cChallenge) throws ProofStoreException {
+		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
+
+		// Response for randomness		
+		{
+			BigInteger tildeRandomness = (BigInteger) proofStore.get(getTildeRandomnessURN());
+			BigInteger hatRandomness = tildeRandomness.add(cChallenge.multiply(com.getRandomness()));
+			proofStore.save(getHatRandomnessURN(), hatRandomness);
+			responses.put(getHatRandomnessURN(), hatRandomness);
+		}
+
+		// Compute responses for all message exponents.
+		// We are addressing VERTEX, EDGE and MSK in turn.
+		if (!isProvingEquality()) {
+			BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+			for (BaseRepresentation base : baseIterator) {
+				BigInteger tilde_m = (BigInteger) proofStore.get(getURNbyBaseType(base, URNClass.TILDE));
+				BigInteger m = base.getExponent();
+				BigInteger hat_m = tilde_m.add(cChallenge.multiply(m));
+				proofStore.save(getURNbyBaseType(base, URNClass.HAT), hat_m);
+				responses.put(getURNbyBaseType(base, URNClass.HAT), hat_m);
+			}
+		}
+		return responses;
+	}
+
+	/**
+	 * Computes the responses for stored tilde-values and the challenge.
+	 * 
+	 * @param cChallenge The challenge
+	 * @return Map of URN and BigInteger responses.
+	 * 
+	 * @throws ProofStoreException if tilde-values or secret messages could not be looked
+	 * up in the ProofStore.
+	 * @deprecated
+	 */
+	private Map<URN, BigInteger> computeResponsesIndividually(BigInteger cChallenge) throws ProofStoreException {
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
 		// Response for randomness		
@@ -240,7 +349,6 @@ public abstract class AbstractCommitmentProver implements IProver {
 				responses.put(getHatMURN(), hat_m);
 			}
 		}
-
 		return responses;
 	}
 
@@ -308,6 +416,10 @@ public abstract class AbstractCommitmentProver implements IProver {
 	 */
 	protected int getCommitmentIndex() {
 		return this.commitmentIndex;
+	}
+	
+	protected URN getURNbyBaseType(BaseRepresentation base, URNClass urnClass) {
+			return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
 	}
 
 

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 
 
 
@@ -27,7 +28,7 @@ import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
  * 
  * <p>Top-level orchestrators should catch exceptions and handle them conservatively.
  */
-public interface IVerifierOrchestrator extends IMessagePartner {
+public interface IVerifierOrchestrator extends IMessagePartner, IURNGoverner {
 	
 	/**
 	 * The orchestrator initializes and sets up an appropriate proof store for the proofs to come.

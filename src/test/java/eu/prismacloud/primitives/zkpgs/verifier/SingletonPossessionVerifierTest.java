@@ -88,11 +88,11 @@ class SingletonPossessionVerifierTest {
 		BaseRepresentation baseR0 =
 				new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
 		baseR0.setExponent(testM);
+		
+		proofStore.store("bases.exponent.m_0", testM);
 
 		baseCollection = new BaseCollectionImpl();
 		baseCollection.add(baseR0);
-
-		proofStore.store("bases.exponent.m_0", testM);
 		
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proofStore);
@@ -150,16 +150,16 @@ class SingletonPossessionVerifierTest {
 	}
 
 	private void storeBlindedGS(GSSignature sigma) throws Exception {
-		String blindedGSURN = "prover.blindedgs";
+		String blindedGSURN = "prover.blindedgs.signature.sigma";
 		proofStore.store(blindedGSURN, sigma);
 
-		String APrimeURN = "prover.blindedgs.APrime";
+		String APrimeURN = "prover.blindedgs.signature.APrime";
 		proofStore.store(APrimeURN, sigma.getA());
 
-		String ePrimeURN = "prover.blindedgs.ePrime";
+		String ePrimeURN = "prover.blindedgs.signature.ePrime";
 		proofStore.store(ePrimeURN, sigma.getEPrime());
 
-		String vPrimeURN = "prover.blindedgs.vPrime";
+		String vPrimeURN = "prover.blindedgs.signature.vPrime";
 		proofStore.store(vPrimeURN, sigma.getV());
 	}
 

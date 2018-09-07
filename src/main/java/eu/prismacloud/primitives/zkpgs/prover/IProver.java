@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
@@ -43,7 +44,7 @@ import java.util.Map;
  * and the IPublicKey used second to last. Prover-specific parameters (public values)
  * are submitted first.
  */
-public interface IProver {
+public interface IProver extends IURNGoverner {
 
 	/**
 	 * Enables the prover to execute a pre-computation before the pre-challenge phase is called.

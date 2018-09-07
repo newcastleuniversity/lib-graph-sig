@@ -236,8 +236,7 @@ public class PossessionProver implements IProver {
 		BigInteger ePrime = blindedSignature.getEPrime();
 		BigInteger vPrime = blindedSignature.getV();
 
-		BigInteger m_0 = (BigInteger) proofStore.retrieve("bases.exponent.m_0");
-
+		
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation vertexBase : vertexIterator) {
 			int baseIndex = vertexBase.getBaseIndex();
@@ -255,11 +254,7 @@ public class PossessionProver implements IProver {
 
 			responses.put(URN.createZkpgsURN(hatm_iURN), hatm_i);
 
-			try {
-				proofStore.store(hatm_iURN, hatm_i);
-			} catch (Exception e) {
-				gslog.log(Level.SEVERE, e.getMessage());
-			}
+			proofStore.store(hatm_iURN, hatm_i);
 		}
 
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
@@ -279,11 +274,20 @@ public class PossessionProver implements IProver {
 
 			responses.put(URN.createZkpgsURN(hatm_i_jURN), hatm_i_j);
 
-			try {
-				proofStore.store(hatm_i_jURN, hatm_i_j);
-			} catch (Exception e) {
-				gslog.log(Level.SEVERE, e.getMessage());
-			}
+			proofStore.store(hatm_i_jURN, hatm_i_j);
+		}
+		
+		BaseIterator base0Iterator = baseCollection.createIterator(BASE.BASE0);
+		for (BaseRepresentation base0Base : base0Iterator) {
+			BigInteger m_0 = (BigInteger) base0Base.getExponent();
+			BigInteger tildem_0 =
+					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
+			Assert.notNull(tildem_0 , "TildeM_0 could not be retrieved.");
+			
+			hatm_0 = tildem_0.add(this.c.multiply(m_0));
+			
+			proofStore.save(URNType.buildURN(URNType.HATM0, this.getClass()), hatm_0);
+			responses.put(URNType.buildURN(URNType.HATM0, this.getClass()), hatm_0);
 		}
 
 //		log.log(
@@ -293,19 +297,15 @@ public class PossessionProver implements IProver {
 
 		hate = tildee.add(this.c.multiply(ePrime));
 		hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
-		hatm_0 = tildem_0.add(this.c.multiply(m_0));
 
 		String hateURN = getProverURN(URNType.HATE);
 		String hatvPrimeURN = getProverURN(URNType.HATVPRIME);
-		String hatm_0URN = getProverURN(URNType.HATM0);
 
 		responses.put(URN.createZkpgsURN(hateURN), hate);
 		responses.put(URN.createZkpgsURN(hatvPrimeURN), hatvPrime);
-		responses.put(URN.createZkpgsURN(hatm_0URN), hatm_0);
 
 		proofStore.store(hateURN, hate);
 		proofStore.store(hatvPrimeURN, hatvPrime);
-		proofStore.store(hatm_0URN, hatm_0);
 
 		return responses;
 	}
@@ -368,7 +368,7 @@ public class PossessionProver implements IProver {
 			throw new RuntimeException(
 					"URNType " + t + " is enumerable and should be evaluated with an index.");
 		}
-		return PossessionProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+		return PossessionProver.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t);
 	}
 
 	public String getProverURN(URNType t, int index) {
@@ -376,7 +376,7 @@ public class PossessionProver implements IProver {
 			throw new RuntimeException(
 					"URNType " + t + " is not enumerable and should not be evaluated with an index.");
 		}
-		return PossessionProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
+		return PossessionProver.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t) + index;
 	}
 
 	@Override

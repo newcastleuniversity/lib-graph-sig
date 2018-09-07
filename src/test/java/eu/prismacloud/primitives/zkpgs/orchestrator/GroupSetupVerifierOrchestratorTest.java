@@ -31,6 +31,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 class GroupSetupVerifierOrchestratorTest {
+	
   private SignerKeyPair gsk;
   private GraphEncodingParameters graphEncodingParameters;
   private KeyGenParameters keyGenParameters;
@@ -101,19 +102,19 @@ class GroupSetupVerifierOrchestratorTest {
   @DisplayName("Test illegal lengths for the GroupSetupVerifierOrchestrator")
   void testIllegalLengths() throws ProofStoreException {
 
-    String hatrURN = "proofsignature.P.hatr";
+    String hatrURN = "proofsignature.P.responses.hatr";
     BigInteger hatr =
         (BigInteger) proofSignature.getProofSignatureElements().get(URN.createZkpgsURN(hatrURN));
     assertNotNull(hatr);
     hatr = (BigInteger) hatr.multiply(BigInteger.TEN);
 
-    String hatr_ZURN = "proofsignature.P.hatr_Z";
+    String hatr_ZURN = "proofsignature.P.responses.hatr_Z";
     BigInteger hatr_Z =
         (BigInteger) proofSignature.getProofSignatureElements().get(URN.createZkpgsURN(hatr_ZURN));
     assertNotNull(hatr_Z);
     hatr_Z = (BigInteger) hatr_Z.multiply(BigInteger.TEN);
 
-    String hatr_0URN = "proofsignature.P.hatr_0";
+    String hatr_0URN = "proofsignature.P.responses.hatr_0";
     BigInteger hatr_0 =
         (BigInteger) proofSignature.getProofSignatureElements().get(URN.createZkpgsURN(hatr_0URN));
     assertNotNull(hatr_0);

@@ -27,7 +27,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class GroupSetupProverOrchestratorTest {
-
   private SignerKeyPair gsk;
   private GraphEncodingParameters graphEncodingParameters;
   private KeyGenParameters keyGenParameters;

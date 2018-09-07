@@ -70,6 +70,18 @@ public class ProofStore<T> {
 		//  gslog.info("Storing under: " + urnkey);
 		save(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), urnkey), element);
 	}
+	
+	/**
+	 * Stores proof object.
+	 *
+	 * @param urnkey the urnkey
+	 * @param element the element
+	 * @throws ProofStoreException the exception
+	 */
+	public void storeUnsafe(String urnkey, T element) throws ProofStoreException {
+		//  gslog.info("Storing under: " + urnkey);
+		save(URN.createUnsafeURN(URN.getZkpgsNameSpaceIdentifier(), urnkey), element);
+	}
 
 	/**
 	 * Retrieve proof object according to a URN key.
@@ -80,6 +92,17 @@ public class ProofStore<T> {
 	public T retrieve(String urnkey) {
 		//  gslog.info("Retrieving from: " + urnkey);
 		return get(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), urnkey));
+	}
+	
+	/**
+	 * Retrieve proof object according to a URN key.
+	 *
+	 * @param urnkey the urnkey
+	 * @return the t
+	 */
+	public T retrieveUnsafe(String urnkey) {
+		//  gslog.info("Retrieving from: " + urnkey);
+		return get(URN.createUnsafeURN(URN.getZkpgsNameSpaceIdentifier(), urnkey));
 	}
 
 	/**

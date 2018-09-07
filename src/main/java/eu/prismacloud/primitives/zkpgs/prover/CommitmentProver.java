@@ -3,11 +3,14 @@ package eu.prismacloud.primitives.zkpgs.prover;
 import java.util.Collections;
 import java.util.List;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNClass;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 
 public class CommitmentProver extends AbstractCommitmentProver implements IProver {
@@ -117,6 +120,15 @@ public class CommitmentProver extends AbstractCommitmentProver implements IProve
 	@Override
 	protected URN getHatM0URN() {
 		return URNType.buildURN(URNType.HATM0, PossessionProver.class);
+	}
+	
+	@Override
+	protected URN getURNbyBaseType(BaseRepresentation base, URNClass urnClass) {
+		if (base.getBaseType().equals(BASE.BASER)) {
+			return (urnClass.equals(URNClass.TILDE)) ? getTildeMURN() : getHatMURN();
+		} else {
+			return URNType.buildURNbyBaseType(base, urnClass, this.getClass());
+		}
 	}
 	
 	@Override

@@ -6,12 +6,13 @@ package eu.prismacloud.primitives.zkpgs.keys;
 import java.io.Serializable;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 
 /**
  * @author ntg8
  *
  */
-public interface IKeyPair extends Serializable {
+public interface IKeyPair extends Serializable, IURNGoverner {
 
 	IPrivateKey getPrivateKey();
 	IPublicKey getPublicKey();

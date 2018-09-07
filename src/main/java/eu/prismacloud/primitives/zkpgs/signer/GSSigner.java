@@ -9,6 +9,7 @@ import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 
@@ -21,7 +22,7 @@ import org.jgrapht.graph.DefaultUndirectedGraph;
 import org.jgrapht.io.ImportException;
 
 /** Signer */
-public class GSSigner implements IMessagePartner {
+public class GSSigner implements IMessagePartner, IURNGoverner {
 
   private BigInteger nonce;
   private final ExtendedKeyPair extendedKeyPair;

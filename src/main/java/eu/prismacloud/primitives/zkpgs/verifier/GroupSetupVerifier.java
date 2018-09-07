@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 /** Class represents the verification stage for the group setup. */
 public class GroupSetupVerifier implements IVerifier {
 	public static final String URNID = "groupsetupverifier";
+	
+	
 	private final ExtendedPublicKey extendedPublicKey;
 	private final ProofSignature proofSignature;
 	private final ProofStore<Object> proofStore;
@@ -56,15 +58,15 @@ public class GroupSetupVerifier implements IVerifier {
 		this.proofSignature = proofSignature;
 		this.proofStore = ps;
 		this.keyGenParameters = epk.getKeyGenParameters();
-		this.baseZ = (GroupElement) proofSignature.get("proofsignature.P.baseZ");
-		this.c = (BigInteger) proofSignature.get("proofsignature.P.c");
-		this.baseS = (GroupElement) proofSignature.get("proofsignature.P.baseS");
-		this.hatr_z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
-		this.modN = (BigInteger) proofSignature.get("proofsignature.P.modN");
-		this.baseR = (GroupElement) proofSignature.get("proofsignature.P.baseR");
-		this.hatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
-		this.baseR_0 = (GroupElement) proofSignature.get("proofsignature.P.baseR_0");
-		this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
+		this.baseZ = (GroupElement) proofSignature.get("proofsignature.P.bases.baseZ");
+		this.c = (BigInteger) proofSignature.get("proofsignature.P.challenge.c");
+		this.baseS = (GroupElement) proofSignature.get("proofsignature.P.bases.baseS");
+		this.hatr_z = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr_Z");
+		this.modN = (BigInteger) proofSignature.get("proofsignature.P.modulus.modN");
+		this.baseR = (GroupElement) proofSignature.get("proofsignature.P.bases.baseR");
+		this.hatr = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr");
+		this.baseR_0 = (GroupElement) proofSignature.get("proofsignature.P.bases.baseR_0");
+		this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr_0");
 		this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
 		this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
 		//    this.graphEncodingParameters = epk.getGraphEncodingParameters();
@@ -180,7 +182,7 @@ public class GroupSetupVerifier implements IVerifier {
 			throw new RuntimeException(
 					"URNType " + t + " is enumerable and should be evaluated with an index.");
 		}
-		return GroupSetupVerifier.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+		return GroupSetupVerifier.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t);
 	}
 
 	public String getVerifierURN(URNType t, int index) {
@@ -190,7 +192,7 @@ public class GroupSetupVerifier implements IVerifier {
 		}
 		return GroupSetupVerifier.URNID
 				+ "."
-				+ URNType.getClass(t)
+				+ URNType.getNameSpaceComponentClass(t)
 				+ "."
 				+ URNType.getSuffix(t)
 				+ index;

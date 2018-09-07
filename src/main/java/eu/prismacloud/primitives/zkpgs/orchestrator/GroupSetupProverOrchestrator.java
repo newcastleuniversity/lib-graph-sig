@@ -26,6 +26,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GroupSetupProverOrchestrator implements IProverOrchestrator {
+	
+	public static final String URNID = "groupsetupproverorchestrator";
+	
 
 	private final ExtendedKeyPair extendedKeyPair;
 	private final ProofStore<Object> proofStore;

@@ -90,13 +90,13 @@ class GeoLocationGraphEncodingTest {
     Map<URN, BigInteger> testLabelRepresentatives = graphEncoding.getLabelRepresentatives();
 
     // country Andorra
-    BigInteger testLabelRepresentative = testLabelRepresentatives.get(URN.createZkpgsURN("AD"));
+    BigInteger testLabelRepresentative = testLabelRepresentatives.get(URN.createUnsafeZkpgsURN("AD"));
     assertNotNull(testLabelRepresentative);
     assertEquals(BigInteger.valueOf(2), testLabelRepresentative);
     assertTrue(testLabelRepresentative.isProbablePrime(80));
 
     // country Wallis and Futuna
-    testLabelRepresentative = testLabelRepresentatives.get(URN.createZkpgsURN("WF"));
+    testLabelRepresentative = testLabelRepresentatives.get(URN.createUnsafeZkpgsURN("WF"));
     assertNotNull(testLabelRepresentative);
     assertEquals(BigInteger.valueOf(1543), testLabelRepresentative);
     assertTrue(testLabelRepresentative.isProbablePrime(80));

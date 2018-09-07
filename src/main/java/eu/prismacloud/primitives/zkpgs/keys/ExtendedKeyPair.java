@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
@@ -24,6 +25,9 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo, Serial
 	private static final long serialVersionUID = -293401766259515133L;
 	/* TODO make the keypair defensive and secure in that it is either completely immutable
 	or only returns clones */
+	
+	public static final String URNID = "extendedkeypair";
+	
 
 	private final SignerPublicKey publicKey;
 	private final SignerPrivateKey privateKey;
@@ -188,8 +192,8 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo, Serial
 			BaseRepresentation base = new BaseRepresentation(R_ij, index, BASE.EDGE);
 
 			baseRepresentationMap.put(
-					URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index), base);
-			discLogOfBases.put(URN.createZkpgsURN("discretelogs.edge.R_E_" + index), x_R_ij);
+					URNType.buildURN(URNType.RE, this.getClass(), index), base);
+			discLogOfBases.put(URNType.buildURN(URNType.DLRE, this.getClass(), index), x_R_ij);
 		}
 	}
 
@@ -246,10 +250,9 @@ public final class ExtendedKeyPair implements IKeyPair, IExtendedKeyInfo, Serial
 			int index = baseRepresentationMap.size()+1;
 
 			BaseRepresentation base = new BaseRepresentation(R_i, index, BASE.VERTEX);
-			baseRepresentationMap.put(
-					URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index), base);
+			baseRepresentationMap.put(URNType.buildURN(URNType.RV, this.getClass(), index), base);
 
-			discLogOfBases.put(URN.createZkpgsURN("discretelogs.vertex.R_V_" + index), x_Ri);
+			discLogOfBases.put(URNType.buildURN(URNType.DLRV, this.getClass(), index), x_Ri);
 		}
 	}
 

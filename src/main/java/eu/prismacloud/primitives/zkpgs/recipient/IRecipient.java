@@ -8,9 +8,11 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
+
 import java.math.BigInteger;
 
-public interface IRecipient {
+public interface IRecipient extends IURNGoverner {
 
 //  public IGraphSignature hiddenSign(
 //      ICommitment cmt,

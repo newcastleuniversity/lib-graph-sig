@@ -191,12 +191,12 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 	@Override
 	public BigInteger getVertexLabelRepresentative(String label) {
 		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
-		return countryLabels.get(URN.createZkpgsURN(label));
+		return countryLabels.get(URN.createUnsafeZkpgsURN(label));
 	}
 
 	@Override
 	public BigInteger getEdgeLabelRepresentative(String label) {
 		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
-		return countryLabels.get(URN.createZkpgsURN(label));
+		return countryLabels.get(URN.createUnsafeZkpgsURN(label));
 	}
 }

@@ -144,7 +144,7 @@ public class PairWiseDifferenceVerifier implements IVerifier {
     }
     return PairWiseDifferenceVerifier.URNID
         + "."
-        + URNType.getClass(t)
+        + URNType.getNameSpaceComponentClass(t)
         + "."
         + URNType.getSuffix(t);
   }
@@ -156,7 +156,7 @@ public class PairWiseDifferenceVerifier implements IVerifier {
     }
     return PairWiseDifferenceVerifier.URNID
         + "."
-        + URNType.getClass(t)
+        + URNType.getNameSpaceComponentClass(t)
         + "."
         + URNType.getSuffix(t)
         + index;

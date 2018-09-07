@@ -566,16 +566,16 @@ class GSUtilsTest {
   void multiBaseExpMap() {
     Map<URN, GroupElement> bases = new HashMap<>();
     GroupElement gp1 = new QRElement(new QRGroupN(BigInteger.TEN), BigInteger.valueOf(13));
-    bases.put(URN.createZkpgsURN("test.base.1"), gp1);
+    bases.put(URN.createUnsafeZkpgsURN("test.base.1"), gp1);
     GroupElement gp2 = new QRElement(new QRGroupN(BigInteger.TEN), BigInteger.valueOf(29));
-    bases.put(URN.createZkpgsURN("test.base.2"), gp2);
+    bases.put(URN.createUnsafeZkpgsURN("test.base.2"), gp2);
 
     Map<URN, BigInteger> exponents = new HashMap<>();
     BigInteger exp1 = BigInteger.valueOf(2223523);
-    exponents.put(URN.createZkpgsURN("test.expo.1"), exp1);
+    exponents.put(URN.createUnsafeZkpgsURN("test.expo.1"), exp1);
 
     BigInteger exp2 = BigInteger.valueOf(33234239);
-    exponents.put(URN.createZkpgsURN("test.expo.2"), exp2);
+    exponents.put(URN.createUnsafeZkpgsURN("test.expo.2"), exp2);
     BigInteger multiresult = classUnderTest.multiBaseExpMap(bases, exponents, BigInteger.TEN);
     GroupElement res1 = gp2.modPow(exp2);
     GroupElement res2 = gp1.modPow(exp1);

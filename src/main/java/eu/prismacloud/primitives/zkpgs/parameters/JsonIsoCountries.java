@@ -55,7 +55,7 @@ public class JsonIsoCountries {
     if (countryEncodingList != null) {
       for (CountryEncoding countryEncoding : countryEncodingList) {
         countriesLabel.put(
-            URN.createZkpgsURN(countryEncoding.getCountryCode()),
+            URN.createUnsafeZkpgsURN(countryEncoding.getCountryCode()),
             BigInteger.valueOf(countryEncoding.getPrimeRepresentative()));
       }
     }

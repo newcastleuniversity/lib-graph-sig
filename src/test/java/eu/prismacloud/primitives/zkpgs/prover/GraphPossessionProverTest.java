@@ -27,6 +27,7 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -101,8 +102,13 @@ class GraphPossessionProverTest {
 		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, epk);
 		baseCollection = gr.getEncodedBaseCollection();
 		
-		proofStore.store("bases.R_0", epk.getPublicKey().getBaseR_0());
+		BaseRepresentation baseR0 =
+				new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
+		baseR0.setExponent(testM);
+
 		proofStore.store("bases.exponent.m_0", testM);
+
+		baseCollection.add(baseR0);
 		
 		assertNotNull(baseCollection);
 		assertTrue(baseCollection.size() > 0);
@@ -487,16 +493,16 @@ class GraphPossessionProverTest {
 	}
 
 	private void storeBlindedGS(GSSignature sigma) throws ProofStoreException  {
-		String blindedGSURN = "prover.blindedgs";
+		String blindedGSURN = "prover.blindedgs.signature.sigma";
 		proofStore.store(blindedGSURN, sigma);
 
-		String APrimeURN = "prover.blindedgs.APrime";
+		String APrimeURN = "prover.blindedgs.signature.APrime";
 		proofStore.store(APrimeURN, sigma.getA());
 
-		String ePrimeURN = "prover.blindedgs.ePrime";
+		String ePrimeURN = "prover.blindedgs.signature.ePrime";
 		proofStore.store(ePrimeURN, sigma.getEPrime());
 
-		String vPrimeURN = "prover.blindedgs.vPrime";
+		String vPrimeURN = "prover.blindedgs.signature.vPrime";
 		proofStore.store(vPrimeURN, sigma.getV());
 	}
 }

@@ -1,9 +1,10 @@
-package eu.prismacloud.primitives.zkpgs.util;
+package eu.prismacloud.primitives.zkpgs.store;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent;
 import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +16,7 @@ class URNTest {
   void createURN() {
     NamespaceComponent ns = NamespaceComponent.fromString("ns", Type.IDENTIFIER);
 
-    NamespaceComponent nss = NamespaceComponent.fromString("test.ns", Type.SPECIFIC_STRING);
+    NamespaceComponent nss = NamespaceComponent.fromString("test.ns.tildeA", Type.SPECIFIC_STRING);
     URN testURN = URN.createURN(ns, nss);
     assertNotNull(testURN);
   }
@@ -23,19 +24,19 @@ class URNTest {
   @Test
   @DisplayName("Test creating URN from a string")
   void testCreateURNWithString() {
-    URN testURN = URN.createURN("ns", "test.ns");
+    URN testURN = URN.createURN("ns", "test.tildeA");
     assertNotNull(testURN);
   }
 
   @Test
   void getZkpgsNameSpaceIdentifier() {
-    URN testURN = URN.createZkpgsURN("test.ns");
+    URN testURN = URN.createZkpgsURN("test.ns.tildeA");
     assertEquals("zkpgs", URN.getZkpgsNameSpaceIdentifier());
   }
 
   @Test
   void createZkpgsURN() {
-    URN testURN = URN.createZkpgsURN("test.ns");
+    URN testURN = URN.createZkpgsURN("test.ns.tildeA");
     assertNotNull(testURN);
   }
 }

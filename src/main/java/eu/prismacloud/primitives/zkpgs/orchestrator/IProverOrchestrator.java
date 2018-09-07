@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 
 
 
@@ -18,7 +19,7 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
  * The orchestrator is responsible for knowing  and managing all proof context.
  * The orchestrator is responsible for computing the overall (cross-prover) challenge.
  */
-public interface IProverOrchestrator extends IMessagePartner {
+public interface IProverOrchestrator extends IMessagePartner,  IURNGoverner {
 	/* TODO There is an option to have orchestrator and provers share the exact interfaces
 	of pre- and post-challenge phases. Then a class could implement both interfaces as a short-hand.
 	/**

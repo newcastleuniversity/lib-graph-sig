@@ -5,10 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
-public interface IVerifier {
+public interface IVerifier extends IURNGoverner {
 	
 	/**
 	 * Evaluates the verification computation, producing a verifier-side hat-value.

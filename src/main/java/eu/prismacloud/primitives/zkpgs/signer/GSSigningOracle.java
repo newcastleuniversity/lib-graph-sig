@@ -9,6 +9,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -102,8 +103,16 @@ public class GSSigningOracle {
 	 */
 	public GSSignature sign(BigInteger m) {
 		GroupElement mEncoded = this.signerKeyPair.getPublicKey().getBaseR_0().modPow(m);
+	
+		BaseRepresentation base = new BaseRepresentation(this.signerKeyPair.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
+		base.setExponent(m);
+		BaseCollection collection = new BaseCollectionImpl();
+		collection.add(base);
 
-		return this.sign(mEncoded);
+		GSSignature sigma = this.sign(mEncoded);
+		
+		sigma.setEncodedBases(collection);
+		return sigma;
 	}
 
 	/**
@@ -135,11 +144,19 @@ public class GSSigningOracle {
 			}
 		}
 		
-		BaseIterator r0Iter = baseCollection.createIterator(BASE.BASE0);
-		while (r0Iter.hasNext()) {
-			BaseRepresentation r0Base = r0Iter.next();
+		BaseIterator baseR0Iter = baseCollection.createIterator(BASE.BASE0);
+		while (baseR0Iter.hasNext()) {
+			BaseRepresentation r0Base = baseR0Iter.next();
 			if (r0Base.getBase() != null && r0Base.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(r0Base.getBase().modPow(r0Base.getExponent()));
+			}
+		}
+		
+		BaseIterator baseRIter = baseCollection.createIterator(BASE.BASER);
+		while (baseRIter.hasNext()) {
+			BaseRepresentation baseR = baseRIter.next();
+			if (baseR.getBase() != null && baseR.getExponent() != null) {
+				basesEncoded = basesEncoded.multiply(baseR.getBase().modPow(baseR.getExponent()));
 			}
 		}
 

@@ -244,24 +244,24 @@ class GroupSetupProverTest {
       assertNotNull(element);
     }
 
-    BigInteger phatr = (BigInteger) proofSignature.get("proofsignature.P.hatr");
+    BigInteger phatr = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr");
     assertTrue(inRange(phatr, min, max));
     //    assertEquals(bitLength, phatr.bitLength() + 1);
 
-    BigInteger phatr_0 = (BigInteger) proofSignature.get("proofsignature.P.hatr_0");
+    BigInteger phatr_0 = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr_0");
     assertTrue(inRange(phatr_0, min, max));
 
     assertEquals(bitLength, phatr_0.bitLength() + 1);
-    BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.hatr_Z");
+    BigInteger phatr_Z = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr_Z");
     assertTrue(inRange(phatr_Z, min, max));
     //    assertEquals(bitLength, phatr_Z.bitLength() + 1);
 
     @SuppressWarnings("unchecked")
     Map<URN, BigInteger> edgeResponses =
-        ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i"));
+        ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_i"));
     @SuppressWarnings("unchecked")
     Map<URN, BigInteger> vertexResponses =
-        ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j"));
+        ((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_i_j"));
 
     for (BigInteger vertexResponse : vertexResponses.values()) {
       assertTrue(inRange(vertexResponse, min, max));

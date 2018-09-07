@@ -450,14 +450,14 @@ public class PairWiseDifferenceProver implements IProver {
 		if (URNType.isEnumerable(t)) {
 			throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
 		}
-		return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t);
+		return PairWiseDifferenceProver.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t);
 	}
 
 	public String getProverURN(URNType t, int index) {
 		if (!URNType.isEnumerable(t)) {
 			throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
 		}
-		return PairWiseDifferenceProver.URNID + "." + URNType.getClass(t) + "." + URNType.getSuffix(t) + index;
+		return PairWiseDifferenceProver.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t) + index;
 	}
 	
 	@Override

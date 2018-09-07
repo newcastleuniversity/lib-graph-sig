@@ -30,6 +30,9 @@ import java.util.logging.Logger;
 
 /** */
 public class GroupSetupVerifierOrchestrator implements IVerifierOrchestrator {
+	
+	public static final String URNID = "groupsetupverifierorchestrator";
+	
 	private final ProofStore<Object> proofStore;
 	private final KeyGenParameters keyGenParameters;
 	private final GraphEncodingParameters graphEncodingParameters;

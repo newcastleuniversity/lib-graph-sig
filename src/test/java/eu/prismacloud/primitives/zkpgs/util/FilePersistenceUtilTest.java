@@ -81,7 +81,7 @@ class FilePersistenceUtilTest {
 			extendedKeyPair.setupEncoding();
 			extendedKeyPair.createExtendedKeyPair();
 
-			log.info("Test writeExtendedPublicKey: writing new ExtendedKeyPaie...");
+			log.info("Test writeExtendedPublicKey: writing new ExtendedKeyPair...");
 			persistenceUtil.write(extendedKeyPair, extendedKeyPairFileName);
 			
 			log.info("Test writeExtendedPublicKey: writing new ExtendedPublicKey...");

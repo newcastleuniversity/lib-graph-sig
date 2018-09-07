@@ -1,8 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.graph;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
@@ -22,7 +25,9 @@ import java.util.*;
  * encode the GSGraph onto them, that is, computing an appropriate exponent for
  * each selected vertex and edge base.
  */
-public class GraphRepresentation {
+public class GraphRepresentation implements IURNGoverner {
+	
+	public static final String URNID = "graphrepresentation";
 
 //    private Logger log = GSLoggerConfiguration.getGSlog();
 
@@ -72,7 +77,7 @@ public class GraphRepresentation {
             // Obtain a random base and exclude it from further selection
             BaseRepresentation base = extendedPublicKey.getRandomVertexBase(excludedBases); // clone
             Assert.notNull(base, "Cannot obtain an appropriate random base.");
-            excludedBases.put(URN.createZkpgsURN("bases.vertex.R_i_" + base.getBaseIndex()), base);
+            excludedBases.put(URNType.buildURN(URNType.RV, ExtendedKeyPair.class, base.getBaseIndex()), base);
 
             // Post-condition: getRandomVertexBase returns a clone that can be modified.
 
@@ -90,7 +95,7 @@ public class GraphRepresentation {
 
             base.setExponent(exponentEncoding);
 
-            encodedBases.put(URN.createZkpgsURN("bases.vertex.R_i_" + base.getBaseIndex()), base);
+            encodedBases.put(URNType.buildURN(URNType.BASERI, this.getClass(), base.getBaseIndex()), base);
         }
 
 
@@ -109,7 +114,7 @@ public class GraphRepresentation {
             // Obtain a random base and exclude it from further selection
             BaseRepresentation base = extendedPublicKey.getRandomEdgeBase(excludedBases); // clone
             Assert.notNull(base, "Cannot obtain an appropriate random base.");
-            excludedBases.put(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
+            excludedBases.put(URNType.buildURN(URNType.RE, ExtendedKeyPair.class, base.getBaseIndex()), base);
 
             // Post-condition: getRandomEdgeBase returns a clone that can be modified.
 
@@ -138,7 +143,7 @@ public class GraphRepresentation {
 
             base.setExponent(exponentEncoding);
 
-            encodedBases.put(URN.createZkpgsURN("bases.edge.R_i_j_" + base.getBaseIndex()), base);
+            encodedBases.put(URNType.buildURN(URNType.BASERIJ, this.getClass(), base.getBaseIndex()), base);
         }
     }
 

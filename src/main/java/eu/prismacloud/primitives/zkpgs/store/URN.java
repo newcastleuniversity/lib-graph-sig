@@ -22,12 +22,42 @@ public final class URN implements Serializable {
 	private static final long serialVersionUID = -3082747487978142725L;
 	private final NamespaceComponent namespaceIdentifier;
 	private final NamespaceComponent namespaceSpecific;
+	private final URNClass urnClass;
+	private final URNType urnType;
 
 	private URN(
-			final NamespaceComponent namespaceIdentifier, final NamespaceComponent namespaceSpecific) {
+			final NamespaceComponent namespaceIdentifier, 
+			final NamespaceComponent namespaceSpecific, boolean enforceUntyped) {
 
 		this.namespaceIdentifier = namespaceIdentifier;
 		this.namespaceSpecific = namespaceSpecific;
+
+		if (enforceUntyped) {
+			this.urnType = URNType.UNDEFINED;
+			this.urnClass = URNClass.UNDEFINED;
+		} else {
+			this.urnType = URNType.parseURNType(namespaceSpecific.getContent());
+			this.urnClass = URNType.getClass(this.urnType);
+		}
+	}
+
+	private URN(
+			final NamespaceComponent namespaceIdentifier, 
+			final NamespaceComponent namespaceSpecific,
+			final URNType urnType) {
+
+		Assert.notNull(namespaceIdentifier, "The namespace of an URN must not be null.");
+		Assert.notNull(namespaceSpecific, "The namespace-specific part of an URN must not be null.");
+		Assert.notNull(urnType, "The URNType must not be null.");
+		this.namespaceIdentifier = namespaceIdentifier;
+		this.namespaceSpecific = namespaceSpecific;
+		
+		if (!URNType.isTypeValid(urnType, URN.parseSuffix(namespaceSpecific.getContent()))) {
+			throw new RuntimeException("The named URNType is not valid for the given namespace-specific component.");
+		}
+		
+		this.urnType = urnType;
+		this.urnClass = URNType.getClass(urnType);
 	}
 
 	/**
@@ -38,8 +68,11 @@ public final class URN implements Serializable {
 	public static String getZkpgsNameSpaceIdentifier() {
 		return zkpgsNameSpaceIdentifier;
 	}
+	
+
 	/**
-	 * Create urn from namespaceIdentifier and namespaceSpecific from NamespaceComponent objects.
+	 * Creates an URN from namespaceIdentifier and namespaceSpecific NamespaceComponent objects.
+	 * The URNType is inferred and a RuntimeException thrown if the URNType cannot be determined.
 	 *
 	 * @param namespaceIdentifier the namespace identifier
 	 * @param namespaceSpecific the namespace specific
@@ -48,16 +81,64 @@ public final class URN implements Serializable {
 	 * @post
 	 */
 	public static URN createURN(
+			final NamespaceComponent namespaceIdentifier, 
+			final NamespaceComponent namespaceSpecific) {
+
+		Assert.notNull(namespaceIdentifier, "Namespace Identifier is required for URN");
+		Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
+
+		return new URN(namespaceIdentifier, namespaceSpecific, false);
+	}
+	
+
+	/**
+	 * Create an URN from namespaceIdentifier and namespaceSpecific from 
+	 * NamespaceComponent objects with a designated URNType.
+	 *
+	 * @param namespaceIdentifier the namespace identifier
+	 * @param namespaceSpecific the namespace specific
+	 * @param urnType designated type of the URN.
+	 * @return the urn
+	 * @pre \( namespaceIdentifier != null \and namespaceSpecific != null \)
+	 * @post
+	 */
+	public static URN createURN(
+			final NamespaceComponent namespaceIdentifier, 
+			final NamespaceComponent namespaceSpecific,
+			final URNType urnType) {
+
+		Assert.notNull(namespaceIdentifier, "Namespace Identifier is required for URN");
+		Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
+		Assert.notNull(urnType, "The URNType was null.");
+
+		return new URN(namespaceIdentifier, namespaceSpecific, urnType);
+	}
+
+	/**
+	 * Creates an URN from namespaceIdentifier and namespaceSpecific from NamespaceComponent objects
+	 * while deactivating the URNType protection. The URNType and URNClass will be set
+	 * to UNDEFINED.
+	 *
+	 * @param namespaceIdentifier the namespace identifier
+	 * @param namespaceSpecific the namespace specific
+	 * @return the urn
+	 * @pre \( namespaceIdentifier != null \and namespaceSpecific != null \)
+	 * @post
+	 */
+	public static URN createUnsafeURN(
 			final NamespaceComponent namespaceIdentifier, final NamespaceComponent namespaceSpecific) {
 
 		Assert.notNull(namespaceIdentifier, "Namespace Identifier is required for URN");
 		Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
 
-		return new URN(namespaceIdentifier, namespaceSpecific);
+		return new URN(namespaceIdentifier, namespaceSpecific, true);
 	}
 
 	/**
-	 * Create urn from namespaceIdentifier and namespaceSpecific strings.
+	 * Creates an URN from namespaceIdentifier and namespaceSpecific from NamespaceComponent objects
+	 * while deactivating the URNType protection. The URNType and URNClass will be inferred from
+	 * the suffix of the namespace-specific namespace component and a RuntimeException thrown should
+	 * the URNType not be determinable.
 	 *
 	 * @param namespaceIdentifier the namespace identifier
 	 * @param namespaceSpecific the namespace specific
@@ -77,11 +158,13 @@ public final class URN implements Serializable {
 		NamespaceComponent nssc =
 				NamespaceComponent.fromString(namespaceSpecific, Type.SPECIFIC_STRING);
 
-		return new URN(nic, nssc);
+		return new URN(nic, nssc, false);
 	}
 
 	/**
-	 * Helper method to create a zkpgs based urn.
+	 * Helper method to create a zkpgs based URN from a namespace-specific String.
+	 * The URNType will be inferred from the namespace-specific component and a runtime 
+	 * exception thrown if the URNType cannot be determined.
 	 *
 	 * @param namespaceSpecific the namespace specific
 	 * @return the urn
@@ -95,7 +178,52 @@ public final class URN implements Serializable {
 		NamespaceComponent nssc =
 				NamespaceComponent.fromString(namespaceSpecific, Type.SPECIFIC_STRING);
 
-		return new URN(nic, nssc);
+		return new URN(nic, nssc, false);
+	}
+
+	/**
+	 * Creates an URN from namespaceIdentifier and namespaceSpecific Strings
+	 * while deactivating the URNType protection. The URNType and URNClass will be set
+	 * to UNDEFINED.
+	 *
+	 * @param namespaceIdentifier the namespace identifier
+	 * @param namespaceSpecific the namespace specific
+	 * @return the urn
+	 * @pre \( namespaceIdentifier != null \and namespaceIdentifier != "" \and namespaceSpecific != null \and
+	 *     namespaceSpecific != "" \)
+	 * @post
+	 */
+	public static URN createUnsafeURN(final String namespaceIdentifier, final String namespaceSpecific) {
+
+		Assert.notNull(namespaceIdentifier, "Namespace Identifier is required for URN");
+		Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
+		Assert.notEmpty(namespaceIdentifier, "Namespace Identifier must not be empty in a urn");
+		Assert.notEmpty(namespaceSpecific, "Namespace Specific String must not be empty in a urn");
+
+		NamespaceComponent nic = NamespaceComponent.fromString(namespaceIdentifier, Type.IDENTIFIER);
+		NamespaceComponent nssc =
+				NamespaceComponent.fromString(namespaceSpecific, Type.SPECIFIC_STRING);
+
+		return new URN(nic, nssc, true);
+	}
+
+	/**
+	 * Helper method to create a zkpgs based URN,  while deactivating the URNType protection.
+	 * The URNType and URNClass will be set to UNDEFINED.
+	 *
+	 * @param namespaceSpecific the namespace specific
+	 * @return the urn
+	 */
+	public static URN createUnsafeZkpgsURN(final String namespaceSpecific) {
+		Assert.notNull(namespaceSpecific, "Namespace Specific String is required for URN");
+		Assert.notEmpty(namespaceSpecific, "Namespace Specific String must not be empty in a urn");
+
+		NamespaceComponent nic =
+				NamespaceComponent.fromString(URN.getZkpgsNameSpaceIdentifier(), Type.IDENTIFIER);
+		NamespaceComponent nssc =
+				NamespaceComponent.fromString(namespaceSpecific, Type.SPECIFIC_STRING);
+
+		return new URN(nic, nssc, true);
 	}
 
 	@Override
@@ -153,25 +281,58 @@ public final class URN implements Serializable {
 	}
 
 	/**
+	 * Returns the suffix of an URN. 
+	 * It returns null if the URN namespace-specific component is empty.
+	 * 
+	 * @return suffix
+	 */
+	public String getSuffix() {
+		return URN.parseSuffix(this.namespaceSpecific.getContent());
+	}
+
+	/**
 	 * Returns the index of an enumerated URN. 
 	 * It returns -1 if this URN does not have an index.
 	 * 
 	 * @return index
 	 */
 	public int getIndex() {
-		StringTokenizer tokenizer = new StringTokenizer(namespaceSpecific.getContent(), ".");
+		return URN.parseIndex(this.getSuffix());
+	}
+
+	protected static String parseSuffix(String urnString) {
+		StringTokenizer tokenizer = new StringTokenizer(urnString, ".");
+		String token = null;
 		while (tokenizer.hasMoreTokens()) {
-			String token = (String) tokenizer.nextToken();
+			token = (String) tokenizer.nextToken();
 
 			if (!tokenizer.hasMoreTokens()) {
-				try {
-					int index = Integer.parseInt(token);
-					return index;
-				} catch (NumberFormatException e) {
-					return -1;
-				}
+				return token;
+			}
+		}
+		return token;
+	}
+
+	protected static int parseIndex(String urnString) {
+		String suffix = URN.parseSuffix(urnString);
+		StringTokenizer tokenizer = new StringTokenizer(suffix, "_");
+		while (tokenizer.hasMoreTokens()) {
+			String token = (String) tokenizer.nextToken();
+			try {
+				int index = Integer.parseInt(token);
+				return index;
+			} catch (NumberFormatException e) {
+				return -1;
 			}
 		}
 		return -1;
+	}
+
+	public URNClass getURNClass() {
+		return urnClass;
+	}
+
+	public URNType getURNType() {
+		return urnType;
 	}
 }

@@ -43,126 +43,130 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class CommitmentVerifierTest {
 
-  private SignerKeyPair skp;
-  private GraphEncodingParameters graphEncodingParameters;
-  private KeyGenParameters keyGenParameters;
-  private ExtendedKeyPair extendedKeyPair;
-  private Logger gslog = GSLoggerConfiguration.getGSlog();
-  private ExtendedPublicKey epk;
-  private ProofStore<Object> proofStore;
-  private BigInteger testM;
-  private BaseRepresentation baseR0;
-  private BaseCollectionImpl baseCollection;
-  private CommitmentVerifier cverifier;
-  private CommitmentProver cprover;
-  private BigInteger tilder_i;
-  private BigInteger hatr_i;
-  private BigInteger cChallenge;
-  private BigInteger hatm_i;
-  private GroupElement tildeC_i;
+	public static final int PROVER_INDEX = 1;
 
-  @BeforeAll
-  void setUpKey() throws IOException, ClassNotFoundException, EncodingException {
-    BaseTest baseTest = new BaseTest();
-    baseTest.setup();
-    baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
-    skp = baseTest.getSignerKeyPair();
-    graphEncodingParameters = baseTest.getGraphEncodingParameters();
-    keyGenParameters = baseTest.getKeyGenParameters();
-    extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
-    extendedKeyPair.generateBases();
-    extendedKeyPair.setupEncoding();
-    extendedKeyPair.createExtendedKeyPair();
+	private SignerKeyPair skp;
+	private GraphEncodingParameters graphEncodingParameters;
+	private KeyGenParameters keyGenParameters;
+	private ExtendedKeyPair extendedKeyPair;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private ExtendedPublicKey epk;
+	private ProofStore<Object> proofStore;
+	private BigInteger testM;
+	private BaseRepresentation baseR;
+	private BaseCollectionImpl baseCollection;
+	private CommitmentVerifier cverifier;
+	private CommitmentProver cprover;
+	private BigInteger tilder_i;
+	private BigInteger hatr_i;
+	private BigInteger cChallenge;
+	private BigInteger hatm_i;
+	private GroupElement tildeC_i;
 
-    epk = extendedKeyPair.getExtendedPublicKey();
-  }
+	@BeforeAll
+	void setUpKey() throws IOException, ClassNotFoundException, EncodingException {
+		BaseTest baseTest = new BaseTest();
+		baseTest.setup();
+		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
+		skp = baseTest.getSignerKeyPair();
+		graphEncodingParameters = baseTest.getGraphEncodingParameters();
+		keyGenParameters = baseTest.getKeyGenParameters();
+		extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
+		extendedKeyPair.generateBases();
+		extendedKeyPair.setupEncoding();
+		extendedKeyPair.createExtendedKeyPair();
 
-  @BeforeEach
-  void setUp() throws Exception {
-    proofStore = new ProofStore<Object>();
-    testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		epk = extendedKeyPair.getExtendedPublicKey();
+	}
 
-    baseR0 = new BaseRepresentation(epk.getPublicKey().getBaseR_0(), 0, BASE.BASE0);
-    baseR0.setExponent(testM);
+	@BeforeEach
+	void setUp() throws Exception {
+		proofStore = new ProofStore<Object>();
+		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 
-    baseCollection = new BaseCollectionImpl();
-    baseCollection.add(baseR0);
+		baseR = new BaseRepresentation(epk.getPublicKey().getBaseR(), -1, BASE.BASER);
+		baseR.setExponent(testM);
 
-    GroupElement R0 = epk.getPublicKey().getBaseR_0();
-    BigInteger m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    GSCommitment C_i = GSCommitment.createCommitment(m_i, R0, epk);
+		baseCollection = new BaseCollectionImpl();
+		baseCollection.add(baseR);
 
-    cprover = new CommitmentProver(C_i, 0, extendedKeyPair.getPublicKey(), proofStore);
 
-    String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, 0);
-    BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    proofStore.store(tildem_iURN, tildem_i);
+		BigInteger r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
 
-    String tildeC_iURN = URNType.buildURNComponent(URNType.TILDEU, CommitmentProver.class);
-    Map<URN, GroupElement> witnesses = cprover.executeCompoundPreChallengePhase();
-    tildeC_i = witnesses.get(URN.createZkpgsURN(tildeC_iURN));
+		GSCommitment C_i = GSCommitment.createCommitment(baseCollection, r_i, epk);
 
-    String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, 0);
-    gslog.info("tilder_iUrn: " + tilder_iURN);
-    tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
-    GroupElement baseR = epk.getPublicKey().getBaseR();
+		cprover = new CommitmentProver(C_i, PROVER_INDEX, extendedKeyPair.getPublicKey(), proofStore);
 
-    m_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-    C_i = GSCommitment.createCommitment(m_i, baseR, epk);
-    Map<URN, GSCommitment> commitmentMap = new HashMap<>();
-    commitmentMap.put(URN.createZkpgsURN("prover.commitments.C_0"), C_i);
+		// Establishing tilde- and hat-values for the message
+		String tildem_iURN = URNType.buildURNComponent(URNType.TILDEMI, PossessionProver.class, PROVER_INDEX);
+		BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		proofStore.store(tildem_iURN, tildem_i);
 
-    proofStore.store("prover.commitments", commitmentMap);
-    proofStore.store("prover.commitments.C_0", C_i);
+		cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 
-    cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+		String hatm_iURN = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, PROVER_INDEX);
+		hatm_i = tildem_i.add(cChallenge.multiply(testM));
+		proofStore.store(hatm_iURN, tildem_i);
 
-    String hatm_iURN = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, 0);
-    hatm_i = tildem_i.add(cChallenge.multiply(testM));
-    proofStore.store(hatm_iURN, tildem_i);
 
-    Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
-    String hatr_iURN = URNType.buildURNComponent(URNType.HATRI, CommitmentProver.class, 0);
-    gslog.info("hariUrn: " + hatr_iURN);
+		// Running the commitment prover
+//		String tildeC_iURN = URNType.buildURNComponent(URNType.TILDECI, CommitmentProver.class);
+		tildeC_i = cprover.executePreChallengePhase();
 
-    hatr_i = responses.get(URN.createZkpgsURN(hatr_iURN));
-    gslog.info("hatr_i: " + hatr_i);
-    cverifier = new CommitmentVerifier(STAGE.VERIFYING, epk, proofStore);
-  }
+		
+		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, PROVER_INDEX);
+		gslog.info("tilder_iUrn: " + tilder_iURN);
+		tilder_i = (BigInteger) proofStore.retrieve(tilder_iURN);
 
-  @Test
-  @DisplayName("Test witness computation for the commitment verifier")
-  void computeWitness() throws VerificationException {
-    gslog.info("compute witness");
-    GroupElement hatC_i =
-        cverifier.computeWitness(
-            cChallenge,
-            baseR0);
+		
+		Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
+		
+		
+		String hatr_iURN = URNType.buildURNComponent(URNType.HATRI, CommitmentProver.class, PROVER_INDEX);
+		hatr_i = responses.get(URN.createZkpgsURN(hatr_iURN));
+		gslog.info("hatr_i: " + hatr_i);
+		
+		// Creating a tested verifier.
+		cverifier = new CommitmentVerifier(STAGE.VERIFYING, epk, proofStore);
+	}
 
-    assertNotNull(hatC_i);
-    assertEquals(tildeC_i, hatC_i);
-  }
 
-  @Test
-  void testCheckLengths() throws VerificationException {
-    gslog.info("compute witness");
-    GroupElement hatC_i =
-        cverifier.computeWitness(
-            cChallenge,
-            baseR0);
 
-    boolean isCorrectLength = cverifier.checkLengthsVerifying(baseR0);
+	@Test
+	@DisplayName("Test witness computation for the commitment verifier")
+	void computeWitness() throws VerificationException {
+		fail("Testcase is faulty, should not work on base index.");
+		gslog.info("compute witness");
+		GroupElement hatC_i =
+				cverifier.computeWitness(
+						cChallenge,
+						baseR);
 
-    assertTrue(isCorrectLength);
-  }
+		assertNotNull(hatC_i);
+		assertEquals(tildeC_i, hatC_i);
+	}
 
-  @Test
-  void testComputeHatC() {
-    fail("Test not implemented yet.");
-  }
+	@Test
+	void testCheckLengths() throws VerificationException {
+		fail("Testcase is faulty, should not work on base index.");
+		gslog.info("compute witness");
+		GroupElement hatC_i =
+				cverifier.computeWitness(
+						cChallenge,
+						baseR);
 
-  @Test
-  void testComputeUHat() {
-    fail("Test not implemented yet.");
-  }
+		boolean isCorrectLength = cverifier.checkLengthsVerifying(baseR);
+
+		assertTrue(isCorrectLength);
+	}
+
+	@Test
+	void testComputeHatC() {
+		fail("Test not implemented yet.");
+	}
+
+	@Test
+	void testComputeUHat() {
+		fail("Test not implemented yet.");
+	}
 }

@@ -8,6 +8,7 @@ import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
@@ -25,6 +26,8 @@ public class ExtendedPublicKey
 implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo, IBaseProvider {
 	/* TODO make the keypair defensive and secure in that it is either completely immutable
 	or only returns clones */
+	
+	public static final String URNID = "extendedpublickey";
 
 	private static final long serialVersionUID = 603738248933483649L;
 	
@@ -164,7 +167,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo, IBasePr
 	 */
 	protected BaseRepresentation getPrototypeVertexBase(int index) {
 		BaseRepresentation base =
-				bases.get(URN.createZkpgsURN("baseRepresentationMap.vertex.R_V_" + index));
+				bases.get(URNType.buildURN(URNType.RV, ExtendedKeyPair.class, index));
 		if (base == null) {
 			throw new IllegalArgumentException("Requested vertex base did not exist. Index: " + index);
 		}
@@ -188,7 +191,7 @@ implements Serializable, IPublicKey, IContextProducer, IExtendedKeyInfo, IBasePr
 	 */
 	protected BaseRepresentation getPrototypeEdgeBase(int index) {
 		BaseRepresentation base =
-				bases.get(URN.createZkpgsURN("baseRepresentationMap.edge.R_E_" + index));
+				bases.get(URNType.buildURN(URNType.RE, ExtendedKeyPair.class, index));
 		if (base == null) {
 			throw new IllegalArgumentException("Requested edge base did not exist. Index: " + index);
 		}

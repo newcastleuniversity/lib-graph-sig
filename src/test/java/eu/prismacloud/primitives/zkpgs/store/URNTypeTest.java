@@ -26,10 +26,10 @@ class URNTypeTest {
 	@Test
 	void testBuildURNComponentWoIndex() {
 		String urnStrFromClass =  URNType.buildURNComponent(URNType.HATE, PossessionProver.class);
-		assertEquals(PossessionProver.URNID + "." + URNType.getClass(URNType.HATE) + "." + URNType.getSuffix(URNType.HATE), urnStrFromClass);
+		assertEquals(PossessionProver.URNID + "." + URNType.getNameSpaceComponentClass(URNType.HATE) + "." + URNType.getSuffix(URNType.HATE), urnStrFromClass);
 		
 		String urnStrFromClassV =  URNType.buildURNComponent(URNType.HATE, PossessionVerifier.class);
-		assertEquals(PossessionVerifier.URNID + "." + URNType.getClass(URNType.HATE) + "." + URNType.getSuffix(URNType.HATE), urnStrFromClassV);
+		assertEquals(PossessionVerifier.URNID + "." + URNType.getNameSpaceComponentClass(URNType.HATE) + "." + URNType.getSuffix(URNType.HATE), urnStrFromClassV);
 		
 		try {
 			URNType.buildURNComponent(URNType.HATMI, PossessionProver.class);
@@ -44,10 +44,10 @@ class URNTypeTest {
 	void testBuildURNComponentWIndex() {
 		int testIndex = 0;
 		String urnStrFromClass =  URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, testIndex);
-		assertEquals(PossessionProver.URNID + "." + URNType.getClass(URNType.HATMI) + "." + URNType.getSuffix(URNType.HATMI) + testIndex, urnStrFromClass);
+		assertEquals(PossessionProver.URNID + "." + URNType.getNameSpaceComponentClass(URNType.HATMI) + "." + URNType.getSuffix(URNType.HATMI) + testIndex, urnStrFromClass);
 		
 		String urnStrFromClassV =  URNType.buildURNComponent(URNType.HATMI, PossessionVerifier.class, testIndex);
-		assertEquals(PossessionVerifier.URNID + "." + URNType.getClass(URNType.HATMI) + "." + URNType.getSuffix(URNType.HATMI) + testIndex, urnStrFromClassV);
+		assertEquals(PossessionVerifier.URNID + "." + URNType.getNameSpaceComponentClass(URNType.HATMI) + "." + URNType.getSuffix(URNType.HATMI) + testIndex, urnStrFromClassV);
 		
 		try {
 			URNType.buildURNComponent(URNType.HATE, PossessionProver.class, testIndex);
@@ -60,7 +60,12 @@ class URNTypeTest {
 	
 	@Test
 	void testIsProverVerifier() {
-		assertTrue(URNType.isProverVerifier(PossessionProver.class));
-		assertFalse(URNType.isProverVerifier(URNType.class));
+		assertTrue(URNType.isURNGoverner(PossessionProver.class));
+		assertFalse(URNType.isURNGoverner(URNType.class));
+	}
+	
+	@Test 
+	void testConsistency() {
+		assertTrue(URNType.isConsistent(), "The URNType system was inconsistent. Check!");
 	}
 }
