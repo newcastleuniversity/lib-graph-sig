@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.prismacloud.primitives.zkpgs.DefaultValues;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
+
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;

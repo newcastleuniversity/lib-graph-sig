@@ -6,9 +6,10 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.JsonIsoCountries;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.HashMap;

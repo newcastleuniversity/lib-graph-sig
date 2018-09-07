@@ -12,11 +12,11 @@ import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.io.IOException;

@@ -8,8 +8,9 @@ import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;

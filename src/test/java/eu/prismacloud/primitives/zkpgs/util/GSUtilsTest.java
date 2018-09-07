@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;

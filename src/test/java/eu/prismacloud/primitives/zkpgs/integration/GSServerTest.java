@@ -7,8 +7,9 @@ import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.GSServer;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;

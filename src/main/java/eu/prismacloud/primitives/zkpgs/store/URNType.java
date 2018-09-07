@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.prismacloud.primitives.zkpgs.prover.IProver;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import eu.prismacloud.primitives.zkpgs.verifier.IVerifier;
 
 public enum URNType {

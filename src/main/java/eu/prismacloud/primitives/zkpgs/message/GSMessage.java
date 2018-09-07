@@ -2,7 +2,8 @@ package eu.prismacloud.primitives.zkpgs.message;
 
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

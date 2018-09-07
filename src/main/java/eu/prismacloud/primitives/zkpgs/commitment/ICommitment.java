@@ -1,7 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.commitment;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
+
 import java.math.BigInteger;
 import java.util.Map;
 

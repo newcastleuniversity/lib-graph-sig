@@ -1,7 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.keys;
 
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 
 import java.io.Serializable;
 import java.math.BigInteger;

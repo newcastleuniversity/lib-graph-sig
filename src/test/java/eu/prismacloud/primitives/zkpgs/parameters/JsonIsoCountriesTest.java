@@ -3,8 +3,9 @@ package eu.prismacloud.primitives.zkpgs.parameters;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Map;

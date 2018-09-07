@@ -1,5 +1,7 @@
-package eu.prismacloud.primitives.zkpgs.util;
+package eu.prismacloud.primitives.zkpgs.store;
 
+import eu.prismacloud.primitives.zkpgs.util.Assert;
+import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent;
 import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent.Type;
 import java.io.Serializable;
 import java.util.StringTokenizer;

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 
 /** 
  * Interface for classes that offer representative encodings.

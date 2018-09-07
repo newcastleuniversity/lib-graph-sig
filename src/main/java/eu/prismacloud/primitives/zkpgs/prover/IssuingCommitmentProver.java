@@ -11,9 +11,9 @@ import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 
 /**
  * CommitmentProver making provisions for the issuing phase of the

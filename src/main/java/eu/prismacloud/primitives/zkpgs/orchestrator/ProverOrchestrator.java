@@ -12,6 +12,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.*;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;

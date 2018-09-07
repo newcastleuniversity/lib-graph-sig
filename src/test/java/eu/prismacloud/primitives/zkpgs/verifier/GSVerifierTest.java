@@ -13,7 +13,8 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;

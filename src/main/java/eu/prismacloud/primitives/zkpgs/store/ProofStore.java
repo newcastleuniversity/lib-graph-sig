@@ -2,7 +2,7 @@ package eu.prismacloud.primitives.zkpgs.store;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

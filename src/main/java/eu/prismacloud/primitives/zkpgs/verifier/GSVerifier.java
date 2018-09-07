@@ -7,8 +7,8 @@ import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 
 import java.io.IOException;
 import java.math.BigInteger;

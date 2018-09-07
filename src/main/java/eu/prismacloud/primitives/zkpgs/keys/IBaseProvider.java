@@ -3,7 +3,7 @@ package eu.prismacloud.primitives.zkpgs.keys;
 import java.util.Map;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 
 /**
  * The interface organizes classes that offer access to vertex and edge bases.

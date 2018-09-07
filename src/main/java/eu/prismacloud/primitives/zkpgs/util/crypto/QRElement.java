@@ -1,7 +1,8 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;

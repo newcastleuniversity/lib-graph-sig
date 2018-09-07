@@ -18,6 +18,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 
 /**
  * Utility functions to display and diagnose the structure of a graph representation.

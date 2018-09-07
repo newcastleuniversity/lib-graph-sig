@@ -7,8 +7,8 @@ import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.store.EnumeratedURNType;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 
 public class CommitmentProver extends AbstractCommitmentProver implements IProver {
 

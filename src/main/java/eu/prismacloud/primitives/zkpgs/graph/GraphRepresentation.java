@@ -2,10 +2,10 @@ package eu.prismacloud.primitives.zkpgs.graph;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.URN;
 
 import java.math.BigInteger;
 import java.util.*;

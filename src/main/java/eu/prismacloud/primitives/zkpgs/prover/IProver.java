@@ -1,7 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.util.URN;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.math.BigInteger;

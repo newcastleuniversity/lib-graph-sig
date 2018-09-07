@@ -1,8 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
-import eu.prismacloud.primitives.zkpgs.util.URN;
 import java.io.Serializable;
 import java.util.Map;
+
+import eu.prismacloud.primitives.zkpgs.store.URN;
 
 /** Class encapsulating the elements of a proof signature */
 public class ProofSignature implements Serializable {

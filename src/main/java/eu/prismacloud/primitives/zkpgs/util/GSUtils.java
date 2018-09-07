@@ -7,6 +7,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
