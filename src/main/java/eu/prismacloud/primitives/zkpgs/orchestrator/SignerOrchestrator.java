@@ -257,7 +257,11 @@ public class SignerOrchestrator implements IMessagePartner {
 		for (Map.Entry<URN, BigInteger> response : responses.entrySet()) {
 			proofStore.save(response.getKey(), response.getValue());
 		}
-
+		
+		// TODO synchronize data
+		proofStore.store("issuing.commitmentverifier.responses.hatvprime", hatvPrime);
+		proofStore.store("issuing.commitmentverifier.responses.hatm_0", hatm_0);
+		
 		proofStore.store("proofsignature.P_1.c", cChallenge);
 		proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
 		proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
