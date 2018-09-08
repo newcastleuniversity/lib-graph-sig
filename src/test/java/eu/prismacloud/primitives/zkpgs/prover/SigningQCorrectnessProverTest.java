@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -27,7 +26,6 @@ import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElement;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class SigningQCorrectnessProverTest {
