@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +22,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -82,11 +85,9 @@ class SigningQCorrectnessProverTest {
 
 	/**
 	 * The test case is responsible for checking the computation of the witness randomness
-	 * (tilde-values). It retrieves these values from the ProofStore. The computation of the overall
-	 * witness tildeZ is done in testComputeWiteness(). The correct range of the witness randomness is
-	 * checked by testCreateWitnessRandomness().
+	 * (tilde-values) as well as the resulting witness tildeA. It retrieves these values from the ProofStore.
 	 *
-	 * @throws ProofStoreException
+	 * @throws ProofStoreException if the ProofStore did not contain the required witness randomness tilded.
 	 */
 	@Test
 	void testPreChallengePhase() throws ProofStoreException {
@@ -100,6 +101,45 @@ class SigningQCorrectnessProverTest {
 		assertEquals(Q.modPow(tilded), tildeA, "Witness tildeA was not computed correctly.");
 	}
 	
+	/**
+	 * The test case checks the post-challenge phase of the prover.
+	 *
+	 * @throws ProofStoreException if the ProofStore did not contain the required witness randomness tilded.
+	 */
+	@Test
+	void testPostChallengePhase() throws ProofStoreException {
+
+		tildeA = prover.executePreChallengePhase();
+		tilded = (BigInteger) proofStore.retrieve(URNType.buildURNComponent(URNType.TILDED, SigningQCorrectnessProver.class));
+		
+		assertNotNull(tildeA, "The witness tildeA was found to be null.");
+		assertNotNull(tilded, "The witness randomness for d (tilded) was found to be null.");
+		
+		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+		log.info("challenge: " + cChallenge);
+
+		
+		
+		Map<URN, BigInteger> responses = prover.executePostChallengePhase(cChallenge);
+		BigInteger hatd = responses.get(
+				URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
+		
+		assertNotNull(hatd, "The response hatd was null.");
+		
+		BigInteger pPrime = signerKeyPair.getPrivateKey().getPPrime();
+		BigInteger qPrime = signerKeyPair.getPrivateKey().getQPrime();
+		BigInteger order =pPrime.multiply(qPrime);
+		
+		assertEquals(tilded.subtract(cChallenge.multiply(d)).mod(order), hatd, "The hatd savlue was not computed as prescribed.");
+	}
+	
+	/**
+	 * Tests the self-verification of the prover.
+	 * 
+	 * @throws ProofStoreException if hat-values could not be retrieved from the ProofStore.
+	 * @throws NoSuchAlgorithmException If the challenge could not be obtained correctly.
+	 * @throws InterruptedException If the threat was interrupted.
+	 */
 	@Test
 	void testProverSelfVerification() throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 		tildeA = prover.executePreChallengePhase();
