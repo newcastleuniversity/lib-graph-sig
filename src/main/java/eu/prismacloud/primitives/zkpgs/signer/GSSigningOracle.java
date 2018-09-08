@@ -222,4 +222,38 @@ public class GSSigningOracle {
 		GroupElement A = Q.modPow(d);
 		return A;
 	}
+	
+	/**
+	 * Establishes Q from a given signature.
+	 * 
+	 * @param sigma GSSignature to be analyzed.
+	 * 
+	 * @return Q
+	 */
+	public GroupElement computeQforSignature(GSSignature sigma) {
+		GroupElement signatureContent = signerKeyPair.getPublicKey().getBaseS().modPow(sigma.getV());
+		
+		BaseIterator baseIterator = sigma.getEncodedBases().createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			signatureContent = signatureContent.multiply(base.getBase().modPow(base.getExponent()));
+		}
+		
+		GroupElement invertedContent = signatureContent.modInverse();
+		
+		return signerKeyPair.getPublicKey().getBaseZ().multiply(invertedContent);
+	}
+	
+	/**
+	 * Obtains the secret d for a given GSSignature.
+	 * 
+	 * @param sigma GSSignature to be reverse engineered.
+	 * 
+	 * @return secret exponent d.
+	 */
+	public BigInteger computeDforSignature(GSSignature sigma) {
+		BigInteger pPrime = signerKeyPair.getPrivateKey().getPPrime();
+		BigInteger qPrime = signerKeyPair.getPrivateKey().getQPrime();
+
+		return sigma.getE().modInverse(pPrime.multiply(qPrime));
+	}
 }
