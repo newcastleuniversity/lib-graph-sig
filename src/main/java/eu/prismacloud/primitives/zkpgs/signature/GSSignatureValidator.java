@@ -33,7 +33,6 @@ public class GSSignatureValidator {
 
 	private GroupElement Q;
 
-	// TODO Source of encoded base collection?
 	public GSSignatureValidator(GSSignature sigma, SignerPublicKey pk, ProofStore<Object> ps) {
 		this.signerPublicKey = pk;
 		this.keyGenParameters = pk.getKeyGenParameters();
@@ -57,39 +56,22 @@ public class GSSignatureValidator {
 		}
 	}
 
-	public GroupElement computeQ() throws ProofStoreException {
+	public GroupElement computeQ() {
 		GroupElement basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
 
-		BaseIterator vertexIterator = encodedBasesCollection.createIterator(BASE.VERTEX);
-		for (BaseRepresentation vertexBase : vertexIterator) {
+		BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			if (base.getBaseType().equals(BASE.BASES)) continue; // Dealing with randomness separately.
 			basesProduct =
 					basesProduct.multiply(
-							vertexBase.getBase().modPow(vertexBase.getExponent()));
+							base.getBase().modPow(base.getExponent()));
 		}
-		
-		BaseIterator edgeIterator = encodedBasesCollection.createIterator(BASE.EDGE);
-		for (BaseRepresentation edgeBase : edgeIterator) {
-			basesProduct =
-					basesProduct.multiply(
-							edgeBase.getBase().modPow(edgeBase.getExponent()));
-		}
+	
 
-		GroupElement R_0 = signerPublicKey.getBaseR_0();
-
-		BigInteger vPrime = (BigInteger) proofStore.retrieve("issuing.recipient.vPrime");
-		BigInteger vPrimePrime = (BigInteger) proofStore.retrieve("recipient.vPrimePrime");
-		BigInteger m_0 = (BigInteger) proofStore.retrieve("bases.exponent.m_0");
-
-		BigInteger v = vPrimePrime.add(vPrime);
-
-		GroupElement R_0multi = R_0.modPow(m_0);
-		basesProduct = basesProduct.multiply(R_0multi);
-
+		BigInteger v = sigma.getV();
 		GroupElement Sv = baseS.modPow(v);
 		GroupElement result = Sv.multiply(basesProduct);
 		Q = baseZ.multiply(result.modInverse());
-		
-		proofStore.store("issuing.recipient.Q", Q);
 		
 		return Q;
 	}
@@ -102,7 +84,7 @@ public class GSSignatureValidator {
 		}
 	}
 
-	public boolean verify() throws ProofStoreException {
+	public boolean verify() {
 		try {
 			checkE(sigma.getE());
 		} catch (Exception e) {
@@ -112,7 +94,7 @@ public class GSSignatureValidator {
 		return verifySignature();
 	}
 
-	private boolean verifySignature() throws ProofStoreException {
+	private boolean verifySignature() {
 		computeQ();
 		try {
 			verifyAgainstHatQ();

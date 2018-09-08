@@ -129,6 +129,7 @@ public class GSSignature implements Serializable {
     QRElement Y = (QRElement) qrGroup.getOne();
     BaseIterator baseIter = bc.createIterator(BASE.ALL);
     for (BaseRepresentation baseRepresentation : baseIter) {
+    	if (baseRepresentation.getBaseType().equals(BASE.BASES)) continue;
       Y = Y.multiply(baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
     }
     return verify(epk.getPublicKey(), Y);
