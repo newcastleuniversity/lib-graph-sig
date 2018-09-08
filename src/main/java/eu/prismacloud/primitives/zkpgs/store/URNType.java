@@ -21,8 +21,8 @@ public enum URNType {
 	BASEZ,
 	BASER,
 	BASER0,
-	BASERI,
 	BASERIJ,
+	BASERI,
 	CCHALLENGE,
 	EI,
 	APRIME,
@@ -39,8 +39,8 @@ public enum URNType {
 	BBARIBARJ,
 	RBARIBARJ,
 	M0,
-	MI,
 	MIJ,
+	MI,
 	RI,
 	SIGMA,
 	EPRIME,
@@ -58,10 +58,10 @@ public enum URNType {
 	TILDEV,
 	TILDEVPRIME,
 	TILDEM0,
-	TILDEMI,
 	TILDEMIJ,
-	TILDERI,
+	TILDEMI,
 	TILDERIJ,
+	TILDERI,
 	TILDER,
 	TILDER0,
 	TILDERZ,
@@ -71,8 +71,8 @@ public enum URNType {
 	TILDEBASEZ,
 	TILDEBASER,
 	TILDEBASER0,
-	TILDEBASERI,
 	TILDEBASERIJ,
+	TILDEBASERI,
 	TILDECI,
 	TILDEU,
 	TILDEZ,
@@ -85,12 +85,12 @@ public enum URNType {
 	HATV,
 	HATVPRIME,
 	HATM0,
-	HATMI,
 	HATMIJ,
-	HATRI,
-	HATBASERI,
+	HATMI,
 	HATRIJ,
+	HATRI,
 	HATBASERIJ,
+	HATBASERI,
 	HATRZ,
 	HATR,
 	HATBASER,
@@ -118,8 +118,8 @@ public enum URNType {
 		case BASEZ: return "baseZ";
 		case BASER: return "baseR";
 		case BASER0: return "baseR_0";
-		case BASERI: return "baseR_i_";
 		case BASERIJ: return "baseR_i_j_";
+		case BASERI: return "baseR_i_";
 		case CCHALLENGE: return "c";
 		case EI: return "e_i_";
 		case APRIME: return "APrime";
@@ -133,8 +133,8 @@ public enum URNType {
 		case BBARIBARJ: return "b_BariBarj_";
 		case RBARIBARJ: return "r_BariBarj_";
 		case M0: return "m_0";
-		case MI: return "m_i_";
 		case MIJ: return "m_i_j_";
+		case MI: return "m_i_";
 		case RI: return "r_i_";
 		case DLRV: return "x_R_V_";
 		case DLRE: return "x_R_E_";
@@ -153,10 +153,10 @@ public enum URNType {
 		case TILDEV: return "tildev";
 		case TILDEVPRIME: return "tildevprime";
 		case TILDEM0: return "tildem_0";
-		case TILDEMI: return "tildem_i_";
 		case TILDEMIJ: return "tildem_i_j_";
-		case TILDERI: return "tilder_i_";
+		case TILDEMI: return "tildem_i_";
 		case TILDERIJ: return "tilder_i_j_";
+		case TILDERI: return "tilder_i_";
 		case TILDER: return "tilder";
 		case TILDER0: return "tilder_0";
 		case TILDERZ: return "tilder_Z";
@@ -166,8 +166,8 @@ public enum URNType {
 		case TILDEBASEZ: return "tildeZ";
 		case TILDEBASER: return "tildeR";
 		case TILDEBASER0: return "tildeR_0";
-		case TILDEBASERI: return "tildeR_i";
 		case TILDEBASERIJ: return "tildeR_i_j_";
+		case TILDEBASERI: return "tildeR_i";
 		case TILDEU: return "tildeU";
 		case TILDECI: return "tildeC_i_";
 		case TILDEZ: return "tildeZ";
@@ -179,11 +179,11 @@ public enum URNType {
 		case HATV: return "hatv";
 		case HATVPRIME: return "hatvprime";
 		case HATM0: return "hatm_0";
-		case HATMI: return "hatm_i_";
 		case HATMIJ: return "hatm_i_j_";
+		case HATMI: return "hatm_i_";
 		case HATRI: return "hatr_i_";
-		case HATBASERI: return "hatR_i_";
 		case HATBASERIJ: return "hatR_i_j_";
+		case HATBASERI: return "hatR_i_";
 		case HATRZ: return "hatr_Z";
 		case HATR: return "hatr";
 		case HATBASER: return "hatR";
@@ -695,7 +695,7 @@ public enum URNType {
 		URNType[] urnTypes = URNType.values();
 		for (int i = 0; i < urnTypes.length; i++) {
 			if (urnTypes[i].equals(URNType.UNDEFINED)) continue;
-			if (urnSuffix.equals(URNType.getSuffix(urnTypes[i])) || urnSuffix.startsWith(URNType.getSuffix(urnTypes[i]))) {
+			if (urnSuffix.equals(URNType.getSuffix(urnTypes[i])) || urnSuffix.matches(URNType.getSuffix(urnTypes[i]) + "\\d+\\z")) {
 				return urnTypes[i];
 			}
 		}

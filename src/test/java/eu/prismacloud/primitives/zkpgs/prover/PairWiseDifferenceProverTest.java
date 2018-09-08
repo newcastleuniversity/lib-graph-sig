@@ -69,11 +69,11 @@ class PairWiseDifferenceProverTest {
         proofStore = new ProofStore<Object>();
         int minLength = Math.floorDiv(keyGenParameters.getL_m(), 2);
         m1 = CryptoUtilsFacade.computeRandomNumber(minLength);
-        c1 = GSCommitment.createCommitment(m1, epk.getPublicKey().getBaseR(), epk);
+        c1 = GSCommitment.createCommitment(m1, epk);
 
         // Exponent m2coprime is guaranteed to be coprime with m1: prime number larger than m1.
         m2coprime = CryptoUtilsFacade.computePrimeWithLength(minLength + 1, keyGenParameters.getL_m());
-        c2coprime = GSCommitment.createCommitment(m2coprime, epk.getPublicKey().getBaseR(), epk);
+        c2coprime = GSCommitment.createCommitment(m2coprime, epk);
 
         testIndex = 0;
         prover = new PairWiseDifferenceProver(c1, c2coprime, testIndex, epk, proofStore);

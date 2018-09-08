@@ -66,12 +66,11 @@ public class GSProver implements IMessagePartner {
     this.commitmentMap = new HashMap<URN, GSCommitment>();
 
     for (BaseRepresentation vertexRepresentation : vertexRepresentations) {
-      GroupElement R_i = vertexRepresentation.getBase();
       /** TODO check length of randomness r */
       r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
       BigInteger m_i = vertexRepresentation.getExponent();
       GroupElement C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
-      commitment = GSCommitment.createCommitment(m_i, R_i,  extendedPublicKey);
+      commitment = GSCommitment.createCommitment(m_i, extendedPublicKey);
 //      commitment.setCommitmentValue(C_i);
       String commitmentURN = "prover.commitments.C_i_" + vertexRepresentation.getBaseIndex();
       commitmentMap.put(

@@ -78,9 +78,8 @@ public class GSCommitment implements Serializable {
 	 * @param epk   the extended public key
 	 * @return the commitment
 	 */
-	public static GSCommitment createCommitment(BigInteger m, GroupElement baseR, ExtendedPublicKey epk) {
+	public static GSCommitment createCommitment(BigInteger m, ExtendedPublicKey epk) {
 		Assert.notNull(m, "message m cannot be null");
-		Assert.notNull(baseR, "baseR cannot be null");
 		Assert.notNull(epk, "Extended public key cannot be null");
 
 		KeyGenParameters keyGenParameters = epk.getPublicKey().getKeyGenParameters();
@@ -95,9 +94,9 @@ public class GSCommitment implements Serializable {
 		Assert.notNull(baseS, "base S cannot be null");
 
 		// GroupElement commitmentValue = message.multiply(blinding);
-		GroupElement commimentValue = baseR.modPow(m).multiply(baseS.modPow(r));
+		GroupElement commimentValue = epk.getPublicKey().getBaseR().modPow(m).multiply(baseS.modPow(r));
 
-		BaseRepresentation base = new BaseRepresentation(baseR, 0, BASE.ALL);
+		BaseRepresentation base = new BaseRepresentation(epk.getPublicKey().getBaseR(), -1, BASE.BASER);
 		base.setExponent(m);
 		
         BaseCollection collection = new BaseCollectionImpl();

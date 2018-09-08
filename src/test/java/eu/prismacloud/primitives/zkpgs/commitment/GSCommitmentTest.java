@@ -126,7 +126,7 @@ class GSCommitmentTest {
     @Test
     @DisplayName("Test computing a commitment with  base and exponent when using EPK")
     void testcomputeCommitmentWithEPK() {
-        GSCommitment commitment = GSCommitment.createCommitment(m_0, R_0, epk);
+        GSCommitment commitment = GSCommitment.createCommitment(m_0, epk);
         assertNotNull(commitment);
         GroupElement result = R_0.modPow(m_0).multiply(epk.getPublicKey().getBaseS().modPow(commitment.getRandomness()));
 

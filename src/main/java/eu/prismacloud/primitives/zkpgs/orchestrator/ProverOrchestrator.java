@@ -47,23 +47,22 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	private List<PairWiseCommitments> pairWiseVertices;
 	private Map<URN, GSCommitment> commitments;
 	private BigInteger r_i;
-	private GSCommitment commitment;
+	private GroupElement commitment;
 	private Map<URN, BigInteger> edgeWitnesses;
 	private Map<URN, BigInteger> vertexWitnesses;
 	private Map<URN, GroupElement> pairWiseWitnesses;
 	private List<String> challengeList = new ArrayList<String>();
 	private GroupElement tildeR_BariBarj;
-	private BigInteger c;
 	private ProofStore<Object> proofStore;
 	private Map<URN, BaseRepresentation> encodedBases;
 	private Map<URN, BaseRepresentation> encodedVertexBases;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private List<String> contextList;
-	private BigInteger cChallenge;
 	private PossessionProver possessionProver;
 	private List<CommitmentProver> commitmentProverList;
 	private Map<URN, BigInteger> response;
 	private Map<URN, BigInteger> responses;
+	private BigInteger cChallenge; 
 	
 
 	public ProverOrchestrator(final ExtendedPublicKey extendedPublicKey) {
@@ -147,7 +146,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	}
 
 	private void storeBlindedGS() throws ProofStoreException {
-		String commitmentsURN = "prover.commitments";
+		String commitmentsURN = "prover.commitments.C_iMap";
 		proofStore.store(commitmentsURN, commitments);
 
 		String blindedGSURN = "prover.blindedgs.signature.sigma";
@@ -169,8 +168,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		BigInteger hate = (BigInteger) proofStore.retrieve(hateURN);
 		String hatvPrimeURN = "possessionprover.responses.hatvprime";
 		BigInteger hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
-		String hatm_0URN = "possessionprover.responses.hatm_0";
-		BigInteger hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
+		BigInteger hatm_0 = (BigInteger) proofStore.get(URNType.buildURN(URNType.HATM0, PossessionProver.class));
 
 		Map<URN, Object> proofSignatureElements = new HashMap<>();
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.c"), cChallenge);
@@ -219,17 +217,19 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	public BigInteger computeChallenge() {
 		gslog.info("compute challenge ");
 		challengeList = populateChallengeList();
+		BigInteger c = null;
 		try {
-			cChallenge = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+			c = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
 		} catch (NoSuchAlgorithmException e) {
 			gslog.log(Level.SEVERE, "Fiat-Shamir challenge could not be computed.", e);
 		}
-		return cChallenge;
+		return c;
 	}
 
 	@Override
-	public void executePostChallengePhase(BigInteger c) throws IOException {
-		gslog.info("compute post challlenge phase");
+	public void executePostChallengePhase(BigInteger cChallenge) throws IOException {
+		this.cChallenge = cChallenge;
+		
 		try {
 			responses = possessionProver.executePostChallengePhase(cChallenge);
 		} catch (ProofStoreException e1) {
@@ -280,8 +280,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation vertex : vertexIterator) {
 			tildeC_iURN = "commitmentprover.commitments.tildeC_i_" + vertex.getBaseIndex();
-			commitment = (GSCommitment) proofStore.retrieve(tildeC_iURN);
-			challengeList.add(String.valueOf(commitment.getCommitmentValue()));
+			commitment = (GroupElement) proofStore.retrieve(tildeC_iURN);
+			challengeList.add(String.valueOf(commitment));
 		}
 		/** TODO add pair-wise elements for challenge */
 		//    for (GroupElement witness : pairWiseWitnesses.values()) {
