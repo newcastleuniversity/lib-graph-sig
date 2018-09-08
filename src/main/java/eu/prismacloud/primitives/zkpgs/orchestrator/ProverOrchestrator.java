@@ -150,16 +150,16 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		String commitmentsURN = "prover.commitments";
 		proofStore.store(commitmentsURN, commitments);
 
-		String blindedGSURN = "prover.blindedgs";
+		String blindedGSURN = "prover.blindedgs.signature.sigma";
 		proofStore.store(blindedGSURN, this.blindedGraphSignature);
 
-		String APrimeURN = "prover.blindedgs.APrime";
+		String APrimeURN = "prover.blindedgs.signature.APrime";
 		proofStore.store(APrimeURN, this.blindedGraphSignature.getA());
 
-		String ePrimeURN = "prover.blindedgs.ePrime";
+		String ePrimeURN = "prover.blindedgs.signature.ePrime";
 		proofStore.store(ePrimeURN, this.blindedGraphSignature.getEPrime());
 
-		String vPrimeURN = "prover.blindedgs.vPrime";
+		String vPrimeURN = "prover.blindedgs.signature.vPrime";
 		proofStore.store(vPrimeURN, this.blindedGraphSignature.getV());
 	}
 

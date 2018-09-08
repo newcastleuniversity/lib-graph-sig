@@ -265,7 +265,9 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
 		
-		sigmaValidator.computeQ();
+		GroupElement Q = sigmaValidator.computeQ();
+		proofStore.store("issuing.recipient.Q", Q);
+		
 		if(!sigmaValidator.verify()) {
 			throw new VerificationException("The signature is inconsistent.");
 		}
@@ -278,17 +280,16 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		cPrime = (BigInteger) P_2.get("P_2.cPrime");
 		
-//		TODO DEACTIVATED for the time being.
-//		if(!verifyingQOrchestrator.executeVerification(cPrime)) {
-//			throw new VerificationException("Graph signature proof P_2 could not be verified.");
-//		}
+		if(!verifyingQOrchestrator.executeVerification(cPrime)) {
+			throw new VerificationException("Graph signature proof P_2 could not be verified.");
+		}
 
 		gsSignature = signatureCandidate;
 
 		Boolean isValidSignature = gsSignature.verify(extendedPublicKey, signedBases);
 
 		if (!isValidSignature) {
-			throw new VerificationException("graph signature is not valid");
+			throw new VerificationException("Graph signature is not valid");
 		}
 
 		gslog.info("recipient: store signature A,e,v");

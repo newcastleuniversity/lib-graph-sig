@@ -30,6 +30,7 @@ public enum URNType {
 	U,
 	NONCEI,
 	PI,
+	CIMAP,
 	
 	// Secrets
 	DLRV,
@@ -126,6 +127,7 @@ public enum URNType {
 		case U: return "U";
 		case NONCEI: return "n_";
 		case PI: return "P_";
+		case CIMAP: return "C_iMap";
 		
 		case ABARIBARJ: return "a_BariBarj_";
 		case BBARIBARJ: return "b_BariBarj_";
@@ -220,6 +222,7 @@ public enum URNType {
 		case U: return "commitment";
 		case NONCEI: return "nonce";
 		case PI: return "proofsignature";
+		case CIMAP: return "commitments";
 		
 		case ABARIBARJ: return "secret";
 		case BBARIBARJ: return "secret";
@@ -322,6 +325,7 @@ public enum URNType {
 		case U: return URNClass.PUBLIC;
 		case NONCEI: return URNClass.PUBLIC;
 		case PI: return URNClass.PUBLIC;
+		case CIMAP: return URNClass.PUBLIC;
 		
 		case ABARIBARJ: return URNClass.SECRET;
 		case BBARIBARJ: return URNClass.SECRET;

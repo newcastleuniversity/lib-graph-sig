@@ -73,13 +73,13 @@ public class GSProver implements IMessagePartner {
       GroupElement C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
       commitment = GSCommitment.createCommitment(m_i, R_i,  extendedPublicKey);
 //      commitment.setCommitmentValue(C_i);
-      String commitmentURN = "prover.commitments.C_" + vertexRepresentation.getBaseIndex();
+      String commitmentURN = "prover.commitments.C_i_" + vertexRepresentation.getBaseIndex();
       commitmentMap.put(
           URN.createURN(URN.getZkpgsNameSpaceIdentifier(), commitmentURN), commitment);
       proofStore.store(commitmentURN, commitment);
     }
 
-    String commmitmentMapURN = "prover.commitments.C_i";
+    String commmitmentMapURN = "prover.commitments.C_iMap";
     proofStore.store(commmitmentMapURN, commitmentMap);
   }
 
@@ -89,9 +89,9 @@ public class GSProver implements IMessagePartner {
   }
 
   private void storeBlindedGS() {
-    String APrimeURN = "prover.blindedgs.APrime";
-    String ePrimeURN = "prover.blindedgs.ePrime";
-    String vPrimeURN = "prover.blindedgs.vPrime";
+    String APrimeURN = "prover.blindedgs.signature.APrime";
+    String ePrimeURN = "prover.blindedgs.signature.ePrime";
+    String vPrimeURN = "prover.blindedgs.signature.vPrime";
 
     try {
       proofStore.store(APrimeURN, blindedSignature.getA());
