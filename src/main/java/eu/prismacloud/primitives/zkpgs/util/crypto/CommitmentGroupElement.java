@@ -3,6 +3,9 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import java.math.BigInteger;
 import java.util.List;
 
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
+
+
 /** Commitment Group Element class */
 public final class CommitmentGroupElement extends GroupElement {
 
@@ -21,7 +24,7 @@ public final class CommitmentGroupElement extends GroupElement {
 
   public BigInteger getOrder() {
     // TODO implement get Order
-    throw new RuntimeException("not implemented");
+    throw new NotImplementedException("not implemented");
   }
 
   @Override
@@ -37,12 +40,12 @@ public final class CommitmentGroupElement extends GroupElement {
   @Override
   public CommitmentGroupElement multiBaseExp(List<GroupElement> bases, List<BigInteger> exponents) {
     // TODO implement multibase exponentiations
-       throw new RuntimeException("not implemented");
+       throw new NotImplementedException("not implemented");
   }
 
   @Override
   public GroupElement modInverse() {
-    throw new RuntimeException("not implemented");
+    throw new NotImplementedException("not implemented");
   }
 
 @Override

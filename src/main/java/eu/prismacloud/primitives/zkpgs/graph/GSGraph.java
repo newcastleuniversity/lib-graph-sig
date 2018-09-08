@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.graph;
 
 import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
+import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import java.io.File;
 import java.io.InputStream;
@@ -183,7 +184,7 @@ implements Serializable, Cloneable {
 			theClone = (GSGraph<V, E>) super.clone();
 		} catch (CloneNotSupportedException e) {
 			// Should never happen
-			throw new InternalError(e);
+			throw new TopocertInternalError(e);
 		}
 
 		// Cloning mutable members

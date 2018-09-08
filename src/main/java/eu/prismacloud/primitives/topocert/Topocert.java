@@ -9,7 +9,9 @@ import java.util.Vector;
 import org.jgrapht.io.ImportException;
 
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
+import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -109,6 +111,7 @@ public class Topocert {
 		//
 		// Main Behavior Branching
 		//
+		try {
 		if (keygenMode != null && keygenMode.booleanValue()) {
 			// Initialize TOPOCERT keygen
 			System.out.println("Entering TOPOCERT key generation...");
@@ -197,6 +200,24 @@ public class Topocert {
 			System.err.println("Please specify a mode to operate in.\n");
 			parser.printUsage();
 			System.exit(TopocertErrorCodes.EX_USAGE);
+		}
+		
+		// Severe Error Conditions
+		} catch (IllegalStateException  e) {
+			handleException(e, "TOPOCERT detected an illegal state and is aborting "
+					+ "the protocol run.", TopocertErrorCodes.EX_STATE);
+		} catch (IllegalArgumentException e) {
+			handleException(e, "TOPOCERT detected a call with an illegal argument "
+					+ "and is aborting the protocol run.", TopocertErrorCodes.EX_SOFTWARE);
+		} catch (NotImplementedException e) {
+			handleException(e, "TOPOCERT detected that a method was called that has "
+					+ "not been released for production yet.", TopocertErrorCodes.EX_SOFTWARE);
+		} catch (RuntimeException e) {
+			handleException(e, "TOPOCERT detected a runtime exception "
+					+ "and is aborting the protocol run.", TopocertErrorCodes.EX_SOFTWARE);
+		} catch (TopocertInternalError e) {
+			handleException(e, "TOPOCERT detected an unexpcected, critical internal error "
+					+ "that it could not recover from.", TopocertErrorCodes.EX_CRITERR);
 		}
 
 		System.exit(0);
@@ -306,6 +327,8 @@ public class Topocert {
 
 		System.out.println("  Keygen: Completed.");
 	}
+	
+	// TODO Catch Overall Illegal State Exception, Internal Error, RuntimeException
 
 	void sign(ExtendedKeyPair ekp, String graphFilename) {
 		System.out.println("  Sign: Hosting interactive signing for graph: " + graphFilename + "...");
@@ -407,8 +430,8 @@ public class Topocert {
 					+ "data in the ProofStore in Round 3.",
 					TopocertErrorCodes.EX_DATAERR);
 		} catch (IOException e) {
-			handleException(e, "The TOPOCERT Recipient could not receive the "
-					+ "signature from the Signer in Round 3.",
+			handleException(e, "There was an IO Exception while the TOPOCERT Recipient "
+					+ "sought to receive the signature from the Signer in Round 3.",
 					TopocertErrorCodes.EX_NOHOST);
 		}
 
@@ -504,13 +527,17 @@ public class Topocert {
 		System.out.println("  Verify: Completed");
 	}
 
-	private static void handleException(Exception e, String highLevelMsg, int exitCode) {
-		System.err.println(highLevelMsg);
-		System.err.println(e.getMessage() + "\n");
+	private static void handleException(Throwable e, String highLevelMsg, int exitCode) {
+		System.err.println("\n\nTOPOCERT Exception:\n" + highLevelMsg);
+		if (e.getMessage() != null ) System.err.println("\nException message: " + e.getMessage() + "\n");
 		
 		if (Topocert.verbose) {
-			System.err.println(e);
+			System.err.println("\nCause of the Exception:\n" + e);
+			
+			System.err.println("\nPrinting the stack trace:");
+			e.printStackTrace();
 		}
+		System.err.println("\nTOPOCERT aborting.");
 		
 		System.exit(exitCode);
 	}

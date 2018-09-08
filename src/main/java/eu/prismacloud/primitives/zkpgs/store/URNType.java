@@ -193,9 +193,9 @@ public enum URNType {
 		case HATMAP: return "hatMap";
 		
 		
-		case UNDEFINED: throw new RuntimeException("URNType " + t + " does not define suffixes.");
+		case UNDEFINED: throw new IllegalArgumentException("URNType " + t + " does not define suffixes.");
 		}
-		throw new RuntimeException("URNType " + t + " does not exist.");
+		throw new IllegalArgumentException("URNType " + t + " does not exist.");
 	}
 
 	public static String getNameSpaceComponentClass(URNType t) {
@@ -284,10 +284,10 @@ public enum URNType {
 		case HATU: return "responses";
 		case HATMAP: return "responses";
 		
-		case UNDEFINED: throw new RuntimeException("URNType " + t
+		case UNDEFINED: throw new IllegalArgumentException("URNType " + t
 				+ " does not offer namespace components.");
 		}
-		throw new RuntimeException("URNType " + t + " does not exist.");
+		throw new IllegalArgumentException("URNType " + t + " does not exist.");
 	}
 
 	/**
@@ -386,7 +386,7 @@ public enum URNType {
 		
 		case UNDEFINED: return URNClass.UNDEFINED;
 		}
-		throw new RuntimeException("URNType " + t + " does not exist.");
+		throw new IllegalArgumentException("URNType " + t + " does not exist.");
 	}
 
 	public static boolean isEnumerable(URNType t) {
@@ -445,14 +445,14 @@ public enum URNType {
 	@SuppressWarnings("rawtypes")
 	public static String buildURNComponent(URNType t, Class c) {
 		if (URNType.isEnumerable(t)) {
-			throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
+			throw new IllegalArgumentException("URNType " + t + " is enumerable and should be evaluated with an index.");
 		}
 
 		String proverID;
 		try {
 			proverID = (String) c.getDeclaredField("URNID").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
+			throw new IllegalArgumentException("URNID of component " + c.getName() + " could not be accessed.", e);
 		}
 
 
@@ -511,7 +511,7 @@ public enum URNType {
 					case VERTEX: return TILDEMI;
 					case EDGE: return TILDEMIJ;
 					case BASE0: return TILDEM0;
-					default: throw new RuntimeException("There was no canonical representation "
+					default: throw new IllegalArgumentException("There was no canonical representation "
 							+ "for base type " + baseType + " and URNClass " + urnClass);
 				}
 	
@@ -520,10 +520,10 @@ public enum URNType {
 					case VERTEX: return HATMI;
 					case EDGE: return HATMIJ;
 					case BASE0: return HATM0;
-					default: throw new RuntimeException("There was no canonical representation "
+					default: throw new IllegalArgumentException("There was no canonical representation "
 							+ "for base type " + baseType + " and URNClass " + urnClass);
 				}
-		default: throw new RuntimeException("There was no canonical representation "
+		default: throw new IllegalArgumentException("There was no canonical representation "
 				+ "for base type " + baseType + " and URNClass " + urnClass);
 		}
 	}
@@ -539,14 +539,14 @@ public enum URNType {
 	@SuppressWarnings("rawtypes")
 	public static String buildURNComponentByBaseType(URNType t, Class c) {
 		if (URNType.isEnumerable(t)) {
-			throw new RuntimeException("URNType " + t + " is enumerable and should be evaluated with an index.");
+			throw new IllegalArgumentException("URNType " + t + " is enumerable and should be evaluated with an index.");
 		}
 
 		String proverID;
 		try {
 			proverID = (String) c.getDeclaredField("URNID").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
+			throw new IllegalArgumentException("URNID of component " + c.getName() + " could not be accessed.", e);
 		}
 
 
@@ -591,18 +591,18 @@ public enum URNType {
 	@SuppressWarnings("rawtypes")
 	public static String buildURNComponent(URNType t, Class c, int index) {
 		if (!URNType.isEnumerable(t)) {
-			throw new RuntimeException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
+			throw new IllegalArgumentException("URNType " + t + " is not enumerable and should not be evaluated with an index.");
 		}
 
 		if (!isURNGoverner(c)) {
-			throw new RuntimeException("Class " + c.getName() + " does not implement an IURNGoverner interface.");
+			throw new IllegalArgumentException("Class " + c.getName() + " does not implement an IURNGoverner interface.");
 		}
 
 		String proverID;
 		try {
 			proverID = (String) c.getDeclaredField("URNID").get(null);
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException("URNID of component " + c.getName() + " could not be accessed.", e);
+			throw new IllegalArgumentException("URNID of component " + c.getName() + " could not be accessed.", e);
 		}
 
 		return proverID + URN.DOT + URNType.getNameSpaceComponentClass(t) + URN.DOT + URNType.getSuffix(t) + index;
@@ -688,7 +688,7 @@ public enum URNType {
 			}
 		}
 
-		throw new RuntimeException("The URNType for suffix " + urnSuffix + " could not be determined.");
+		throw new IllegalArgumentException("The URNType for suffix " + urnSuffix + " could not be determined.");
 	}
 	
 	/**

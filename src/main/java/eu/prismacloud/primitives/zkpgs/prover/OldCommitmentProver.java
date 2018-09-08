@@ -355,7 +355,7 @@ public class OldCommitmentProver implements IProver {
 
     public String getProverURN(URNType t) {
         if (URNType.isEnumerable(t)) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "URNType " + t + " is enumerable and should be evaluated with an index.");
         }
         return OldCommitmentProver.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t);
@@ -363,7 +363,7 @@ public class OldCommitmentProver implements IProver {
 
     public String getProverURN(URNType t, int index) {
         if (!URNType.isEnumerable(t)) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "URNType " + t + " is not enumerable and should not be evaluated with an index.");
         }
         return OldCommitmentProver.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t) + index;

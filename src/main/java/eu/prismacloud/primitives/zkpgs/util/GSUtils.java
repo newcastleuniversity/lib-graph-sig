@@ -736,7 +736,7 @@ public class GSUtils implements INumberUtils {
 	 * @return BigInteger upper bound
 	 */
 	public BigInteger getUpperPMBound(final int bitLength) {
-		if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
+		if (bitLength <= 0) throw new IllegalArgumentException("BitLength must be positive.");
 
 		Integer iBitLength = new Integer(bitLength);
 		if (boundMap.containsKey(iBitLength)) {
@@ -758,7 +758,7 @@ public class GSUtils implements INumberUtils {
 	 * @return BigInteger lower bound
 	 */
 	public BigInteger getLowerPMBound(final int bitLength) {
-		if (bitLength <= 0) throw new RuntimeException("BitLength must be positive.");
+		if (bitLength <= 0) throw new IllegalArgumentException("BitLength must be positive.");
 
 		Integer iBitLength = new Integer(-bitLength);
 		if (boundMap.containsKey(iBitLength)) {

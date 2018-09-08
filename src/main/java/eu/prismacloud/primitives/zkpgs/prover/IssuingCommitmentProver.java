@@ -135,7 +135,7 @@ public class IssuingCommitmentProver extends AbstractCommitmentProver implements
 	
 	@Override
 	protected URN getHatMURN() {
-		throw new RuntimeException("The singleton base R should not be used"
+		throw new IllegalStateException("The singleton base R should not be used"
 				+ " during issuing.");
 	}
 

@@ -5,6 +5,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
@@ -353,7 +354,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			if (key.matchesPrefix(vertexPrefix)) {
 				int baseIndex = key.getIndex();
 				if (baseIndex < 0) {
-					throw new InternalError("The hatm_i values were not indexed correctly.");
+					throw new TopocertInternalError("The hatm_i values were not indexed correctly.");
 				}
 				
 				BaseRepresentation vertexBase = extendedPublicKey.getVertexBase(baseIndex);
@@ -365,7 +366,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			if (key.matchesPrefix(edgePrefix)) {
 				int baseIndex = key.getIndex();
 				if (baseIndex < 0) {
-					throw new InternalError("The hatm_i_j values were not indexed correctly.");
+					throw new TopocertInternalError("The hatm_i_j values were not indexed correctly.");
 				}
 				
 				BaseRepresentation edgeBase = extendedPublicKey.getEdgeBase(baseIndex);

@@ -60,7 +60,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 	public GroupElement executePreChallengePhase() throws ProofStoreException {
 		// Establish proper conditions for singleton case
 		if (isRestrictedToSingleton() && baseCollection.size() != 1) {
-			throw new InternalError("Cannot run a commitment restricted to a single base R with"
+			throw new IllegalStateException("Cannot run a commitment restricted to a single base R with"
 					+ " a non-one sized base collection.");
 		}
 		// Post-condition: There must be only one base, if restricted to singleton.
@@ -246,7 +246,7 @@ public abstract class AbstractCommitmentProver implements IProver {
 		this.cChallenge = cChallenge;
 		// Establish proper conditions for singleton case
 		if (isRestrictedToSingleton() && baseCollection.size() != 1) {
-			throw new InternalError("Cannot run a commitment restricted to a single base R with"
+			throw new IllegalStateException("Cannot run a commitment restricted to a single base R with"
 					+ " a non-one sized base collection.");
 		}
 		// Post-condition: There must be only one base, if restricted to singleton.

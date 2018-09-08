@@ -182,7 +182,7 @@ public class GroupSetupVerifier implements IVerifier {
 
 	public String getVerifierURN(URNType t) {
 		if (URNType.isEnumerable(t)) {
-			throw new RuntimeException(
+			throw new IllegalArgumentException(
 					"URNType " + t + " is enumerable and should be evaluated with an index.");
 		}
 		return GroupSetupVerifier.URNID + "." + URNType.getNameSpaceComponentClass(t) + "." + URNType.getSuffix(t);
@@ -190,7 +190,7 @@ public class GroupSetupVerifier implements IVerifier {
 
 	public String getVerifierURN(URNType t, int index) {
 		if (!URNType.isEnumerable(t)) {
-			throw new RuntimeException(
+			throw new IllegalArgumentException(
 					"URNType " + t + " is not enumerable and should not be evaluated with an index.");
 		}
 		return GroupSetupVerifier.URNID

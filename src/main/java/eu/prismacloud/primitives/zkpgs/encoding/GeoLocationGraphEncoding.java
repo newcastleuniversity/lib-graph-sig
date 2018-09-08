@@ -80,7 +80,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 	 */
 	@Override
 	public Map<URN, BigInteger> getVertexRepresentatives() {
-		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
+		if (!setupCompleted) throw new IllegalStateException("The setup has not been completed.");
 		return this.vertexRepresentatives;
 	}
 
@@ -91,7 +91,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 	 */
 	@Override
 	public Map<URN, BigInteger> getLabelRepresentatives() {
-		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
+		if (!setupCompleted) throw new IllegalStateException("The setup has not been completed.");
 		return this.countryLabels;
 	}
 
@@ -112,7 +112,7 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 			Map<URN, BigInteger> labelRepresenatives,
 			BaseRepresentation baseL,
 			SignerPublicKey signerPublicKey) {
-		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
+		if (!setupCompleted) throw new IllegalStateException("The setup has not been completed.");
 
 		signatureMap = new HashMap<BigInteger, GSSignature>();
 		GSSignature gsSignature;
@@ -183,19 +183,19 @@ public class GeoLocationGraphEncoding implements IGraphEncoding, Serializable {
 
 	@Override
 	public BigInteger getVertexRepresentative(String id) {
-		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
+		if (!setupCompleted) throw new IllegalStateException("The setup has not been completed.");
 		return vertexRepresentatives.get(URN.createZkpgsURN("vertex.representative.e_i_" + id));
 	}
 
 	@Override
 	public BigInteger getVertexLabelRepresentative(String label) {
-		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
+		if (!setupCompleted) throw new IllegalStateException("The setup has not been completed.");
 		return countryLabels.get(URN.createUnsafeZkpgsURN(label));
 	}
 
 	@Override
 	public BigInteger getEdgeLabelRepresentative(String label) {
-		if (!setupCompleted) throw new InternalError("The setup has not been completed.");
+		if (!setupCompleted) throw new IllegalStateException("The setup has not been completed.");
 		return countryLabels.get(URN.createUnsafeZkpgsURN(label));
 	}
 }

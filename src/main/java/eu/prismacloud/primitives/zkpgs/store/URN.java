@@ -53,7 +53,7 @@ public final class URN implements Serializable {
 		this.namespaceSpecific = namespaceSpecific;
 		
 		if (!URNType.isTypeValid(urnType, URN.parseSuffix(namespaceSpecific.getContent()))) {
-			throw new RuntimeException("The named URNType is not valid for the given namespace-specific component.");
+			throw new IllegalArgumentException("The named URNType is not valid for the given namespace-specific component.");
 		}
 		
 		this.urnType = urnType;
