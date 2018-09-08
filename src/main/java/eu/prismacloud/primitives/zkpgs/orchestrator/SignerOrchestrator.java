@@ -86,7 +86,7 @@ public class SignerOrchestrator implements IMessagePartner {
 	private GroupElement R_i_j;
 	private BigInteger d;
 	private GroupElement A;
-	private BaseCollection encodedBasesCollection;
+	private BaseCollection encodedBases;
 	private GSGraph<GSVertex, GSEdge> gsGraph;
 	private BigInteger order;
 	private BigInteger hatd;
@@ -176,7 +176,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		preSignatureElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
 		preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
 		preSignatureElements.put(
-				URN.createZkpgsURN("proofsignature.encoding"), this.encodedBasesCollection);
+				URN.createZkpgsURN("proofsignature.encoding"), this.encodedBases);
 		return preSignatureElements;
 	}
 
@@ -203,7 +203,8 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		GraphRepresentation graphRepresentation = GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());
 
-		this.encodedBasesCollection = graphRepresentation.getEncodedBaseCollection();
+		this.encodedBases = graphRepresentation.getEncodedBaseCollection();
+		
 	}
 
 	/**
@@ -282,12 +283,12 @@ public class SignerOrchestrator implements IMessagePartner {
 	}
 
 	public void createPartialSignature(ExtendedPublicKey extendedPublicKey) {
-		computeQ();
+		computeQ(commitmentU);
 		computeA();
 
 		gsSignature =
 				new GSSignature(
-						extendedPublicKey, U, encodedBasesCollection, keyGenParameters, A, e, vPrimePrime);
+						extendedPublicKey, U, encodedBases, keyGenParameters, A, e, vPrimePrime);
 		Boolean isValidSignature = gsSignature.verify(signerPublicKey, basesProduct);
 
 		gslog.info("signer isValidSignature: " + isValidSignature);
@@ -310,9 +311,26 @@ public class SignerOrchestrator implements IMessagePartner {
 	}
 
 	public GroupElement computeQ() {
+		return computeQ(null);
+	}
+	
+	/**
+	 * Computes pre-signature value Q with a Recipient-provided commitment U.
+	 * The commitment U is to contain the Recipient's master secret key (msk/m_0)
+	 * encoded in base R_0. However, this msk is not privy to the signer.
+	 * 
+	 * @param U Recipient commitment U.
+	 * 
+	 * @return Pre-signature GroupElement Q.
+	 */
+	public GroupElement computeQ(GSCommitment U) {
 
 		basesProduct = signerPublicKey.getQRGroup().getOne();
-		for (BaseRepresentation baseRepresentation : encodedBasesCollection.createIterator(BASE.ALL)) {
+		if (U != null) {
+			basesProduct = basesProduct.multiply(U.getCommitmentValue());
+		}
+		
+		for (BaseRepresentation baseRepresentation : encodedBases.createIterator(BASE.ALL)) {
 			basesProduct =
 					basesProduct.multiply(
 							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));

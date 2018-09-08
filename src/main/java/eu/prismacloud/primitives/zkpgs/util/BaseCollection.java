@@ -20,6 +20,8 @@ public interface BaseCollection extends IContextProducer, Cloneable {
 	 */
 	void removeExponents();
 
+	boolean contains(BaseRepresentation base);
+	
 	int size();
 	
 	BaseCollection clone();

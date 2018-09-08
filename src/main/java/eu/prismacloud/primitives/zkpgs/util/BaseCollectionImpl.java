@@ -108,4 +108,9 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 		
 		return theClone;
 	}
+
+	@Override
+	public boolean contains(BaseRepresentation base) {
+		return bases.contains(base);
+	}
 }

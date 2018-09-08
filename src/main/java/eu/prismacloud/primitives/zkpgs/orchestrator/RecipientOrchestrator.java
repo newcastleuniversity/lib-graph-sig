@@ -63,7 +63,8 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private BigInteger n_2;
 	private GSCommitment U;
 	private GSSigner signer;
-	private BaseCollection encodedBases;
+	private BaseCollection committedBases;
+	private BaseCollection signedBases;
 	private BigInteger recipientMSK;
 	private GroupElement tildeU;
 	private List<String> challengeList;
@@ -79,6 +80,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private GSSignature gsSignature;
 	private final GroupElement R;
 	private BaseRepresentation baseR_0;
+	private boolean encodingFinalized = false;
 
 	public RecipientOrchestrator(final String graphFilename,
 			final ExtendedPublicKey extendedPublicKey) {
@@ -102,15 +104,22 @@ public class RecipientOrchestrator implements IMessagePartner {
 	public void init() throws IOException {
 		this.recipient.init();
 		
-		encodedBases = new BaseCollectionImpl();
+		committedBases = new BaseCollectionImpl();
 
 		generateRecipientMSK();
 		
-		encodeR_0();
+		encodeR_0(committedBases);
+		try {
+			proofStore.store("bases.baseR_0", baseR_0);
+			proofStore.store("bases.exponent.m_0", recipientMSK);
+		} catch (ProofStoreException pse) {
+			gslog.log(Level.SEVERE, pse.getMessage());
+		}
 
-//      RECIPIENT DOES NOT ENCODE A GRAPH AT THIS STAGE.
 //		try {
-//			createGraphRepresentation(graphFilename);
+//			if (graphFilename != null) { 
+//				createGraphRepresentation(graphFilename);
+//			}
 //		} catch (ImportException im) {
 //			throw new IOException(im.getMessage());
 //		} catch (EncodingException e) {
@@ -128,7 +137,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		vPrime = recipient.generatevPrime();
 		proofStore.store("issuing.recipient.vPrime", vPrime);
 
-		U = recipient.commit(encodedBases, vPrime);
+		U = recipient.commit(committedBases, vPrime);
 
 		/** TODO generalize commit prover */
 		// TODO needs to get access to commitment secrets (recipientGraph)
@@ -189,17 +198,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 		return challengeList;
 	}
 
-	private void encodeR_0() {
+	private void encodeR_0(BaseCollection targetCollection) {
 		baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
 		baseR_0.setExponent(this.recipientMSK);
-		encodedBases.add(baseR_0);
-
-		try {
-			proofStore.store("bases.baseR_0", baseR_0);
-			proofStore.store("bases.exponent.m_0", recipientMSK);
-		} catch (ProofStoreException pse) {
-			gslog.log(Level.SEVERE, pse.getMessage());
-		}
+		targetCollection.add(baseR_0);
 	}
 
 	private void generateRecipientMSK() {
@@ -250,10 +252,16 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		proofStore.store("recipient.vPrimePrime", vPrimePrime);
 		proofStore.store("recipient.vPrime", vPrime);
+		
+		/* The encodedBases of P_2 only includes the bases provided by the issuer.
+		 * Consequently, the bases still need to be extended with at least the
+		 * master secret key msk on base R_0 and the Recipient-provided graph.
+		 */
+		encodeRecipientCommitment();
 
 		gslog.info("Validating incoming graph signature.");
 		GSSignature signatureCandidate = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
-		signatureCandidate.setEncodedBases(encodedBases);
+		signatureCandidate.setEncodedBases(signedBases);
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
 		
@@ -277,8 +285,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		gsSignature = signatureCandidate;
 
-		encodedBases.add(baseR_0);
-		Boolean isValidSignature = gsSignature.verify(extendedPublicKey, encodedBases);
+		Boolean isValidSignature = gsSignature.verify(extendedPublicKey, signedBases);
 
 		if (!isValidSignature) {
 			throw new VerificationException("graph signature is not valid");
@@ -290,12 +297,18 @@ public class RecipientOrchestrator implements IMessagePartner {
 		proofStore.store("recipient.graphsignature.v", v);
 
 		gslog.info("recipient: save encoded bases");
-		BaseIterator baseRepresentations = encodedBases.createIterator(BASE.ALL);
+		BaseIterator baseRepresentations = signedBases.createIterator(BASE.ALL);
 		String baseURN = "";
 		for (BaseRepresentation baseRepresentation : baseRepresentations) {
 			baseURN = createBaseURN(baseRepresentation);
 			proofStore.store(baseURN, baseRepresentation);
 		}
+	}
+
+	private void encodeRecipientCommitment() {
+		encodeR_0(signedBases);
+		
+		encodingFinalized = true;
 	}
 
 	private String createBaseURN(BaseRepresentation baseRepresentation) {
@@ -311,8 +324,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 		return this.gsSignature;
 	}
 
-	public BaseCollection getEncodedBasesCollection() {
-		return this.encodedBases;
+	public BaseCollection getEncodedBases() {
+		if (!encodingFinalized || signedBases == null) 
+			throw new IllegalStateException("The encoded bases have not been completely finalized, yet.");
+		return this.signedBases;
 	}
 
 	private ProofSignature extractMessageElements(GSMessage correctnessMsg) {
@@ -324,7 +339,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 				(BigInteger)
 				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.vPrimePrime"));
 		P_2 = (ProofSignature) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.P_2"));
-		encodedBases =
+		signedBases =
 				(BaseCollection)
 				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
 

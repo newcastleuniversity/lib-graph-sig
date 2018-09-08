@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -105,4 +106,43 @@ public class GSSignatureValidator {
 		return true;
 	}
 
+	/** 
+	 * Checks whether a signature indeed contains all the bases required.
+	 * 
+	 * @param sigma Signature to analyze.
+	 * @param expectedBases Basecollection of bases expected to be present.
+	 * 
+	 * @return Bases that are missing.
+	 */
+	public BaseCollection validateEncodedBases(GSSignature sigma, BaseCollection expectedBases) {
+		BaseCollection missingBases = expectedBases.clone();
+		BaseCollection actualBases = sigma.getEncodedBases();
+		if (actualBases == null) return missingBases;
+		
+		BaseIterator actualBaseIter = actualBases.createIterator(BASE.ALL);
+		for (BaseRepresentation base : actualBaseIter) {
+			if (expectedBases.contains(base) && base.getExponent() != null) {
+				missingBases.remove(base);
+			}
+		}
+		return missingBases;
+	}
+	
+	/** 
+	 * Checks whether a signature contains unexpected bases.
+	 * 
+	 * @param sigma Signature to analyze.
+	 * @param expectedBases Basecollection of bases expected to be present.
+	 * 
+	 * @return Bases that are unexpectedly present.
+	 */
+	public BaseCollection findUnexpectedBases(GSSignature sigma, BaseCollection expectedBases) {
+		BaseCollection actualBases = sigma.getEncodedBases();
+		
+		BaseIterator expectedBaseIter = expectedBases.createIterator(BASE.ALL);
+		for (BaseRepresentation base : expectedBaseIter) {
+			if (actualBases.contains(base)) actualBases.remove(base);
+		}
+		return actualBases;
+	}
 }

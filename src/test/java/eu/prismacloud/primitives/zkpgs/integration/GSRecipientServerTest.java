@@ -73,7 +73,7 @@ public class GSRecipientServerTest {
 
     // persist encoded base collection to be used in subsequent proofs
     gslog.info("persist encoded base collection");
-    BaseCollection baseCollection = recipientOrchestrator.getEncodedBasesCollection();
+    BaseCollection baseCollection = recipientOrchestrator.getEncodedBases();
     persistenceUtil.write(baseCollection, "baseCollection.ser");
 
     assertNotNull(extendedPublicKey);
