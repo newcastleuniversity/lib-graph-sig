@@ -51,7 +51,7 @@ public class PossessionProver implements IProver {
 	private BigInteger tildee;
 	private Vector<BaseRepresentation> graphResponses = new Vector<BaseRepresentation>();
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
-	private BigInteger c;
+	private BigInteger cChallenge;
 
 	private final BaseCollection baseCollection;
 
@@ -220,9 +220,10 @@ public class PossessionProver implements IProver {
 	@Override
 	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
 			throws ProofStoreException {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
 
 		// gslog.info("prover: post challenge phase");
-		this.c = cChallenge;
+		this.cChallenge = cChallenge;
 
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
@@ -243,7 +244,7 @@ public class PossessionProver implements IProver {
 			BigInteger m_i = vertexBase.getExponent();
 			BigInteger tildem_i =
 					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMI, baseIndex));
-			BigInteger hatm_i = tildem_i.add(this.c.multiply(m_i));
+			BigInteger hatm_i = tildem_i.add(this.cChallenge.multiply(m_i));
 
 			// Reporting
 			BaseRepresentation vertexResponse = vertexBase.clone();
@@ -264,7 +265,7 @@ public class PossessionProver implements IProver {
 			BigInteger tildem_i_j =
 					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEMIJ, baseIndex));
 
-			BigInteger hatm_i_j = tildem_i_j.add(this.c.multiply(m_i_j));
+			BigInteger hatm_i_j = tildem_i_j.add(this.cChallenge.multiply(m_i_j));
 
 			BaseRepresentation edgeResponse = edgeBase.clone();
 			edgeResponse.setExponent(hatm_i_j);
@@ -284,7 +285,7 @@ public class PossessionProver implements IProver {
 					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
 			Assert.notNull(tildem_0 , "TildeM_0 could not be retrieved.");
 			
-			hatm_0 = tildem_0.add(this.c.multiply(m_0));
+			hatm_0 = tildem_0.add(this.cChallenge.multiply(m_0));
 			
 			proofStore.save(URNType.buildURN(URNType.HATM0, this.getClass()), hatm_0);
 			responses.put(URNType.buildURN(URNType.HATM0, this.getClass()), hatm_0);
@@ -295,8 +296,8 @@ public class PossessionProver implements IProver {
 //				"||hatZ Graph: "
 //						+ GraphUtils.iteratedGraphToExpString(graphResponses.iterator(), proofStore));
 
-		hate = tildee.add(this.c.multiply(ePrime));
-		hatvPrime = tildevPrime.add(this.c.multiply(vPrime));
+		hate = tildee.add(this.cChallenge.multiply(ePrime));
+		hatvPrime = tildevPrime.add(this.cChallenge.multiply(vPrime));
 
 		String hateURN = getProverURN(URNType.HATE);
 		String hatvPrimeURN = getProverURN(URNType.HATVPRIME);
@@ -321,7 +322,7 @@ public class PossessionProver implements IProver {
 	 */
 	@Override
 	public boolean verify() {
-		if (this.c == null || this.tildeZ == null) return false;
+		if (this.cChallenge == null || this.tildeZ == null) return false;
 		// This verification uses the verification equation of the TOPOCERT GSPossessionVerifier
 		// Modified with the correctness proof of the corresponding proof, that is,
 		// The equation must be equal to tildeZ.
@@ -338,7 +339,7 @@ public class PossessionProver implements IProver {
 		// Cancel out the challenge c
 		GroupElement baseZnegC =
 				(this.extendedPublicKey.getPublicKey().getBaseZ().multiply(aPrimeOffset))
-				.modPow(c.negate());
+				.modPow(cChallenge.negate());
 
 		// Establish the initial product to integrate the graph elements subsequently
 		GroupElement verifier =

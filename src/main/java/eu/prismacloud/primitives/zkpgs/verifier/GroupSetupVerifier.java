@@ -169,12 +169,14 @@ public class GroupSetupVerifier implements IVerifier {
 
 	@Override
 	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
 		if (!checkLengths()) return null;
 		return computeHatValues();
 	}
 
 	@Override
 	public GroupElement executeVerification(BigInteger cChallenge) {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
 		Map<URN, GroupElement> hatValues = executeCompoundVerification(cChallenge);
 		GroupElement hatZ = (GroupElement) hatValues.get(URN.createZkpgsURN(getVerifierURN(URNType.HATZ)));
 		return hatZ;

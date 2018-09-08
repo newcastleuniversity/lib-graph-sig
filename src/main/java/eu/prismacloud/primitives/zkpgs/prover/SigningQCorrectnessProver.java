@@ -10,6 +10,7 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -41,11 +42,21 @@ public class SigningQCorrectnessProver implements IProver {
 	private BigInteger d;
 	private GroupElement Q;
 
+	private GroupElement tildeA;
+
+	private BigInteger cPrime;
+
 	public SigningQCorrectnessProver(
 			final GSSignature gsSignature,
 			final BigInteger n_2,
 			final SignerKeyPair skp,
 			final ProofStore<Object> ps) {
+		
+		Assert.notNull(gsSignature, "The graph signature must not be null.");
+		Assert.notNull(n_2, "The nonce n_2 must not be null.");
+		Assert.notNull(skp, "The signer keypair must not be null.");
+		Assert.notNull(ps, "The ProofStore must not be null.");
+		
 		this.proofStore = ps;
 		this.signerPublicKey = skp.getPublicKey();
 		this.signerPrivateKey = skp.getPrivateKey();
@@ -71,7 +82,7 @@ public class SigningQCorrectnessProver implements IProver {
 						NumberConstants.TWO.getValue(), order.subtract(BigInteger.ONE));
 
 		proofStore.store(URNType.buildURNComponent(URNType.TILDED, this.getClass()), tilded);
-		GroupElement tildeA = Q.modPow(tilded);
+		tildeA = Q.modPow(tilded);
 
 		return tildeA;
 	}
@@ -86,12 +97,16 @@ public class SigningQCorrectnessProver implements IProver {
 	}
 
 	@Override
-	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
+	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cPrime)
 			throws ProofStoreException {
+		Assert.notNull(cPrime, "The challenge must not be null.");
+		
+		this.cPrime = cPrime;
+		
 		this.d = (BigInteger) proofStore.retrieve("issuing.signer.d");
 
 		BigInteger order = signerPrivateKey.getPPrime().multiply(signerPrivateKey.getQPrime());
-		hatd = (tilded.subtract(cChallenge.multiply(d))).mod(order);
+		hatd = (tilded.subtract(cPrime.multiply(d))).mod(order);
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>(1);
 		responses.put(
 				URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, this.getClass())), hatd);
@@ -100,7 +115,13 @@ public class SigningQCorrectnessProver implements IProver {
 
 	@Override
 	public boolean verify() {
-		return false;
+		if (this.cPrime == null || this.tildeA == null || this.hatd == null) return false;
+		
+		BigInteger verificationExp = cPrime.add(hatd.multiply(gsSignature.getE()));
+		
+		GroupElement hatA = gsSignature.getA().modPow(verificationExp);
+		
+		return hatA.equals(tildeA);
 	}
 
 	@Override

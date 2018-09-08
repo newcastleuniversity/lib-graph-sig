@@ -344,6 +344,8 @@ public class PairWiseDifferenceProver implements IProver {
 
 	@Override
 	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
+		
 		setChallenge(cChallenge);
 		return computeResponses();
 	}
@@ -432,6 +434,10 @@ public class PairWiseDifferenceProver implements IProver {
 	 */
 	@Override
 	public boolean verify() {
+		if (cChallenge == null || basetildeR_BariBarj == null 
+				|| hata_BariBarj == null || hatb_BariBarj == null || hatr_BariBarj == null)
+			return false;
+		
 		// Compute the verification equation from the prover's point of view.
 		// The results should be equal to tildeR of the pre-challenge phase.
 		GroupElement C_iHata = C_i.getCommitmentValue().modPow(hata_BariBarj);

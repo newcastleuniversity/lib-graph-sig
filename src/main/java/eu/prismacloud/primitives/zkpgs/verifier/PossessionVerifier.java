@@ -40,6 +40,7 @@ public class PossessionVerifier implements IVerifier {
 	// private Logger gslog = GSLoggerConfiguration.getGSlog();
 
 	public PossessionVerifier(BaseCollection basesInSignature, ExtendedPublicKey epk, ProofStore<Object> ps) {
+		Assert.notNull(basesInSignature, "The signature bases must not be null.");
 		Assert.notNull(epk, "The extended public key must not be null.");
 		Assert.notNull(ps, "The ProofStore must not be null.");
 
@@ -92,6 +93,8 @@ public class PossessionVerifier implements IVerifier {
 
 	@Override
 	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
+		
 		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
 		hate = (BigInteger) proofStore.retrieve("verifier.hate");
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");

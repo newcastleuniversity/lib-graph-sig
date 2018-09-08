@@ -243,6 +243,8 @@ public abstract class AbstractCommitmentProver implements IProver {
 
 	@Override
 	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
+		
 		this.cChallenge = cChallenge;
 		// Establish proper conditions for singleton case
 		if (isRestrictedToSingleton() && baseCollection.size() != 1) {

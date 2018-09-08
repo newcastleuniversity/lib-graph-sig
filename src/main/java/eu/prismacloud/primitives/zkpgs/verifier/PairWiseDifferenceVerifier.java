@@ -39,8 +39,8 @@ public class PairWiseDifferenceVerifier implements IVerifier {
   private Logger log = GSLoggerConfiguration.getGSlog();
 
   public PairWiseDifferenceVerifier(
-      GSCommitment C_i,
-      GSCommitment C_j,
+      final GSCommitment C_i,
+      final GSCommitment C_j,
       final int index,
       final ExtendedPublicKey epk,
       final ProofStore<Object> ps) {
@@ -77,6 +77,8 @@ public class PairWiseDifferenceVerifier implements IVerifier {
 
   @Override
   public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException {
+	  Assert.notNull(cChallenge, "The challenge must not be null.");
+	  
     hata_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATABARIBARJ, index));
     hatb_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATBBARIBARJ, index));
     hatr_BariBarj = (BigInteger) proofStore.retrieve(getVerifierURN(URNType.HATRBARIBARJ, index));

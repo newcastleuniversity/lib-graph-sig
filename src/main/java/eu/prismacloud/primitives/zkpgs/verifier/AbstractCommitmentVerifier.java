@@ -30,6 +30,10 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 
 	protected AbstractCommitmentVerifier(final GroupElement commitmentValue, 
 			final BaseCollection basesInCommitment, final int index, final ExtendedPublicKey epk, final ProofStore<Object> ps) {
+		
+		Assert.notNull(basesInCommitment, "The commitment bases to be verified must not be null.");
+		Assert.notNull(epk, "The extended public key must not be null.");
+		Assert.notNull(ps, "The ProofStore must not be null.");
 
 		this.proofStore = ps;
 		this.epk = epk;
@@ -58,6 +62,7 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 
 	@Override
 	public GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
 		if (!checkLengths()) {
 			throw new VerificationException("The proof did not verify. The length check on the responses failed.");
 		}

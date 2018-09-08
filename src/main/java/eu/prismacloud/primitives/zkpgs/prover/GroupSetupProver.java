@@ -46,8 +46,8 @@ public class GroupSetupProver implements IProver {
 	private BaseCollection baseCollection;
 
 	public GroupSetupProver(ExtendedKeyPair extendedKeyPair, ProofStore<Object> ps) {
-		Assert.notNull(extendedKeyPair, "Extended key pair must not be null");
-		Assert.notNull(ps, "Proof store must not be null");
+		Assert.notNull(extendedKeyPair, "Extended key pair must not be null.");
+		Assert.notNull(ps, "The ProofStore must not be null.");
 
 		this.extendedKeyPair = extendedKeyPair;
 		this.baseS = extendedKeyPair.getPublicKey().getBaseS();
@@ -178,6 +178,7 @@ public class GroupSetupProver implements IProver {
 	@Override
 	public Map<URN, BigInteger> executePostChallengePhase(BigInteger cChallenge)
 			throws ProofStoreException {
+		Assert.notNull(cChallenge, "The challenge must not be null.");
 
 		BigInteger r_Z = extendedKeyPair.getPrivateKey().getX_rZ();
 		BigInteger r = extendedKeyPair.getPrivateKey().getX_r();
@@ -292,6 +293,7 @@ public class GroupSetupProver implements IProver {
 
 	@Override
 	public boolean verify() {
+		// TODO Self-Verification.
 		return false;
 	}
 
