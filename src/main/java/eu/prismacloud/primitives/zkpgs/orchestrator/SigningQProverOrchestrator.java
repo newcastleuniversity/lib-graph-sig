@@ -22,6 +22,7 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -37,19 +38,24 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 	private final KeyGenParameters keyGenParameters;
 	private final ProofStore<Object> proofStore;
 	private final SigningQCorrectnessProver prover;
-	private List<String> contextList;
 
 	private BigInteger cPrime;
 
 	private List<String> challengeList;
 
-	private GroupElement R_0;
-
-	private GSCommitment U;
-
 	private BigInteger hatd;
 
-	public SigningQProverOrchestrator(GSSignature gsSignature, BigInteger nonce, ExtendedKeyPair ekp, ProofStore<Object> ps) {
+	private Map<URN, GroupElement> tildeA;
+
+	public SigningQProverOrchestrator(final GSSignature gsSignature, final BigInteger nonce, 
+			final ExtendedKeyPair ekp, final ProofStore<Object> ps) {
+		Assert.notNull(gsSignature, "The signature was found to be null.");
+		Assert.notNull(nonce, "The nonce was found to be null.");
+		Assert.notNull(ekp, "The extended keypair was found to be null.");
+		Assert.notNull(ps, "The ProofStore was found to be null.");
+		
+		
+		
 		this.gsSignature = gsSignature;
 		this.nonce = nonce;
 		this.ekp = ekp;
@@ -67,7 +73,7 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 	@Override
 	public void executePreChallengePhase() {
 		try {
-			prover.executeCompoundPreChallengePhase();
+			this.tildeA = prover.executeCompoundPreChallengePhase();
 		} catch (ProofStoreException e) {
 			gslog.log(Level.SEVERE, "ProofStore elements not found.", e);
 		}
@@ -109,38 +115,21 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 
 
 	private List<String> populateChallengeList() {
-		challengeList = new ArrayList<String>();
-		GSContext gsContext =
-				new GSContext(
-						epk);
-		contextList = gsContext.computeChallengeContext();
+		Assert.notNull(gsSignature.getA(), "Pre-signature value A has been found to be null.");
+		Assert.notNull(tildeA, "Pre-signature verifier witness hatA has been found to be null.");
+		Assert.notNull(nonce, "Pre-signature nonce n_2 has been found to be null.");
 
-		challengeList.addAll(contextList);
+		List<String> ctxList = new ArrayList<String>();
 
-		R_0 = ekp.getExtendedPublicKey().getPublicKey().getBaseR_0();
+		GSContext gsContext = new GSContext(epk);
+		gsContext.addToChallengeContext(ctxList);
 
-		/** TODO add context to list of elements in challenge */
-		challengeList.add(String.valueOf(epk.getPublicKey().getModN()));
-		challengeList.add(String.valueOf(epk.getPublicKey().getBaseS()));
-		challengeList.add(String.valueOf(epk.getPublicKey().getBaseZ()));
-		challengeList.add(String.valueOf(epk.getPublicKey().getBaseR()));
-		challengeList.add(String.valueOf(R_0));
+		ctxList.add(String.valueOf(gsSignature.getA().modPow(gsSignature.getE())));
+		ctxList.add(String.valueOf(gsSignature.getA()));
+		ctxList.add(String.valueOf(tildeA));
+		ctxList.add(String.valueOf(nonce));
 
-		//		    for (BaseRepresentation baseRepresentation : basesIterator) {
-		//		      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-		//		    }
-
-		String uCommitmentURN = "recipient.U";
-		U = (GSCommitment) proofStore.retrieve(uCommitmentURN);
-		GroupElement commitmentU = U.getCommitmentValue();
-
-		challengeList.add(String.valueOf(commitmentU));
-		/** TODO fix hatU computation */
-		// TODO Including hat U. Actually not really proof context for this particular ZPK.
-		//		    challengeList.add(String.valueOf(hatU));
-		//		    challengeList.add(String.valueOf(n_1));
-
-		return challengeList;
+		return ctxList;
 	}
 
 	@Override

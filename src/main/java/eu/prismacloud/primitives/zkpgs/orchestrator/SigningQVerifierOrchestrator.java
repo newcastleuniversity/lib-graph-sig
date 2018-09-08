@@ -111,7 +111,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	private boolean verifyChallenge() throws VerificationException {
-		if (!this.cPrime.equals(hatc)) {
+		if (!this.cPrime.equals(computeChallenge())) {
 			throw new VerificationException("challenge verification failed");
 		}
 		return true;
