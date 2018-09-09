@@ -171,9 +171,9 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		BigInteger hatm_0 = (BigInteger) proofStore.get(URNType.buildURN(URNType.HATM0, PossessionProver.class));
 
 		Map<URN, Object> proofSignatureElements = new HashMap<>();
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.c"), cChallenge);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.challenge.c"), cChallenge);
 		proofSignatureElements.put(
-				URN.createZkpgsURN("proofsignature.P_3.APrime"), blindedGraphSignature.getA());
+				URN.createZkpgsURN("proofsignature.P_3.signature.APrime"), blindedGraphSignature.getA());
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.responses.hate"), hate);
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.responses.hatvPrime"), hatvPrime);
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.responses.hatm_0"), hatm_0);

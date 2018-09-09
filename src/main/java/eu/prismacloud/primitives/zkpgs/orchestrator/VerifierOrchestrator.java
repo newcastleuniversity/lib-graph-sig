@@ -317,7 +317,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		//    String C_iURN = "verifier.C_i";
 
 		verifierStore.store(ZURN, extendedPublicKey.getPublicKey().getBaseZ());
-		verifierStore.store(APrimeURN, P_3.get("proofsignature.P_3.APrime"));
+		verifierStore.store(APrimeURN, P_3.get("proofsignature.P_3.signature.APrime"));
 		/** TODO check storage of C_i */
 		//    verifierStore.store(C_iURN, P_3.get("proofsignature.P_3.C_i"));
 
@@ -342,8 +342,8 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 	private BaseCollection constructBaseCollection(Map<URN, Object> proofSignatureElements) {
 		BaseCollection collection = new BaseCollectionImpl();
 		
-		String vertexPrefix = "proofsignature.P_3.hatm_i_";
-		String edgePrefix = "proofsignature.P_3.hatm_i_j_";
+		String vertexPrefix = "proofsignature.P_3.responses.hatm_i_";
+		String edgePrefix = "proofsignature.P_3.responses.hatm_i_j_";
 		Iterator<Entry<URN,Object>> candidateEntries = proofSignatureElements.entrySet().iterator();
 		while (candidateEntries.hasNext()) {
 			Map.Entry<URN, java.lang.Object> entry = 
