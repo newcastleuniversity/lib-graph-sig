@@ -230,14 +230,14 @@ public class RecipientOrchestrator implements IMessagePartner {
 		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
 		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
 
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.c"), cChallenge);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.challenge.c"), cChallenge);
 		hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
 		hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
 
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.hatvPrime"), hatvPrime);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatvPrime"), hatvPrime);
 
 		// TODO check if hatm_0 is needed inside the proofsignature
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.hatm_0"), hatm_0);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatm_0"), hatm_0);
 
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatMap"), responses);
 
@@ -342,7 +342,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		P_2 = (ProofSignature) correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.P_2"));
 		signedBases =
 				(BaseCollection)
-				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding"));
+				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding.baseMap"));
 
 		return P_2;
 	}

@@ -23,6 +23,7 @@ public enum URNType {
 	BASER0,
 	BASERIJ,
 	BASERI,
+	BASEMAP,
 	CCHALLENGE,
 	CPRIMECHALLENGE,
 	EI,
@@ -46,6 +47,7 @@ public enum URNType {
 	SIGMA,
 	EPRIME,
 	VPRIME,
+	VPRIMEPRIME,
 	A,
 	E,
 	D,
@@ -123,6 +125,7 @@ public enum URNType {
 		case BASER0: return "baseR_0";
 		case BASERIJ: return "baseR_i_j_";
 		case BASERI: return "baseR_i_";
+		case BASEMAP: return "baseMap";
 		case CCHALLENGE: return "c";
 		case CPRIMECHALLENGE: return "cPrime";
 		case EI: return "e_i_";
@@ -145,6 +148,7 @@ public enum URNType {
 		case SIGMA: return "sigma";
 		case EPRIME: return "ePrime";
 		case VPRIME: return "vPrime";
+		case VPRIMEPRIME: return "vPrimePrime";
 		case A: return "A";
 		case E: return "e";
 		case D: return "d";
@@ -221,6 +225,7 @@ public enum URNType {
 		case BASER0: return "bases";
 		case BASERI: return "bases";
 		case BASERIJ: return "bases";
+		case BASEMAP: return "bases";
 		case CCHALLENGE: return "challenge";
 		case CPRIMECHALLENGE: return "challenge";
 		case EI: return "vertex.representative";
@@ -243,6 +248,7 @@ public enum URNType {
 		case SIGMA: return "signature";
 		case EPRIME: return "signature";
 		case VPRIME: return "signature";
+		case VPRIMEPRIME: return "signature";
 		case A: return "signature";
 		case E: return "signature";
 		case D: return "signature";
@@ -327,6 +333,7 @@ public enum URNType {
 		case BASER0: return URNClass.PUBLIC;
 		case BASERI: return URNClass.PUBLIC;
 		case BASERIJ: return URNClass.PUBLIC;
+		case BASEMAP: return URNClass.PUBLIC;
 		case CCHALLENGE: return URNClass.PUBLIC;
 		case CPRIMECHALLENGE: return URNClass.PUBLIC;
 		case EI: return URNClass.PUBLIC;
@@ -349,6 +356,7 @@ public enum URNType {
 		case SIGMA: return URNClass.SECRET;
 		case EPRIME: return URNClass.SECRET;
 		case VPRIME: return URNClass.SECRET;
+		case VPRIMEPRIME: return URNClass.SECRET;
 		case A: return URNClass.SECRET;
 		case E: return URNClass.SECRET;
 		case D: return URNClass.SECRET;

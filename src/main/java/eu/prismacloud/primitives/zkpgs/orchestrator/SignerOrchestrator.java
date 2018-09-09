@@ -176,7 +176,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		preSignatureElements.put(URN.createZkpgsURN("proofsignature.vPrimePrime"), vPrimePrime);
 		preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
 		preSignatureElements.put(
-				URN.createZkpgsURN("proofsignature.encoding"), this.encodedBases);
+				URN.createZkpgsURN("proofsignature.encoding.baseMap"), this.encodedBases);
 		return preSignatureElements;
 	}
 
@@ -233,7 +233,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		cChallenge =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.challenge.c"));
-		//    proofStore.store("proofsignature.P_1.c", cChallenge );
+		//    proofStore.store("proofsignature.P_1.challenge.c", cChallenge );
 
 		hatvPrime =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses.hatvPrime"));
@@ -241,7 +241,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		hatm_0 =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses.hatm_0"));
-		//    proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
+		//    proofStore.store("proofsignature.P_1.responses.hatm_0", hatm_0);
 
 		responses =
 				(Map<URN, BigInteger>)
@@ -307,7 +307,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		proofStore.store("issuing.signer.Q", Q);
 		proofStore.store("issuing.signer.d", d);
 		proofStore.store("issuing.signer.vPrimePrime", vPrimePrime);
-		proofStore.store("issuing.signer.context", contextList);
+		// proofStore.store("issuing.signer.context", contextList);
 	}
 
 	public GroupElement computeQ() {
