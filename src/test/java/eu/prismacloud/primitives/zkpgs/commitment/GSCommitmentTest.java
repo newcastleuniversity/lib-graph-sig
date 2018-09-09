@@ -22,6 +22,15 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/* 
+ * TODO This testcase is flawed.
+ * It creates bases that are not QRElements (in that they are not quadratic residues under modulus N).
+ * The testcase should be done from scratch with proper bases.
+ */
+
+
+@Disabled
+@Deprecated
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GSCommitmentTest {
 
