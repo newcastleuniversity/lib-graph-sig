@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 
 
-@Disabled
 @Deprecated
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GSCommitmentTest {
@@ -63,6 +63,7 @@ class GSCommitmentTest {
 
     @BeforeEach
     void setUp() {
+    	fail("The GSCommitmentTest does not setup the commitments properly. Not quadratic residue bases.");
         randomness = BigInteger.TEN;
 
         R_0 = new QRElementN(epk.getPublicKey().getQRGroup(), BigInteger.valueOf(58));
