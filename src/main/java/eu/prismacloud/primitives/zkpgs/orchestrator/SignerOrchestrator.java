@@ -311,7 +311,20 @@ public class SignerOrchestrator implements IMessagePartner {
 	}
 
 	public GroupElement computeQ() {
-		return computeQ(null);
+		basesProduct = signerPublicKey.getQRGroup().getOne();
+		
+		for (BaseRepresentation baseRepresentation : encodedBases.createIterator(BASE.ALL)) {
+			basesProduct =
+					basesProduct.multiply(
+							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
+		}
+
+		GroupElement Sv = baseS.modPow(vPrimePrime);
+
+		GroupElement result = Sv.multiply(basesProduct);
+
+		Q = baseZ.multiply(result.modInverse());
+		return Q;
 	}
 	
 	/**
@@ -336,7 +349,6 @@ public class SignerOrchestrator implements IMessagePartner {
 							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 		}
 
-		basesProduct = basesProduct.multiply(U.getCommitmentValue());
 		GroupElement Sv = baseS.modPow(vPrimePrime);
 
 		GroupElement result = Sv.multiply(basesProduct);
