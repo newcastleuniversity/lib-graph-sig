@@ -2,6 +2,7 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.jgrapht.io.ImportException;
@@ -19,6 +20,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
 
 /**
  * Utility functions to display and diagnose the structure of a graph representation.
@@ -172,10 +174,10 @@ public class GraphUtils {
 		GraphRepresentation gr = GraphRepresentation.encodeGraph(gsGraph, epk);
 		
 		if (msk != null) {
-			BaseCollection collection = gr.getEncodedBaseCollection();
+			Map<URN, BaseRepresentation> encodedBases = gr.getEncodedBases();
 			BaseRepresentation baseR_0 =
 					new BaseRepresentation(epk.getPublicKey().getBaseR_0(), msk, -1, BASE.BASE0);
-			collection.add(baseR_0);
+			encodedBases.put(URNType.buildURN(URNType.BASER0, GraphRepresentation.class), baseR_0);
 		}
 				
 		return gr;

@@ -90,7 +90,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		P_3 = (ProofSignature) proverMessageElements.get(URN.createZkpgsURN("prover.P_3"));
 		aPrime = (GroupElement) proverMessageElements.get(URN.createZkpgsURN("prover.APrime"));
 
-		C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.C_i"));
+		C_i = (Map<URN, GSCommitment>) proverMessageElements.get(URN.createZkpgsURN("prover.commitments.C_iMap"));
 		Map<URN, Object> proofSignatureElements = P_3.getProofSignatureElements();
 
 		baseCollection = constructBaseCollection(proofSignatureElements);
@@ -120,7 +120,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hate"));
 		hatvPrime =
 				(BigInteger)
-				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
+				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatvprime"));
 		hatm_0 =
 				(BigInteger)
 				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
@@ -145,8 +145,8 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		proofStore.store("verifier.hate", hate);
 
 		hatvPrime =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"));
-		proofStore.store("verifier.hatvPrime", hatvPrime);
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvprime"));
+		proofStore.store("verifier.hatvprime", hatvPrime);
 
 		hatm_0 =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
@@ -312,8 +312,8 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	public void storePublicValues() throws ProofStoreException {
-		String ZURN = "verifier.Z";
-		String APrimeURN = "verifier.APrime";
+		String ZURN = "verifier.baseZ";
+		String APrimeURN = "verifier.signature.APrime";
 		//    String C_iURN = "verifier.C_i";
 
 		verifierStore.store(ZURN, extendedPublicKey.getPublicKey().getBaseZ());
@@ -354,7 +354,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			if (key.matchesPrefix(vertexPrefix)) {
 				int baseIndex = key.getIndex();
 				if (baseIndex < 0) {
-					throw new TopocertInternalError("The hatm_i values were not indexed correctly.");
+					throw new TopocertInternalError("The hatm_i values were not indexed correctly: " + key.getSuffix() + " / base index: " + baseIndex);
 				}
 				
 				BaseRepresentation vertexBase = extendedPublicKey.getVertexBase(baseIndex);

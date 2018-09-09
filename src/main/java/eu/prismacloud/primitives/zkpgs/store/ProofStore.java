@@ -228,4 +228,27 @@ public class ProofStore<T> {
 			this.add(entry.getKey(), entry.getValue());
 		}
 	}
+	
+	/**
+	 * Gets concise overview of the ProofStore
+	 *
+	 * @return the String
+	 */
+	public String getStringOverview() {
+		if (elements.isEmpty()) return "ProofStore: Empty";
+
+		StringBuffer sb = new StringBuffer("ProofStore:");
+		Iterator<Entry<URN, Set<T>>> elementIterator = elements.entrySet().iterator();
+		while (elementIterator.hasNext()) {
+			Map.Entry<URN, java.util.Set<T>> entry = (Map.Entry<URN, java.util.Set<T>>) elementIterator
+					.next();
+			sb.append("\n  ");
+			sb.append(entry.getKey().getURNType());
+			sb.append(": ");
+			sb.append(entry.getKey().getSuffix());
+			sb.append("\t\t\t ->  ");
+			sb.append(entry.getKey().toHumanReadableString());
+		}
+		return sb.toString();
+	}
 }

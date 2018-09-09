@@ -146,8 +146,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	}
 
 	private void storeBlindedGS() throws ProofStoreException {
-		String commitmentsURN = "prover.commitments.C_iMap";
-		proofStore.store(commitmentsURN, commitments);
+//		String commitmentsURN = "prover.commitments.C_iMap";
+//		proofStore.store(commitmentsURN, commitments);
 
 		String blindedGSURN = "prover.blindedgs.signature.sigma";
 		proofStore.store(blindedGSURN, this.blindedGraphSignature);
@@ -175,13 +175,13 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		proofSignatureElements.put(
 				URN.createZkpgsURN("proofsignature.P_3.APrime"), blindedGraphSignature.getA());
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hate"), hate);
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatvPrime"), hatvPrime);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatvprime"), hatvPrime);
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatm_0"), hatm_0);
 
 		int baseIndex;
 		String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
 		String hatm_iURN;
-		String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+		String hatr_iPath = "commitmentprover.responses.vertex.hatr_i_";
 		String hatr_iURN;
 
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
@@ -255,7 +255,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
 		// add public values
 		messageElements.put(URN.createZkpgsURN("prover.APrime"), blindedGraphSignature.getA());
-		messageElements.put(URN.createZkpgsURN("prover.C_i"), commitments);
+		messageElements.put(URN.createZkpgsURN("prover.commitments.C_iMap"), commitments);
 
 		//    for (Entry<URN, BigInteger> entry : responses.entrySet()) {
 		//      proofStore.save(entry.getKey(), entry.getValue() );

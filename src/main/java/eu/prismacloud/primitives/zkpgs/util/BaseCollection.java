@@ -25,4 +25,6 @@ public interface BaseCollection extends IContextProducer, Cloneable {
 	int size();
 	
 	BaseCollection clone();
+	
+	String getStringOverview();
 }

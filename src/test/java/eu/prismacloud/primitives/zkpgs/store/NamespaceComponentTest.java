@@ -1,7 +1,8 @@
-package eu.prismacloud.primitives.zkpgs.util;
+package eu.prismacloud.primitives.zkpgs.store;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent;
 import eu.prismacloud.primitives.zkpgs.util.NamespaceComponent.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -51,11 +51,11 @@ public final class URN implements Serializable {
 		Assert.notNull(urnType, "The URNType must not be null.");
 		this.namespaceIdentifier = namespaceIdentifier;
 		this.namespaceSpecific = namespaceSpecific;
-		
+
 		if (!URNType.isTypeValid(urnType, URN.parseSuffix(namespaceSpecific.getContent()))) {
 			throw new IllegalArgumentException("The named URNType is not valid for the given namespace-specific component.");
 		}
-		
+
 		this.urnType = urnType;
 		this.urnClass = URNType.getClass(urnType);
 	}
@@ -68,7 +68,7 @@ public final class URN implements Serializable {
 	public static String getZkpgsNameSpaceIdentifier() {
 		return zkpgsNameSpaceIdentifier;
 	}
-	
+
 
 	/**
 	 * Creates an URN from namespaceIdentifier and namespaceSpecific NamespaceComponent objects.
@@ -89,7 +89,7 @@ public final class URN implements Serializable {
 
 		return new URN(namespaceIdentifier, namespaceSpecific, false);
 	}
-	
+
 
 	/**
 	 * Create an URN from namespaceIdentifier and namespaceSpecific from 
@@ -269,7 +269,7 @@ public final class URN implements Serializable {
 	}
 
 	/**
-	 * Checks whether the namespace-specifc component starts with a String prefix.
+	 * Checks whether the namespace-specifc component starts with a String prefix directly followed by an index or not.
 	 * 
 	 * @param prefix String prefix the namespace-specific component must start with.
 	 * 
@@ -277,7 +277,7 @@ public final class URN implements Serializable {
 	 * starts with the given prefix.
 	 */
 	public boolean matchesPrefix(String prefix) {
-		return namespaceSpecific.getContent().startsWith(prefix);
+		return namespaceSpecific.getContent().matches(prefix + "\\d*\\z");
 	}
 
 	/**
@@ -318,11 +318,14 @@ public final class URN implements Serializable {
 		StringTokenizer tokenizer = new StringTokenizer(suffix, "_");
 		while (tokenizer.hasMoreTokens()) {
 			String token = (String) tokenizer.nextToken();
-			try {
-				int index = Integer.parseInt(token);
-				return index;
-			} catch (NumberFormatException e) {
-				return -1;
+
+			if (!tokenizer.hasMoreTokens()) {
+				try {
+					int index = Integer.parseInt(token);
+					return index;
+				} catch (NumberFormatException e) {
+					return -1;
+				}
 			}
 		}
 		return -1;

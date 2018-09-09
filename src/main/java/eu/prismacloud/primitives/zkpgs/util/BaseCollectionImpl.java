@@ -4,6 +4,7 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
 import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
+import eu.prismacloud.primitives.zkpgs.store.URN;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -11,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 /** Base service class for the iterator. */
 public class BaseCollectionImpl implements BaseCollection, Serializable, IContextProducer, Cloneable {
@@ -112,5 +116,26 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 	@Override
 	public boolean contains(BaseRepresentation base) {
 		return bases.contains(base);
+	}
+	
+	/**
+	 * Gets concise overview of the ProofStore
+	 *
+	 * @return the String
+	 */
+	public String getStringOverview() {
+		if (bases.isEmpty()) return "BaseCollection: Empty";
+
+		StringBuffer sb = new StringBuffer("BaseCollection:");
+		Iterator<BaseRepresentation> baseIterator = bases.iterator();
+		while (baseIterator.hasNext()) {
+			BaseRepresentation base = (BaseRepresentation) baseIterator
+					.next();
+			sb.append("\n  ");
+			sb.append(base.getBaseType() + "[" + base.getBaseIndex() + "]");
+			sb.append(": ");
+			sb.append(base.getExponent());
+		}
+		return sb.toString();
 	}
 }
