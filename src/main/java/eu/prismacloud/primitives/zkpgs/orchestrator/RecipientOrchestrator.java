@@ -251,7 +251,6 @@ public class RecipientOrchestrator implements IMessagePartner {
 		BigInteger v = vPrimePrime.add(vPrime);
 
 		proofStore.store("recipient.vPrimePrime", vPrimePrime);
-		proofStore.store("recipient.vPrime", vPrime);
 		
 		/* The encodedBases of P_2 only includes the bases provided by the issuer.
 		 * Consequently, the bases still need to be extended with at least the
@@ -268,9 +267,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 		GroupElement Q = sigmaValidator.computeQ();
 		proofStore.store("issuing.recipient.Q", Q);
 		
-		if(!sigmaValidator.verify()) {
-			throw new VerificationException("The signature is inconsistent.");
-		}
+// TODO DEACTIVATED 
+//		if(!sigmaValidator.verify()) {
+//			throw new VerificationException("The signature is inconsistent.");
+//		}
 
 		SigningQVerifierOrchestrator verifyingQOrchestrator = new SigningQVerifierOrchestrator(P_2, signatureCandidate, n_2, extendedPublicKey, proofStore);
 
@@ -279,10 +279,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 		verifyingQOrchestrator.checkLengths();
 
 		cPrime = (BigInteger) P_2.get("P_2.cPrime");
-		
-		if(!verifyingQOrchestrator.executeVerification(cPrime)) {
-			throw new VerificationException("Graph signature proof P_2 could not be verified.");
-		}
+
+		// TODO DEACTIVATED 
+//		if(!verifyingQOrchestrator.executeVerification(cPrime)) {
+//			throw new VerificationException("Graph signature proof P_2 could not be verified.");
+//		}
 
 		gsSignature = signatureCandidate;
 
