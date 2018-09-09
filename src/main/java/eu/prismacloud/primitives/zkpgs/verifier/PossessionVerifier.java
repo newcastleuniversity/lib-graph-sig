@@ -61,9 +61,9 @@ public class PossessionVerifier implements IVerifier {
 		int l_hatvPrime = keyGenParameters.getL_v() + keyGenParameters.getProofOffset();
 		int l_m = keyGenParameters.getL_m() + keyGenParameters.getProofOffset() + 1;
 
-		hate = (BigInteger) proofStore.retrieve("verifier.hate");
-		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
-		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+		hate = (BigInteger) proofStore.retrieve("verifier.responses.hate");
+		hatvPrime = (BigInteger) proofStore.retrieve("verifier.responses.hatvPrime");
+		hatm_0 = (BigInteger) proofStore.retrieve("verifier.responses.hatm_0");
 
 		boolean vertexLengthsCorrect = true;
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
@@ -96,9 +96,9 @@ public class PossessionVerifier implements IVerifier {
 		Assert.notNull(cChallenge, "The challenge must not be null.");
 		
 		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
-		hate = (BigInteger) proofStore.retrieve("verifier.hate");
-		hatvPrime = (BigInteger) proofStore.retrieve("verifier.hatvPrime");
-		hatm_0 = (BigInteger) proofStore.retrieve("verifier.hatm_0");
+		hate = (BigInteger) proofStore.retrieve("verifier.responses.hate");
+		hatvPrime = (BigInteger) proofStore.retrieve("verifier.responses.hatvPrime");
+		hatm_0 = (BigInteger) proofStore.retrieve("verifier.responses.hatm_0");
 
 		// Aborting verification with output null, if lengths check rejects hat-values.
 		if (!checkLengths()) return null;
