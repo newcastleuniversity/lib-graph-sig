@@ -166,7 +166,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	public ProofSignature createProofSignature() {
 		String hateURN = "possessionprover.responses.hate";
 		BigInteger hate = (BigInteger) proofStore.retrieve(hateURN);
-		String hatvPrimeURN = "possessionprover.responses.hatvprime";
+		String hatvPrimeURN = "possessionprover.responses.hatvPrime";
 		BigInteger hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
 		BigInteger hatm_0 = (BigInteger) proofStore.get(URNType.buildURN(URNType.HATM0, PossessionProver.class));
 
@@ -174,9 +174,9 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.c"), cChallenge);
 		proofSignatureElements.put(
 				URN.createZkpgsURN("proofsignature.P_3.APrime"), blindedGraphSignature.getA());
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hate"), hate);
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatvprime"), hatvPrime);
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.hatm_0"), hatm_0);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.responses.hate"), hate);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.responses.hatvPrime"), hatvPrime);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_3.responses.hatm_0"), hatm_0);
 
 		int baseIndex;
 		String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";

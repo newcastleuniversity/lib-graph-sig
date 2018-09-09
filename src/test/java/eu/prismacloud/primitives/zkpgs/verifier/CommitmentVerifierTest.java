@@ -164,8 +164,12 @@ public class CommitmentVerifierTest {
 	@Test
 	void testCheckLengths() throws VerificationException, ProofStoreException {
 		gslog.info("compute witness");
-		GroupElement hatC_i = cverifier.executeVerification(cChallenge);
-
+		try {
+			GroupElement hatC_i = cverifier.executeVerification(cChallenge);
+		} catch (VerificationException e) {
+			fail("Length should have validated.");
+		}
+		
 		boolean isCorrectLength = cverifier.checkLengths();
 
 		assertTrue(isCorrectLength);

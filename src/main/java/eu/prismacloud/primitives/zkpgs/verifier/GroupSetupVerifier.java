@@ -67,8 +67,8 @@ public class GroupSetupVerifier implements IVerifier {
 		this.hatr = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr");
 		this.baseR_0 = (GroupElement) proofSignature.get("proofsignature.P.bases.baseR_0");
 		this.hatr_0 = (BigInteger) proofSignature.get("proofsignature.P.responses.hatr_0");
-		this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i");
-		this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_j");
+		this.vertexResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_iMap");
+		this.edgeResponses = (Map<URN, BigInteger>) proofSignature.get("proofsignature.P.hatr_i_jMap");
 		//    this.graphEncodingParameters = epk.getGraphEncodingParameters();
 		this.baseCollection = extendedPublicKey.getBaseCollection();
 	}

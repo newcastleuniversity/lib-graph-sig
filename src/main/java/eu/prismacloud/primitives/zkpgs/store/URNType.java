@@ -24,6 +24,7 @@ public enum URNType {
 	BASERIJ,
 	BASERI,
 	CCHALLENGE,
+	CPRIMECHALLENGE,
 	EI,
 	APRIME,
 	CI,
@@ -103,6 +104,8 @@ public enum URNType {
 	HATCI,
 	HATU,
 	HATMAP,
+	HATRIMAP,
+	HATRIJMAP,
 	
 	// Undefined unsafe type.
 	UNDEFINED;
@@ -121,6 +124,7 @@ public enum URNType {
 		case BASERIJ: return "baseR_i_j_";
 		case BASERI: return "baseR_i_";
 		case CCHALLENGE: return "c";
+		case CPRIMECHALLENGE: return "cPrime";
 		case EI: return "e_i_";
 		case APRIME: return "APrime";
 		case CI: return "C_i_";
@@ -177,7 +181,7 @@ public enum URNType {
 		case HATD: return "hatd";
 		case HATE: return "hate";
 		case HATV: return "hatv";
-		case HATVPRIME: return "hatvprime";
+		case HATVPRIME: return "hatvPrime";
 		case HATM0: return "hatm_0";
 		case HATMIJ: return "hatm_i_j_";
 		case HATMI: return "hatm_i_";
@@ -197,6 +201,8 @@ public enum URNType {
 		case HATCI: return "hatC_i_";
 		case HATU: return "hatU";
 		case HATMAP: return "hatMap";
+		case HATRIMAP: return "hatr_iMap";
+		case HATRIJMAP: return "hatr_i_jMap";
 		
 		
 		case UNDEFINED: throw new IllegalArgumentException("URNType " + t + " does not define suffixes.");
@@ -216,6 +222,7 @@ public enum URNType {
 		case BASERI: return "bases";
 		case BASERIJ: return "bases";
 		case CCHALLENGE: return "challenge";
+		case CPRIMECHALLENGE: return "challenge";
 		case EI: return "vertex.representative";
 		case APRIME: return "signature";
 		case CI: return "commitment";
@@ -292,6 +299,8 @@ public enum URNType {
 		case HATCI: return "responses";
 		case HATU: return "responses";
 		case HATMAP: return "responses";
+		case HATRIMAP: return "responses";
+		case HATRIJMAP: return "responses";
 		
 		case UNDEFINED: throw new IllegalArgumentException("URNType " + t
 				+ " does not offer namespace components.");
@@ -319,6 +328,7 @@ public enum URNType {
 		case BASERI: return URNClass.PUBLIC;
 		case BASERIJ: return URNClass.PUBLIC;
 		case CCHALLENGE: return URNClass.PUBLIC;
+		case CPRIMECHALLENGE: return URNClass.PUBLIC;
 		case EI: return URNClass.PUBLIC;
 		case APRIME: return URNClass.PUBLIC;
 		case CI: return URNClass.PUBLIC;
@@ -395,6 +405,9 @@ public enum URNType {
 		case HATCI: return URNClass.HAT;
 		case HATU: return URNClass.HAT;
 		case HATMAP: return URNClass.HAT;
+		case HATRIMAP: return URNClass.HAT;
+		case HATRIJMAP: return URNClass.HAT;
+		
 		
 		case UNDEFINED: return URNClass.UNDEFINED;
 		}

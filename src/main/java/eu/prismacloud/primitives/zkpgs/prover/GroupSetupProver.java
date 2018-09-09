@@ -284,8 +284,8 @@ public class GroupSetupProver implements IProver {
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr_Z"), this.hatr_Z);
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr"), this.hatr);
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"), this.hatr_0);
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr_i"), this.vertexResponses);
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr_i_j"), this.edgeResponses);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr_iMap"), this.vertexResponses);
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.responses.hatr_i_jMap"), this.edgeResponses);
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P.challenge.c"), cChallenge);
 
 		return new ProofSignature(proofSignatureElements);

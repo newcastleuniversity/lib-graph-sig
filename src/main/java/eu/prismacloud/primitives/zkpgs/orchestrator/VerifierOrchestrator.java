@@ -117,13 +117,13 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
 		hate =
 				(BigInteger)
-				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hate"));
+				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.responses.hate"));
 		hatvPrime =
 				(BigInteger)
-				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatvprime"));
+				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.responses.hatvPrime"));
 		hatm_0 =
 				(BigInteger)
-				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
+				P_3.getProofSignatureElements().get(URN.createZkpgsURN("proofsignature.P_3.responses.hatm_0"));
 		/** TODO check lengths for vertices, edges, and pair-wise different vertex encodings */
 		return CryptoUtilsFacade.isInPMRange(hate, l_hate)
 				&& CryptoUtilsFacade.isInPMRange(hatvPrime, l_hatvPrime)
@@ -134,22 +134,22 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			throws ProofStoreException {
 
 		cChallenge =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.c"));
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.challenge.c"));
 		proofStore.store("verifier.c", cChallenge);
 
 		aPrime =
-				(GroupElement) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.APrime"));
+				(GroupElement) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.signature.APrime"));
 		proofStore.store("verifier.APrime", aPrime);
 
-		hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hate"));
+		hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.responses.hate"));
 		proofStore.store("verifier.hate", hate);
 
 		hatvPrime =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatvprime"));
-		proofStore.store("verifier.hatvprime", hatvPrime);
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.responses.hatvPrime"));
+		proofStore.store("verifier.responses.hatvPrime", hatvPrime);
 
 		hatm_0 =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.hatm_0"));
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.responses.hatm_0"));
 		proofStore.store("verifier.hatm_0", hatm_0);
 
 		/** TODO store vertices from proof signature */

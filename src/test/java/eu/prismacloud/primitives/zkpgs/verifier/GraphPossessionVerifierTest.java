@@ -51,7 +51,8 @@ class GraphPossessionVerifierTest {
 	private GraphEncodingParameters graphEncodingParameters;
 	private KeyGenParameters keyGenParameters;
 	private ExtendedKeyPair extendedKeyPair;
-	private ProofStore<Object> proofStore;
+	private ProofStore<Object> proverProofStore;
+	private ProofStore<Object> verifierProofStore;
 	private PossessionVerifier verifier;
 	private PossessionProver prover;
 	private GSSigningOracle oracle;
@@ -85,7 +86,7 @@ class GraphPossessionVerifierTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		proofStore = new ProofStore<Object>();
+		proverProofStore = new ProofStore<Object>();
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 		assertNotNull(testM, "Test message, a random number, could not be generated.");
 
@@ -97,7 +98,7 @@ class GraphPossessionVerifierTest {
 				new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
 		baseR0.setExponent(testM);
 
-		proofStore.store("bases.exponent.m_0", testM);
+		proverProofStore.store("bases.exponent.m_0", testM);
 
 		baseCollection.add(baseR0);
 		
@@ -154,13 +155,12 @@ class GraphPossessionVerifierTest {
 		sigmaG = sigmaG.blind();
 		assertNotNull(sigmaG.getEncodedBases(), "Encoded bases were null after blinding in testcase setup.");
 
-		prover = new PossessionProver(sigmaG, epk, proofStore);
-
 		storeBlindedGS(sigmaG);
 		
 		
 		log.info("Computing a PossessionProof to be verified.");
-		prover = new PossessionProver(sigmaG, epk, proofStore);
+		prover = new PossessionProver(sigmaG, epk, proverProofStore);
+
 		tildeZ = prover.executePreChallengePhase();
 
 		cChallenge = prover.computeChallenge();
@@ -169,13 +169,14 @@ class GraphPossessionVerifierTest {
 		storeVerifierView(sigmaG.getA());
 		
 		// Setting up a separate base collection for the verifier side, exponents purged.
+		verifierProofStore = new ProofStore<Object>();
 		BaseCollection verifierBaseCollection = baseCollection.clone();
 		verifierBaseCollection.removeExponents();
 		log.info("||Verifier collection: " 
 		+ GraphUtils.iteratedGraphToExpString(verifierBaseCollection.createIterator(BASE.ALL).iterator(), 
-				proofStore));
+				verifierProofStore));
 
-		verifier = new PossessionVerifier(verifierBaseCollection, epk, proofStore);
+		verifier = new PossessionVerifier(verifierBaseCollection, epk, verifierProofStore);
 	}
 
   /** The test checks whether the PossessionVerifier computes hatZ correctly. */
@@ -201,12 +202,12 @@ class GraphPossessionVerifierTest {
 		hatvPrime = hatvPrime.multiply(BigInteger.TEN);
 		hatm_0 = hatm_0.multiply(BigInteger.TEN);
 
-		proofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hate"));
-		proofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hatvPrime"));
-		proofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hatm_0"));
-		proofStore.store("verifier.hate", hate);
-		proofStore.store("verifier.hatvPrime", hatvPrime);
-		proofStore.store("verifier.hatm_0", hatm_0);
+		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hate"));
+		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hatvPrime"));
+		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hatm_0"));
+		verifierProofStore.store("verifier.hate", hate);
+		verifierProofStore.store("verifier.hatvPrime", hatvPrime);
+		verifierProofStore.store("verifier.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
     GroupElement hatZ = verifier.executeVerification(cChallenge);
@@ -219,47 +220,47 @@ class GraphPossessionVerifierTest {
 
 	private void storeBlindedGS(GSSignature sigma) throws Exception {
 		String blindedGSURN = "prover.blindedgs.signature.sigma";
-		proofStore.store(blindedGSURN, sigma);
+		proverProofStore.store(blindedGSURN, sigma);
 
 		String APrimeURN = "prover.blindedgs.signature.APrime";
-		proofStore.store(APrimeURN, sigma.getA());
+		proverProofStore.store(APrimeURN, sigma.getA());
 
 		String ePrimeURN = "prover.blindedgs.signature.ePrime";
-		proofStore.store(ePrimeURN, sigma.getEPrime());
+		proverProofStore.store(ePrimeURN, sigma.getEPrime());
 
 		String vPrimeURN = "prover.blindedgs.signature.vPrime";
-		proofStore.store(vPrimeURN, sigma.getV());
+		proverProofStore.store(vPrimeURN, sigma.getV());
 	}
 
 	private void storeVerifierView(GroupElement aPrime) throws Exception {
 		log.info("Retrieving hat-values");
-		hate = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATE));
-		hatvPrime = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
-		hatm_0 = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATM0));
-		proofStore.store("verifier.hate", hate);
-		proofStore.store("verifier.hatvPrime", hatvPrime);
-		proofStore.store("verifier.hatm_0", hatm_0);
+		hate = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATE));
+		hatvPrime = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
+		hatm_0 = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATM0));
+		verifierProofStore.store("verifier.hate", hate);
+		verifierProofStore.store("verifier.hatvPrime", hatvPrime);
+		verifierProofStore.store("verifier.hatm_0", hatm_0);
 		
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
 			BaseRepresentation base = (BaseRepresentation) vertexIter.next();
 			
-			BigInteger hatm = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATMI, base.getBaseIndex()));
+			BigInteger hatm = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATMI, base.getBaseIndex()));
 			Assert.notNull(hatm, "ProofStore did not contain expected prover hat-value: " + base.getBaseIndex());
 			
-			proofStore.store(URNType.buildURNComponent(URNType.HATMI, PossessionVerifier.class, base.getBaseIndex()), hatm);
+			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMI, PossessionVerifier.class, base.getBaseIndex()), hatm);
 		}
 
 		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
 		while (edgeIter.hasNext()) {
 			BaseRepresentation base = (BaseRepresentation) edgeIter.next();
-			BigInteger hatm = (BigInteger) proofStore.retrieve(prover.getProverURN(URNType.HATMIJ, base.getBaseIndex()));
+			BigInteger hatm = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATMIJ, base.getBaseIndex()));
 			Assert.notNull(hatm, "ProofStore did not contain expected prover hat-value: " + base.getBaseIndex());
 			
-			proofStore.store(URNType.buildURNComponent(URNType.HATMIJ, PossessionVerifier.class, base.getBaseIndex()), hatm);
+			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMIJ, PossessionVerifier.class, base.getBaseIndex()), hatm);
 		}
 
-		proofStore.store("verifier.c", cChallenge);
-		proofStore.store("verifier.APrime", aPrime);
+		verifierProofStore.store("verifier.c", cChallenge);
+		verifierProofStore.store("verifier.APrime", aPrime);
 	}
 }

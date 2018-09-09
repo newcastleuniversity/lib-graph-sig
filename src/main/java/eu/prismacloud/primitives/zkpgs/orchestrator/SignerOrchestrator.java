@@ -232,15 +232,15 @@ public class SignerOrchestrator implements IMessagePartner {
 		Map<URN, Object> proofSignatureElements = P_1.getProofSignatureElements();
 
 		cChallenge =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.c"));
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.challenge.c"));
 		//    proofStore.store("proofsignature.P_1.c", cChallenge );
 
 		hatvPrime =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatvPrime"));
-		// proofStore.store("issuing.commitmentverifier.responses.hatvprime", hatvPrime);
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses.hatvPrime"));
+		// proofStore.store("issuing.commitmentverifier.responses.hatvPrime", hatvPrime);
 
 		hatm_0 =
-				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.hatm_0"));
+				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses.hatm_0"));
 		//    proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
 
 		responses =
@@ -260,12 +260,12 @@ public class SignerOrchestrator implements IMessagePartner {
 		}
 		
 		// TODO synchronize data
-		proofStore.store("issuing.commitmentverifier.responses.hatvprime", hatvPrime);
+		proofStore.store("issuing.commitmentverifier.responses.hatvPrime", hatvPrime);
 		proofStore.store("issuing.commitmentverifier.responses.hatm_0", hatm_0);
 		
-		proofStore.store("proofsignature.P_1.c", cChallenge);
-		proofStore.store("proofsignature.P_1.hatvPrime", hatvPrime);
-		proofStore.store("proofsignature.P_1.hatm_0", hatm_0);
+		proofStore.store("proofsignature.P_1.challenge.c", cChallenge);
+		proofStore.store("proofsignature.P_1.responses.hatvPrime", hatvPrime);
+		proofStore.store("proofsignature.P_1.responses.hatm_0", hatm_0);
 		proofStore.store("recipient.P_1", P_1);
 		proofStore.store("recipient.U", commitmentU);
 		proofStore.store("recipient.n_2", n_2);

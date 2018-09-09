@@ -227,7 +227,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		Map<URN, Object> proofSignatureElements = new HashMap<>();
 		BigInteger hatvPrime;
 		BigInteger hatm_0;
-		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvprime";
+		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
 		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
 
 		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.c"), cChallenge);
