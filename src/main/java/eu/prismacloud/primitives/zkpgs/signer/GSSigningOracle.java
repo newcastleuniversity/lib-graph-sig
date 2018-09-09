@@ -144,17 +144,26 @@ public class GSSigningOracle {
 			}
 		}
 		
+		boolean completedBase0 = false;;
 		BaseIterator baseR0Iter = baseCollection.createIterator(BASE.BASE0);
-		while (baseR0Iter.hasNext()) {
-			BaseRepresentation r0Base = baseR0Iter.next();
+		for (BaseRepresentation r0Base : baseR0Iter) {
+			// Testing that the base R_0 is only gone through once.
+			if (completedBase0) throw new IllegalStateException("The Base R_0 responsible for "
+					+ "encoding the master secret key msk should only be included once on a signature.");
+			completedBase0 = true;
+			
 			if (r0Base.getBase() != null && r0Base.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(r0Base.getBase().modPow(r0Base.getExponent()));
 			}
 		}
 		
+		boolean completedBaseR = false;
 		BaseIterator baseRIter = baseCollection.createIterator(BASE.BASER);
-		while (baseRIter.hasNext()) {
-			BaseRepresentation baseR = baseRIter.next();
+		for (BaseRepresentation baseR : baseRIter) {
+			// Testing that the base R is only gone through once.
+			if (completedBaseR) throw new IllegalStateException("The Base R should only be included once on a signature.");
+			completedBaseR = true;
+			
 			if (baseR.getBase() != null && baseR.getExponent() != null) {
 				basesEncoded = basesEncoded.multiply(baseR.getBase().modPow(baseR.getExponent()));
 			}

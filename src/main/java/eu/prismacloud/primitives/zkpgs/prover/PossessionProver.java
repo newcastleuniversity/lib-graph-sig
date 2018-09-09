@@ -278,8 +278,14 @@ public class PossessionProver implements IProver {
 			proofStore.store(hatm_i_jURN, hatm_i_j);
 		}
 		
+		boolean completedBase0 = false;
 		BaseIterator base0Iterator = baseCollection.createIterator(BASE.BASE0);
 		for (BaseRepresentation base0Base : base0Iterator) {
+			// Testing that the base R_0 is only gone through once.
+			if (completedBase0) throw new IllegalStateException("The Base R_0 responsible for "
+					+ "encoding the master secret key msk should only be included once on a signature.");
+			completedBase0 = true;
+			
 			BigInteger m_0 = (BigInteger) base0Base.getExponent();
 			BigInteger tildem_0 =
 					(BigInteger) proofStore.retrieve(getProverURN(URNType.TILDEM0));
