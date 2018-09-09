@@ -94,13 +94,8 @@ class GraphPossessionVerifierTest {
 		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
 		baseCollection = gr.getEncodedBaseCollection();
 		
-		BaseRepresentation baseR0 =
-				new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
-		baseR0.setExponent(testM);
 
 		proverProofStore.store("bases.exponent.m_0", testM);
-
-		baseCollection.add(baseR0);
 		
 		
 		assertNotNull(baseCollection);
@@ -165,11 +160,14 @@ class GraphPossessionVerifierTest {
 
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
-
+		
+		
+		// Setting up verifier proof store
+		verifierProofStore = new ProofStore<Object>();
 		storeVerifierView(sigmaG.getA());
 		
 		// Setting up a separate base collection for the verifier side, exponents purged.
-		verifierProofStore = new ProofStore<Object>();
+
 		BaseCollection verifierBaseCollection = baseCollection.clone();
 		verifierBaseCollection.removeExponents();
 		log.info("||Verifier collection: " 
@@ -202,12 +200,12 @@ class GraphPossessionVerifierTest {
 		hatvPrime = hatvPrime.multiply(BigInteger.TEN);
 		hatm_0 = hatm_0.multiply(BigInteger.TEN);
 
-		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hate"));
-		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hatvPrime"));
-		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.hatm_0"));
-		verifierProofStore.store("verifier.hate", hate);
-		verifierProofStore.store("verifier.hatvPrime", hatvPrime);
-		verifierProofStore.store("verifier.hatm_0", hatm_0);
+		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.responses.hate"));
+		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.responses.hatvPrime"));
+		verifierProofStore.remove(URN.createURN(URN.getZkpgsNameSpaceIdentifier(), "verifier.responses.hatm_0"));
+		verifierProofStore.store("verifier.responses.hate", hate);
+		verifierProofStore.store("verifier.responses.hatvPrime", hatvPrime);
+		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
     GroupElement hatZ = verifier.executeVerification(cChallenge);
@@ -237,9 +235,9 @@ class GraphPossessionVerifierTest {
 		hate = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATE));
 		hatvPrime = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
 		hatm_0 = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATM0));
-		verifierProofStore.store("verifier.hate", hate);
-		verifierProofStore.store("verifier.hatvPrime", hatvPrime);
-		verifierProofStore.store("verifier.hatm_0", hatm_0);
+		verifierProofStore.store("verifier.responses.hate", hate);
+		verifierProofStore.store("verifier.responses.hatvPrime", hatvPrime);
+		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
 		
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
