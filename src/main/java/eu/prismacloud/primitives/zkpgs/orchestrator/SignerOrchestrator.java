@@ -299,7 +299,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		preSigma.getA();
 	}
 
-	private HashMap<URN, Object> prepareProvingSigningQ(GSSignature preSigma) throws ProofStoreException {
+	private HashMap<URN, Object> prepareProvingSigningQ(GSSignature preSigma) throws ProofStoreException, NoSuchAlgorithmException {
 		SigningQProverOrchestrator signingQOrchestrator = new SigningQProverOrchestrator(preSigma, n_2, extendedKeyPair, proofStore);
 
 		signingQOrchestrator.executePreChallengePhase();

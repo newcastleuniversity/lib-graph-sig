@@ -21,7 +21,7 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 
 /** */
-//@Disabled
+@Disabled
 public class GSTestSuite {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
 

@@ -7,6 +7,7 @@ import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 
 
 /**
@@ -31,9 +32,13 @@ public interface IProverOrchestrator extends IMessagePartner, IURNGoverner {
     /**
      * The orchestrator organizes the computations of the pre-challenge phase.
      *
-     * <p>Unlike component provers, orchestrators are expected to catch exceptions and to handle them appropriately.
+     * <p>Unlike component provers, top-level orchestrators are 
+     * expected to catch exceptions and to handle them appropriately.
+     * 
+     * @throws ProofStoreException if a ProofStore element could 
+     * not be accessed.
      */
-    void executePreChallengePhase();
+    void executePreChallengePhase() throws ProofStoreException;
 
     /**
      * The orchestrator organizes the computations of the post-challenge phase, based on a challenge.
@@ -41,15 +46,16 @@ public interface IProverOrchestrator extends IMessagePartner, IURNGoverner {
      * @param cChallenge the challenge used for executing the post challenge phase
      * @throws IOException if Input or Output operation fails when executing post challenge phase
      */
-    void executePostChallengePhase(BigInteger cChallenge) throws IOException;
+    void executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException, IOException;
 
     /**
      * Establishes the challenge for the current proof, based on the overall proof context.
      *
      * @return BigInteger challenge with appropriate length.
      * @throws ProofStoreException if storing or retrieving elements from the proof store fails
+     * @throws NoSuchAlgorithmException  if the hash algorithm wasn't found.
      */
-    BigInteger computeChallenge() throws ProofStoreException;
+    BigInteger computeChallenge() throws ProofStoreException, NoSuchAlgorithmException;
 
     /**
      * Generates the serializable proof signature for the proof.

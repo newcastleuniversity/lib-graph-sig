@@ -83,6 +83,8 @@ public class SigningQCorrectnessProver implements IProver {
 
 		proofStore.store(URNType.buildURNComponent(URNType.TILDED, this.getClass()), tilded);
 		tildeA = Q.modPow(tilded);
+		
+		proofStore.store(URNType.buildURNComponent(URNType.TILDEA, this.getClass()), tildeA);
 
 		return tildeA;
 	}

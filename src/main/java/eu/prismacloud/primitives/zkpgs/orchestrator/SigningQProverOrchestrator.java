@@ -45,7 +45,7 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 
 	private BigInteger hatd;
 
-	private Map<URN, GroupElement> tildeA;
+	private GroupElement tildeA;
 
 	public SigningQProverOrchestrator(final GSSignature gsSignature, final BigInteger nonce, 
 			final ExtendedKeyPair ekp, final ProofStore<Object> ps) {
@@ -53,9 +53,9 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 		Assert.notNull(nonce, "The nonce was found to be null.");
 		Assert.notNull(ekp, "The extended keypair was found to be null.");
 		Assert.notNull(ps, "The ProofStore was found to be null.");
-		
-		
-		
+
+
+
 		this.gsSignature = gsSignature;
 		this.nonce = nonce;
 		this.ekp = ekp;
@@ -67,38 +67,26 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 
 	@Override
 	public void init() throws IOException {
-
+		// The prover orchestrator does not need to init.
+		// Intentional No-Operation.
 	}
 
 	@Override
-	public void executePreChallengePhase() {
-		try {
-			this.tildeA = prover.executeCompoundPreChallengePhase();
-		} catch (ProofStoreException e) {
-			gslog.log(Level.SEVERE, "ProofStore elements not found.", e);
-		}
+	public void executePreChallengePhase() throws ProofStoreException {
+		this.tildeA = prover.executePreChallengePhase();
 	}
 
 	@Override
-	public void executePostChallengePhase(BigInteger cChallenge) {
+	public void executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException {
 		Map<URN, BigInteger> responses;
-		try {
-			responses = prover.executePostChallengePhase(cChallenge);
-		} catch (ProofStoreException e) {
-			gslog.log(Level.SEVERE, "ProofStore could not be successfully accessed.", e);
-			return;
-		}
+		responses = prover.executePostChallengePhase(cChallenge);
 		this.hatd = responses.get(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
 	}
 
 	@Override
-	public BigInteger computeChallenge() throws ProofStoreException {
+	public BigInteger computeChallenge() throws ProofStoreException, NoSuchAlgorithmException {
 		challengeList = populateChallengeList();
-		try {
-			cPrime = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-		} catch (NoSuchAlgorithmException e) {
-			gslog.log(Level.SEVERE, "Could not compute the challenge.", e);
-		}
+		cPrime = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
 		return cPrime;
 	}
 

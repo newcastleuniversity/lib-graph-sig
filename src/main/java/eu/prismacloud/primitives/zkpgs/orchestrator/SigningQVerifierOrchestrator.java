@@ -98,19 +98,16 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	@Override
-	public BigInteger computeChallenge() {
+	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
 		gslog.info("compute challenge ");
 		List<String> ctxList = populateChallengeList();
-		try {
-			hatc = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
-		} catch (NoSuchAlgorithmException e) {
-			gslog.log(Level.SEVERE, "Could not find the hash algorithm.", e);
-			return null;
-		}
+
+		hatc = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
+
 		return hatc;
 	}
 
-	private boolean verifyChallenge() throws VerificationException {
+	private boolean verifyChallenge() throws VerificationException, NoSuchAlgorithmException {
 		if (!this.cPrime.equals(computeChallenge())) {
 			throw new VerificationException("challenge verification failed");
 		}
@@ -137,7 +134,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 	}
 
 	@Override
-	public boolean executeVerification(BigInteger cPrime) {
+	public boolean executeVerification(BigInteger cPrime) throws NoSuchAlgorithmException, ProofStoreException {
 		this.cPrime = cPrime;
 
 		if (!checkLengths()) {
@@ -145,12 +142,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 			return false;
 		}
 
-			try {
-				hatA = verifier.executeVerification(cPrime);
-			} catch (ProofStoreException e) {
-				gslog.log(Level.SEVERE, "Verification failed. hatA was not produced.", e.getMessage());
-				return false;
-			}
+		hatA = verifier.executeVerification(cPrime);
 
 		try {
 			return verifyChallenge();

@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.store.IURNGoverner;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 
 
 /**
@@ -40,16 +41,19 @@ public interface IVerifierOrchestrator extends IMessagePartner, IURNGoverner {
      *
      * @param cChallenge the challenge used for the verification computations
      * @return <tt>true</tt> if the verification succeeds or <tt>false</tt> if the verification fails
+     * @throws NoSuchAlgorithmException 
+     * @throws ProofStoreException 
      */
-    boolean executeVerification(BigInteger cChallenge);
+    boolean executeVerification(BigInteger cChallenge) throws NoSuchAlgorithmException, ProofStoreException;
 
     /**
      * Establishes the challenge for the current verification, based on the overall proof context.
      *
      * @return BigInteger challenge with appropriate length.
      * @throws ProofStoreException if store or retrieving elements from the proof store fails
+     * @throws NoSuchAlgorithmException 
      */
-    BigInteger computeChallenge() throws ProofStoreException;
+    BigInteger computeChallenge() throws ProofStoreException, NoSuchAlgorithmException;
 
     /**
      * Orchestrates to have the lengths of all proof signature elements checked.
