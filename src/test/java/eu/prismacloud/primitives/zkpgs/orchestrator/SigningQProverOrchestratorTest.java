@@ -73,6 +73,7 @@ class SigningQProverOrchestratorTest {
 		proofStore.store("issuing.signer.d", oracle.computeDforSignature(testSigma));
 		
 		prover = new SigningQProverOrchestrator(testSigma, n_2, extendedKeyPair, proofStore);
+		prover.init();
 	}
 
 	@Test
