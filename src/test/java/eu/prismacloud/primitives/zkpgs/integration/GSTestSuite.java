@@ -131,7 +131,7 @@ public class GSTestSuite {
             + (((SummaryGeneratingListener) listener).getSummary().getTestsFailedCount()));
     long failedTests = ((SummaryGeneratingListener) listener).getSummary().getTestsFailedCount();
     if (failedTests > 0) {
-      Assert.fail();
+      Assert.fail("There were multiple failed tests in the GSTestSuite.");
     }
   }
 

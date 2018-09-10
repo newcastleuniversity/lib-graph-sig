@@ -202,6 +202,7 @@ public class GSCommitment implements Serializable {
 		for (BaseRepresentation base : secretCommitmentBases) {
 			// Secret exponents are not transfered or touched.
 			BaseRepresentation newBase = new BaseRepresentation(base.getBase(), base.getBaseIndex(), base.getBaseType());
+			newBase.setExponent(BigInteger.ONE);
 			collection.add(newBase);
 		}
 		
