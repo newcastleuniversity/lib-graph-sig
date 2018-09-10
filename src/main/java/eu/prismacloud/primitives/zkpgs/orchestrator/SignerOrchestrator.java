@@ -84,7 +84,6 @@ public class SignerOrchestrator implements IMessagePartner {
 	private Graph<GSVertex, GSEdge> graph;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 
-	private GroupElement basesProduct;
 	private List<String> contextList;
 	private final String graphFilename;
 
@@ -104,6 +103,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		private GroupElement Q;
 		private GroupElement A;
+		private GroupElement basesProduct;
 
 		private BaseCollection encodedBases;
 
@@ -132,13 +132,13 @@ public class SignerOrchestrator implements IMessagePartner {
 			return vPrimePrime;
 		}
 
-//		void setVPrimePrime(BigInteger vPrimePrime) {
-//			if (this.vPrimePrime == null) {
-//				this.vPrimePrime = vPrimePrime; 
-//			} else {
-//				throw new IllegalStateException("The signature element vPrimePrime can only be set once and is final thereafter");
-//			}
-//		}
+		//		void setVPrimePrime(BigInteger vPrimePrime) {
+		//			if (this.vPrimePrime == null) {
+		//				this.vPrimePrime = vPrimePrime; 
+		//			} else {
+		//				throw new IllegalStateException("The signature element vPrimePrime can only be set once and is final thereafter");
+		//			}
+		//		}
 
 		BigInteger computeVPrimePrimeRandomness() {
 			if (this.vPrimePrime == null) {
@@ -181,18 +181,18 @@ public class SignerOrchestrator implements IMessagePartner {
 			return e;
 		}
 
-//		void setE(BigInteger e) {
-//			if (this.e == null) {
-//				this.e = e;
-//			} else {
-//				throw new IllegalStateException("The signature element e can only be set once and is final thereafter");
-//			}
-//		}
+		//		void setE(BigInteger e) {
+		//			if (this.e == null) {
+		//				this.e = e;
+		//			} else {
+		//				throw new IllegalStateException("The signature element e can only be set once and is final thereafter");
+		//			}
+		//		}
 
 		BigInteger computeRandomPrimeE() {
 			if (this.e == null) {
 				this.e = CryptoUtilsFacade.computePrimeInRange(
-								keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
+						keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
 			} else {
 				throw new IllegalStateException("The signature element e can only be set once and is final thereafter");
 			}
@@ -205,7 +205,11 @@ public class SignerOrchestrator implements IMessagePartner {
 		}
 
 		void setEncodedBases(BaseCollection encodedBases) {
-			this.encodedBases = encodedBases;
+			if (this.encodedBases == null) {
+				this.encodedBases = encodedBases;
+			} else {
+				throw new IllegalStateException("The signature's encoded bases can only be set once and is final thereafter");
+			}
 		}
 
 		GroupElement getA() {
@@ -214,7 +218,24 @@ public class SignerOrchestrator implements IMessagePartner {
 		}
 
 		void setA(GroupElement elementA) {
-			A = elementA;
+			if (this.A == null) {
+				A = elementA;
+			} else {
+				throw new IllegalStateException("The signature element A can only be set once and is final thereafter");
+			}
+		}
+
+		GroupElement getBasesProduct() {
+			Assert.notNull(this.basesProduct, "The preliminary bases product of the signature has not been appropriately initialized, yet.");
+			return this.basesProduct;
+		}
+
+		void setBasesProduct(GroupElement basesProduct) {
+			if(basesProduct == null) {
+				this.basesProduct = basesProduct;
+			} else {
+				throw new IllegalStateException("The preliminary bases product can only be set once and is final thereafter");
+			}
 		}
 
 	}
@@ -255,15 +276,15 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		// Extracting incoming commitment and proof P_1.
 		GSMessage msg = signer.receiveMessage();
-		
+
 		// New signature data container
 		SignatureData sigmaData = new SignatureData();
-		
+
 		GSCommitment commitmentU = extractMessageElements(msg, sigmaData);
 
 		verifyRecipientCommitment(commitmentU.getCommitmentValue(), commitmentU.getBaseCollection());
 		// Post-Condition: commitmentU verified, accepted to use subsequently.
-		
+
 		sigmaData.setComU(commitmentU);
 		sigmaData.setEncodedBases(sigmaGraph.getEncodedBaseCollection());
 
@@ -373,7 +394,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		//    proofStore.store("recipient.n_2", n_2);
 
 		storeMessageElements(P_1, commitmentU);
-		
+
 		return commitmentU;
 	}
 
@@ -417,7 +438,7 @@ public class SignerOrchestrator implements IMessagePartner {
 						extendedPublicKey, sigmaData.getComU(), sigmaData.getEncodedBases(), 
 						sigmaData.getA(), sigmaData.getE(), sigmaData.vPrimePrime);
 
-		Boolean isValidSignature = preSigma.verify(signerPublicKey, basesProduct);
+		Boolean isValidSignature = preSigma.verify(signerPublicKey, sigmaData.getBasesProduct());
 		gslog.info("signer isValidSignature: " + isValidSignature);
 
 		return preSigma;
@@ -447,7 +468,7 @@ public class SignerOrchestrator implements IMessagePartner {
 	 */
 	GroupElement computeQ(SignatureData sigmaData) {
 
-		basesProduct = signerPublicKey.getQRGroup().getOne();
+		GroupElement basesProduct = signerPublicKey.getQRGroup().getOne();
 		if (sigmaData.getComU() != null) {
 			basesProduct = basesProduct.multiply(sigmaData.getComU().getCommitmentValue());
 		}
@@ -457,6 +478,7 @@ public class SignerOrchestrator implements IMessagePartner {
 					basesProduct.multiply(
 							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
 		}
+		sigmaData.setBasesProduct(basesProduct);
 
 		GroupElement Sv = baseS.modPow(sigmaData.getVPrimePrime());
 
@@ -464,7 +486,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		GroupElement Q = baseZ.multiply(result.modInverse());
 		sigmaData.setQ(Q);
-		
+
 		return Q;
 	}
 
@@ -474,7 +496,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		GroupElement A = sigmaData.getQ().modPow(d);
 		sigmaData.setA(A);
-		
+
 		return A;
 	}
 
