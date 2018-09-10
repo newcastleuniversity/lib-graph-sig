@@ -231,7 +231,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		}
 
 		void setBasesProduct(GroupElement basesProduct) {
-			if(basesProduct == null) {
+			if(this.basesProduct == null) {
 				this.basesProduct = basesProduct;
 			} else {
 				throw new IllegalStateException("The preliminary bases product can only be set once and is final thereafter");
