@@ -57,6 +57,13 @@ public class GSSignatureValidator {
 		}
 	}
 
+	/*
+	 * TODO
+	 * The Q used here (Q of this class) is different from the 
+	 * Q computed by the Signer side!
+	 * But with inclusion of R_0, msk and vPrime the views should be identical!
+	 * TODO
+	 */
 	public GroupElement computeQ() {
 		GroupElement basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
 
