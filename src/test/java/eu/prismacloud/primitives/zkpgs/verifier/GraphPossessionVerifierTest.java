@@ -246,7 +246,7 @@ class GraphPossessionVerifierTest {
 			BigInteger hatm = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATMI, base.getBaseIndex()));
 			Assert.notNull(hatm, "ProofStore did not contain expected prover hat-value: " + base.getBaseIndex());
 			
-			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMI, PossessionVerifier.class, base.getBaseIndex()), hatm);
+			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, base.getBaseIndex()), hatm);
 		}
 
 		BaseIterator edgeIter = baseCollection.createIterator(BASE.EDGE);
@@ -255,7 +255,7 @@ class GraphPossessionVerifierTest {
 			BigInteger hatm = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATMIJ, base.getBaseIndex()));
 			Assert.notNull(hatm, "ProofStore did not contain expected prover hat-value: " + base.getBaseIndex());
 			
-			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMIJ, PossessionVerifier.class, base.getBaseIndex()), hatm);
+			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMIJ, PossessionProver.class, base.getBaseIndex()), hatm);
 		}
 
 		verifierProofStore.store("verifier.c", cChallenge);
