@@ -105,39 +105,6 @@ public class GSCommitment implements Serializable {
 		return new GSCommitment(collection, r, commimentValue);
 	}
 
-	//    /**
-	//     * Create commitment with a supplied map of bases and exponents, the randomness and the ExtendedPublicKey.
-	//     *
-	//     * @param basesR    the map of bases
-	//     * @param exponents the map of exponents
-	//     * @param rnd       the randomness
-	//     * @param epk       the extended public key
-	//     * @return the commitment
-	//     * @deprecated
-	//     * 
-	//     * TODO this method does not work, because there is not guarantee that the two maps maintain the same order.
-	//     */
-	//    public static GSCommitment createCommitment(Map<URN, GroupElement> basesR,
-	//                                                Map<URN, BigInteger> exponents, BigInteger rnd,
-	//                                                ExtendedPublicKey epk) {
-	//
-	//        Assert.notNull(basesR, "base R cannot be null");
-	//        Assert.notNull(exponents, "exponents cannot be null");
-	//        Assert.notNull(rnd, "randomness cannot be null");
-	//        Assert.notNull(epk, "Extended public key cannot be null");
-	//        BigInteger modN = epk.getPublicKey().getModN();
-	//        Assert.notNull(modN, "modulus N cannot be null");
-	//
-	//        GroupElement baseS = epk.getPublicKey().getBaseS();
-	//        Assert.notNull(baseS, "base S cannot be null");
-	//
-	//        Group qrGroup = epk.getPublicKey().getQRGroup();
-	//        BigInteger result = CryptoUtilsFacade.computeMultiBaseExpMap(basesR, exponents, modN);
-	//        GroupElement commitmentValue = new QRElement(qrGroup, result).multiply(baseS.modPow(rnd));
-	//
-	//        return new GSCommitment(basesR, exponents, rnd, commitmentValue);
-	//    }
-
 	public static GSCommitment createCommitment(BaseCollection collection, BigInteger rnd, ExtendedPublicKey epk) {
 		Assert.notNull(collection, "The base collection cannot be null.");
 		Assert.notNull(rnd, "The randomness rnd cannot be null.");
@@ -145,21 +112,17 @@ public class GSCommitment implements Serializable {
 
 		KeyGenParameters keyGenParameters = epk.getPublicKey().getKeyGenParameters();
 
-		// Establishing blinding
-		BigInteger r = CryptoUtilsFacade.computeRandomNumberMinusPlus(
-				keyGenParameters.getL_n() + keyGenParameters.getL_statzk());
-
 		GroupElement baseS = epk.getPublicKey().getBaseS();
 		Assert.notNull(baseS, "base S cannot be null");
 
-		GroupElement commitmentValue = baseS.modPow(r);
+		GroupElement commitmentValue = baseS.modPow(rnd);
 		
 		BaseIterator baseIter = collection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : baseIter) {
 			commitmentValue = commitmentValue.multiply(base.getBase().modPow(base.getExponent()));
 		}
 
-		return new GSCommitment(collection, r, commitmentValue);
+		return new GSCommitment(collection, rnd, commitmentValue);
 	}
 
 

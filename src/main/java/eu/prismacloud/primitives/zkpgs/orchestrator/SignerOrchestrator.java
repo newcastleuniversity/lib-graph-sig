@@ -54,9 +54,6 @@ public class SignerOrchestrator implements IMessagePartner {
 
 	private final ExtendedKeyPair extendedKeyPair;
 	private final ProofStore<Object> proofStore;
-	private final GroupElement baseS;
-	private final BigInteger modN;
-	private final GroupElement baseZ;
 	private final KeyGenParameters keyGenParameters;
 	private final GraphEncodingParameters graphEncodingParameters;
 	private final GSSigner signer;
@@ -247,9 +244,6 @@ public class SignerOrchestrator implements IMessagePartner {
 		this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
 		this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
 		this.proofStore = new ProofStore<Object>();
-		this.baseS = extendedKeyPair.getPublicKey().getBaseS();
-		this.baseZ = extendedKeyPair.getPublicKey().getBaseZ();
-		this.modN = extendedKeyPair.getPublicKey().getModN();
 		this.signer = new GSSigner(extendedKeyPair);
 		this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
 	}
@@ -486,11 +480,11 @@ public class SignerOrchestrator implements IMessagePartner {
 		
 		sigmaData.setBasesProduct(basesProduct);
 
-		GroupElement Sv = baseS.modPow(sigmaData.getVPrimePrime());
+		GroupElement Sv = signerPublicKey.getBaseS().modPow(sigmaData.getVPrimePrime());
 
 		GroupElement result = Sv.multiply(basesProduct);
 
-		GroupElement Q = baseZ.multiply(result.modInverse());
+		GroupElement Q = signerPublicKey.getBaseZ().multiply(result.modInverse());
 		sigmaData.setQ(Q);
 
 		return Q;
@@ -519,16 +513,6 @@ public class SignerOrchestrator implements IMessagePartner {
 		contextList = gsContext.computeChallengeContext();
 
 		challengeList.addAll(contextList);
-
-		// TODO Challengelist not correct!
-		challengeList.add(String.valueOf(modN));
-		challengeList.add(String.valueOf(baseS));
-		challengeList.add(String.valueOf(baseZ));
-		challengeList.add(String.valueOf(extendedKeyPair.getExtendedPublicKey().getPublicKey().getBaseR_0()));
-
-		//	    for (BaseRepresentation baseRepresentation : basesIterator) {
-		//	      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-		//	    }
 
 		String uCommitmentURN = "recipient.U";
 		GSCommitment U = (GSCommitment) proofStore.retrieve(uCommitmentURN);

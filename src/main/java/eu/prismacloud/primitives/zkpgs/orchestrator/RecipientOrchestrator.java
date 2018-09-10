@@ -126,23 +126,24 @@ public class RecipientOrchestrator implements IMessagePartner {
 //			throw new IOException(e.getMessage());
 //		}
 	}
+	
+	
 
 	public void round1() throws ProofStoreException, IOException, NoSuchAlgorithmException {
 
-		// TODO needs to receive message n_1
 		GSMessage msg = recipient.receiveMessage();
 
 		n_1 = (BigInteger) msg.getMessageElements().get(URN.createZkpgsURN("nonces.n_1"));
 
+		// Establishing the commitment
 		vPrime = recipient.generatevPrime();
 		proofStore.store("issuing.recipient.vPrime", vPrime);
-
+		
 		U = recipient.commit(committedBases, vPrime);
 
-		/** TODO generalize commit prover */
-		// TODO needs to get access to commitment secrets (recipientGraph)
-		// TODO needs to move to the new commitment interface.
-		IssuingCommitmentProver commitmentProver = new IssuingCommitmentProver(U, extendedPublicKey.getPublicKey(), proofStore);
+		// Starting the representation proof of the commitment
+		IssuingCommitmentProver commitmentProver = new IssuingCommitmentProver(U, 
+				extendedPublicKey.getPublicKey(), proofStore);
 
 		tildeU = commitmentProver.executePreChallengePhase();
 
@@ -150,13 +151,14 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		responses = commitmentProver.executePostChallengePhase(cChallenge);
 
-		//        recipient.createCommitmentProver(U, extendedPublicKey); // TODO Needs access to
-		// secrets
-
-		ProofSignature P_1 = createProofSignature(); // TODO Needs to sign n_1
+		// Finalizing the proof signature.
+		ProofSignature P_1 = createProofSignature(); 
 
 		n_2 = recipient.generateN_2();
 		
+		
+		// Create a clone of the commitment which is restricted to its public values.
+		// To be sent to the Signer.
 		GSCommitment commitmentUtoBeSent = U.clonePublicCommitment();
 
 		Map<URN, Object> messageElements = new HashMap<>();
@@ -165,87 +167,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 		messageElements.put(URN.createZkpgsURN("recipient.n_2"), n_2);
 
 		recipient.sendMessage(new GSMessage(messageElements));
-
-		/** TODO store context and randomness vPrime */
 	}
-
-	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-		challengeList = populateChallengeList();
-		return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
-	}
-
-	private List<String> populateChallengeList() {
-		/** TODO add context to list of elements in challenge */
-		challengeList = new ArrayList<>();
-		GSContext gsContext = new GSContext(extendedPublicKey);
-		List<String> contextList = gsContext.computeChallengeContext();
-
-		challengeList.addAll(contextList);
-		challengeList.add(String.valueOf(modN));
-		challengeList.add(String.valueOf(baseS));
-		challengeList.add(String.valueOf(baseZ));
-		challengeList.add(String.valueOf(extendedPublicKey.getPublicKey().getBaseR_0()));
-
-		//    BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
-		//    for (BaseRepresentation baseRepresentation : baseIterator) {
-		//      challengeList.add(String.valueOf(baseRepresentation.getBase().getValue()));
-		//    }
-
-		GroupElement commitmentU = U.getCommitmentValue();
-
-		challengeList.add(String.valueOf(commitmentU));
-		challengeList.add(String.valueOf(tildeU));
-		challengeList.add(String.valueOf(n_1));
-
-		return challengeList;
-	}
-
-	private void encodeR_0(BaseCollection targetCollection) {
-		baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
-		baseR_0.setExponent(this.recipientMSK);
-		targetCollection.add(baseR_0);
-	}
-
-	private void generateRecipientMSK() {
-		recipientMSK = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-	}
-
-//	private void createGraphRepresentation(String filename) throws ImportException, EncodingException {
-//		GSGraph<GSVertex, GSEdge> gsGraph = GSGraph.createGraph(filename);
-//		gsGraph.encodeGraph(extendedPublicKey.getEncoding());
-//
-//		GraphRepresentation gr = GraphRepresentation.encodeGraph(gsGraph, extendedPublicKey);
-//		this.encodedBases = gr.getEncodedBaseCollection();
-//
-//		encodeR_0();
-//	}
-
-	/**
-	 * Create proof signature proof signature.
-	 *
-	 * @return the proof signature
-	 */
-	public ProofSignature createProofSignature() {
-		Map<URN, Object> proofSignatureElements = new HashMap<>();
-		BigInteger hatvPrime;
-		BigInteger hatm_0;
-		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
-		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
-
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.challenge.c"), cChallenge);
-		hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
-		hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
-
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatvPrime"), hatvPrime);
-
-		// TODO check if hatm_0 is needed inside the proofsignature
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatm_0"), hatm_0);
-
-		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatMap"), responses);
-
-		return new ProofSignature(proofSignatureElements);
-	}
-
+	
+	
+	
+	
 	public void round3() throws VerificationException, ProofStoreException, IOException {
 		GSMessage correctnessMsg = recipient.receiveMessage();
 		P_2 = extractMessageElements(correctnessMsg);
@@ -269,10 +195,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 		GroupElement Q = sigmaValidator.computeQ();
 		proofStore.store("issuing.recipient.Q", Q);
 		
-// TODO DEACTIVATED 
-//		if(!sigmaValidator.verify()) {
-//			throw new VerificationException("The signature is inconsistent.");
-//		}
+
+		if(!sigmaValidator.verify()) {
+			throw new VerificationException("The signature is inconsistent.");
+		}
 
 		SigningQVerifierOrchestrator verifyingQOrchestrator = new SigningQVerifierOrchestrator(P_2, signatureCandidate, n_2, extendedPublicKey, proofStore);
 
@@ -308,6 +234,69 @@ public class RecipientOrchestrator implements IMessagePartner {
 			proofStore.store(baseURN, baseRepresentation);
 		}
 	}
+	
+	
+	
+	
+	
+
+	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
+		challengeList = populateChallengeList();
+		return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
+	}
+
+	private List<String> populateChallengeList() {
+		challengeList = new ArrayList<>();
+		GSContext gsContext = new GSContext(extendedPublicKey);
+		List<String> contextList = gsContext.computeChallengeContext();
+
+		challengeList.addAll(contextList);
+
+		challengeList.add(String.valueOf(U.getCommitmentValue()));
+		challengeList.add(String.valueOf(tildeU));
+		challengeList.add(String.valueOf(n_1));
+
+		return challengeList;
+	}
+
+	private void encodeR_0(BaseCollection targetCollection) {
+		baseR_0 = new BaseRepresentation(R_0, recipientMSK, -1, BASE.BASE0);
+		baseR_0.setExponent(this.recipientMSK);
+		targetCollection.add(baseR_0);
+	}
+
+	private void generateRecipientMSK() {
+		recipientMSK = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+	}
+
+
+	/**
+	 * Create proof signature proof signature.
+	 *
+	 * @return the proof signature
+	 */
+	public ProofSignature createProofSignature() {
+		Map<URN, Object> proofSignatureElements = new HashMap<>();
+		BigInteger hatvPrime;
+		BigInteger hatm_0;
+		String hatvPrimeURN = "issuing.commitmentprover.responses.hatvPrime";
+		String hatm_0URN = "issuing.commitmentprover.responses.hatm_0";
+
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.challenge.c"), cChallenge);
+		hatvPrime = (BigInteger) proofStore.retrieve(hatvPrimeURN);
+		hatm_0 = (BigInteger) proofStore.retrieve(hatm_0URN);
+
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatvPrime"), hatvPrime);
+
+		// TODO check if hatm_0 is needed inside the proofsignature
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatm_0"), hatm_0);
+
+		proofSignatureElements.put(URN.createZkpgsURN("proofsignature.P_1.responses.hatMap"), responses);
+
+		return new ProofSignature(proofSignatureElements);
+	}
+
+
 
 	private void encodeRecipientCommitment() {
 		encodeR_0(signedBases);
@@ -317,9 +306,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 	private String createBaseURN(BaseRepresentation baseRepresentation) {
 		if (BASE.VERTEX == baseRepresentation.getBaseType()) {
-			return "encoded.base.vertex.R_i_" + baseRepresentation.getBaseIndex();
+			return "encoded.base.vertex.baseR_i_" + baseRepresentation.getBaseIndex();
 		} else if (BASE.EDGE == baseRepresentation.getBaseType()) {
-			return "encoded.base.edge.R_i_j_" + baseRepresentation.getBaseIndex();
+			return "encoded.base.edge.baseR_i_j_" + baseRepresentation.getBaseIndex();
+		} else if (BASE.BASE0 == baseRepresentation.getBaseType()) {
+			return "encoded.base.baseR_0";
 		}
 		return "encoded.base";
 	}
