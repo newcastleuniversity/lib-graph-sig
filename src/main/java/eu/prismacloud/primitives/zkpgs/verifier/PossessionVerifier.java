@@ -6,6 +6,7 @@ import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
@@ -69,7 +70,7 @@ public class PossessionVerifier implements IVerifier {
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation baseRepresentation : vertexIterator) {
 			BigInteger hatm = (BigInteger) proofStore.retrieve(
-					URNType.buildURNComponent(URNType.HATMI, this.getClass(), baseRepresentation.getBaseIndex()));
+					URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, baseRepresentation.getBaseIndex()));
 			if (!CryptoUtilsFacade.isInPMRange(hatm, l_m)) {
 				vertexLengthsCorrect = false;
 			}
@@ -79,7 +80,7 @@ public class PossessionVerifier implements IVerifier {
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation baseRepresentation : edgeIterator) {
 			BigInteger hatm = (BigInteger) proofStore.retrieve(
-					URNType.buildURNComponent(URNType.HATMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
+					URNType.buildURNComponent(URNType.HATMIJ, PossessionProver.class, baseRepresentation.getBaseIndex()));
 			if (!CryptoUtilsFacade.isInPMRange(hatm, l_m)) {
 				edgeLengthsCorrect = false;
 			} 
@@ -108,7 +109,7 @@ public class PossessionVerifier implements IVerifier {
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation baseRepresentation : vertexIterator) {
 			BigInteger hatm = (BigInteger) proofStore.retrieve(
-					URNType.buildURNComponent(URNType.HATMI, this.getClass(), baseRepresentation.getBaseIndex()));
+					URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, baseRepresentation.getBaseIndex()));
 			Assert.notNull(hatm, "Hat value could not be retrieved.");
 
 			basesProduct =
@@ -119,7 +120,7 @@ public class PossessionVerifier implements IVerifier {
 		BaseIterator edgeIterator = baseCollection.createIterator(BASE.EDGE);
 		for (BaseRepresentation baseRepresentation : edgeIterator) {
 			BigInteger hatm = (BigInteger) proofStore.retrieve(
-					URNType.buildURNComponent(URNType.HATMIJ, this.getClass(), baseRepresentation.getBaseIndex()));
+					URNType.buildURNComponent(URNType.HATMIJ, PossessionProver.class, baseRepresentation.getBaseIndex()));
 			Assert.notNull(hatm, "Hat value could not be retrieved.");
 
 			basesProduct =

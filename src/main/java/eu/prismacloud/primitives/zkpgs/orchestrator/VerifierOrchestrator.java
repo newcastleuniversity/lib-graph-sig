@@ -142,7 +142,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		proofStore.store("verifier.APrime", aPrime);
 
 		hate = (BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.responses.hate"));
-		proofStore.store("verifier.hate", hate);
+		proofStore.store("verifier.responses.hate", hate);
 
 		hatvPrime =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.responses.hatvPrime"));
@@ -150,12 +150,12 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
 		hatm_0 =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_3.responses.hatm_0"));
-		proofStore.store("verifier.hatm_0", hatm_0);
+		proofStore.store("verifier.responses.hatm_0", hatm_0);
 
 		/** TODO store vertices from proof signature */
 		int baseIndex;
 		String hatm_iPath = "possessionprover.responses.vertex.hatm_i_";
-		String hatr_iPath = "proving.commitmentprover.responses.hatr_i_";
+		String hatr_iPath = "commitmentverifier.responses.vertex.hatr_i_";
 		String hatm_iURN;
 		BigInteger hatm_i;
 		BigInteger hatr_i;
@@ -168,14 +168,14 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			hatm_i =
 					(BigInteger)
 					proofSignatureElements.get(
-							URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex));
+							URN.createZkpgsURN("proofsignature.P_3.responses.hatm_i_" + baseIndex));
 
 			proofStore.store(hatm_iPath + baseIndex, hatm_i);
 			hatr_iURN = hatr_iPath + baseIndex;
 			hatr_i =
 					(BigInteger)
 					proofSignatureElements.get(
-							URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex));
+							URN.createZkpgsURN("proofsignature.P_3.responses.hatr_i_" + baseIndex));
 			proofStore.store(hatr_iPath + baseIndex, hatr_i);
 		}
 		/** TODO store edges from proof signature */
@@ -255,15 +255,17 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			challengeList.add(String.valueOf(gsCommitment.getCommitmentValue()));
 		}
 
-		challengeList.add(String.valueOf(hatZ));
+//		challengeList.add(String.valueOf(hatZ));
 
 		GroupElement commitment;
 		String hatC_iURN;
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+		gslog.info("baseCollection size: " + baseCollection.size());
 		for (BaseRepresentation vertex : vertexIterator) {
 			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
 			commitment = (GroupElement) proofStore.retrieve(hatC_iURN);
-			challengeList.add(String.valueOf(commitment));
+			gslog.info(hatC_iURN + " " + commitment);
+//			challengeList.add(String.valueOf(commitment));
 		}
 
 		/** TODO add pair-wise elements for challenge */
@@ -282,23 +284,23 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
 		String witnessRandomnessURN;
 		String hatC_iURN;
+		String comC_iURN;
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation vertex : vertexIterator) {
 			witnessRandomnessURN = "possessionprover.responses.vertex.hatm_i_" + vertex.getBaseIndex();
 			BigInteger hatm_i = (BigInteger) proofStore.retrieve(witnessRandomnessURN);
 
-			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();
-			GroupElement commitment = (GroupElement) proofStore.retrieve(hatC_iURN);
+			comC_iURN = "prover.commitments.C_i_" + vertex.getBaseIndex();
+			GSCommitment commitment = (GSCommitment) proofStore.retrieve(comC_iURN);
 			
 			BaseCollection expectedBases = new BaseCollectionImpl();
 			BaseRepresentation base = new BaseRepresentation(extendedPublicKey.getPublicKey().getBaseR(), -1, BASE.BASER);
 			base.setExponent(hatm_i);
 			expectedBases.add(base);
 			
-			commitmentVerifier = new CommitmentVerifier(commitment, expectedBases, vertex.getBaseIndex(), extendedPublicKey, proofStore);
+			commitmentVerifier = new CommitmentVerifier(commitment.getCommitmentValue(), expectedBases, vertex.getBaseIndex(), extendedPublicKey, proofStore);
 
-			GroupElement hatCommitment =
-					commitmentVerifier.executeVerification(cChallenge);
+			GroupElement hatCommitment = commitmentVerifier.executeVerification(cChallenge);
 
 			commitmentVerifierList.add(commitmentVerifier);
 			hatC_iURN = "commitmentverifier.commitments.hatC_i_" + vertex.getBaseIndex();

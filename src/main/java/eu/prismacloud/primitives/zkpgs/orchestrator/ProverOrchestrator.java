@@ -189,11 +189,11 @@ public class ProverOrchestrator implements IProverOrchestrator {
 			baseIndex = vertexBase.getBaseIndex();
 			hatm_iURN = hatm_iPath + baseIndex;
 			proofSignatureElements.put(
-					URN.createZkpgsURN("proofsignature.P_3.hatm_i_" + baseIndex),
+					URN.createZkpgsURN("proofsignature.P_3.responses.hatm_i_" + baseIndex),
 					proofStore.retrieve(hatm_iURN));
 			hatr_iURN = hatr_iPath + baseIndex;
 			proofSignatureElements.put(
-					URN.createZkpgsURN("proofsignature.P_3.hatr_i_" + baseIndex),
+					URN.createZkpgsURN("proofsignature.P_3.responses.hatr_i_" + baseIndex),
 					proofStore.retrieve(hatr_iURN));
 		}
 
