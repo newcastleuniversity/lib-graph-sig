@@ -12,6 +12,7 @@ import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
@@ -28,17 +29,11 @@ public class GSSignatureValidator {
 	private final KeyGenParameters keyGenParameters;
 	private final BaseCollection encodedBasesCollection;
 
-	private final GroupElement baseS;
-
-	private final GroupElement baseZ;
-
 	private GroupElement Q;
 
 	public GSSignatureValidator(GSSignature sigma, SignerPublicKey pk, ProofStore<Object> ps) {
 		this.signerPublicKey = pk;
 		this.keyGenParameters = pk.getKeyGenParameters();
-		this.baseS = pk.getBaseS();
-		this.baseZ = pk.getBaseZ();
 		this.proofStore = ps;
 		this.sigma = sigma;
 		this.encodedBasesCollection = sigma.getEncodedBases();
@@ -65,91 +60,102 @@ public class GSSignatureValidator {
 	 * TODO
 	 */
 	public GroupElement computeQ() {
-		GroupElement basesProduct = (QRElement) signerPublicKey.getQRGroup().getOne();
+		GroupElement basesProduct = (GroupElement) signerPublicKey.getQRGroup().getOne();
 
+		boolean completedBase0 = false;
 		BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : baseIterator) {
 			if (base.getBaseType().equals(BASE.BASES)) continue; // Dealing with randomness separately.
-			basesProduct =
-					basesProduct.multiply(
-							base.getBase().modPow(base.getExponent()));
+			if (base.getBaseType().equals(BASE.BASE0)) {
+				if (completedBase0) {
+					throw new IllegalStateException("Base R_0 encoding the master secret key msk cannot be included multiple times.");
+				} else {
+					completedBase0 = true;
+				}
+			}
+
+				basesProduct =
+						basesProduct.multiply(
+								base.getBase().modPow(base.getExponent()));
+			}
+
+
+			BigInteger v = sigma.getV();
+			Assert.notNull(v, "The element v of the signature was null.");
+
+			GroupElement Sv = signerPublicKey.getBaseS().modPow(v);
+			GroupElement result = Sv.multiply(basesProduct);
+			Q = signerPublicKey.getBaseZ().multiply(result.modInverse());
+
+			return Q;
 		}
-	
 
-		BigInteger v = sigma.getV();
-		GroupElement Sv = baseS.modPow(v);
-		GroupElement result = Sv.multiply(basesProduct);
-		Q = baseZ.multiply(result.modInverse());
-		
-		return Q;
-	}
+		private void verifyAgainstHatQ() throws VerificationException {
+			GroupElement hatQ = sigma.getA().modPow(sigma.getE());
 
-	private void verifyAgainstHatQ() throws VerificationException {
-		GroupElement hatQ = sigma.getA().modPow(sigma.getE());
-
-		if (hatQ.compareTo(Q) != 0) {
-			throw new VerificationException("Q cannot be verified");
-		}
-	}
-
-	public boolean verify() {
-		try {
-			checkE(sigma.getE());
-		} catch (Exception e) {
-			return false;
-		}
-		
-		return verifySignature();
-	}
-
-	private boolean verifySignature() {
-		computeQ();
-		try {
-			verifyAgainstHatQ();
-		} catch (VerificationException ve) {
-			gslog.log(Level.SEVERE, ve.getMessage());
-			return false;
-		}
-		return true;
-	}
-
-	/** 
-	 * Checks whether a signature indeed contains all the bases required.
-	 * 
-	 * @param sigma Signature to analyze.
-	 * @param expectedBases Basecollection of bases expected to be present.
-	 * 
-	 * @return Bases that are missing.
-	 */
-	public BaseCollection validateEncodedBases(GSSignature sigma, BaseCollection expectedBases) {
-		BaseCollection missingBases = expectedBases.clone();
-		BaseCollection actualBases = sigma.getEncodedBases();
-		if (actualBases == null) return missingBases;
-		
-		BaseIterator actualBaseIter = actualBases.createIterator(BASE.ALL);
-		for (BaseRepresentation base : actualBaseIter) {
-			if (expectedBases.contains(base) && base.getExponent() != null) {
-				missingBases.remove(base);
+			if (hatQ.compareTo(Q) != 0) {
+				throw new VerificationException("Q cannot be verified");
 			}
 		}
-		return missingBases;
-	}
-	
-	/** 
-	 * Checks whether a signature contains unexpected bases.
-	 * 
-	 * @param sigma Signature to analyze.
-	 * @param expectedBases Basecollection of bases expected to be present.
-	 * 
-	 * @return Bases that are unexpectedly present.
-	 */
-	public BaseCollection findUnexpectedBases(GSSignature sigma, BaseCollection expectedBases) {
-		BaseCollection actualBases = sigma.getEncodedBases();
-		
-		BaseIterator expectedBaseIter = expectedBases.createIterator(BASE.ALL);
-		for (BaseRepresentation base : expectedBaseIter) {
-			if (actualBases.contains(base)) actualBases.remove(base);
+
+		public boolean verify() {
+			try {
+				checkE(sigma.getE());
+			} catch (Exception e) {
+				return false;
+			}
+
+			return verifySignature();
 		}
-		return actualBases;
+
+		private boolean verifySignature() {
+			computeQ();
+			try {
+				verifyAgainstHatQ();
+			} catch (VerificationException ve) {
+				gslog.log(Level.SEVERE, ve.getMessage());
+				return false;
+			}
+			return true;
+		}
+
+		/** 
+		 * Checks whether a signature indeed contains all the bases required.
+		 * 
+		 * @param sigma Signature to analyze.
+		 * @param expectedBases Basecollection of bases expected to be present.
+		 * 
+		 * @return Bases that are missing.
+		 */
+		public BaseCollection validateEncodedBases(GSSignature sigma, BaseCollection expectedBases) {
+			BaseCollection missingBases = expectedBases.clone();
+			BaseCollection actualBases = sigma.getEncodedBases();
+			if (actualBases == null) return missingBases;
+
+			BaseIterator actualBaseIter = actualBases.createIterator(BASE.ALL);
+			for (BaseRepresentation base : actualBaseIter) {
+				if (expectedBases.contains(base) && base.getExponent() != null) {
+					missingBases.remove(base);
+				}
+			}
+			return missingBases;
+		}
+
+		/** 
+		 * Checks whether a signature contains unexpected bases.
+		 * 
+		 * @param sigma Signature to analyze.
+		 * @param expectedBases Basecollection of bases expected to be present.
+		 * 
+		 * @return Bases that are unexpectedly present.
+		 */
+		public BaseCollection findUnexpectedBases(GSSignature sigma, BaseCollection expectedBases) {
+			BaseCollection actualBases = sigma.getEncodedBases();
+
+			BaseIterator expectedBaseIter = expectedBases.createIterator(BASE.ALL);
+			for (BaseRepresentation base : expectedBaseIter) {
+				if (actualBases.contains(base)) actualBases.remove(base);
+			}
+			return actualBases;
+		}
 	}
-}

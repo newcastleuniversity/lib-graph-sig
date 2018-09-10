@@ -156,9 +156,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 		ProofSignature P_1 = createProofSignature(); // TODO Needs to sign n_1
 
 		n_2 = recipient.generateN_2();
+		
+		GSCommitment commitmentUtoBeSent = U.clonePublicCommitment();
 
 		Map<URN, Object> messageElements = new HashMap<>();
-		messageElements.put(URN.createZkpgsURN("recipient.U"), U);
+		messageElements.put(URN.createZkpgsURN("recipient.U"), commitmentUtoBeSent);
 		messageElements.put(URN.createZkpgsURN("recipient.P_1"), P_1);
 		messageElements.put(URN.createZkpgsURN("recipient.n_2"), n_2);
 

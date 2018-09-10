@@ -189,5 +189,24 @@ public class GSCommitment implements Serializable {
 	public BigInteger getRandomness() {
 		return randomness;
 	}
+	
+	/**
+	 * Returns a version of this commitment that only includes public information, 
+	 * but neither secrets nor randomness.
+	 * 
+	 * @return a public commitment, which includes the commitment value and the base allocation used in the commitment.
+	 */
+	public GSCommitment clonePublicCommitment() {
+		BaseCollection collection = new BaseCollectionImpl();
+		BaseIterator secretCommitmentBases = this.baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : secretCommitmentBases) {
+			// Secret exponents are not transfered or touched.
+			BaseRepresentation newBase = new BaseRepresentation(base.getBase(), base.getBaseIndex(), base.getBaseType());
+			collection.add(newBase);
+		}
+		
+		// The randomness is intentionally set to null.
+		return new GSCommitment(collection, null, this.getCommitmentValue());
+	}
 
 }

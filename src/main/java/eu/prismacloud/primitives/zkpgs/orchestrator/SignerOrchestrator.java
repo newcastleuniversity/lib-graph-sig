@@ -301,6 +301,8 @@ public class SignerOrchestrator implements IMessagePartner {
 		GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
 
 		signer.sendMessage(preSignatureMsg);
+		
+		preSigma.getA();
 	}
 
 	private HashMap<URN, Object> prepareProvingSigningQ(GSSignature preSigma) throws ProofStoreException {
@@ -469,15 +471,19 @@ public class SignerOrchestrator implements IMessagePartner {
 	GroupElement computeQ(SignatureData sigmaData) {
 
 		GroupElement basesProduct = signerPublicKey.getQRGroup().getOne();
+
+		for (BaseRepresentation base : sigmaData.getEncodedBases().createIterator(BASE.ALL)) {
+			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness separately.
+			
+			basesProduct =
+					basesProduct.multiply(
+							base.getBase().modPow(base.getExponent()));
+		}
+		
 		if (sigmaData.getComU() != null) {
 			basesProduct = basesProduct.multiply(sigmaData.getComU().getCommitmentValue());
 		}
-
-		for (BaseRepresentation baseRepresentation : sigmaData.getEncodedBases().createIterator(BASE.ALL)) {
-			basesProduct =
-					basesProduct.multiply(
-							baseRepresentation.getBase().modPow(baseRepresentation.getExponent()));
-		}
+		
 		sigmaData.setBasesProduct(basesProduct);
 
 		GroupElement Sv = baseS.modPow(sigmaData.getVPrimePrime());
