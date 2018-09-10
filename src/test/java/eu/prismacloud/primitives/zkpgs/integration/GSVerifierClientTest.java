@@ -9,18 +9,22 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.orchestrator.VerifierOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import static junit.framework.TestCase.assertNotNull;
 
 @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -48,40 +52,25 @@ public class GSVerifierClientTest {
     String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
     extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
 
-    //    gslog.info("read persisted graph signature");
-    //    A = (GroupElement) persistenceUtil.read("A.ser");
-    //    e = (BigInteger) persistenceUtil.read("e.ser");
-    //    v = (BigInteger) persistenceUtil.read("v.ser");
+    String gsSignatureFileName = "signer-infra.gs.ser";
+    GSSignature sig = (GSSignature) persistenceUtil.read(gsSignatureFileName);
 
     gslog.info("read encoded base collection");
-    baseCollection = (BaseCollection) persistenceUtil.read("baseCollection.ser");
+    baseCollection = sig.getEncodedBases();
 
-    gslog.info("read encoded base collection");
-    baseCollection = (BaseCollection) persistenceUtil.read("baseCollection.ser");
-    vertexIterator = baseCollection.createIterator(BASE.VERTEX).iterator();
   }
 
   @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
   @Test
   void testVerifierSide() throws Exception {
-    Thread.sleep(15000); // wait for server socket
+      Thread.sleep(15000); // wait for server socket
 
-    baseCollection = new BaseCollectionImpl();
-    BaseRepresentation baseR1 = (BaseRepresentation) vertexIterator.next();
-    BaseRepresentation baseR2 = (BaseRepresentation) vertexIterator.next();
-    baseCollection.add(baseR1);
-    baseCollection.add(baseR2);
-
-    proofStore = new ProofStore<Object>();
-    proofStore.store("encoded.bases", baseCollection);
-
-    verifierOrchestrator =
-        new VerifierOrchestrator(
-            extendedPublicKey);
+    verifierOrchestrator = new VerifierOrchestrator(extendedPublicKey);
     verifierOrchestrator.init();
     verifierOrchestrator.receiveProverMessage();
     verifierOrchestrator.preChallengePhase();
-    verifierOrchestrator.computeChallenge();
+    BigInteger challenge = verifierOrchestrator.computeChallenge();
+    assertNotNull(challenge);
     verifierOrchestrator.verifyChallenge();
     verifierOrchestrator.close();
 

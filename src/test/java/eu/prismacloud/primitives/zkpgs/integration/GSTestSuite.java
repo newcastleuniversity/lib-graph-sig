@@ -21,11 +21,12 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 
 /** */
-@Disabled
+//@Disabled
 public class GSTestSuite {
   private Logger gslog = GSLoggerConfiguration.getGSlog();
 
   @Test
+  @Disabled
   @DisplayName("Test the Issuing protocol using a parallel execution of Recipient and Signer")
   void testRecipientSigner() throws InterruptedException {
     Thread.sleep(5000);
@@ -73,6 +74,7 @@ public class GSTestSuite {
   }
 
   @Test
+  @Disabled
   @DisplayName("Test the socket message interactions of the low level GSClient and GSServer")
   void testClientServer() throws InterruptedException {
     Thread.sleep(5000);
@@ -95,6 +97,7 @@ public class GSTestSuite {
   }
 
   @Test
+  @Disabled
   @DisplayName("Test the signer socket message interactions with the recipient")
   //  @RepeatedTest(4)
   void testSignerMessages() throws InterruptedException {
