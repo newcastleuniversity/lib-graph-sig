@@ -1,6 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
-import static org.junit.Assert.fail;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
