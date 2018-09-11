@@ -296,7 +296,6 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
     @Override
     public BigInteger computeChallenge() {
-        gslog.info("compute challenge ");
         challengeList = populateChallengeList();
         BigInteger c = null;
         try {
@@ -386,7 +385,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
         tildeR_BariBarj = pairWiseWitnesses.get(URN.createUnsafeZkpgsURN("pairwiseprover.tildeBaseR_BariBarj_" + pairWiseIndex));
 
         challengeList.add(String.valueOf(tildeR_BariBarj));
-        gslog.info("n3: " + n_3);
+
         challengeList.add(String.valueOf(n_3));
 
         return challengeList;

@@ -48,7 +48,6 @@ public class GSServer implements IMessagePartner {
    */
   public void init() throws IOException {
     clientSocket = serverSocket.accept();
-    log.info("Server Socket Established...");
     outToClient = new ObjectOutputStream(clientSocket.getOutputStream());
     inFromClient = new ObjectInputStream(clientSocket.getInputStream());
   }

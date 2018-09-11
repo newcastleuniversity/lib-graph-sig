@@ -448,7 +448,6 @@ public class SignerOrchestrator implements IMessagePartner {
 						sigmaData.getA(), sigmaData.getE(), sigmaData.vPrimePrime);
 
 		Boolean isValidSignature = preSigma.verify(signerPublicKey, sigmaData.getBasesProduct());
-		gslog.info("signer isValidSignature: " + isValidSignature);
 
 		return preSigma;
 	}

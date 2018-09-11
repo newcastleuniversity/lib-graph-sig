@@ -187,7 +187,6 @@ public class RecipientOrchestrator implements IMessagePartner {
 		 */
 		encodeRecipientCommitment();
 
-		gslog.info("Validating incoming graph signature.");
 		GSSignature signatureCandidate = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
 		
 		// Complementing the signature with its auxiliary data.
@@ -232,12 +231,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 			throw new VerificationException("Graph signature is not valid");
 		}
 
-		gslog.info("recipient: store signature A,e,v");
 		proofStore.store("recipient.graphsignature.A", A);
 		proofStore.store("recipient.graphsignature.e", e);
 		proofStore.store("recipient.graphsignature.v", v);
 
-		gslog.info("recipient: save encoded bases");
 		BaseIterator baseRepresentations = signedBases.createIterator(BASE.ALL);
 		String baseURN = "";
 		for (BaseRepresentation baseRepresentation : baseRepresentations) {

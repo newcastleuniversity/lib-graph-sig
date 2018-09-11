@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 /** Crypto Utilities class for graph signature library */
 public class GSUtils implements INumberUtils {
 
-	private Logger log = GSLoggerConfiguration.getGSlog();
 	private final SecureRandom secureRandom;
 
 	private BigInteger modN;
@@ -179,7 +178,6 @@ public class GSUtils implements INumberUtils {
 			throw new IllegalArgumentException("Min and max values of the range must be different.");
 		}
 
-		log.info("generate prime in range: ");
 		BigInteger prime;
 		if (min.compareTo(BigInteger.ZERO) < 0) {
 			prime = generatePrimeWithNegativeMin(min, max);
