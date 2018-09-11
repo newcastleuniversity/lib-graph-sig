@@ -174,6 +174,9 @@ public class PairWiseDifferenceProver implements IProver {
 	}
 
 
+	public int getIndex(){
+		return  this.index;
+	}
 
 	/**
 	 * Gets c j.
