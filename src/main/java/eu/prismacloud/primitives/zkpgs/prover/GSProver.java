@@ -67,7 +67,7 @@ public class GSProver implements IMessagePartner {
 
     for (BaseRepresentation vertexRepresentation : vertexRepresentations) {
       /** TODO check length of randomness r */
-      r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
+      r_i = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_n());
       BigInteger m_i = vertexRepresentation.getExponent();
       GroupElement C_i = baseR.modPow(m_i).multiply(baseS.modPow(r_i));
       commitment = GSCommitment.createCommitment(m_i, extendedPublicKey);
