@@ -64,7 +64,7 @@ public class SignerOrchestrator implements IMessagePartner {
 	private IMessageGateway messageGateway;
 	private Map<URN, Object> messageElements;
 	private GSRecipient recipient;
-	private BigInteger cChallenge;
+	private BigInteger commitmentUproofChallenge;
 	private BigInteger hatvPrime;
 	private BigInteger hatm_0;
 	private Map<URN, BigInteger> responses;
@@ -102,6 +102,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		private GroupElement basesProduct;
 
 		private BaseCollection encodedBases;
+		private GraphRepresentation graphRepresentation;
 
 
 		GroupElement getQ() {
@@ -234,6 +235,19 @@ public class SignerOrchestrator implements IMessagePartner {
 			}
 		}
 
+		public GraphRepresentation getGraphRepresentation() {
+			Assert.notNull(this.graphRepresentation, "The graph representation bases product of the signature has not been appropriately initialized, yet.");
+			return graphRepresentation;
+		}
+
+		public void setGraphRepresentation(GraphRepresentation graphRepresentation) {
+			if(this.graphRepresentation == null) {
+				this.graphRepresentation = graphRepresentation;
+			} else {
+				throw new IllegalStateException("The graph representation can only be set once and is final thereafter");
+			}
+		}
+
 	}
 
 	public SignerOrchestrator(String graphFilename,
@@ -280,6 +294,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		sigmaData.setComU(commitmentU);
 		sigmaData.setEncodedBases(sigmaGraph.getEncodedBaseCollection());
+		sigmaData.setGraphRepresentation(sigmaGraph);
 
 		// Preparing Signature computation
 		sigmaData.computeVPrimePrimeRandomness();
@@ -294,8 +309,8 @@ public class SignerOrchestrator implements IMessagePartner {
 		GSMessage preSignatureMsg = new GSMessage(preSignatureElements);
 
 		signer.sendMessage(preSignatureMsg);
-		
-		preSigma.getA();
+
+		preSigma.getA(); // NOOP to catch debug state.
 	}
 
 	private HashMap<URN, Object> prepareProvingSigningQ(GSSignature preSigma) throws ProofStoreException, NoSuchAlgorithmException {
@@ -306,7 +321,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		cPrime = signingQOrchestrator.computeChallenge();
 
 		signingQOrchestrator.executePostChallengePhase(cPrime);
-		
+
 		P_2 = signingQOrchestrator.createProofSignature();
 
 		HashMap<URN, Object> preSignatureElements = new HashMap<URN, Object>();
@@ -316,6 +331,10 @@ public class SignerOrchestrator implements IMessagePartner {
 		preSignatureElements.put(URN.createZkpgsURN("proofsignature.P_2"), P_2);
 		preSignatureElements.put(
 				URN.createZkpgsURN("proofsignature.encoding.baseMap"), preSigma.getEncodedBases());
+
+		preSignatureElements.put(
+				URN.createZkpgsURN("proofsignature.encoding.GR"), preSigma.getGraphRepresentation());
+
 		return preSignatureElements;
 	}
 
@@ -323,14 +342,14 @@ public class SignerOrchestrator implements IMessagePartner {
 		IssuingCommitmentVerifier commitmentVerifier =
 				new IssuingCommitmentVerifier(commitmentValue, commitmentBases, extendedKeyPair.getExtendedPublicKey(), proofStore);
 
-		hatU = commitmentVerifier.executeVerification(cChallenge);
+		hatU = commitmentVerifier.executeVerification(commitmentUproofChallenge);
 
 		hatc = computeChallenge();
 
-		if (!verifyChallenge()) {
+		if (!hatc.equals(commitmentUproofChallenge)) {
 			gslog.info("throws verification exception");
 			signer.close();
-			throw new VerificationException("Challenge verification failed");
+			throw new VerificationException("Challenge verification of the representation proof of Recipient commitment U failed.");
 		}
 	}
 
@@ -354,10 +373,6 @@ public class SignerOrchestrator implements IMessagePartner {
 		return CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
 	}
 
-	private Boolean verifyChallenge() {
-		return hatc.equals(cChallenge);
-	}
-
 	private GSCommitment extractMessageElements(GSMessage msg, SignatureData signatureData) throws ProofStoreException {
 		Map<URN, Object> messageElements = msg.getMessageElements();
 
@@ -367,7 +382,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		P_1 = (ProofSignature) messageElements.get(URN.createZkpgsURN("recipient.P_1"));
 		Map<URN, Object> proofSignatureElements = P_1.getProofSignatureElements();
 
-		cChallenge =
+		commitmentUproofChallenge =
 				(BigInteger) proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.challenge.c"));
 		//    proofStore.store("proofsignature.P_1.challenge.c", cChallenge );
 
@@ -401,7 +416,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		proofStore.store("issuing.commitmentverifier.responses.hatvPrime", hatvPrime);
 		proofStore.store("issuing.commitmentverifier.responses.hatm_0", hatm_0);
 
-		proofStore.store("proofsignature.P_1.challenge.c", cChallenge);
+		proofStore.store("proofsignature.P_1.challenge.c", commitmentUproofChallenge);
 		proofStore.store("proofsignature.P_1.responses.hatvPrime", hatvPrime);
 		proofStore.store("proofsignature.P_1.responses.hatm_0", hatm_0);
 		proofStore.store("recipient.P_1", P_1);
@@ -429,7 +444,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		GSSignature preSigma =
 				new GSSignature(
-						extendedPublicKey, sigmaData.getComU(), sigmaData.getEncodedBases(), 
+						extendedPublicKey, sigmaData.getComU(), sigmaData.getEncodedBases(), sigmaData.getGraphRepresentation(),
 						sigmaData.getA(), sigmaData.getE(), sigmaData.vPrimePrime);
 
 		Boolean isValidSignature = preSigma.verify(signerPublicKey, sigmaData.getBasesProduct());
@@ -466,16 +481,16 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		for (BaseRepresentation base : sigmaData.getEncodedBases().createIterator(BASE.ALL)) {
 			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness separately.
-			
+
 			basesProduct =
 					basesProduct.multiply(
 							base.getBase().modPow(base.getExponent()));
 		}
-		
+
 		if (sigmaData.getComU() != null) {
 			basesProduct = basesProduct.multiply(sigmaData.getComU().getCommitmentValue());
 		}
-		
+
 		sigmaData.setBasesProduct(basesProduct);
 
 		GroupElement Sv = signerPublicKey.getBaseS().modPow(sigmaData.getVPrimePrime());

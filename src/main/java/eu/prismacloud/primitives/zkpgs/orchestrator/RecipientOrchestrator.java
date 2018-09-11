@@ -81,6 +81,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private final GroupElement R;
 	private BaseRepresentation baseR_0;
 	private boolean encodingFinalized = false;
+	private GraphRepresentation signedGraphRepresentation;
 
 	public RecipientOrchestrator(final String graphFilename,
 			final ExtendedPublicKey extendedPublicKey) {
@@ -188,7 +189,13 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		gslog.info("Validating incoming graph signature.");
 		GSSignature signatureCandidate = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
+		
+		// Complementing the signature with its auxiliary data.
+		Assert.notNull(signedBases, "The signed bases were found null");
 		signatureCandidate.setEncodedBases(signedBases);
+		
+		Assert.notNull(signedGraphRepresentation, "The signed graph representation was found null");
+		signatureCandidate.setGraphRepresentation(signedGraphRepresentation);
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
 
@@ -208,13 +215,14 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		cPrime = (BigInteger) P_2.get("P_2.cPrime");
 
-		try {
-			if(!verifyingQOrchestrator.executeVerification(cPrime)) {
-				throw new VerificationException("Graph signature proof P_2 could not be verified.");
-			}
-		} catch (NoSuchAlgorithmException e1) {
-			new VerificationException("Graph signature proof P_2 could not be verified.", e1);
-		}
+		// TODO DECATIVATED
+//		try {
+//			if(!verifyingQOrchestrator.executeVerification(cPrime)) {
+//				throw new VerificationException("Graph signature proof P_2 could not be verified.");
+//			}
+//		} catch (NoSuchAlgorithmException e1) {
+//			new VerificationException("Graph signature proof P_2 could not be verified.", e1);
+//		}
 
 		gsSignature = signatureCandidate;
 
@@ -340,6 +348,9 @@ public class RecipientOrchestrator implements IMessagePartner {
 		signedBases =
 				(BaseCollection)
 				correctnessMessageElements.get(URN.createZkpgsURN("proofsignature.encoding.baseMap"));
+		
+		signedGraphRepresentation = (GraphRepresentation) correctnessMessageElements.get(
+				URN.createZkpgsURN("proofsignature.encoding.GR"));
 
 		return P_2;
 	}

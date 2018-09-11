@@ -53,6 +53,7 @@ public enum URNType {
 	D,
 	V,
 	Q,
+	GR,
 	
 	// Witness Randomness and Witnesses (tilde-values)
 	TILDEA,
@@ -154,6 +155,7 @@ public enum URNType {
 		case D: return "d";
 		case V: return "v";
 		case Q: return "Q";
+		case GR: return "GR";
 		
 		case TILDEA: return "tildeA";
 		case TILDED: return "tilded";
@@ -254,6 +256,7 @@ public enum URNType {
 		case D: return "signature";
 		case V: return "signature";
 		case Q: return "signature";
+		case GR: return "signature";
 		
 		case TILDEA: return "witnesses";
 		case TILDED: return "witnesses.randomness";
@@ -362,6 +365,7 @@ public enum URNType {
 		case D: return URNClass.SECRET;
 		case V: return URNClass.SECRET;
 		case Q: return URNClass.SECRET;
+		case GR: return URNClass.SECRET;
 		
 		case TILDEA: return URNClass.TILDE;
 		case TILDED: return URNClass.TILDE;

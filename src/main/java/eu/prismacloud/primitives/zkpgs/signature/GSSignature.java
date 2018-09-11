@@ -46,6 +46,7 @@ public class GSSignature implements Serializable {
 			final ExtendedPublicKey extendedPublicKey,
 			GSCommitment U,
 			BaseCollection encodedBases,
+			GraphRepresentation gr,
 			GroupElement A,
 			BigInteger e,
 			BigInteger v) {
@@ -57,6 +58,7 @@ public class GSSignature implements Serializable {
 		this.ePrime = e.subtract(ePrimeOffset);
 		this.v = v;
 		this.encodedBases = encodedBases;
+		this.graphRepresentation = gr;
 	}
 
 	public GSSignature(
