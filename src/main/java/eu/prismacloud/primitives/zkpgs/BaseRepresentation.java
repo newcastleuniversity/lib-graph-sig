@@ -1,7 +1,7 @@
 package eu.prismacloud.primitives.zkpgs;
 
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
-import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 import java.io.Serializable;
@@ -83,7 +83,7 @@ public class BaseRepresentation implements Serializable, IContextProducer, Clone
         try {
             theClone = (BaseRepresentation) super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new TopocertInternalError(e);
+            throw new GSInternalError(e);
         }
 
         // No mutable members to clone

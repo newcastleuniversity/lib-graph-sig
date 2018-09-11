@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 
 /** A graph vertex for graph representation. */
 public class GSVertex implements Serializable, Cloneable {
@@ -130,7 +130,7 @@ public class GSVertex implements Serializable, Cloneable {
 			theClone = (GSVertex) super.clone();
 		} catch (CloneNotSupportedException e) {
 			// Should never happen
-			throw new TopocertInternalError(e);
+			throw new GSInternalError(e);
 		}
 
 		// Cloning mutable members

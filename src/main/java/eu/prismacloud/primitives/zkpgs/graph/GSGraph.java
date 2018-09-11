@@ -2,13 +2,14 @@ package eu.prismacloud.primitives.zkpgs.graph;
 
 import eu.prismacloud.primitives.zkpgs.encoding.IGraphEncoding;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
-import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Set;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultUndirectedGraph;
@@ -184,12 +185,37 @@ implements Serializable, Cloneable {
 			theClone = (GSGraph<V, E>) super.clone();
 		} catch (CloneNotSupportedException e) {
 			// Should never happen
-			throw new TopocertInternalError(e);
+			throw new GSInternalError(e);
 		}
 
 		// Cloning mutable members
 		theClone.graph = (DefaultUndirectedGraph<V, E>) graph.clone();
 
 		return theClone;
+	}
+	
+
+	/**
+	 * Returns a vertex based on the vertex id, that is, the String identifier of V (usually a GSVertex).
+	 * 
+	 * @param vertexId The ide of the vertex in question.
+	 * @return A clone of V (the GSVertex) if one is found, null otherwise.
+	 */
+	public V getVertexById(String vertexId) {
+		V vertexFound = null;
+		
+		Iterator<V> vertexIterator = graph.vertexSet().iterator();
+		while (vertexIterator.hasNext()) {
+			V v = (V) vertexIterator.next();
+			if (v.getId().equals(vertexId)) {
+				try {
+				vertexFound = (V) v.clone();
+				} catch (ClassCastException e) {
+					throw new GSInternalError("The vertex found could not be class-cast to the GSVertex class specified.");
+				}
+			}
+		}
+		
+		return vertexFound;
 	}
 }

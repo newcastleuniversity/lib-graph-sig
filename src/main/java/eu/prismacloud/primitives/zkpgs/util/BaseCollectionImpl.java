@@ -3,7 +3,7 @@ package eu.prismacloud.primitives.zkpgs.util;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.context.IContextProducer;
-import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 
 import java.io.Serializable;
@@ -104,7 +104,7 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 			theClone = (BaseCollectionImpl) super.clone();
 		} catch(CloneNotSupportedException e) {
 			// Should never happen
-			throw new TopocertInternalError(e);
+			throw new GSInternalError(e);
 		}
 		
 		// Clone mutable fields

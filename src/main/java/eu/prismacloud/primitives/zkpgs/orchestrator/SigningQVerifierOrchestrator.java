@@ -107,13 +107,6 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 		return hatc;
 	}
 
-	private boolean verifyChallenge() throws VerificationException, NoSuchAlgorithmException {
-		if (!this.cPrime.equals(computeChallenge())) {
-			throw new VerificationException("challenge verification failed");
-		}
-		return true;
-	}
-
 	private List<String> populateChallengeList() {
 		Assert.notNull(Q, "Pre-signature value Q has been found to be null.");
 		Assert.notNull(A, "Pre-signature value A has been found to be null.");
@@ -144,12 +137,7 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 		hatA = verifier.executeVerification(cPrime);
 
-		try {
-			return verifyChallenge();
-		} catch (VerificationException e) {
-			gslog.log(Level.SEVERE, "Verification failed.", e.getMessage());
-			return false;
-		}
+		return this.cPrime.equals(computeChallenge());
 	}
 
 	@Override

@@ -73,7 +73,6 @@ public class SignerOrchestrator implements IMessagePartner {
 	private BigInteger hatc;
 
 	private GSGraph<GSVertex, GSEdge> gsGraph;
-	private BigInteger hatd;
 	private BigInteger cPrime;
 	private Map<URN, Object> p2ProofSignatureElements;
 	private ProofSignature P_2;
@@ -307,8 +306,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		cPrime = signingQOrchestrator.computeChallenge();
 
 		signingQOrchestrator.executePostChallengePhase(cPrime);
-		this.hatd = responses.get(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
-
+		
 		P_2 = signingQOrchestrator.createProofSignature();
 
 		HashMap<URN, Object> preSignatureElements = new HashMap<URN, Object>();
@@ -519,7 +517,6 @@ public class SignerOrchestrator implements IMessagePartner {
 		GroupElement commitmentU = U.getCommitmentValue();
 
 		challengeList.add(String.valueOf(commitmentU));
-		/** TODO fix hatU computation */
 		challengeList.add(String.valueOf(hatU));
 		challengeList.add(String.valueOf(n_1));
 

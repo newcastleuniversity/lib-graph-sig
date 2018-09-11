@@ -49,7 +49,7 @@ import org.jgrapht.io.ImportException;
 
 /** Recipient orchestrator */
 public class RecipientOrchestrator implements IMessagePartner {
-	
+
 	private final ExtendedPublicKey extendedPublicKey;
 	private final ProofStore<Object> proofStore;
 	private final BigInteger modN;
@@ -95,19 +95,19 @@ public class RecipientOrchestrator implements IMessagePartner {
 		this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
 		this.recipient = new GSRecipient(extendedPublicKey);
 	}
-	
+
 	public RecipientOrchestrator(final ExtendedPublicKey extendedPublicKey) {
 		this(DefaultValues.RECIPIENT_GRAPH_FILE, extendedPublicKey);
 	}
-	
+
 	@Override
 	public void init() throws IOException {
 		this.recipient.init();
-		
+
 		committedBases = new BaseCollectionImpl();
 
 		generateRecipientMSK();
-		
+
 		encodeR_0(committedBases);
 		try {
 			proofStore.store("bases.baseR_0", baseR_0);
@@ -116,18 +116,18 @@ public class RecipientOrchestrator implements IMessagePartner {
 			gslog.log(Level.SEVERE, pse.getMessage());
 		}
 
-//		try {
-//			if (graphFilename != null) { 
-//				createGraphRepresentation(graphFilename);
-//			}
-//		} catch (ImportException im) {
-//			throw new IOException(im.getMessage());
-//		} catch (EncodingException e) {
-//			throw new IOException(e.getMessage());
-//		}
+		//		try {
+		//			if (graphFilename != null) { 
+		//				createGraphRepresentation(graphFilename);
+		//			}
+		//		} catch (ImportException im) {
+		//			throw new IOException(im.getMessage());
+		//		} catch (EncodingException e) {
+		//			throw new IOException(e.getMessage());
+		//		}
 	}
-	
-	
+
+
 
 	public void round1() throws ProofStoreException, IOException, NoSuchAlgorithmException {
 
@@ -138,7 +138,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		// Establishing the commitment
 		vPrime = recipient.generatevPrime();
 		proofStore.store("issuing.recipient.vPrime", vPrime);
-		
+
 		U = recipient.commit(committedBases, vPrime);
 
 		// Starting the representation proof of the commitment
@@ -155,8 +155,8 @@ public class RecipientOrchestrator implements IMessagePartner {
 		ProofSignature P_1 = createProofSignature(); 
 
 		n_2 = recipient.generateN_2();
-		
-		
+
+
 		// Create a clone of the commitment which is restricted to its public values.
 		// To be sent to the Signer.
 		GSCommitment commitmentUtoBeSent = U.clonePublicCommitment();
@@ -168,10 +168,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		recipient.sendMessage(new GSMessage(messageElements));
 	}
-	
-	
-	
-	
+
+
+
+
 	public void round3() throws VerificationException, ProofStoreException, IOException {
 		GSMessage correctnessMsg = recipient.receiveMessage();
 		P_2 = extractMessageElements(correctnessMsg);
@@ -179,7 +179,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 		BigInteger v = vPrimePrime.add(vPrime);
 
 		proofStore.store("recipient.vPrimePrime", vPrimePrime);
-		
+
 		/* The encodedBases of P_2 only includes the bases provided by the issuer.
 		 * Consequently, the bases still need to be extended with at least the
 		 * master secret key msk on base R_0 and the Recipient-provided graph.
@@ -191,10 +191,10 @@ public class RecipientOrchestrator implements IMessagePartner {
 		signatureCandidate.setEncodedBases(signedBases);
 
 		GSSignatureValidator sigmaValidator = new GSSignatureValidator(signatureCandidate, extendedPublicKey.getPublicKey(), proofStore);
-		
+
 		GroupElement Q = sigmaValidator.computeQ();
 		proofStore.store("issuing.recipient.Q", Q);
-		
+
 
 		if(!sigmaValidator.verify()) {
 			throw new VerificationException("The signature is inconsistent.");
@@ -237,11 +237,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 			proofStore.store(baseURN, baseRepresentation);
 		}
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 
 	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
 		challengeList = populateChallengeList();
@@ -303,7 +303,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 	private void encodeRecipientCommitment() {
 		encodeR_0(signedBases);
-		
+
 		encodingFinalized = true;
 	}
 
@@ -343,12 +343,12 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		return P_2;
 	}
-	
+
 	public void serializeFinalSignature(String filename) throws IOException, NullPointerException {
 		Assert.notNull(gsSignature, "The signature was null.");
-		
+
 		FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
-		
+
 		persistenceUtil.write(gsSignature, filename);
 	}
 

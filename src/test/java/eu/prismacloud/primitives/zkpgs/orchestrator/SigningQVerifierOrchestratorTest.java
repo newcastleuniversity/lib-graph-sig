@@ -27,6 +27,7 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class SigningQVerifierOrchestratorTest {
@@ -46,6 +47,7 @@ class SigningQVerifierOrchestratorTest {
 	private BigInteger proverCPrime;
 	private BigInteger tilded;
 	private BigInteger hatd;
+	private GroupElement tildeA;
 
 	@BeforeAll
 	void setupKey() throws IOException, ClassNotFoundException, EncodingException {
@@ -82,7 +84,7 @@ class SigningQVerifierOrchestratorTest {
 		prover.init();
 		prover.executePreChallengePhase();
 		tilded = (BigInteger) proverProofStore.retrieve(URNType.buildURNComponent(URNType.TILDED, SigningQCorrectnessProver.class));
-		
+		tildeA = (GroupElement) proverProofStore.retrieve(URNType.buildURNComponent(URNType.TILDEA, SigningQCorrectnessProver.class));
 		
 		proverCPrime = prover.computeChallenge();
 		
@@ -119,8 +121,10 @@ class SigningQVerifierOrchestratorTest {
 	@Test
 	void testExecuteVerification() throws NoSuchAlgorithmException, ProofStoreException {
 		verifier.executeVerification(proverCPrime);
+		String hatAURN = URNType.buildURNComponent(URNType.HATA, SigningQCorrectnessProver.class);
+		GroupElement hatA = (GroupElement) verifierProofStore.retrieve(hatAURN);
 		
-		
+		assertEquals(tildeA, hatA, "The signingQ verifier orchestrator did not gain the correct verifier witness hatA.");
 	}
 
 }

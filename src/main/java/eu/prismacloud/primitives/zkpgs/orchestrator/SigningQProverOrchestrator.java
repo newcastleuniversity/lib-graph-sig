@@ -81,6 +81,7 @@ public class SigningQProverOrchestrator implements IProverOrchestrator {
 		Map<URN, BigInteger> responses;
 		responses = prover.executePostChallengePhase(cChallenge);
 		this.hatd = responses.get(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)));
+		proofStore.add(URN.createZkpgsURN(URNType.buildURNComponent(URNType.HATD, SigningQCorrectnessProver.class)), this.hatd);
 	}
 
 	@Override

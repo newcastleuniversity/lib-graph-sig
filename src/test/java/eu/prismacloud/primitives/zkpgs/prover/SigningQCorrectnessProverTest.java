@@ -126,7 +126,7 @@ class SigningQCorrectnessProverTest {
 		
 		BigInteger pPrime = signerKeyPair.getPrivateKey().getPPrime();
 		BigInteger qPrime = signerKeyPair.getPrivateKey().getQPrime();
-		BigInteger order =pPrime.multiply(qPrime);
+		BigInteger order = pPrime.multiply(qPrime);
 		
 		assertEquals(tilded.subtract(cChallenge.multiply(d)).mod(order), hatd, "The hatd savlue was not computed as prescribed.");
 	}

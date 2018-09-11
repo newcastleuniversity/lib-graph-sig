@@ -11,7 +11,7 @@ import org.jgrapht.io.ImportException;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.exception.TopocertInternalError;
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -215,7 +215,7 @@ public class Topocert {
 		} catch (RuntimeException e) {
 			handleException(e, "TOPOCERT detected a runtime exception "
 					+ "and is aborting the protocol run.", TopocertErrorCodes.EX_SOFTWARE);
-		} catch (TopocertInternalError e) {
+		} catch (GSInternalError e) {
 			handleException(e, "TOPOCERT detected an unexpcected, critical internal error "
 					+ "that it could not recover from.", TopocertErrorCodes.EX_CRITERR);
 		}
