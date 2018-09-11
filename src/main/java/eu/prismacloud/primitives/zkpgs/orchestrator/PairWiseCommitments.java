@@ -2,9 +2,12 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 
-/** The type Pair wise commitments. */
-public class PairWiseCommitments {
+import java.io.Serializable;
 
+/** The type Pair wise commitments. */
+public class PairWiseCommitments implements Serializable {
+
+  private static final long serialVersionUID = -1179367424073147L;
   private GSCommitment C_i;
   private GSCommitment C_j;
 
