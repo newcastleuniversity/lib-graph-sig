@@ -2,11 +2,15 @@ package eu.prismacloud.primitives.zkpgs.util;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 
-/** Iterator for bases */
+/**
+ * Iterator for bases
+ */
 public interface BaseIterator extends Iterable<BaseRepresentation> {
-  boolean hasNext();
+    boolean hasNext();
 
-  BaseRepresentation next();
+    BaseRepresentation next();
 
-  int size();
+    int size();
+
+    BaseRepresentation getBaseByIndex(int baseIndex);
 }
