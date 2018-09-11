@@ -174,7 +174,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
         	int baseIndex = graphRepresentation.getBaseIndexOfVertex(vertex);
         	
         	// 3. Obtain the base.
-        	BaseRepresentation base = baseCollection.get(baseIndex);
+        	BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
+        	BaseRepresentation base = vertexIterator.getBaseByIndex(baseIndex);
             if (base == null) {
                 throw new IllegalArgumentException("base does not exist for corresponding index");
             } else {
