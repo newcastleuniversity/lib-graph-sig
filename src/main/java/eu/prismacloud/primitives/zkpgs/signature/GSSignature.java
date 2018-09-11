@@ -3,6 +3,7 @@ package eu.prismacloud.primitives.zkpgs.signature;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
+import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -39,6 +40,7 @@ public class GSSignature implements Serializable {
 	private final BigInteger ePrime; // ePrime is e minus the l_E offset
 	private final BigInteger v;
 	private BaseCollection encodedBases;
+	private GraphRepresentation graphRepresentation;
 	
 	public GSSignature(
 			final ExtendedPublicKey extendedPublicKey,
@@ -216,5 +218,13 @@ public class GSSignature implements Serializable {
 
 	public void setEncodedBases(BaseCollection encodedBases) {
 		this.encodedBases = encodedBases;
+	}
+
+	public GraphRepresentation getGraphRepresentation() {
+		return graphRepresentation;
+	}
+
+	public void setGraphRepresentation(GraphRepresentation graphRepresentation) {
+		this.graphRepresentation = graphRepresentation;
 	}
 }

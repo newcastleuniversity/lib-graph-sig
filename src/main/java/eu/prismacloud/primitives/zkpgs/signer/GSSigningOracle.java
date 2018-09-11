@@ -184,7 +184,10 @@ public class GSSigningOracle {
 	public GSSignature sign(GraphRepresentation graphRepresentation) {
 		BaseCollection collection = graphRepresentation.getEncodedBaseCollection();
 
-		return this.sign(collection);
+		GSSignature sigma = this.sign(collection);
+		sigma.setGraphRepresentation(graphRepresentation);
+		return sigma;
+		
 	}
 
 	/**

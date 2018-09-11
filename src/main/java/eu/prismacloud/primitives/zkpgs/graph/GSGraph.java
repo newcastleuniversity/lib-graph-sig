@@ -198,7 +198,7 @@ implements Serializable, Cloneable {
 	/**
 	 * Returns a vertex based on the vertex id, that is, the String identifier of V (usually a GSVertex).
 	 * 
-	 * @param vertexId The ide of the vertex in question.
+	 * @param vertexId The id of the vertex in question.
 	 * @return A clone of V (the GSVertex) if one is found, null otherwise.
 	 */
 	public V getVertexById(String vertexId) {

@@ -5,6 +5,8 @@ import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.context.GSContext;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
+import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
 import eu.prismacloud.primitives.zkpgs.message.ProofRequest;
@@ -68,6 +70,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
     private BigInteger tildeb_BariBarj;
     private BigInteger tildea_BariBarj;
     private Map<URN, GSCommitment> indexCommitments;
+	private GraphRepresentation graphRepresentation;
 
 
     public ProverOrchestrator(final ExtendedPublicKey extendedPublicKey) {
@@ -85,6 +88,13 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
         if (graphSignature == null) {
             throw new IOException("The graph signature has not been read, deserialize from file or read from proof-store.");
+        }
+        if (baseCollection == null) {
+            throw new IOException("The graph signature's base collection has not been read, deserialize from file or read from proof-store.");
+        }
+        
+        if (graphRepresentation == null) {
+            throw new IOException("The graph signature's graph representation has not been read, deserialize from file or read from proof-store.");
         }
 
         this.prover.init();
@@ -153,13 +163,18 @@ public class ProverOrchestrator implements IProverOrchestrator {
         }
     }
 
-    private Map<URN, GSCommitment> computeIndexesCommitments(Vector<Integer> proofIndexes) {
-        baseCollection = graphSignature.getEncodedBases();
-        BaseIterator baseIterator = baseCollection.createIterator(BASE.VERTEX);
+    private Map<URN, GSCommitment> computeIndexesCommitments(Vector<Integer> proofQueries) {
+    	// The base collection is initialized by the read methods.
         Map<URN, GSCommitment> indexCommitments = new HashMap<>();
+        
+        for (Integer queriedId : proofQueries) {
+        	GSVertex vertex = graphRepresentation.getVertexById(queriedId.toString());
 
-        for (Integer index : proofIndexes) {
-            BaseRepresentation base = baseIterator.getBaseByIndex(index);
+        	// 2. Lookup base index of the vertex in this graph encoding
+        	int baseIndex = graphRepresentation.getBaseIndexOfVertex(vertex);
+        	
+        	// 3. Obtain the base.
+        	BaseRepresentation base = baseCollection.get(baseIndex);
             if (base == null) {
                 throw new IllegalArgumentException("base does not exist for corresponding index");
             } else {
@@ -450,6 +465,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
         gslog.info("graph sig e: " + e);
         this.graphSignature = new GSSignature(extendedPublicKey.getPublicKey(), A, e, v);
         this.baseCollection = (BaseCollection) proofStore.retrieve("encoded.bases");
+        this.graphRepresentation = graphSignature.getGraphRepresentation();
     }
 
     public void readSignature(String filename) throws IOException, ClassNotFoundException {
@@ -458,6 +474,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
         this.graphSignature = (GSSignature) persistenceUtil.read(filename);
         this.baseCollection = this.graphSignature.getEncodedBases();
+        this.graphRepresentation = this.graphSignature.getGraphRepresentation();
     }
 
     @Override
