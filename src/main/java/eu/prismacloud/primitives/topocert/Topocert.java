@@ -505,6 +505,8 @@ public class Topocert {
 		VerifierOrchestrator verifier = new VerifierOrchestrator(epk);
 		// TODO How to pass query to verifier?!
 
+		verifier.createQuery(vertexQueries);
+
 
 		try {
 			verifier.init();
