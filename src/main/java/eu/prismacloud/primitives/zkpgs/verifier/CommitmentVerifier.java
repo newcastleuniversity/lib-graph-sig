@@ -67,7 +67,7 @@ public static final String URNID = "commitmentverifier";
 	
 	@Override
 	protected int getHatRandomnessBitlength() {
-		return getKeyGenParams().getL_n() + getKeyGenParams().getProofOffset();
+		return getKeyGenParams().getL_n() + getKeyGenParams().getProofOffset() + 1;
 	}
 	
 	@Override
