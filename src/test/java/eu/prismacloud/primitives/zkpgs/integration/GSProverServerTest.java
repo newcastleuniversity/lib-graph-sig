@@ -86,7 +86,7 @@ public class GSProverServerTest {
 
         gslog.info("read encoded base collection");
         baseCollection = sig.getEncodedBases();
-        gslog.info("bases: " + baseCollection.getStringOverview());
+//        gslog.info("bases: " + baseCollection.getStringOverview());
 
         proofStore = new ProofStore<>();
     }

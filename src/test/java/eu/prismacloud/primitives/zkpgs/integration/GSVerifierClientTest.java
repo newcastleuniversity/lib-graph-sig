@@ -11,6 +11,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,55 +31,62 @@ import static junit.framework.TestCase.assertNotNull;
 @TestInstance(Lifecycle.PER_CLASS)
 public class GSVerifierClientTest {
 
-    private GraphEncodingParameters graphEncodingParameters;
-    private KeyGenParameters keyGenParameters;
-    private Logger gslog = GSLoggerConfiguration.getGSlog();
-    private ExtendedPublicKey extendedPublicKey;
-    private ProofStore<Object> proofStore;
-    private VerifierOrchestrator verifierOrchestrator;
-    private BaseCollection baseCollection;
-    private Iterator<BaseRepresentation> vertexIterator;
+	private GraphEncodingParameters graphEncodingParameters;
+	private KeyGenParameters keyGenParameters;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private ExtendedPublicKey extendedPublicKey;
+	private ProofStore<Object> proofStore;
+	private VerifierOrchestrator verifierOrchestrator;
+	private BaseCollection baseCollection;
+	private Iterator<BaseRepresentation> vertexIterator;
 
-    @BeforeAll
-    void setupKey() throws InterruptedException, IOException, ClassNotFoundException {
-        BaseTest baseTest = new BaseTest();
-        baseTest.setup();
-        FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
-        graphEncodingParameters = baseTest.getGraphEncodingParameters();
-        keyGenParameters = baseTest.getKeyGenParameters();
+	@BeforeAll
+	void setupKey() throws InterruptedException, IOException, ClassNotFoundException {
+		BaseTest baseTest = new BaseTest();
+		baseTest.setup();
+		FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
+		graphEncodingParameters = baseTest.getGraphEncodingParameters();
+		keyGenParameters = baseTest.getKeyGenParameters();
 
-        gslog.info("read ExtendedPublicKey...");
+		gslog.info("read ExtendedPublicKey...");
 
-        String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
-        extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
+		String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
+		extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
 
-        String gsSignatureFileName = "signer-infra.gs.ser";
-        GSSignature sig = (GSSignature) persistenceUtil.read(gsSignatureFileName);
+		String gsSignatureFileName = "signer-infra.gs.ser";
+		GSSignature sig = (GSSignature) persistenceUtil.read(gsSignatureFileName);
 
-        gslog.info("read encoded base collection");
-        baseCollection = sig.getEncodedBases();
+		gslog.info("read encoded base collection");
+		baseCollection = sig.getEncodedBases();
+		gslog.info("bases: " + baseCollection.getStringOverview());
+	}
 
-    }
+	@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+	@Test
+	void testVerifierSide() throws Exception {
+//        Thread.sleep(15000); // wait for server socket
 
-    @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
-    @Test
-    void testVerifierSide() throws Exception {
-        Thread.sleep(15000); // wait for server socket
+		verifierOrchestrator = new VerifierOrchestrator(extendedPublicKey);
+		Vector<Integer> vertexIndexes = new Vector<>();
 
-        verifierOrchestrator = new VerifierOrchestrator(extendedPublicKey);
-        Vector<Integer> proofIndexes = new Vector<>();
+		vertexIndexes.add(1);  //GB
+		vertexIndexes.add(16); //IT
+//		vertexIndexes.add(2);  //GB
+//		vertexIndexes.add(17); //IT
+//		vertexIndexes.add(23);
 
-        proofIndexes.add(9);
-        proofIndexes.add(93);
+		verifierOrchestrator.createQuery(vertexIndexes);
+		verifierOrchestrator.init();
+		verifierOrchestrator.receiveProverMessage();
 
-        verifierOrchestrator.createQuery(proofIndexes);
-        verifierOrchestrator.init();
-        verifierOrchestrator.receiveProverMessage();
-        verifierOrchestrator.preChallengePhase();
-        BigInteger challenge = verifierOrchestrator.computeChallenge();
-        assertNotNull(challenge);
-        verifierOrchestrator.verifyChallenge();
-        verifierOrchestrator.close();
+		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
+		assertNotNull(cChallenge);
+		verifierOrchestrator.executeVerification(cChallenge);
+		BigInteger vChallenge = verifierOrchestrator.computeChallenge();
+		assertNotNull(vChallenge);
 
-    }
+		verifierOrchestrator.verifyChallenge();
+		verifierOrchestrator.close();
+
+	}
 }
