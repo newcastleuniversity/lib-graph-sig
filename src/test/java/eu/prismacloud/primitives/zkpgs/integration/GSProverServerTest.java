@@ -1,7 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.integration;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
-import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
@@ -18,7 +17,6 @@ import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
@@ -40,13 +38,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
 public class GSProverServerTest {
-
+    private Logger gslog = GSLoggerConfiguration.getGSlog();
     private KeyGenParameters keyGenParameters;
     private GraphEncodingParameters graphEncodingParameters;
     private ProverOrchestrator proverOrchestrator;
     private ExtendedPublicKey extendedPublicKey;
     private FilePersistenceUtil persistenceUtil;
-    private Logger gslog = GSLoggerConfiguration.getGSlog();
     private GroupElement A;
     private BigInteger e;
     private BigInteger v;
@@ -89,6 +86,7 @@ public class GSProverServerTest {
 
         gslog.info("read encoded base collection");
         baseCollection = sig.getEncodedBases();
+        gslog.info("bases: " + baseCollection.getStringOverview());
 
         proofStore = new ProofStore<>();
     }

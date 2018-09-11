@@ -2,6 +2,8 @@ package eu.prismacloud.primitives.zkpgs.integration;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
+import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.orchestrator.VerifierOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
@@ -24,7 +26,7 @@ import java.util.logging.Logger;
 
 import static junit.framework.TestCase.assertNotNull;
 
-//@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
 public class GSVerifierClientTest {
 
@@ -58,7 +60,7 @@ public class GSVerifierClientTest {
 
     }
 
-    //    @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+    @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
     @Test
     void testVerifierSide() throws Exception {
         Thread.sleep(15000); // wait for server socket
