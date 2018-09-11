@@ -1,7 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
 /**
+ * Current supported proof types
  */
 public enum ProofType {
-    GEOLOCATION_SEPARATION
+    GEOLOCATION_SEPARATION,
+    NONE
 }
