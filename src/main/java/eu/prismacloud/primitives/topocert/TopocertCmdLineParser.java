@@ -43,13 +43,13 @@ public class TopocertCmdLineParser extends CmdLineParser {
 			new CmdLineParser.Option.StringOption('S', "signkey");
 	
 	public static final Option EPK = 
-			new CmdLineParser.Option.StringOption('P', "epk");
+			new CmdLineParser.Option.StringOption('E', "epk");
 	
 	public static final Option GSSIGNATURE = 
 			new CmdLineParser.Option.StringOption('G', "gs");
 	
 	public static final Option VERBOSE = 
-			new CmdLineParser.Option.BooleanOption("verbose");
+			new CmdLineParser.Option.BooleanOption('V', "verbose");
 
 	public static final Option HELP = 
 			new CmdLineParser.Option.BooleanOption('h', "help");

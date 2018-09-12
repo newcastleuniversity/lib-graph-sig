@@ -1,0 +1,1247 @@
+[
+  {
+    "country-code": "AD",
+    "country-name": "Andorra",
+    "prime-representative": 2
+  },
+  {
+    "country-code": "AE",
+    "country-name": "United Arab Emirates",
+    "prime-representative": 3
+  },
+  {
+    "country-code": "AF",
+    "country-name": "Afghanistan",
+    "prime-representative": 5
+  },
+  {
+    "country-code": "AG",
+    "country-name": "Antigua and Barbuda",
+    "prime-representative": 7
+  },
+  {
+    "country-code": "AI",
+    "country-name": "Anguilla",
+    "prime-representative": 11
+  },
+  {
+    "country-code": "AL",
+    "country-name": "Albania",
+    "prime-representative": 3
+  },
+  {
+    "country-code": "AM",
+    "country-name": "Armenia",
+    "prime-representative": 17
+  },
+  {
+    "country-code": "AO",
+    "country-name": "Angola",
+    "prime-representative": 19
+  },
+  {
+    "country-code": "AQ",
+    "country-name": "Antarctica",
+    "prime-representative": 23
+  },
+  {
+    "country-code": "AR",
+    "country-name": "Argentina",
+    "prime-representative": 29
+  },
+  {
+    "country-code": "AS",
+    "country-name": "American Samoa",
+    "prime-representative": 31
+  },
+  {
+    "country-code": "AT",
+    "country-name": "Austria",
+    "prime-representative": 37
+  },
+  {
+    "country-code": "AU",
+    "country-name": "Australia",
+    "prime-representative": 41
+  },
+  {
+    "country-code": "AW",
+    "country-name": "Aruba",
+    "prime-representative": 43
+  },
+  {
+    "country-code": "AX",
+    "country-name": "Ãland Islands",
+    "prime-representative": 47
+  },
+  {
+    "country-code": "AZ",
+    "country-name": "Azerbaijan",
+    "prime-representative": 53
+  },
+  {
+    "country-code": "BA",
+    "country-name": "Bosnia and Herzegovina",
+    "prime-representative": 59
+  },
+  {
+    "country-code": "BB",
+    "country-name": "Barbados",
+    "prime-representative": 61
+  },
+  {
+    "country-code": "BD",
+    "country-name": "Bangladesh",
+    "prime-representative": 67
+  },
+  {
+    "country-code": "BE",
+    "country-name": "Belgium",
+    "prime-representative": 71
+  },
+  {
+    "country-code": "BF",
+    "country-name": "Burkina Faso",
+    "prime-representative": 73
+  },
+  {
+    "country-code": "BG",
+    "country-name": "Bulgaria",
+    "prime-representative": 79
+  },
+  {
+    "country-code": "BH",
+    "country-name": "Bahrain",
+    "prime-representative": 83
+  },
+  {
+    "country-code": "BI",
+    "country-name": "Burundi",
+    "prime-representative": 89
+  },
+  {
+    "country-code": "BJ",
+    "country-name": "Benin",
+    "prime-representative": 97
+  },
+  {
+    "country-code": "BL",
+    "country-name": "Saint Barthélemy",
+    "prime-representative": 101
+  },
+  {
+    "country-code": "BM",
+    "country-name": "Bermuda",
+    "prime-representative": 103
+  },
+  {
+    "country-code": "BN",
+    "country-name": "Brunei Darussalam",
+    "prime-representative": 107
+  },
+  {
+    "country-code": "BO",
+    "country-name": "Bolivia, Plurinational State of",
+    "prime-representative": 109
+  },
+  {
+    "country-code": "BQ",
+    "country-name": "Bonaire, Sint Eustatius and Saba",
+    "prime-representative": 113
+  },
+  {
+    "country-code": "BR",
+    "country-name": "Brazil",
+    "prime-representative": 127
+  },
+  {
+    "country-code": "BS",
+    "country-name": "Bahamas",
+    "prime-representative": 131
+  },
+  {
+    "country-code": "BT",
+    "country-name": "Bhutan",
+    "prime-representative": 137
+  },
+  {
+    "country-code": "BV",
+    "country-name": "Bouvet Island",
+    "prime-representative": 139
+  },
+  {
+    "country-code": "BW",
+    "country-name": "Botswana",
+    "prime-representative": 149
+  },
+  {
+    "country-code": "BY",
+    "country-name": "Belarus",
+    "prime-representative": 151
+  },
+  {
+    "country-code": "BZ",
+    "country-name": "Belize",
+    "prime-representative": 157
+  },
+  {
+    "country-code": "CA",
+    "country-name": "Canada",
+    "prime-representative": 163
+  },
+  {
+    "country-code": "CC",
+    "country-name": "Cocos (Keeling) Islands",
+    "prime-representative": 167
+  },
+  {
+    "country-code": "CD",
+    "country-name": "Congo, the Democratic Republic of the",
+    "prime-representative": 173
+  },
+  {
+    "country-code": "CF",
+    "country-name": "Central African Republic",
+    "prime-representative": 179
+  },
+  {
+    "country-code": "CG",
+    "country-name": "Congo",
+    "prime-representative": 181
+  },
+  {
+    "country-code": "CH",
+    "country-name": "Switzerland",
+    "prime-representative": 191
+  },
+  {
+    "country-code": "CI",
+    "country-name": "Côte d'Ivoire",
+    "prime-representative": 193
+  },
+  {
+    "country-code": "CK",
+    "country-name": "Cook Islands",
+    "prime-representative": 197
+  },
+  {
+    "country-code": "CL",
+    "country-name": "Chile",
+    "prime-representative": 199
+  },
+  {
+    "country-code": "CM",
+    "country-name": "Cameroon",
+    "prime-representative": 211
+  },
+  {
+    "country-code": "CN",
+    "country-name": "China",
+    "prime-representative": 223
+  },
+  {
+    "country-code": "CO",
+    "country-name": "Colombia",
+    "prime-representative": 227
+  },
+  {
+    "country-code": "CR",
+    "country-name": "Costa Rica",
+    "prime-representative": 229
+  },
+  {
+    "country-code": "CU",
+    "country-name": "Cuba",
+    "prime-representative": 233
+  },
+  {
+    "country-code": "CV",
+    "country-name": "Cape Verde",
+    "prime-representative": 239
+  },
+  {
+    "country-code": "CW",
+    "country-name": "Curaçao",
+    "prime-representative": 241
+  },
+  {
+    "country-code": "CX",
+    "country-name": "Christmas Island",
+    "prime-representative": 251
+  },
+  {
+    "country-code": "CY",
+    "country-name": "Cyprus",
+    "prime-representative": 257
+  },
+  {
+    "country-code": "CZ",
+    "country-name": "Czech Republic",
+    "prime-representative": 263
+  },
+  {
+    "country-code": "DE",
+    "country-name": "Germany",
+    "prime-representative": 269
+  },
+  {
+    "country-code": "DJ",
+    "country-name": "Djibouti",
+    "prime-representative": 271
+  },
+  {
+    "country-code": "DK",
+    "country-name": "Denmark",
+    "prime-representative": 277
+  },
+  {
+    "country-code": "DM",
+    "country-name": "Dominica",
+    "prime-representative": 281
+  },
+  {
+    "country-code": "DO",
+    "country-name": "Dominican Republic",
+    "prime-representative": 283
+  },
+  {
+    "country-code": "DZ",
+    "country-name": "Algeria",
+    "prime-representative": 293
+  },
+  {
+    "country-code": "EC",
+    "country-name": "Ecuador",
+    "prime-representative": 307
+  },
+  {
+    "country-code": "EE",
+    "country-name": "Estonia",
+    "prime-representative": 311
+  },
+  {
+    "country-code": "EG",
+    "country-name": "Egypt",
+    "prime-representative": 313
+  },
+  {
+    "country-code": "EH",
+    "country-name": "Western Sahara",
+    "prime-representative": 317
+  },
+  {
+    "country-code": "ER",
+    "country-name": "Eritrea",
+    "prime-representative": 331
+  },
+  {
+    "country-code": "ES",
+    "country-name": "Spain",
+    "prime-representative": 337
+  },
+  {
+    "country-code": "ET",
+    "country-name": "Ethiopia",
+    "prime-representative": 347
+  },
+  {
+    "country-code": "FI",
+    "country-name": "Finland",
+    "prime-representative": 349
+  },
+  {
+    "country-code": "FJ",
+    "country-name": "Fiji",
+    "prime-representative": 353
+  },
+  {
+    "country-code": "FK",
+    "country-name": "Falkland Islands (Malvinas)",
+    "prime-representative": 359
+  },
+  {
+    "country-code": "FM",
+    "country-name": "Micronesia, Federated States of",
+    "prime-representative": 367
+  },
+  {
+    "country-code": "FO",
+    "country-name": "Faroe Islands",
+    "prime-representative": 373
+  },
+  {
+    "country-code": "FR",
+    "country-name": "France",
+    "prime-representative": 379
+  },
+  {
+    "country-code": "GA",
+    "country-name": "Gabon",
+    "prime-representative": 383
+  },
+  {
+    "country-code": "GB",
+    "country-name": "United Kingdom",
+    "prime-representative": 389
+  },
+  {
+    "country-code": "GD",
+    "country-name": "Grenada",
+    "prime-representative": 397
+  },
+  {
+    "country-code": "GE",
+    "country-name": "Georgia",
+    "prime-representative": 401
+  },
+  {
+    "country-code": "GF",
+    "country-name": "French Guiana",
+    "prime-representative": 409
+  },
+  {
+    "country-code": "GG",
+    "country-name": "Guernsey",
+    "prime-representative": 419
+  },
+  {
+    "country-code": "GH",
+    "country-name": "Ghana",
+    "prime-representative": 421
+  },
+  {
+    "country-code": "GI",
+    "country-name": "Gibraltar",
+    "prime-representative": 431
+  },
+  {
+    "country-code": "GL",
+    "country-name": "Greenland",
+    "prime-representative": 433
+  },
+  {
+    "country-code": "GM",
+    "country-name": "Gambia",
+    "prime-representative": 439
+  },
+  {
+    "country-code": "GN",
+    "country-name": "Guinea",
+    "prime-representative": 443
+  },
+  {
+    "country-code": "GP",
+    "country-name": "Guadeloupe",
+    "prime-representative": 449
+  },
+  {
+    "country-code": "GQ",
+    "country-name": "Equatorial Guinea",
+    "prime-representative": 457
+  },
+  {
+    "country-code": "GR",
+    "country-name": "Greece",
+    "prime-representative": 461
+  },
+  {
+    "country-code": "GS",
+    "country-name": "South Georgia and the South Sandwich Islands",
+    "prime-representative": 463
+  },
+  {
+    "country-code": "GT",
+    "country-name": "Guatemala",
+    "prime-representative": 467
+  },
+  {
+    "country-code": "GU",
+    "country-name": "Guam",
+    "prime-representative": 479
+  },
+  {
+    "country-code": "GW",
+    "country-name": "Guinea-Bissau",
+    "prime-representative": 487
+  },
+  {
+    "country-code": "GY",
+    "country-name": "Guyana",
+    "prime-representative": 491
+  },
+  {
+    "country-code": "HK",
+    "country-name": "Hong Kong",
+    "prime-representative": 499
+  },
+  {
+    "country-code": "HM",
+    "country-name": "Heard Island and McDonald Islands",
+    "prime-representative": 503
+  },
+  {
+    "country-code": "HN",
+    "country-name": "Honduras",
+    "prime-representative": 509
+  },
+  {
+    "country-code": "HR",
+    "country-name": "Croatia",
+    "prime-representative": 521
+  },
+  {
+    "country-code": "HT",
+    "country-name": "Haiti",
+    "prime-representative": 523
+  },
+  {
+    "country-code": "HU",
+    "country-name": "Hungary",
+    "prime-representative": 541
+  },
+  {
+    "country-code": "ID",
+    "country-name": "Indonesia",
+    "prime-representative": 547
+  },
+  {
+    "country-code": "IE",
+    "country-name": "Ireland",
+    "prime-representative": 557
+  },
+  {
+    "country-code": "IL",
+    "country-name": "Israel",
+    "prime-representative": 563
+  },
+  {
+    "country-code": "IM",
+    "country-name": "Isle of Man",
+    "prime-representative": 569
+  },
+  {
+    "country-code": "IN",
+    "country-name": "India",
+    "prime-representative": 571
+  },
+  {
+    "country-code": "IO",
+    "country-name": "British Indian Ocean Territory",
+    "prime-representative": 577
+  },
+  {
+    "country-code": "IQ",
+    "country-name": "Iraq",
+    "prime-representative": 587
+  },
+  {
+    "country-code": "IR",
+    "country-name": "Iran, Islamic Republic of",
+    "prime-representative": 593
+  },
+  {
+    "country-code": "IS",
+    "country-name": "Iceland",
+    "prime-representative": 599
+  },
+  {
+    "country-code": "IT",
+    "country-name": "Italy",
+    "prime-representative": 601
+  },
+  {
+    "country-code": "JE",
+    "country-name": "Jersey",
+    "prime-representative": 607
+  },
+  {
+    "country-code": "JM",
+    "country-name": "Jamaica",
+    "prime-representative": 613
+  },
+  {
+    "country-code": "JO",
+    "country-name": "Jordan",
+    "prime-representative": 617
+  },
+  {
+    "country-code": "JP",
+    "country-name": "Japan",
+    "prime-representative": 619
+  },
+  {
+    "country-code": "KE",
+    "country-name": "Kenya",
+    "prime-representative": 631
+  },
+  {
+    "country-code": "KG",
+    "country-name": "Kyrgyzstan",
+    "prime-representative": 641
+  },
+  {
+    "country-code": "KH",
+    "country-name": "Cambodia",
+    "prime-representative": 643
+  },
+  {
+    "country-code": "KI",
+    "country-name": "Kiribati",
+    "prime-representative": 647
+  },
+  {
+    "country-code": "KM",
+    "country-name": "Comoros",
+    "prime-representative": 653
+  },
+  {
+    "country-code": "KN",
+    "country-name": "Saint Kitts and Nevis",
+    "prime-representative": 659
+  },
+  {
+    "country-code": "KP",
+    "country-name": "Korea, Democratic People's Republic of",
+    "prime-representative": 661
+  },
+  {
+    "country-code": "KR",
+    "country-name": "Korea, Republic of",
+    "prime-representative": 673
+  },
+  {
+    "country-code": "KW",
+    "country-name": "Kuwait",
+    "prime-representative": 677
+  },
+  {
+    "country-code": "KY",
+    "country-name": "Cayman Islands",
+    "prime-representative": 683
+  },
+  {
+    "country-code": "KZ",
+    "country-name": "Kazakhstan",
+    "prime-representative": 691
+  },
+  {
+    "country-code": "LA",
+    "country-name": "Lao People's Democratic Republic",
+    "prime-representative": 701
+  },
+  {
+    "country-code": "LB",
+    "country-name": "Lebanon",
+    "prime-representative": 709
+  },
+  {
+    "country-code": "LC",
+    "country-name": "Saint Lucia",
+    "prime-representative": 719
+  },
+  {
+    "country-code": "LI",
+    "country-name": "Liechtenstein",
+    "prime-representative": 727
+  },
+  {
+    "country-code": "LK",
+    "country-name": "Sri Lanka",
+    "prime-representative": 733
+  },
+  {
+    "country-code": "LR",
+    "country-name": "Liberia",
+    "prime-representative": 739
+  },
+  {
+    "country-code": "LS",
+    "country-name": "Lesotho",
+    "prime-representative": 743
+  },
+  {
+    "country-code": "LT",
+    "country-name": "Lithuania",
+    "prime-representative": 751
+  },
+  {
+    "country-code": "LU",
+    "country-name": "Luxembourg",
+    "prime-representative": 757
+  },
+  {
+    "country-code": "LV",
+    "country-name": "Latvia",
+    "prime-representative": 761
+  },
+  {
+    "country-code": "LY",
+    "country-name": "Libya",
+    "prime-representative": 769
+  },
+  {
+    "country-code": "MA",
+    "country-name": "Morocco",
+    "prime-representative": 773
+  },
+  {
+    "country-code": "MC",
+    "country-name": "Monaco",
+    "prime-representative": 787
+  },
+  {
+    "country-code": "MD",
+    "country-name": "Moldova, Republic of",
+    "prime-representative": 797
+  },
+  {
+    "country-code": "ME",
+    "country-name": "Montenegro",
+    "prime-representative": 809
+  },
+  {
+    "country-code": "MF",
+    "country-name": "Saint Martin (French part)",
+    "prime-representative": 811
+  },
+  {
+    "country-code": "MG",
+    "country-name": "Madagascar",
+    "prime-representative": 821
+  },
+  {
+    "country-code": "MH",
+    "country-name": "Marshall Islands",
+    "prime-representative": 823
+  },
+  {
+    "country-code": "MK",
+    "country-name": "Macedonia, the Former Yugoslav Republic of",
+    "prime-representative": 827
+  },
+  {
+    "country-code": "ML",
+    "country-name": "Mali",
+    "prime-representative": 829
+  },
+  {
+    "country-code": "MM",
+    "country-name": "Myanmar",
+    "prime-representative": 839
+  },
+  {
+    "country-code": "MN",
+    "country-name": "Mongolia",
+    "prime-representative": 853
+  },
+  {
+    "country-code": "MO",
+    "country-name": "Macao",
+    "prime-representative": 857
+  },
+  {
+    "country-code": "MP",
+    "country-name": "Northern Mariana Islands",
+    "prime-representative": 859
+  },
+  {
+    "country-code": "MQ",
+    "country-name": "Martinique",
+    "prime-representative": 863
+  },
+  {
+    "country-code": "MR",
+    "country-name": "Mauritania",
+    "prime-representative": 877
+  },
+  {
+    "country-code": "MS",
+    "country-name": "Montserrat",
+    "prime-representative": 881
+  },
+  {
+    "country-code": "MT",
+    "country-name": "Malta",
+    "prime-representative": 883
+  },
+  {
+    "country-code": "MU",
+    "country-name": "Mauritius",
+    "prime-representative": 887
+  },
+  {
+    "country-code": "MV",
+    "country-name": "Maldives",
+    "prime-representative": 907
+  },
+  {
+    "country-code": "MW",
+    "country-name": "Malawi",
+    "prime-representative": 911
+  },
+  {
+    "country-code": "MX",
+    "country-name": "Mexico",
+    "prime-representative": 919
+  },
+  {
+    "country-code": "MY",
+    "country-name": "Malaysia",
+    "prime-representative": 929
+  },
+  {
+    "country-code": "MZ",
+    "country-name": "Mozambique",
+    "prime-representative": 937
+  },
+  {
+    "country-code": "NA",
+    "country-name": "Namibia",
+    "prime-representative": 941
+  },
+  {
+    "country-code": "NC",
+    "country-name": "New Caledonia",
+    "prime-representative": 947
+  },
+  {
+    "country-code": "NE",
+    "country-name": "Niger",
+    "prime-representative": 953
+  },
+  {
+    "country-code": "NF",
+    "country-name": "Norfolk Island",
+    "prime-representative": 967
+  },
+  {
+    "country-code": "NG",
+    "country-name": "Nigeria",
+    "prime-representative": 971
+  },
+  {
+    "country-code": "NI",
+    "country-name": "Nicaragua",
+    "prime-representative": 977
+  },
+  {
+    "country-code": "NL",
+    "country-name": "Netherlands",
+    "prime-representative": 983
+  },
+  {
+    "country-code": "NO",
+    "country-name": "Norway",
+    "prime-representative": 991
+  },
+  {
+    "country-code": "NP",
+    "country-name": "Nepal",
+    "prime-representative": 997
+  },
+  {
+    "country-code": "NR",
+    "country-name": "Nauru",
+    "prime-representative": 1009
+  },
+  {
+    "country-code": "NU",
+    "country-name": "Niue",
+    "prime-representative": 1013
+  },
+  {
+    "country-code": "NZ",
+    "country-name": "New Zealand",
+    "prime-representative": 1019
+  },
+  {
+    "country-code": "OM",
+    "country-name": "Oman",
+    "prime-representative": 1021
+  },
+  {
+    "country-code": "PA",
+    "country-name": "Panama",
+    "prime-representative": 1031
+  },
+  {
+    "country-code": "PE",
+    "country-name": "Peru",
+    "prime-representative": 1033
+  },
+  {
+    "country-code": "PF",
+    "country-name": "French Polynesia",
+    "prime-representative": 1039
+  },
+  {
+    "country-code": "PG",
+    "country-name": "Papua New Guinea",
+    "prime-representative": 1049
+  },
+  {
+    "country-code": "PH",
+    "country-name": "Philippines",
+    "prime-representative": 1051
+  },
+  {
+    "country-code": "PK",
+    "country-name": "Pakistan",
+    "prime-representative": 1061
+  },
+  {
+    "country-code": "PL",
+    "country-name": "Poland",
+    "prime-representative": 1063
+  },
+  {
+    "country-code": "PM",
+    "country-name": "Saint Pierre and Miquelon",
+    "prime-representative": 1069
+  },
+  {
+    "country-code": "PN",
+    "country-name": "Pitcairn",
+    "prime-representative": 1087
+  },
+  {
+    "country-code": "PR",
+    "country-name": "Puerto Rico",
+    "prime-representative": 1091
+  },
+  {
+    "country-code": "PS",
+    "country-name": "Palestine, State of",
+    "prime-representative": 1093
+  },
+  {
+    "country-code": "PT",
+    "country-name": "Portugal",
+    "prime-representative": 1097
+  },
+  {
+    "country-code": "PW",
+    "country-name": "Palau",
+    "prime-representative": 1103
+  },
+  {
+    "country-code": "PY",
+    "country-name": "Paraguay",
+    "prime-representative": 1109
+  },
+  {
+    "country-code": "QA",
+    "country-name": "Qatar",
+    "prime-representative": 1117
+  },
+  {
+    "country-code": "RE",
+    "country-name": "Réunion",
+    "prime-representative": 1123
+  },
+  {
+    "country-code": "RO",
+    "country-name": "Romania",
+    "prime-representative": 1129
+  },
+  {
+    "country-code": "RS",
+    "country-name": "Serbia",
+    "prime-representative": 1151
+  },
+  {
+    "country-code": "RU",
+    "country-name": "Russian Federation",
+    "prime-representative": 1153
+  },
+  {
+    "country-code": "RW",
+    "country-name": "Rwanda",
+    "prime-representative": 1163
+  },
+  {
+    "country-code": "SA",
+    "country-name": "Saudi Arabia",
+    "prime-representative": 1171
+  },
+  {
+    "country-code": "SB",
+    "country-name": "Solomon Islands",
+    "prime-representative": 1181
+  },
+  {
+    "country-code": "SC",
+    "country-name": "Seychelles",
+    "prime-representative": 1187
+  },
+  {
+    "country-code": "SD",
+    "country-name": "Sudan",
+    "prime-representative": 1193
+  },
+  {
+    "country-code": "SE",
+    "country-name": "Sweden",
+    "prime-representative": 1201
+  },
+  {
+    "country-code": "SG",
+    "country-name": "Singapore",
+    "prime-representative": 1213
+  },
+  {
+    "country-code": "SH",
+    "country-name": "Saint Helena, Ascension and Tristan da Cunha",
+    "prime-representative": 1217
+  },
+  {
+    "country-code": "SI",
+    "country-name": "Slovenia",
+    "prime-representative": 1223
+  },
+  {
+    "country-code": "SJ",
+    "country-name": "Svalbard and Jan Mayen",
+    "prime-representative": 1229
+  },
+  {
+    "country-code": "SK",
+    "country-name": "Slovakia",
+    "prime-representative": 1231
+  },
+  {
+    "country-code": "SL",
+    "country-name": "Sierra Leone",
+    "prime-representative": 1237
+  },
+  {
+    "country-code": "SM",
+    "country-name": "San Marino",
+    "prime-representative": 1249
+  },
+  {
+    "country-code": "SN",
+    "country-name": "Senegal",
+    "prime-representative": 1259
+  },
+  {
+    "country-code": "SO",
+    "country-name": "Somalia",
+    "prime-representative": 1277
+  },
+  {
+    "country-code": "SR",
+    "country-name": "Suriname",
+    "prime-representative": 1279
+  },
+  {
+    "country-code": "SS",
+    "country-name": "South Sudan",
+    "prime-representative": 1283
+  },
+  {
+    "country-code": "ST",
+    "country-name": "Sao Tome and Principe",
+    "prime-representative": 1289
+  },
+  {
+    "country-code": "SV",
+    "country-name": "El Salvador",
+    "prime-representative": 1291
+  },
+  {
+    "country-code": "SX",
+    "country-name": "Sint Maarten (Dutch part)",
+    "prime-representative": 1297
+  },
+  {
+    "country-code": "SY",
+    "country-name": "Syrian Arab Republic",
+    "prime-representative": 1301
+  },
+  {
+    "country-code": "SZ",
+    "country-name": "Swaziland",
+    "prime-representative": 1303
+  },
+  {
+    "country-code": "TC",
+    "country-name": "Turks and Caicos Islands",
+    "prime-representative": 1307
+  },
+  {
+    "country-code": "TD",
+    "country-name": "Chad",
+    "prime-representative": 1319
+  },
+  {
+    "country-code": "TF",
+    "country-name": "French Southern Territories",
+    "prime-representative": 1321
+  },
+  {
+    "country-code": "TG",
+    "country-name": "Togo",
+    "prime-representative": 1327
+  },
+  {
+    "country-code": "TH",
+    "country-name": "Thailand",
+    "prime-representative": 1361
+  },
+  {
+    "country-code": "TJ",
+    "country-name": "Tajikistan",
+    "prime-representative": 1367
+  },
+  {
+    "country-code": "TK",
+    "country-name": "Tokelau",
+    "prime-representative": 1373
+  },
+  {
+    "country-code": "TL",
+    "country-name": "Timor-Leste",
+    "prime-representative": 1381
+  },
+  {
+    "country-code": "TM",
+    "country-name": "Turkmenistan",
+    "prime-representative": 1399
+  },
+  {
+    "country-code": "TN",
+    "country-name": "Tunisia",
+    "prime-representative": 1409
+  },
+  {
+    "country-code": "TO",
+    "country-name": "Tonga",
+    "prime-representative": 1423
+  },
+  {
+    "country-code": "TR",
+    "country-name": "Turkey",
+    "prime-representative": 1427
+  },
+  {
+    "country-code": "TT",
+    "country-name": "Trinidad and Tobago",
+    "prime-representative": 1429
+  },
+  {
+    "country-code": "TV",
+    "country-name": "Tuvalu",
+    "prime-representative": 1433
+  },
+  {
+    "country-code": "TW",
+    "country-name": "Taiwan, Province of China",
+    "prime-representative": 1439
+  },
+  {
+    "country-code": "TZ",
+    "country-name": "Tanzania, United Republic of",
+    "prime-representative": 1447
+  },
+  {
+    "country-code": "UA",
+    "country-name": "Ukraine",
+    "prime-representative": 1451
+  },
+  {
+    "country-code": "UG",
+    "country-name": "Uganda",
+    "prime-representative": 1453
+  },
+  {
+    "country-code": "UM",
+    "country-name": "United States Minor Outlying Islands",
+    "prime-representative": 1459
+  },
+  {
+    "country-code": "US",
+    "country-name": "United States",
+    "prime-representative": 1471
+  },
+  {
+    "country-code": "UY",
+    "country-name": "Uruguay",
+    "prime-representative": 1481
+  },
+  {
+    "country-code": "UZ",
+    "country-name": "Uzbekistan",
+    "prime-representative": 1483
+  },
+  {
+    "country-code": "VA",
+    "country-name": "Holy See (Vatican City State)",
+    "prime-representative": 1487
+  },
+  {
+    "country-code": "VC",
+    "country-name": "Saint Vincent and the Grenadines",
+    "prime-representative": 1489
+  },
+  {
+    "country-code": "VE",
+    "country-name": "Venezuela, Bolivarian Republic of",
+    "prime-representative": 1493
+  },
+  {
+    "country-code": "VG",
+    "country-name": "Virgin Islands, British",
+    "prime-representative": 1499
+  },
+  {
+    "country-code": "VI",
+    "country-name": "Virgin Islands, U.S.",
+    "prime-representative": 1511
+  },
+  {
+    "country-code": "VN",
+    "country-name": "Viet Nam",
+    "prime-representative": 1523
+  },
+  {
+    "country-code": "VU",
+    "country-name": "Vanuatu",
+    "prime-representative": 1531
+  },
+  {
+    "country-code": "WF",
+    "country-name": "Wallis and Futuna",
+    "prime-representative": 1543
+  },
+  {
+    "country-code": "WS",
+    "country-name": "Samoa",
+    "prime-representative": 1549
+  },
+  {
+    "country-code": "YE",
+    "country-name": "Yemen",
+    "prime-representative": 1553
+  },
+  {
+    "country-code": "YT",
+    "country-name": "Mayotte",
+    "prime-representative": 1559
+  },
+  {
+    "country-code": "ZA",
+    "country-name": "South Africa",
+    "prime-representative": 1567
+  },
+  {
+    "country-code": "ZM",
+    "country-name": "Zambia",
+    "prime-representative": 1571
+  },
+  {
+    "country-code": "ZW",
+    "country-name": "Zimbabwe",
+    "prime-representative": 1579
+  }
+]

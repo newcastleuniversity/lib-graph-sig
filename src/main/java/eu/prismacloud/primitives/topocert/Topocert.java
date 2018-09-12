@@ -515,6 +515,9 @@ public class Topocert {
 			handleException(e, "The proof provided by the TOPOCERT Prover could not be verified. "
 							+ "Illegal message lengths.",
 					TopocertErrorCodes.EX_VERIFY);
+		} catch (ProofException e) {
+			handleException(e, "The TOPOCERT Prover reported that it cannot complete the proof.",
+					TopocertErrorCodes.EX_DATAERR);
 		} catch (IOException e) {
 			handleException(e, "The TOPOCERT Verifier not receive the proof from the Prover.",
 					TopocertErrorCodes.EX_IOERR);
