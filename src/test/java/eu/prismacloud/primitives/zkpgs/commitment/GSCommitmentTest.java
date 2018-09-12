@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 
 
+@Disabled
 @Deprecated
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GSCommitmentTest {

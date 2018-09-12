@@ -3,8 +3,10 @@ package eu.prismacloud.primitives.zkpgs.orchestrator;
 import static org.junit.Assert.fail;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 class ProverOrchestratorTest {
 
 	@BeforeEach
