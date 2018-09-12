@@ -282,7 +282,6 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
 	@Override
 	public BigInteger computeChallenge() {
-		gslog.info("compute challenge ");
 		challengeList = populateChallengeList();
 		try {
 			hatc = CryptoUtilsFacade.computeHash(challengeList, keyGenParameters.getL_H());
