@@ -41,8 +41,8 @@ public interface IVerifierOrchestrator extends IMessagePartner, IURNGoverner {
      *
      * @param cChallenge the challenge used for the verification computations
      * @return <tt>true</tt> if the verification succeeds or <tt>false</tt> if the verification fails
-     * @throws NoSuchAlgorithmException 
-     * @throws ProofStoreException 
+     * @throws NoSuchAlgorithmException if storing or retrieving elements from the proof store fails
+     * @throws ProofStoreException if algorithm for hash function is not supported
      */
     boolean executeVerification(BigInteger cChallenge) throws NoSuchAlgorithmException, ProofStoreException;
 
@@ -50,8 +50,8 @@ public interface IVerifierOrchestrator extends IMessagePartner, IURNGoverner {
      * Establishes the challenge for the current verification, based on the overall proof context.
      *
      * @return BigInteger challenge with appropriate length.
-     * @throws ProofStoreException if store or retrieving elements from the proof store fails
-     * @throws NoSuchAlgorithmException 
+     * @throws ProofStoreException if storing or retrieving elements from the proof store fails
+     * @throws NoSuchAlgorithmException if algorithm for hash function is not supported
      */
     BigInteger computeChallenge() throws ProofStoreException, NoSuchAlgorithmException;
 

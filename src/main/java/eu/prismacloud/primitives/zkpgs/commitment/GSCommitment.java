@@ -74,7 +74,6 @@ public class GSCommitment implements Serializable {
 	 * Create commitment for one base and one message exponent using the ExtendedPublickey.
 	 *
 	 * @param m     the message exponent
-	 * @param baseR the base R
 	 * @param epk   the extended public key
 	 * @return the commitment
 	 */

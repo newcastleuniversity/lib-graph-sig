@@ -25,6 +25,7 @@ public interface IVerifier extends IURNGoverner {
 	 * @return Map with multiple hat-value to be included in the overall verification.
 	 * 
 	 * @throws ProofStoreException if storing or retrieving elements from the proof store fails
+	 * @throws VerificationException if checking lengths fails
 	 */
 	Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException;
 	
@@ -41,6 +42,7 @@ public interface IVerifier extends IURNGoverner {
 	 * @return GroupElement hat-value to be included in the overall verification.
 	 * 
 	 * @throws ProofStoreException if storing or retrieving elements from the proof store fails
+	 * @throws VerificationException if checking lengths fails
 	 */
 	GroupElement executeVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException;
 	

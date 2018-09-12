@@ -48,7 +48,7 @@ public abstract class AbstractCommitmentVerifier implements IVerifier {
 	 * @param cChallenge a BigInteger challenge.
 	 * 
 	 * @return a Map of URN and GroupElement witness.
-	 * @throws VerificationException 
+	 * @throws VerificationException if checking lengths or checking legal bases fails
 	 */
 	@Override
 	public Map<URN, GroupElement> executeCompoundVerification(BigInteger cChallenge) throws ProofStoreException, VerificationException {

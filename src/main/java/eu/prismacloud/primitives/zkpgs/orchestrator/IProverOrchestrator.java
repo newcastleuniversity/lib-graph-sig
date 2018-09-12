@@ -35,8 +35,7 @@ public interface IProverOrchestrator extends IMessagePartner, IURNGoverner {
      * <p>Unlike component provers, top-level orchestrators are 
      * expected to catch exceptions and to handle them appropriately.
      * 
-     * @throws ProofStoreException if a ProofStore element could 
-     * not be accessed.
+     * @throws ProofStoreException if storing or retrieving elements from the proof store fails
      */
     void executePreChallengePhase() throws ProofStoreException;
 
@@ -44,6 +43,7 @@ public interface IProverOrchestrator extends IMessagePartner, IURNGoverner {
      * The orchestrator organizes the computations of the post-challenge phase, based on a challenge.
      *
      * @param cChallenge the challenge used for executing the post challenge phase
+     * @throws ProofStoreException if storing or retrieving elements from the proof store fails
      * @throws IOException if Input or Output operation fails when executing post challenge phase
      */
     void executePostChallengePhase(BigInteger cChallenge) throws ProofStoreException, IOException;
