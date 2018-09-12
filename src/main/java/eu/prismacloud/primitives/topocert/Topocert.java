@@ -1,18 +1,6 @@
 package eu.prismacloud.primitives.topocert;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.Vector;
-
-import org.jgrapht.io.ImportException;
-
-import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
-import eu.prismacloud.primitives.zkpgs.exception.NotImplementedException;
-import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
-import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
+import eu.prismacloud.primitives.zkpgs.exception.*;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
@@ -25,6 +13,13 @@ import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import jargs.gnu.CmdLineParser;
+import org.jgrapht.io.ImportException;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Vector;
 
 
 public class Topocert {
@@ -33,7 +28,7 @@ public class Topocert {
 	private GraphEncodingParameters graphEncParams;
 	private FilePersistenceUtil persistenceUtil;
 	private ExtendedPublicKey epk;
-	
+
 	private static boolean verbose = false;
 
 	public Topocert() {
@@ -63,9 +58,9 @@ public class Topocert {
 		Boolean verifyMode = (Boolean) parser.getOptionValue(TopocertCmdLineParser.VERIFY);
 
 		Boolean verboseLogs = (Boolean) parser.getOptionValue(TopocertCmdLineParser.VERBOSE);
-		
+
 		Boolean offerHelp = (Boolean) parser.getOptionValue(TopocertCmdLineParser.HELP);
-		
+
 		// String Options
 		String graphFilename = (String) parser.getOptionValue(TopocertCmdLineParser.GRAPHFILENAME, TopocertDefaultOptionValues.DEF_GRAPH);
 		String paramsFilename = (String) parser.getOptionValue(TopocertCmdLineParser.KEYGENPARAMS, TopocertDefaultOptionValues.DEF_KEYGEN_PARAMS);
@@ -86,7 +81,7 @@ public class Topocert {
 			parser.printUsage();
 			System.exit(0);
 		}
-		
+
 		if (verboseLogs != null && verboseLogs.booleanValue()) {
 			Topocert.verbose = true;
 		}
@@ -112,98 +107,98 @@ public class Topocert {
 		// Main Behavior Branching
 		//
 		try {
-		if (keygenMode != null && keygenMode.booleanValue()) {
-			// Initialize TOPOCERT keygen
-			System.out.println("Entering TOPOCERT key generation...");
-			System.out.println("  Designated signer keypair file: " + signerKeyFilename);
-			System.out.println("  Designated extended public key file: " + epkFilename);
+			if (keygenMode != null && keygenMode.booleanValue()) {
+				// Initialize TOPOCERT keygen
+				System.out.println("Entering TOPOCERT key generation...");
+				System.out.println("  Designated signer keypair file: " + signerKeyFilename);
+				System.out.println("  Designated extended public key file: " + epkFilename);
 
-			try {
-				topocert.keygen(signerKeyFilename, ekpFilename, signerPKFilename, epkFilename);
-			} catch (IOException e) {
-				handleException(e, "The TOPOCERT keys could not be written to file.",
-						TopocertErrorCodes.EX_IOERR);
-			} catch (EncodingException e) {
-				handleException(e, "The TOPOCERT graph encoding could not be setup.",
-						TopocertErrorCodes.EX_ENCERR);
-			}
+				try {
+					topocert.keygen(signerKeyFilename, ekpFilename, signerPKFilename, epkFilename);
+				} catch (IOException e) {
+					handleException(e, "The TOPOCERT keys could not be written to file.",
+							TopocertErrorCodes.EX_IOERR);
+				} catch (EncodingException e) {
+					handleException(e, "The TOPOCERT graph encoding could not be setup.",
+							TopocertErrorCodes.EX_ENCERR);
+				}
 
-			System.exit(0);
-		} else if (signMode != null && signMode.booleanValue()) {
-			// Initialize signing, with specified signer graph file.
-			System.out.println("Entering TOPOCERT Sign mode...");
-			System.out.println("  Using extended keypair from file: " + ekpFilename);
+				System.exit(0);
+			} else if (signMode != null && signMode.booleanValue()) {
+				// Initialize signing, with specified signer graph file.
+				System.out.println("Entering TOPOCERT Sign mode...");
+				System.out.println("  Using extended keypair from file: " + ekpFilename);
 
-			ExtendedKeyPair ekp = null;
-			System.out.print("  Establishing extended signer keypair...");
-			try {
-				ekp = topocert.readExtendedKeyPair(ekpFilename);
-			} catch(IOException e) {
-				handleException(e, "The TOPOCERT extended signer key pair could not be read.",
-						TopocertErrorCodes.EX_CRITFILE);
-			} catch (ClassNotFoundException e) {
-				handleException(e, "The TOPOCERT extended signer key pair does not correspond the current class.",
-						TopocertErrorCodes.EX_CRITERR);
-			}
-			if (ekp == null) {
-				System.err.println("Extended signer keypair could not be established; returned null.");
-				System.exit(TopocertErrorCodes.EX_SOFTWARE);
-			}
-			System.out.println("   [done]\n");
+				ExtendedKeyPair ekp = null;
+				System.out.print("  Establishing extended signer keypair...");
+				try {
+					ekp = topocert.readExtendedKeyPair(ekpFilename);
+				} catch (IOException e) {
+					handleException(e, "The TOPOCERT extended signer key pair could not be read.",
+							TopocertErrorCodes.EX_CRITFILE);
+				} catch (ClassNotFoundException e) {
+					handleException(e, "The TOPOCERT extended signer key pair does not correspond the current class.",
+							TopocertErrorCodes.EX_CRITERR);
+				}
+				if (ekp == null) {
+					System.err.println("Extended signer keypair could not be established; returned null.");
+					System.exit(TopocertErrorCodes.EX_SOFTWARE);
+				}
+				System.out.println("   [done]\n");
 
-			topocert.sign(ekp, graphFilename);
+				topocert.sign(ekp, graphFilename);
 
-			System.exit(0);
-		} else if (receiveMode != null && receiveMode.booleanValue()) {
-			// Initialize receiving of a signature.
-			System.out.println("Entering TOPOCERT Receive mode...");
-			System.out.println("  Using Signer's extended public key: " + epkFilename);
+				System.exit(0);
+			} else if (receiveMode != null && receiveMode.booleanValue()) {
+				// Initialize receiving of a signature.
+				System.out.println("Entering TOPOCERT Receive mode...");
+				System.out.println("  Using Signer's extended public key: " + epkFilename);
 
-			topocert.readEPK(epkFilename);
+				topocert.readEPK(epkFilename);
 
-			topocert.receive(graphFilename, sigmaFilename);
+				topocert.receive(graphFilename, sigmaFilename);
 
-			System.exit(0);
-		} else if (proveMode != null && proveMode.booleanValue()) {
-			// Initialize proving
-			System.out.println("Entering TOPOCERT Prove mode...");
-			System.out.println("  Using Signer's extended public key: " + epkFilename);
+				System.exit(0);
+			} else if (proveMode != null && proveMode.booleanValue()) {
+				// Initialize proving
+				System.out.println("Entering TOPOCERT Prove mode...");
+				System.out.println("  Using Signer's extended public key: " + epkFilename);
 
-			topocert.readEPK(epkFilename);
+				topocert.readEPK(epkFilename);
 
-			topocert.prove(graphFilename, sigmaFilename);
+				topocert.prove(graphFilename, sigmaFilename);
 
-			System.exit(0);
-		} else if (verifyMode != null && verifyMode.booleanValue()) {
-			// Initialize verifying, specifying queries
-			if (queryValues == null || queryValues.isEmpty() || queryValues.size() < 2) {
-				System.err.println("In Verify mode, please name at least two vertices with the -q/--query option.\n");
+				System.exit(0);
+			} else if (verifyMode != null && verifyMode.booleanValue()) {
+				// Initialize verifying, specifying queries
+				if (queryValues == null || queryValues.isEmpty() || queryValues.size() < 2) {
+					System.err.println("In Verify mode, please name at least two vertices with the -q/--query option.\n");
+					parser.printUsage();
+					System.exit(TopocertErrorCodes.EX_USAGE);
+				}
+				System.out.println("Entering TOPOCERT Verify mode...");
+				System.out.println("  Using Signer's extended public key: " + epkFilename);
+				System.out.print("  Queried vertices: [ ");
+				for (Iterator<Integer> iterator = queryValues.iterator(); iterator.hasNext(); ) {
+					Integer queriedVertex = (Integer) iterator.next();
+					System.out.print(queriedVertex);
+					if (iterator.hasNext()) System.out.print(", ");
+				}
+				System.out.println(" ].");
+
+				topocert.readEPK(epkFilename);
+
+				topocert.verify(queryValues);
+
+				System.exit(0);
+			} else {
+				System.err.println("Please specify a mode to operate in.\n");
 				parser.printUsage();
 				System.exit(TopocertErrorCodes.EX_USAGE);
 			}
-			System.out.println("Entering TOPOCERT Verify mode...");
-			System.out.println("  Using Signer's extended public key: " + epkFilename);
-			System.out.print("  Queried vertices: [ ");
-			for (Iterator<Integer> iterator = queryValues.iterator(); iterator.hasNext();) {
-				Integer queriedVertex = (Integer) iterator.next();
-				System.out.print(queriedVertex);
-				if (iterator.hasNext()) System.out.print(", ");
-			}
-			System.out.println(" ].");
 
-			topocert.readEPK(epkFilename);
-
-			topocert.verify(queryValues);
-
-			System.exit(0);
-		} else {
-			System.err.println("Please specify a mode to operate in.\n");
-			parser.printUsage();
-			System.exit(TopocertErrorCodes.EX_USAGE);
-		}
-		
-		// Severe Error Conditions
-		} catch (IllegalStateException  e) {
+			// Severe Error Conditions
+		} catch (IllegalStateException e) {
 			handleException(e, "TOPOCERT detected an illegal state and is aborting "
 					+ "the protocol run.", TopocertErrorCodes.EX_STATE);
 		} catch (IllegalArgumentException e) {
@@ -225,12 +220,12 @@ public class Topocert {
 
 
 	void readParams(String paramsFilename) {
-		System.out.print("Reading parameters from file: " + paramsFilename +"...");
+		System.out.print("Reading parameters from file: " + paramsFilename + "...");
 		try {
 			readKeyGenParams(paramsFilename);
 		} catch (Exception e) {
 			handleException(e, "The TOPOCERT keygen and graph encoding "
-					+ "parameters could not be parsed from file: " + paramsFilename + ".",
+							+ "parameters could not be parsed from file: " + paramsFilename + ".",
 					TopocertErrorCodes.EX_CONFIG);
 		}
 		System.out.println("   [done]");
@@ -247,7 +242,7 @@ public class Topocert {
 	}
 
 	SignerKeyPair readSignerKeyPair(String signerKeyPairFilename) throws
-	IOException, ClassNotFoundException {
+			IOException, ClassNotFoundException {
 
 		SignerKeyPair signerKeyPair = (SignerKeyPair) persistenceUtil.read(signerKeyPairFilename);
 
@@ -255,7 +250,7 @@ public class Topocert {
 	}
 
 	ExtendedKeyPair readExtendedKeyPair(String extendedKeyPairFilename) throws
-	IOException, ClassNotFoundException {
+			IOException, ClassNotFoundException {
 
 
 		ExtendedKeyPair extendedKeyPair = (ExtendedKeyPair) persistenceUtil.read(extendedKeyPairFilename);
@@ -264,7 +259,7 @@ public class Topocert {
 	}
 
 	ExtendedPublicKey readExtendedPublicKey(String epkFilename) throws
-	IOException, ClassNotFoundException {
+			IOException, ClassNotFoundException {
 
 		this.epk =
 				(ExtendedPublicKey) persistenceUtil.read(epkFilename);
@@ -276,7 +271,7 @@ public class Topocert {
 		System.out.print("  Reading extended public key...");
 		try {
 			readExtendedPublicKey(epkFilename);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			handleException(e, "The TOPOCERT extended public keu could not be read.",
 					TopocertErrorCodes.EX_CRITFILE);
 		} catch (ClassNotFoundException e) {
@@ -327,7 +322,7 @@ public class Topocert {
 
 		System.out.println("  Keygen: Completed.");
 	}
-	
+
 	// TODO Catch Overall Illegal State Exception, Internal Error, RuntimeException
 
 	void sign(ExtendedKeyPair ekp, String graphFilename) {
@@ -338,7 +333,7 @@ public class Topocert {
 		try {
 			signer.init();
 		} catch (IOException e) {
-			handleException(e, "The TOPOCERT Signer could not establish a connection to the Recipient in Round 0.", 
+			handleException(e, "The TOPOCERT Signer could not establish a connection to the Recipient in Round 0.",
 					TopocertErrorCodes.EX_NOHOST);
 		}
 
@@ -346,7 +341,7 @@ public class Topocert {
 		try {
 			signer.round0();
 		} catch (IOException e) {
-			handleException(e, "The TOPOCERT Signer could not send the nonce to the Recipient in Round 0.", 
+			handleException(e, "The TOPOCERT Signer could not send the nonce to the Recipient in Round 0.",
 					TopocertErrorCodes.EX_NOHOST);
 		}
 		System.out.println("   [done]");
@@ -357,27 +352,26 @@ public class Topocert {
 			signer.round2();
 		} catch (NoSuchAlgorithmException e) {
 			handleException(e, "The TOPOCERT Signer could not compute the Fiat-Shamir "
-					+ "hash in Round 2 due to missing hash algorithm.",
+							+ "hash in Round 2 due to missing hash algorithm.",
 					TopocertErrorCodes.EX_CRITERR);
 		} catch (ImportException e) {
 			handleException(e, "The TOPOCERT Signer not import the GraphML file in Round 2.",
 					TopocertErrorCodes.EX_NOINPUT);
 		} catch (IOException e) {
-			handleException(e, "The TOPOCERT Signer could not read the GraphML file in Round 2.", 
+			handleException(e, "The TOPOCERT Signer could not read the GraphML file in Round 2.",
 					TopocertErrorCodes.EX_IOERR);
 		} catch (ProofStoreException e) {
 			handleException(e, "The TOPOCERT Signer not store/retrieve elements in the ProofStore in Round 2.",
 					TopocertErrorCodes.EX_DATAERR);
 		} catch (VerificationException e) {
 			handleException(e, "The TOPOCERT Signer could not verify the proof of representation of "
-					+ "the Recipient's commitment in Round 2.",
+							+ "the Recipient's commitment in Round 2.",
 					TopocertErrorCodes.EX_VERIFY);
 		} catch (EncodingException e) {
 			handleException(e, "The TOPOCERT Signer could not encode the graph in Round 2.",
 					TopocertErrorCodes.EX_ENCERR);
 		}
 		System.out.println("   [done]");
-
 
 
 		try {
@@ -413,7 +407,7 @@ public class Topocert {
 					TopocertErrorCodes.EX_NOHOST);
 		} catch (NoSuchAlgorithmException e) {
 			handleException(e, "The TOPOCERT Recipient could not compute the Fiat-Shamir "
-					+ "hash in Round 2 due to missing hash algorithm.",
+							+ "hash in Round 2 due to missing hash algorithm.",
 					TopocertErrorCodes.EX_CRITERR);
 		}
 		System.out.println("   [done]");
@@ -423,15 +417,15 @@ public class Topocert {
 			recipient.round3();
 		} catch (VerificationException e) {
 			handleException(e, "The TOPOCERT Recipient could not verify the Signer's proof on the "
-					+ "presented new signature in Round 3.",
+							+ "presented new signature in Round 3.",
 					TopocertErrorCodes.EX_VERIFY);
 		} catch (ProofStoreException e) {
 			handleException(e, "The TOPOCERT Recipient could not access expected "
-					+ "data in the ProofStore in Round 3.",
+							+ "data in the ProofStore in Round 3.",
 					TopocertErrorCodes.EX_DATAERR);
 		} catch (IOException e) {
 			handleException(e, "There was an IO Exception while the TOPOCERT Recipient "
-					+ "sought to receive the signature from the Signer in Round 3.",
+							+ "sought to receive the signature from the Signer in Round 3.",
 					TopocertErrorCodes.EX_NOHOST);
 		}
 
@@ -446,7 +440,7 @@ public class Topocert {
 			recipient.serializeFinalSignature(sigmaFilename);
 		} catch (NullPointerException e) {
 			handleException(e, "The graph signature of the Recipient was not "
-					+ "correctly assembled; returned null.",
+							+ "correctly assembled; returned null.",
 					TopocertErrorCodes.EX_DATAERR);
 		} catch (IOException e) {
 			handleException(e, "The Recipient could not write the obtained graph signature to disk.",
@@ -481,7 +475,7 @@ public class Topocert {
 			prover.init();
 		} catch (IOException e) {
 			handleException(e, "The TOPOCERT Prover could not open a socket to receive "
-					+ "messages from the Verifier.",
+							+ "messages from the Verifier.",
 					TopocertErrorCodes.EX_NOHOST);
 		}
 
@@ -519,8 +513,33 @@ public class Topocert {
 			verifier.receiveProverMessage();
 		} catch (VerificationException e) {
 			handleException(e, "The proof provided by the TOPOCERT Prover could not be verified. "
-					+ "Illegal message lengths.",
+							+ "Illegal message lengths.",
 					TopocertErrorCodes.EX_VERIFY);
+		} catch (IOException e) {
+			handleException(e, "The TOPOCERT Verifier not receive the proof from the Prover.",
+					TopocertErrorCodes.EX_IOERR);
+		}
+
+		System.out.println("  Verify: Computing verification for geo-location verification...");
+
+		try {
+			verifier.executeVerification();
+		} catch (VerificationException e) {
+			handleException(e, "The proof provided by the TOPOCERT Prover could not be verified. ",
+					TopocertErrorCodes.EX_VERIFY);
+		}
+
+		verifier.computeChallenge();
+
+		try {
+			verifier.verifyChallenge();
+		} catch (VerificationException e) {
+			handleException(e, "The proof provided by the TOPOCERT Prover could not be verified. ",
+					TopocertErrorCodes.EX_VERIFY);
+		}
+
+		try {
+			verifier.close();
 		} catch (IOException e) {
 			handleException(e, "The TOPOCERT Verifier not receive the proof from the Prover.",
 					TopocertErrorCodes.EX_IOERR);
@@ -531,16 +550,16 @@ public class Topocert {
 
 	private static void handleException(Throwable e, String highLevelMsg, int exitCode) {
 		System.err.println("\n\nTOPOCERT Exception:\n" + highLevelMsg);
-		if (e.getMessage() != null ) System.err.println("\nException message: " + e.getMessage() + "\n");
-		
+		if (e.getMessage() != null) System.err.println("\nException message: " + e.getMessage() + "\n");
+
 		if (Topocert.verbose) {
 			System.err.println("\nCause of the Exception:\n" + e);
-			
+
 			System.err.println("\nPrinting the stack trace:");
 			e.printStackTrace();
 		}
 		System.err.println("\nTOPOCERT aborting.");
-		
+
 		System.exit(exitCode);
 	}
 
