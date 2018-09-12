@@ -11,7 +11,6 @@ import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,6 +25,7 @@ import java.util.Vector;
 import java.util.logging.Logger;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -79,9 +79,9 @@ public class GSVerifierClientTest {
 		verifierOrchestrator.init();
 		verifierOrchestrator.receiveProverMessage();
 
-		BigInteger cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
-		assertNotNull(cChallenge);
-		verifierOrchestrator.executeVerification(cChallenge);
+		Boolean cLengths = verifierOrchestrator.checkLengths();
+		assertTrue(cLengths);
+		verifierOrchestrator.executeVerification();
 		BigInteger vChallenge = verifierOrchestrator.computeChallenge();
 		assertNotNull(vChallenge);
 
