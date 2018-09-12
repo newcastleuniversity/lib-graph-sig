@@ -180,7 +180,8 @@ public class ProverOrchestrator implements IProverOrchestrator {
 			try {
 				pairWiseDifferenceProver.executePrecomputation();
 			} catch (IllegalArgumentException ie) {
-				gslog.log(Level.SEVERE, "Pair-wise difference prover pre-computation not correct.", ie.getMessage());
+				gslog.log(Level.SEVERE, "Messages are not co-prime. Bezout identity factors for "
+						+ "pair-wise difference proof cannot be established.", ie.getMessage());
 				sendErrorMessage(MessageError.PROOF_ERROR);
 				throw ie;
 			}
