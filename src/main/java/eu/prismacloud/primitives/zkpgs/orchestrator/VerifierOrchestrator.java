@@ -393,6 +393,13 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 		verifier.close();
 	}
 
+	public void executeVerification() throws VerificationException {
+		Boolean isVerified = executeVerification(cChallenge);
+		if (!isVerified){
+			throw new VerificationException("Verification computation is not correct ");
+		}
+	}
+
 	@Override
 	public boolean executeVerification(BigInteger cChallenge) {
 		if (!checkLengths()) {
@@ -405,6 +412,10 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 			Map<URN, GroupElement> responses = possessionVerifier.executeCompoundVerification(this.cChallenge);
 			String hatZURN = URNType.buildURNComponent(URNType.HATZ, PossessionVerifier.class);
 			hatZ = responses.get(URN.createZkpgsURN(hatZURN));
+			if (hatZ == null) {
+				return false;
+			}
+
 		} catch (ProofStoreException e) {
 			gslog.log(Level.SEVERE, "Could not access the challenge in the ProofStore.", e);
 		}
