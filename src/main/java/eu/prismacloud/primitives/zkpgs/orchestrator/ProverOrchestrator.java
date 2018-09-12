@@ -326,7 +326,6 @@ public class ProverOrchestrator implements IProverOrchestrator {
 
 	@Override
 	public BigInteger computeChallenge() {
-		gslog.info("compute challenge ");
 		challengeList = populateChallengeList();
 		BigInteger c = null;
 		try {
