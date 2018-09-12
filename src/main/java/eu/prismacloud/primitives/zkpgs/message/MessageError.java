@@ -1,10 +1,13 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
+import java.io.Serializable;
+
 /**
  * Represents error codes and descriptions for the communication between two parties
  * (Prover and Verifier)
  */
-public enum MessageError {
+public enum MessageError implements Serializable {
+	
 	PROOF_TYPE_NOT_SUPPORTED(33, "Proof type requested is not supported"),
 	PROOF_ERROR(99, "Error during proof computation");
 

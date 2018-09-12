@@ -121,10 +121,16 @@ public class ProverOrchestrator implements IProverOrchestrator {
 			prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
 		} catch (ProofStoreException e1) {
 			gslog.log(Level.SEVERE, "Commitments not computed correctly; values not found in the ProofStore.", e1.getMessage());
+			throw new IOException("Initialization failed. Commitments could not be computed.");
 		}
 		commitments = prover.getCommitmentMap();
-
-		initPairWiseDifferenceProvers();
+		
+		try {
+			initPairWiseDifferenceProvers();
+		} catch (ProofStoreException e) {
+			gslog.log(Level.SEVERE, "Commitment Pair-Wise Difference Provers not computed correctly; values not found in the ProofStore.", e.getMessage());
+			throw new IOException("Initialization failed. Pair-Wise Difference Provers could not be initalized.");
+		}
 
 	}
 
@@ -147,7 +153,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		return errorMessageElements;
 	}
 
-	private void initPairWiseDifferenceProvers() throws IOException {
+	private void initPairWiseDifferenceProvers() throws IOException, ProofStoreException {
 		List<GSCommitment> commitmentList = new ArrayList<GSCommitment>(indexCommitments.values());
 		PairWiseCommitments pairWiseCommitments;
 
@@ -170,15 +176,13 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		for (PairWiseCommitments pwCommitments : pairWiseCommList) {
 			PairWiseDifferenceProver pairWiseDifferenceProver = new PairWiseDifferenceProver(pwCommitments.getC_i(), pwCommitments.getC_j(), pairWiseProverIndex, extendedPublicKey, proofStore);
 			pairWiseDifferenceProvers.add(pairWiseDifferenceProver);
-
+			
 			try {
 				pairWiseDifferenceProver.executePrecomputation();
 			} catch (IllegalArgumentException ie) {
-				gslog.log(Level.SEVERE, "Pair-wise difference prover pre-computation not correct", ie.getMessage());
+				gslog.log(Level.SEVERE, "Pair-wise difference prover pre-computation not correct.", ie.getMessage());
 				sendErrorMessage(MessageError.PROOF_ERROR);
-				throw new ProofException("Pair-wise difference prover pre-computation not correct");
-			} catch (ProofStoreException e) {
-				gslog.log(Level.SEVERE, "Could not store co-primality in proof store", e.getMessage());
+				throw ie;
 			}
 			pairWiseProverIndex++;
 		}
