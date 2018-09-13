@@ -214,13 +214,12 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		cPrime = (BigInteger) P_2.get("P_2.cPrime");
 
-		// TODO DECATIVATED
 		try {
 			if(!verifyingQOrchestrator.executeVerification(cPrime)) {
 				throw new VerificationException("Graph signature proof P_2 could not be verified.");
 			}
 		} catch (NoSuchAlgorithmException e1) {
-			new VerificationException("Graph signature proof P_2 could not be verified.", e1);
+			throw new VerificationException("Graph signature proof P_2 could not be verified.", e1);
 		}
 
 		gsSignature = signatureCandidate;
