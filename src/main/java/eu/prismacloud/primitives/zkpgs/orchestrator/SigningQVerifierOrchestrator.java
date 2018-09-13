@@ -99,7 +99,6 @@ public class SigningQVerifierOrchestrator implements IVerifierOrchestrator {
 
 	@Override
 	public BigInteger computeChallenge() throws NoSuchAlgorithmException {
-		gslog.info("compute challenge ");
 		List<String> ctxList = populateChallengeList();
 
 		hatc = CryptoUtilsFacade.computeHash(ctxList, keyGenParameters.getL_H());
