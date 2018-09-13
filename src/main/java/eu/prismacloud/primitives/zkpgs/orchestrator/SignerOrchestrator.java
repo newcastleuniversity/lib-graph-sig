@@ -460,7 +460,8 @@ public class SignerOrchestrator implements IMessagePartner {
 	private void storeSecretSignatureElements(GSSignature preSigma, SignatureData sigmaData) throws ProofStoreException {
 		proofStore.store("issuing.signer.A", preSigma.getA());
 		proofStore.store("issuing.signer.Q", sigmaData.getQ());
-		proofStore.store("issuing.signer.d", sigmaData.getE());
+		proofStore.store("issuing.signer.e", sigmaData.getE());
+		proofStore.store("issuing.signer.d", sigmaData.getD());
 		proofStore.store("issuing.signer.vPrimePrime", sigmaData.getVPrimePrime());
 		// proofStore.store("issuing.signer.context", contextList);
 	}
