@@ -174,4 +174,9 @@ public class CommitmentVerifierTest {
 
 		assertTrue(isCorrectLength);
 	}
+	
+	@Test
+	void testInformationFlow() {
+		fail("Information flow test not implemented yet.");
+	}
 }

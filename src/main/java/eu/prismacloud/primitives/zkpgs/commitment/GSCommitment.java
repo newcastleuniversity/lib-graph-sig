@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.commitment;
 
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.PublicCloneable;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -23,7 +24,7 @@ import java.util.Map;
 /**
  * The GSCommitment provides methods to compute commitments over one or more bases and exponents.
  */
-public class GSCommitment implements Serializable {
+public class GSCommitment implements Serializable, PublicCloneable {
 
 	private static final long serialVersionUID = -6253701534775989050L;
 	private final GroupElement commitmentValue;
@@ -158,7 +159,7 @@ public class GSCommitment implements Serializable {
 	 * 
 	 * @return a public commitment, which includes the commitment value and the base allocation used in the commitment.
 	 */
-	public GSCommitment clonePublicCommitment() {
+	public GSCommitment publicClone() {
 		BaseCollection collection = new BaseCollectionImpl();
 		BaseIterator secretCommitmentBases = this.baseCollection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : secretCommitmentBases) {

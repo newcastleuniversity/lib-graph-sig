@@ -60,7 +60,7 @@ public class GSSignatureValidator {
 	 * TODO
 	 */
 	public GroupElement computeQ() {
-		GroupElement basesProduct = (GroupElement) signerPublicKey.getQRGroup().getOne();
+		GroupElement basesProduct = (GroupElement) signerPublicKey.getGroup().getOne();
 
 		boolean completedBase0 = false;
 		BaseIterator baseIterator = encodedBasesCollection.createIterator(BASE.ALL);

@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -177,5 +178,10 @@ class SingletonPossessionVerifierTest {
 		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
 		verifierProofStore.store("verifier.c", cChallenge);
 		verifierProofStore.store("verifier.APrime", aPrime);
+	}
+	
+	@Test
+	void testInformationFlow() {
+		fail("Information flow test not implemented yet.");
 	}
 }

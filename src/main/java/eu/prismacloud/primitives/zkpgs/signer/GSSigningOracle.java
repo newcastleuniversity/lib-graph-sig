@@ -127,7 +127,7 @@ public class GSSigningOracle {
 	 * @return valid GSSignature
 	 */
 	public GSSignature sign(BaseCollection baseCollection) {
-		GroupElement basesEncoded = signerKeyPair.getPublicKey().getQRGroup().getOne();
+		GroupElement basesEncoded = signerKeyPair.getPublicKey().getGroup().getOne();
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
 			BaseRepresentation vertexBase = vertexIter.next();

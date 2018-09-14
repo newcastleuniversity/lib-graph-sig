@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.util.Assert;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -16,8 +17,8 @@ public final class QRGroupPQ extends QRGroup {
 	private final BigInteger oneP;
 	private final BigInteger oneQ;
 	private QRElementPQ generator;
-	
-	
+
+
 	/**
 	 * Instantiates a new QR group where we know the modulus factorization.
 	 *
@@ -31,7 +32,7 @@ public final class QRGroupPQ extends QRGroup {
 				((NumberConstants.TWO.getValue().multiply(pPrime)).add(BigInteger.ONE)).multiply(
 						((NumberConstants.TWO.getValue().multiply(qPrime)).add(BigInteger.ONE)))
 				);
-		
+
 		Assert.notNull(pPrime, "pPrime must not be null");
 		Assert.notNull(qPrime, "qPrime must not be null");
 		this.pPrime = pPrime;
@@ -39,11 +40,11 @@ public final class QRGroupPQ extends QRGroup {
 		this.p = (NumberConstants.TWO.getValue().multiply(pPrime)).add(BigInteger.ONE);
 		this.q = (NumberConstants.TWO.getValue().multiply(qPrime)).add(BigInteger.ONE);
 		this.order = this.getOrder();
-		
+
 		QRGroupPQ.computeEEA(this.p, this.q);
 		this.oneP = CRT.compute1p(EEAlgorithm.getT(), this.p, this.q);
 		this.oneQ = CRT.compute1q(EEAlgorithm.getS(), this.p, this.q);
-		
+
 		Assert.notNull(this.oneP, "oneP must not be null");
 		Assert.notNull(this.oneQ, "oneQ must not be null");
 	}
@@ -58,10 +59,10 @@ public final class QRGroupPQ extends QRGroup {
 		return this.pPrime.multiply(this.qPrime);
 	}
 
-//	@Override
-//	public QRElement createRandomElement() {
-//		return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue(), pPrime, qPrime);
-//	}
+	//	@Override
+	//	public QRElement createRandomElement() {
+	//		return new QRElementPQ(this, CryptoUtilsFacade.computeQRNElement(this.modulus).getValue(), pPrime, qPrime);
+	//	}
 
 	//  @Override
 	//  public GroupElement createElement(final GroupElement s) {
@@ -95,7 +96,7 @@ public final class QRGroupPQ extends QRGroup {
 		return (computeLegendreP(alpha).equals(BigInteger.ONE) && 
 				computeLegendreQ(alpha).equals(BigInteger.ONE));
 	}
-	
+
 	/**
 	 * Algorithm <tt>alg:generator_QR_N</tt> - topocert-doc Create generator of QRN Input: Special RSA
 	 * modulus modN, p', q' Output: generator S of QRN Dependencies: createElementOfZNS(),
@@ -164,7 +165,7 @@ public final class QRGroupPQ extends QRGroup {
 	public BigInteger getOneQ() {
 		return oneQ;
 	}
-	
+
 
 	/**
 	 * Returns the factor p.
@@ -174,7 +175,7 @@ public final class QRGroupPQ extends QRGroup {
 	public BigInteger getP() {
 		return this.p;
 	}
-	
+
 
 	/**
 	 * Returns the factor q.
@@ -184,7 +185,7 @@ public final class QRGroupPQ extends QRGroup {
 	public BigInteger getQ() {
 		return this.q;
 	}
-	
+
 	/**
 	 * Computes the Legendre symbol of a BigInteger value with respect to the
 	 * prime factor p of this QRGroupPQ.
@@ -197,7 +198,7 @@ public final class QRGroupPQ extends QRGroup {
 	public BigInteger computeLegendreP(BigInteger value) {
 		return value.modPow(this.pPrime, this.p);
 	}
-	
+
 	/**
 	 * Computes the Legendre symbol of a BigInteger value with respect to the
 	 * prime factor q of this QRGroupPQ.
@@ -232,7 +233,7 @@ public final class QRGroupPQ extends QRGroup {
 	public boolean isKnownOrder() {
 		return true;
 	}
-	
+
 	@Override
 	public QRElement getOne() {
 		return (QRElement) super.getOne();
@@ -286,6 +287,18 @@ public final class QRGroupPQ extends QRGroup {
 			return false;
 		return true;
 	}
-	
-	
+
+	@Override
+	public Group publicClone() {
+		return new QRGroupN(this.getModulus());
+	}
+
+	@Override
+	public QRGroupPQ clone() {
+		QRGroupPQ theClone = null;
+
+		theClone = (QRGroupPQ) super.clone();
+
+		return theClone;
+	}
 }

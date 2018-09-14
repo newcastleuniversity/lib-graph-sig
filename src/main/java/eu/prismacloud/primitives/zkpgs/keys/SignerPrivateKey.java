@@ -70,7 +70,7 @@ public class SignerPrivateKey implements Serializable, IPrivateKey {
 		return x_Z;
 	}
 
-	public QRGroup getQRGroup() {
+	public QRGroup getGroup() {
 		return qrGroup;
 	}
 

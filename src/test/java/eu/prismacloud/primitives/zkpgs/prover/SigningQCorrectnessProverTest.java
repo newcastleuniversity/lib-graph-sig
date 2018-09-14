@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
@@ -25,7 +26,10 @@ import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class SigningQCorrectnessProverTest {
@@ -151,5 +155,49 @@ class SigningQCorrectnessProverTest {
 
 		log.info("Calling Prover self-verification.");
 		assertTrue(prover.verify(), "PossessionProver self-verification post-challenge failed.");
+	}
+	
+	
+	
+	@SuppressWarnings("unused")
+	@Test
+	void testInformationLeakagePQ() throws Exception {
+		GroupElement tildeA = prover.executePreChallengePhase();
+		
+		try {
+			QRElementPQ tildeAPQ = (QRElementPQ) tildeA;
+		} catch (ClassCastException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeA contained secret information PQ.");
+	}
+	
+	@SuppressWarnings("unused")
+	@Test
+	void testInformationLeakageGroupPQ() throws Exception {
+		GroupElement tildeA = prover.executePreChallengePhase();
+		Group tildeAGroup = tildeA.getGroup();
+		try {
+			QRGroupPQ tildeAGroupPQ = (QRGroupPQ) tildeAGroup;
+		} catch (ClassCastException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeA contained secret group QRGroupPQ.");
+	}
+	
+	@Test
+	void testInformationLeakageOrder() throws Exception {
+		GroupElement tildeA = prover.executePreChallengePhase();
+		
+		try {
+			@SuppressWarnings("unused")
+			BigInteger tildeAOrder = tildeA.getElementOrder();
+		} catch (UnsupportedOperationException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeA leaked the element order.");
 	}
 }

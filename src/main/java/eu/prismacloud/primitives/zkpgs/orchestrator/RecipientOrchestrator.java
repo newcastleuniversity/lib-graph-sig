@@ -160,7 +160,7 @@ public class RecipientOrchestrator implements IMessagePartner {
 
 		// Create a clone of the commitment which is restricted to its public values.
 		// To be sent to the Signer.
-		GSCommitment commitmentUtoBeSent = U.clonePublicCommitment();
+		GSCommitment commitmentUtoBeSent = U.publicClone();
 
 		Map<URN, Object> messageElements = new HashMap<>();
 		messageElements.put(URN.createZkpgsURN("recipient.U"), commitmentUtoBeSent);

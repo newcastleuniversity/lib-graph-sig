@@ -167,7 +167,7 @@ public class PossessionProver implements IProver {
 
 		GroupElement baseR_0tildem_0 = baseR_0.modPow(tildem_0);
 		
-		GroupElement baseProduct = extendedPublicKey.getPublicKey().getQRGroup().getOne();
+		GroupElement baseProduct = extendedPublicKey.getPublicKey().getGroup().getOne();
 
 		Vector<BaseRepresentation> witnessBases = new Vector<BaseRepresentation>();
 

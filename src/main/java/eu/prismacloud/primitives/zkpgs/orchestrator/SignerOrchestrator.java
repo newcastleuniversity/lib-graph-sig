@@ -477,7 +477,7 @@ public class SignerOrchestrator implements IMessagePartner {
 	 */
 	GroupElement computeQ(SignatureData sigmaData) {
 
-		GroupElement basesProduct = signerPublicKey.getQRGroup().getOne();
+		GroupElement basesProduct = signerPublicKey.getGroup().getOne();
 
 		for (BaseRepresentation base : sigmaData.getEncodedBases().createIterator(BASE.ALL)) {
 			if (base.getBaseType().equals(BASE.BASES)) continue; // Treating randomness separately.

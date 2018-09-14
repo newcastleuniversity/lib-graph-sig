@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 
@@ -199,4 +200,24 @@ public class QRElement extends GroupElement {
 		return group;
 	}
 
+	@Override
+	public GroupElement publicClone() {
+		return new QRElement((Group) this.getGroup().publicClone(), value);
+	}
+
+
+	@Override
+	public QRElement clone() {
+		QRElement theClone = null;
+
+		try {
+			theClone = (QRElement) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen
+			throw new GSInternalError(e);
+		}
+
+		return theClone;
+	}
+	
 }

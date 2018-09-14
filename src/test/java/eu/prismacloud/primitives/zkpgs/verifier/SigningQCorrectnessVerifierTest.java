@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
@@ -136,5 +137,10 @@ class SigningQCorrectnessVerifierTest {
 		ProofSignature P_2 = new ProofSignature(p2ProofSignatureElements);
 
 		return P_2;
+	}
+	
+	@Test
+	void testInformationFlow() {
+		fail("Information flow test not implemented yet.");
 	}
 }

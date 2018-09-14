@@ -1,8 +1,12 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
+import eu.prismacloud.primitives.zkpgs.graph.GSGraph;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import java.math.BigInteger;
+
+import org.jgrapht.graph.DefaultUndirectedGraph;
 
 /** Quadratic Residue Group where we don't know the modulus factorization in \(Z^*_p \) */
 public final class QRGroupN extends QRGroup {
@@ -15,26 +19,26 @@ public final class QRGroupN extends QRGroup {
 	public BigInteger getOrder() {
 		throw new UnsupportedOperationException("Order not known.");
 	}
-	
+
 
 	/**
 	 * Creates an element without guarantee of uniform distribution
 	 * 
 	 * @return QRElementN without knowing the modulus factorization
 	 */
-	  public QRElementN createElement() {
-// TODO Possible create a second version of this function using the generator to create new random elements.
-	    BigInteger s;
-	    BigInteger s_prime;
+	public QRElementN createElement() {
+		// TODO Possible create a second version of this function using the generator to create new random elements.
+		BigInteger s;
+		BigInteger s_prime;
 
-	    do {
+		do {
 
-	      s_prime = CryptoUtilsFacade.createElementOfZNS(this.getModulus());
-	      s = s_prime.modPow(NumberConstants.TWO.getValue(), this.getModulus());
+			s_prime = CryptoUtilsFacade.createElementOfZNS(this.getModulus());
+			s = s_prime.modPow(NumberConstants.TWO.getValue(), this.getModulus());
 
-	    } while (!this.isElement(s));
-	    return new QRElementN(this, s);
-	  }
+		} while (!this.isElement(s));
+		return new QRElementN(this, s);
+	}
 
 
 	@Override
@@ -50,5 +54,19 @@ public final class QRGroupN extends QRGroup {
 	@Override
 	public boolean isKnownOrder() {
 		return false;
+	}
+
+	@Override
+	public Group publicClone() {
+		return this.clone();
+	}
+
+	@Override
+	public QRGroupN clone() {
+		QRGroupN theClone = null;
+
+		theClone = (QRGroupN) super.clone();
+
+		return theClone;
 	}
 }

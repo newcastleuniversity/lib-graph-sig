@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -52,7 +53,7 @@ public class GSRecipientTest {
 		graphEncodingParameters = baseTest.getGraphEncodingParameters();
 		keyGenParameters = baseTest.getKeyGenParameters();
 		privateKey = signerKeyPair.getPrivateKey();
-		qrGroup = (QRGroupPQ) privateKey.getQRGroup();
+		qrGroup = (QRGroupPQ) privateKey.getGroup();
 		extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.createExtendedKeyPair();
 
@@ -84,5 +85,11 @@ public class GSRecipientTest {
 	@AfterAll
 	void tearDown() throws IOException {
 		recipient.close();
+	}
+	
+	@Test
+	void testInformationFlow() {
+		fail("Information flow test not implemented yet.");
+		// Check for incoming values.
 	}
 }

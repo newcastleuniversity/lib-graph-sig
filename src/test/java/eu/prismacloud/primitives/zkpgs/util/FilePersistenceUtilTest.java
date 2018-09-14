@@ -17,6 +17,7 @@ import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
 import java.io.IOException;
@@ -34,7 +35,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 class FilePersistenceUtilTest {
 	private Logger log = GSLoggerConfiguration.getGSlog();
 	// set flag to true to generate a new signer key pair and a new signer public key
-	private Boolean generateKeys = false;
+	private Boolean generateKeys = true;
 	private FilePersistenceUtil persistenceUtil;
 	private KeyGenParameters keyGenParameters;
 	private String signerKeyPairFileName;
@@ -101,19 +102,19 @@ class FilePersistenceUtilTest {
 
 		SignerPublicKey signerPublicKey = signerKeyPair.getPublicKey();
 		SignerPrivateKey signerPrivateKey = signerKeyPair.getPrivateKey();
-		assertNotNull(signerPublicKey.getQRGroup());
-		assertNotNull(signerPrivateKey.getQRGroup());
-		QRGroupPQ qrGroup = (QRGroupPQ) signerPublicKey.getQRGroup();
+		assertNotNull(signerPublicKey.getGroup());
+		assertNotNull(signerPrivateKey.getGroup());
+		QRGroupPQ group = (QRGroupPQ) signerPrivateKey.getGroup();
 		GroupElement baseS = signerPublicKey.getBaseS();
 
 		assertTrue(
-				qrGroup.verifySGenerator(
+				group.verifySGenerator(
 						baseS.getValue(), signerPrivateKey.getPPrime(), signerPrivateKey.getQPrime()));
 
-		assertTrue(qrGroup.isElement(baseS.getValue()));
-		assertTrue(qrGroup.isElement(signerPublicKey.getBaseZ().getValue()));
-		assertTrue(qrGroup.isElement(signerPublicKey.getBaseR().getValue()));
-		assertTrue(qrGroup.isElement(signerPublicKey.getBaseR_0().getValue()));
+		assertTrue(group.isElement(baseS.getValue()));
+		assertTrue(group.isElement(signerPublicKey.getBaseZ().getValue()));
+		assertTrue(group.isElement(signerPublicKey.getBaseR().getValue()));
+		assertTrue(group.isElement(signerPublicKey.getBaseR_0().getValue()));
 	}
 
 	@Test

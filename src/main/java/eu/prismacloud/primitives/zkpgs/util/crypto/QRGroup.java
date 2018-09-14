@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.util.crypto;
 
+import eu.prismacloud.primitives.zkpgs.exception.GSInternalError;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
@@ -7,6 +8,12 @@ import java.math.BigInteger;
 
 public abstract class QRGroup extends Group {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 417339081054714658L;
+	
+	
 	private final BigInteger modulus;
 	private QRElementN generator;
 	private final QRElement one;
@@ -111,5 +118,19 @@ public abstract class QRGroup extends Group {
 		} else if (!modulus.equals(other.modulus))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public QRGroup clone() {
+		QRGroup theClone = null;
+
+		try {
+			theClone = (QRGroup) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// Should never happen
+			throw new GSInternalError(e);
+		}
+
+		return theClone;
 	}
 }

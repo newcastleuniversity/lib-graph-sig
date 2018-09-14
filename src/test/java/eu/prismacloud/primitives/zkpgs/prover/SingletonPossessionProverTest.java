@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,7 +24,11 @@ import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -330,5 +335,47 @@ class SingletonPossessionProverTest {
 
 		String vPrimeURN = "prover.blindedgs.signature.vPrime";
 		proofStore.store(vPrimeURN, sigma.getV());
+	}
+	
+	@Test
+	void testInformationLeakagePQ() throws Exception {
+		GroupElement tildeZ = prover.executePreChallengePhase();
+		
+		try {
+			@SuppressWarnings("unused")
+			QRElementPQ tildeZPQ = (QRElementPQ) tildeZ;
+		} catch (ClassCastException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeZ contained secret information PQ.");
+	}
+	
+	@Test
+	void testInformationLeakageGroupPQ() throws Exception {
+		GroupElement tildeZ = prover.executePreChallengePhase();
+		Group tildeZGroup = tildeZ.getGroup();
+		try {
+			@SuppressWarnings("unused")
+			QRGroupPQ tildeZGroupPQ = (QRGroupPQ) tildeZGroup;
+		} catch (ClassCastException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeZ contained secret group QRGroupPQ.");
+	}
+	
+	@Test
+	void testInformationLeakageOrder() throws Exception {
+		GroupElement tildeZ = prover.executePreChallengePhase();
+		
+		try {
+			@SuppressWarnings("unused")
+			BigInteger tildeZOrder = tildeZ.getElementOrder();
+		} catch (UnsupportedOperationException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeZ leaked the element order.");
 	}
 }

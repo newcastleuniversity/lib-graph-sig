@@ -104,7 +104,7 @@ public class PossessionVerifier implements IVerifier {
 		// Aborting verification with output null, if lengths check rejects hat-values.
 		if (!checkLengths()) return null;
 
-		QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getQRGroup().getOne();
+		QRElement basesProduct = (QRElement) extendedPublicKey.getPublicKey().getGroup().getOne();
 
 		BaseIterator vertexIterator = baseCollection.createIterator(BASE.VERTEX);
 		for (BaseRepresentation baseRepresentation : vertexIterator) {

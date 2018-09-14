@@ -3,8 +3,10 @@ package eu.prismacloud.primitives.zkpgs.util.crypto;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+import eu.prismacloud.primitives.zkpgs.PublicCloneable;
+
 /** High-level abstraction of a number-theoretic group. */
-public abstract class Group implements Serializable {
+public abstract class Group implements Serializable, Cloneable, PublicCloneable {
 
 	private static final long serialVersionUID = 7933357117240792496L;
 
@@ -93,5 +95,13 @@ public abstract class Group implements Serializable {
 	 * @return the multiplicative identity.
 	 */
 	public abstract GroupElement getOne();
+	
+	/**
+	 * Creates a clone of this group that only contains public information and
+	 * guarantees that there is no information flow of private information.
+	 * 
+	 * @return public group representation.
+	 */
+	public abstract Group publicClone();
 	
 }

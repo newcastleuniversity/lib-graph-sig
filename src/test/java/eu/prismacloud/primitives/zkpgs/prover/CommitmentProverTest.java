@@ -15,7 +15,11 @@ import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.*;
+import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementPQ;
+import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
@@ -26,6 +30,7 @@ import java.util.logging.Logger;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** */
@@ -102,7 +107,6 @@ class CommitmentProverTest {
 	@Test
 	@DisplayName("Test pre challenge phase for the commmimtment prover during proving")
 	void testPreChallengePhaseProving() throws ProofStoreException {
-		String tildeC_iURN = URNType.buildURNComponent(URNType.TILDECI, CommitmentProver.class, cprover.getCommitmentIndex());
 		GroupElement tildeC_i = cprover.executePreChallengePhase();
 
 		assertNotNull(tildeC_i);
@@ -186,5 +190,47 @@ class CommitmentProverTest {
 		proofStore.store(hatm_iURN, hatm_i);
 		
 		assertTrue(cprover.verify(), "The commitment prover's self-verification failed.");
+	}
+	
+	@Test
+	void testInformationLeakagePQ() throws Exception {
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
+		
+		try {
+			@SuppressWarnings("unused")
+			QRElementPQ tildeC_iPQ = (QRElementPQ) tildeC_i;
+		} catch (ClassCastException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeC_i contained secret information PQ.");
+	}
+	
+	@Test
+	void testInformationLeakageGroupPQ() throws Exception {
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
+		Group tildeC_iGroup = tildeC_i.getGroup();
+		try {
+			@SuppressWarnings("unused")
+			QRGroupPQ tildeC_iGroupPQ = (QRGroupPQ) tildeC_iGroup;
+		} catch (ClassCastException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeC_i contained secret group QRGroupPQ.");
+	}
+	
+	@Test
+	void testInformationLeakageOrder() throws Exception {
+		GroupElement tildeC_i = cprover.executePreChallengePhase();
+		
+		try {
+			@SuppressWarnings("unused")
+			BigInteger tildeC_iOrder = tildeC_i.getElementOrder();
+		} catch (UnsupportedOperationException e) {
+			// Expected Exception
+			return;
+		}
+		fail("The commitment witness tildeC_i leaked the element order.");
 	}
 }

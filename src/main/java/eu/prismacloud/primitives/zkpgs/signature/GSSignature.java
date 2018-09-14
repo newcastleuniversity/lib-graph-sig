@@ -124,7 +124,7 @@ public class GSSignature implements Serializable {
 	 *     Key and Graph Encoding
 	 */
 	public boolean verify(ExtendedPublicKey epk, BaseCollection bc) {
-		QRGroup qrGroup = (QRGroup) epk.getPublicKey().getQRGroup();
+		QRGroup qrGroup = (QRGroup) epk.getPublicKey().getGroup();
 		QRElement Y = (QRElement) qrGroup.getOne();
 		BaseIterator baseIter = bc.createIterator(BASE.ALL);
 		for (BaseRepresentation baseRepresentation : baseIter) {

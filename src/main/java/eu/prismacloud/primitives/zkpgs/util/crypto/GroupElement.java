@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 
+import eu.prismacloud.primitives.zkpgs.PublicCloneable;
+
 /** Group Element class */
-public abstract class GroupElement implements Serializable {
+public abstract class GroupElement implements Serializable, Cloneable, PublicCloneable {
   private static final long serialVersionUID = 3297036609477587811L;
 
   public abstract Group getGroup();
@@ -68,4 +70,11 @@ public abstract class GroupElement implements Serializable {
   public abstract int compareTo(BigInteger val);
   
   public abstract int compareTo(GroupElement val);
+  
+  /**
+   * Returns a clone of this GroupElement that only contains private information.
+   * 
+   * @return public clone of this group element.
+   */
+  public abstract GroupElement publicClone();
 }

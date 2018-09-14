@@ -37,7 +37,7 @@ class SignerPrivateKeyTest {
   private GroupElement baseR0;
   private SignerPublicKey publicKey;
   private SignerPrivateKey privateKey;
-  private QRGroupPQ qrGroup;
+  private QRGroupPQ group;
 
   @BeforeAll
   void setupKey() throws IOException, ClassNotFoundException {
@@ -49,7 +49,7 @@ class SignerPrivateKeyTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     privateKey = signerKeyPair.getPrivateKey();
     publicKey = signerKeyPair.getPublicKey();
-    qrGroup = (QRGroupPQ) publicKey.getQRGroup();
+    group = (QRGroupPQ) privateKey.getGroup();
   }
 
   @Test
@@ -57,7 +57,7 @@ class SignerPrivateKeyTest {
     BigInteger pPrime = privateKey.getPPrime();
     assertNotNull(pPrime);
     assertEquals(keyGenParameters.getL_n() / 2, pPrime.bitLength() + 1);
-    BigInteger p = qrGroup.getP();
+    BigInteger p = group.getP();
     BigInteger pPrimeTest = p.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue());
 
     assertEquals(pPrimeTest, pPrime);
@@ -70,7 +70,7 @@ class SignerPrivateKeyTest {
     assertNotNull(qPrime);
     assertEquals(keyGenParameters.getL_n() / 2, qPrime.bitLength() + 1);
 
-    BigInteger q = qrGroup.getQ();
+    BigInteger q = group.getQ();
     BigInteger qPrimeTest = q.subtract(BigInteger.ONE).divide(NumberConstants.TWO.getValue());
 
     assertEquals(qPrimeTest, qPrime);

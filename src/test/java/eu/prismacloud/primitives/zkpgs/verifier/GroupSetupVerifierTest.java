@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -234,5 +235,10 @@ class GroupSetupVerifierTest {
 		assertNotNull(hatValues);
 
 		assertTrue(hatValues.size() > 0);
+	}
+	
+	@Test
+	void testInformationFlow() {
+		fail("Information flow test not implemented yet.");
 	}
 }
