@@ -22,7 +22,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 /** Test Signer Key Pair */
 @TestInstance(Lifecycle.PER_CLASS)
-class SignerKeyPairTest {
+class GSSignerKeyPairTest {
 	private Logger log = GSLoggerConfiguration.getGSlog();
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
