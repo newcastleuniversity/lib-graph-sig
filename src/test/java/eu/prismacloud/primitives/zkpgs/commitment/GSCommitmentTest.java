@@ -9,9 +9,7 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import org.junit.jupiter.api.*;
 
@@ -19,6 +17,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -183,5 +183,24 @@ class GSCommitmentTest {
 		BigInteger rand = commitment.getRandomness();
 		assertNotNull(rand);
 		assertEquals(BigInteger.TEN, rand);
+	}
+
+	@Test
+	void testInformationFlow() {
+		GSCommitment commitment = GSCommitment.createCommitment(baseCollection, randomness, epk);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment.getCommitmentValue()));
+		BaseIterator baseIterator = commitment.getBaseCollection().createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
+		}
+
+		GSCommitment publicCom = commitment.publicClone();
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(publicCom.getCommitmentValue()));
+		assertNull(publicCom.getRandomness());
+		BaseIterator publicBaseIterator = publicCom.getBaseCollection().createIterator(BASE.ALL);
+		for (BaseRepresentation base : publicBaseIterator) {
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
+			assertEquals(BigInteger.ONE, base.getExponent());
+		}
 	}
 }
