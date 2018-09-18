@@ -11,35 +11,28 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
 import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
-import eu.prismacloud.primitives.zkpgs.util.InfoFlowUtil;
+import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/* 
+/*
  * TODO This testcase is flawed.
  * It creates bases that are not QRElements (in that they are not quadratic residues under modulus N).
  * The testcase should be done from scratch with proper bases.
  */
 
-
-@Deprecated
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GSCommitmentTest {
 
-	private GSCommitment commitment;
 	private BaseCollection baseCollection;
+	private BigInteger modN;
 	private GroupElement R_0;
 	private GroupElement R_1;
 	private BigInteger m_0;
@@ -48,6 +41,7 @@ class GSCommitmentTest {
 	private BigInteger m_2;
 	private ExtendedPublicKey epk;
 	private BigInteger randomness;
+	private KeyGenParameters keyGenParameters;
 
 	@BeforeAll
 	void setupKey() throws IOException, ClassNotFoundException, EncodingException {
@@ -56,27 +50,26 @@ class GSCommitmentTest {
 		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
 		SignerKeyPair skp = baseTest.getSignerKeyPair();
 		GraphEncodingParameters graphEncodingParameters = baseTest.getGraphEncodingParameters();
-		KeyGenParameters keyGenParameters = baseTest.getKeyGenParameters();
+		keyGenParameters = baseTest.getKeyGenParameters();
 		ExtendedKeyPair extendedKeyPair = new ExtendedKeyPair(skp, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.generateBases();
 		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
 		epk = extendedKeyPair.getExtendedPublicKey();
+		baseCollection = epk.getBaseCollection();
 	}
 
 	@BeforeEach
 	void setUp() {
-		fail("The GSCommitmentTest does not setup the commitments properly. Not quadratic residue bases.");
 		randomness = BigInteger.TEN;
 
-		R_0 = new QRElementN(epk.getPublicKey().getGroup(), BigInteger.valueOf(58));
-		R_1 = new QRElementN(epk.getPublicKey().getGroup(), BigInteger.valueOf(29));
-		R_2 = new QRElementN(epk.getPublicKey().getGroup(), BigInteger.valueOf(79));
+		R_0 = baseCollection.get(0).getBase();
+		R_1 = baseCollection.get(1).getBase();
+		R_2 = baseCollection.get(2).getBase();
 
-
-		m_0 = BigInteger.valueOf(44);
-		m_1 = BigInteger.valueOf(89);
-		m_2 = BigInteger.valueOf(59);
+		m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		m_1 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		m_2 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 
 		BaseRepresentation base_0 = new BaseRepresentation(R_0, 0, BASE.ALL);
 		BaseRepresentation base_1 = new BaseRepresentation(R_1, 1, BASE.ALL);
@@ -90,14 +83,12 @@ class GSCommitmentTest {
 		baseCollection.add(base_0);
 		baseCollection.add(base_1);
 		baseCollection.add(base_2);
-
-		commitment = GSCommitment.createCommitment(baseCollection, randomness, epk);
 	}
 
 	@Test
 	@DisplayName("Test computing a commitment with multiple bases and exponents with extended public key")
 	void testcomputeCommitmentMultiBase() {
-
+		GSCommitment commitment = GSCommitment.createCommitment(baseCollection, randomness, epk);
 		assertNotNull(commitment);
 		GroupElement result = R_0.modPow(m_0).multiply(R_1.modPow(m_1)).multiply(R_2.modPow(m_2)).multiply(epk.getPublicKey().getBaseS().modPow(commitment.getRandomness()));
 
@@ -141,7 +132,8 @@ class GSCommitmentTest {
 	void testcomputeCommitmentWithEPK() {
 		GSCommitment commitment = GSCommitment.createCommitment(m_0, epk);
 		assertNotNull(commitment);
-		GroupElement result = R_0.modPow(m_0).multiply(epk.getPublicKey().getBaseS().modPow(commitment.getRandomness()));
+		GroupElement baseR = epk.getPublicKey().getBaseR();
+		GroupElement result = baseR.modPow(m_0).multiply(epk.getPublicKey().getBaseS().modPow(commitment.getRandomness()));
 
 		assertEquals(result, commitment.getCommitmentValue());
 	}
@@ -166,6 +158,7 @@ class GSCommitmentTest {
 	@Test
 	@DisplayName("Test returning commitment value")
 	void getCommitmentValue() {
+		GSCommitment commitment = GSCommitment.createCommitment(baseCollection, randomness, epk);
 		GroupElement commitmentValue = commitment.getCommitmentValue();
 		assertNotNull(commitmentValue);
 
@@ -174,11 +167,11 @@ class GSCommitmentTest {
 	@Test
 	@DisplayName("Test returning map of bases")
 	void getBaseCollection() {
+		GSCommitment commitment = GSCommitment.createCommitment(baseCollection, randomness, epk);
 		BaseCollection bases = commitment.getBaseCollection();
 		assertNotNull(bases);
 		assertTrue(bases.size() > 0);
 	}
-
 
 	@Test
 	@DisplayName("Test returning randomness")
@@ -190,23 +183,5 @@ class GSCommitmentTest {
 		BigInteger rand = commitment.getRandomness();
 		assertNotNull(rand);
 		assertEquals(BigInteger.TEN, rand);
-	}
-
-	@Test
-	void testInformationFlow() {
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment.getCommitmentValue()));
-		BaseIterator baseIterator = commitment.getBaseCollection().createIterator(BASE.ALL);
-		for (BaseRepresentation base : baseIterator) {
-			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
-		}
-		
-		GSCommitment publicCom = commitment.publicClone();
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(publicCom.getCommitmentValue()));
-		assertNull(publicCom.getRandomness());
-		BaseIterator publicBaseIterator = publicCom.getBaseCollection().createIterator(BASE.ALL);
-		for (BaseRepresentation base : publicBaseIterator) {
-			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
-			assertEquals(BigInteger.ONE, base.getExponent());
-		}
 	}
 }
