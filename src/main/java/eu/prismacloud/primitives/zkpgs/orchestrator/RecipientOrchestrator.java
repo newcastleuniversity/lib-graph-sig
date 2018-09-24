@@ -15,6 +15,7 @@ import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
 import eu.prismacloud.primitives.zkpgs.message.IMessagePartner;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -84,7 +85,8 @@ public class RecipientOrchestrator implements IMessagePartner {
 	private GraphRepresentation signedGraphRepresentation;
 
 	public RecipientOrchestrator(final String graphFilename,
-			final ExtendedPublicKey extendedPublicKey) {
+								 final ExtendedPublicKey extendedPublicKey,
+								 final IMessageGateway messageGateway) {
 		this.extendedPublicKey = extendedPublicKey;
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
 		this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
@@ -94,11 +96,11 @@ public class RecipientOrchestrator implements IMessagePartner {
 		this.baseZ = extendedPublicKey.getPublicKey().getBaseZ();
 		this.R = extendedPublicKey.getPublicKey().getBaseR();
 		this.R_0 = extendedPublicKey.getPublicKey().getBaseR_0();
-		this.recipient = new GSRecipient(extendedPublicKey);
+		this.recipient = new GSRecipient(extendedPublicKey, messageGateway);
 	}
 
-	public RecipientOrchestrator(final ExtendedPublicKey extendedPublicKey) {
-		this(DefaultValues.RECIPIENT_GRAPH_FILE, extendedPublicKey);
+	public RecipientOrchestrator(final ExtendedPublicKey extendedPublicKey, final IMessageGateway messageGateway) {
+		this(DefaultValues.RECIPIENT_GRAPH_FILE, extendedPublicKey, messageGateway);
 	}
 
 	@Override
