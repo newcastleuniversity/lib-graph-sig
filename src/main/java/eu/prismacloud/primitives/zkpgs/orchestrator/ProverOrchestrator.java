@@ -9,10 +9,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.graph.GSVertex;
 import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.message.GSMessage;
-import eu.prismacloud.primitives.zkpgs.message.MessageError;
-import eu.prismacloud.primitives.zkpgs.message.ProofRequest;
-import eu.prismacloud.primitives.zkpgs.message.ProofType;
+import eu.prismacloud.primitives.zkpgs.message.*;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.*;
@@ -40,7 +37,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	private GSSignature graphSignature;
 	private GSSignature blindedGraphSignature;
 	private GSProver prover;
-	private ExtendedPublicKey extendedPublicKey;
+	private final ExtendedPublicKey extendedPublicKey;
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
 	private GroupElement tildeZ;
@@ -59,13 +56,12 @@ public class ProverOrchestrator implements IProverOrchestrator {
 	private Vector<Integer> proofIndexes;
 
 
-	public ProverOrchestrator(final ExtendedPublicKey extendedPublicKey) {
+	public ProverOrchestrator(final ExtendedPublicKey extendedPublicKey, final IMessageGateway messageGateway) {
 		this.extendedPublicKey = extendedPublicKey;
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
 		this.graphEncodingParameters = extendedPublicKey.getGraphEncodingParameters();
 		this.proofStore = new ProofStore<Object>();
-		this.prover = new GSProver(extendedPublicKey, proofStore);
-
+		this.prover = new GSProver(extendedPublicKey, proofStore, messageGateway);
 	}
 
 	@Override
@@ -116,6 +112,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		GSMessage n_3Msg = prover.receiveMessage();
 		messageElements = n_3Msg.getMessageElements();
 		n_3 = (BigInteger) messageElements.get(URN.createZkpgsURN("verifier.n_3"));
+		Assert.notNull(n_3, "n_3 must not be null");
 
 		try {
 			prover.computeCommitments(baseCollection.createIterator(BASE.VERTEX));
@@ -124,7 +121,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 			throw new IOException("Initialization failed. Commitments could not be computed.");
 		}
 		commitments = prover.getCommitmentMap();
-		
+
 		try {
 			initPairWiseDifferenceProvers();
 		} catch (ProofStoreException e) {
@@ -176,7 +173,7 @@ public class ProverOrchestrator implements IProverOrchestrator {
 		for (PairWiseCommitments pwCommitments : pairWiseCommList) {
 			PairWiseDifferenceProver pairWiseDifferenceProver = new PairWiseDifferenceProver(pwCommitments.getC_i(), pwCommitments.getC_j(), pairWiseProverIndex, extendedPublicKey, proofStore);
 			pairWiseDifferenceProvers.add(pairWiseDifferenceProver);
-			
+
 			try {
 				pairWiseDifferenceProver.executePrecomputation();
 			} catch (IllegalArgumentException ie) {
