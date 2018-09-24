@@ -9,10 +9,7 @@ import eu.prismacloud.primitives.zkpgs.exception.ProofException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.exception.VerificationException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
-import eu.prismacloud.primitives.zkpgs.message.GSMessage;
-import eu.prismacloud.primitives.zkpgs.message.MessageError;
-import eu.prismacloud.primitives.zkpgs.message.ProofRequest;
-import eu.prismacloud.primitives.zkpgs.message.ProofType;
+import eu.prismacloud.primitives.zkpgs.message.*;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
@@ -36,6 +33,7 @@ import java.util.logging.Logger;
 /** */
 public class VerifierOrchestrator implements IVerifierOrchestrator {
 
+	private final IMessageGateway messageGateway;
 	private ProofSignature P_3;
 	private final GSVerifier verifier;
 	private final ExtendedPublicKey extendedPublicKey;
@@ -60,11 +58,12 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 	private int numberOfPairWisePairs;
 
 	public VerifierOrchestrator(
-			final ExtendedPublicKey extendedPublicKey) {
+			final ExtendedPublicKey extendedPublicKey, IMessageGateway messageGateway) {
 		this.extendedPublicKey = extendedPublicKey;
 		this.proofStore = new ProofStore<Object>();
 		this.keyGenParameters = extendedPublicKey.getKeyGenParameters();
-		this.verifier = new GSVerifier(extendedPublicKey);
+		this.messageGateway = messageGateway;
+		this.verifier = new GSVerifier(extendedPublicKey, messageGateway);
 	}
 
 	public void createQuery(Vector<Integer> vertexQueries) {
@@ -86,7 +85,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
 		/** receive OK or Error message from verifier */
 		GSMessage proofReplyMsg = verifier.receiveMessage();
-
+		Assert.notNull(proofReplyMsg, "proof reply must not be null");
 		MessageError error = (MessageError) proofReplyMsg.getMessageElements().get(URN.createUnsafeZkpgsURN("message.error"));
 		if (error != null) {
 			throw new ProofException(error.toString());
@@ -237,7 +236,7 @@ public class VerifierOrchestrator implements IVerifierOrchestrator {
 
 	private int getPairWisePairsNumber(Vector<Integer> vertexQueries) {
 		int pairWisePairsNo = 0;
-		Object[] proofIndArray = vertexQueries.toArray();
+	Object[] proofIndArray = vertexQueries.toArray();
 		for (int i = 0; i < proofIndArray.length; i++) {
 			for (int j = i + 1; j < proofIndArray.length; j++) {
 				pairWisePairsNo++;

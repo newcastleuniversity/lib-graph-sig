@@ -251,18 +251,18 @@ public class SignerOrchestrator implements IMessagePartner {
 	}
 
 	public SignerOrchestrator(String graphFilename,
-			ExtendedKeyPair extendedKeyPair) {
+			ExtendedKeyPair extendedKeyPair, IMessageGateway messageGateway) {
 		this.graphFilename = graphFilename;
 		this.extendedKeyPair = extendedKeyPair;
 		this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
 		this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
 		this.proofStore = new ProofStore<Object>();
-		this.signer = new GSSigner(extendedKeyPair);
+		this.signer = new GSSigner(extendedKeyPair, messageGateway);
 		this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
 	}
 
-	public SignerOrchestrator(ExtendedKeyPair extendedKeyPair) {
-		this(DefaultValues.SIGNER_GRAPH_FILE, extendedKeyPair);
+	public SignerOrchestrator(ExtendedKeyPair extendedKeyPair, IMessageGateway messageGateway) {
+		this(DefaultValues.SIGNER_GRAPH_FILE, extendedKeyPair, messageGateway);
 	}
 
 	@Override
@@ -471,8 +471,7 @@ public class SignerOrchestrator implements IMessagePartner {
 	 * The commitment U is to contain the Recipient's master secret key (msk/m_0)
 	 * encoded in base R_0. However, this msk is not privy to the signer.
 	 * 
-	 * @param U Recipient commitment U.
-	 * 
+	 *
 	 * @return Pre-signature GroupElement Q.
 	 */
 	GroupElement computeQ(SignatureData sigmaData) {
