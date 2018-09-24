@@ -1,6 +1,9 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
+import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Creates either a socket-based server or client, while implementing the message gateway interface.
@@ -9,6 +12,8 @@ import java.io.IOException;
 public class SocketMessageGatewayImpl implements IMessageGateway {
 
 	private String type;
+	private final String hostAddress;
+	private final Integer portNumber;
 	private static final String CLIENT = "client";
 	private static final String SERVER = "server";
 	private GSClient clientGateway;
@@ -17,13 +22,16 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
 	/**
 	 * Instantiates a new socket based message gateway for either a client or a server.
 	 *
-	 * @param type the type
+	 * @param type        the type of the socket message gateway
+	 * @param hostAddress the host address for the message gateway
+	 * @param portNumber  the port number for the message gateway
 	 */
-	public SocketMessageGatewayImpl(String type) {
+	public SocketMessageGatewayImpl(String type, String hostAddress, Integer portNumber) {
+
 		this.type = type;
+		this.hostAddress = hostAddress;
+		this.portNumber = portNumber;
 	}
-
-
 
 	/**
 	 * Delegates the creation of either a client or a server to the appropriate class.
@@ -33,14 +41,14 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
 	public void init() throws IOException {
 		/** TODO refactor to a factory */
 		if (CLIENT.equals(type)) {
-			clientGateway = new GSClient();
+			clientGateway = new GSClient(hostAddress, portNumber);
 			clientGateway.init();
 			if (clientGateway == null) {
 				throw new IOException("The client gateway could not be established.");
 			}
 
 		} else if (SERVER.equals(type)) {
-			serverGateway = new GSServer();
+			serverGateway = new GSServer(hostAddress, portNumber);
 			serverGateway.init();
 
 			if (serverGateway == null) {

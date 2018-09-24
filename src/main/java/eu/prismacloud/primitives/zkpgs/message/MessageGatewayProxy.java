@@ -4,18 +4,20 @@ import java.io.IOException;
 
 /** Creates a message gateway proxy for sending and receiving messages. */
 public class MessageGatewayProxy implements IMessageGateway {
-  private IMessageGateway messageGateway;
+  private final IMessageGateway messageGateway;
 
   /**
    * Instantiates a new message gateway proxy with a specific implementation. Currently, the socket
    * interface is supported for creating a blocking socket server and a socket client.
-   * 
+   *
    * <p>the MessageGatewayProxy must still be setup with an explict call to the setup() function.
    *
-   * @param type the type of the message gateway we create
+   * @param type        the type of the message gateway we create
+   * @param hostAddress the host address for the message gateway
+   * @param portNumber  the port number for the message gateway
    */
-  public MessageGatewayProxy(String type) {
-    messageGateway = new SocketMessageGatewayImpl(type);
+  public MessageGatewayProxy(String type, String hostAddress, Integer portNumber) {
+    messageGateway = new SocketMessageGatewayImpl(type, hostAddress, portNumber);
   }
   
   /**
