@@ -47,6 +47,12 @@ public class TopocertCmdLineParser extends CmdLineParser {
 	
 	public static final Option GSSIGNATURE = 
 			new CmdLineParser.Option.StringOption('G', "gs");
+
+	public static final Option HOST_ADDRESS =
+			new Option.StringOption('H', "host");
+
+	public static final Option PORT_NUMBER =
+			new Option.IntegerOption('T', "port");
 	
 	public static final Option VERBOSE = 
 			new CmdLineParser.Option.BooleanOption('V', "verbose");
@@ -81,6 +87,8 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		super.addOption(KEYGENPARAMS);
 		super.addOption(SIGNERKP);
 		super.addOption(EPK);
+		super.addOption(HOST_ADDRESS);
+		super.addOption(PORT_NUMBER);
 		super.addOption(VERBOSE);
 		super.addOption(HELP);
 
@@ -108,7 +116,11 @@ public class TopocertCmdLineParser extends CmdLineParser {
 		addHelp(SIGNERKP, "Specifies the filename of the Signer keypair (in Sign mode).");
 		
 		addHelp(EPK, "    Specifies the filename of the Signer's ExtendedPublicKey.");
-		
+
+		addHelp(HOST_ADDRESS,  "Specifies the host address ");
+
+		addHelp(PORT_NUMBER, "Specifies the port number");
+
 		addHelp(VERBOSE, "Switches to verbose outputs and error messages incl. stack traces.");
 		
 		addHelp(HELP, "   Outputs this usage help.");
@@ -120,7 +132,8 @@ public class TopocertCmdLineParser extends CmdLineParser {
 	public void printUsage() {
 		System.err.println("usage: topocert [mode: {{-s,--keygen} {-s,--sign} {-r,--receive} {-p,--prove} {-v,--verify}}]"
 				+"\n                [{-g,--graph} filename] [{-q,--query} vertex id] [{-G,--gs} filename]"
-				+"\n                [{-P,--params} filename] [{-S,--signkey} filename] [{-P,--epk} filename]"
+				+"\n                [{-P,--params} filename] [{-S,--signkey} filename] [{-E,--epk} filename]"
+				+"\n				[{-H,--host} address] [{-T,--port} number]"
 				+"\n                [{--verbose}"
 				+"\n                [{-h,--help}]");
 		System.err.println();
@@ -132,6 +145,6 @@ public class TopocertCmdLineParser extends CmdLineParser {
 
 	public Option[] getStdOptions() {
 		return new CmdLineParser.Option[] {KEYGEN, SIGN, RECEIVE, PROVE, VERIFY, GRAPHFILENAME, GEOSEPQUERY, GSSIGNATURE,
-				KEYGENPARAMS, SIGNERKP, EPK, VERBOSE, HELP};
+				KEYGENPARAMS, SIGNERKP, EPK, HOST_ADDRESS, PORT_NUMBER, VERBOSE, HELP};
 	}
 }

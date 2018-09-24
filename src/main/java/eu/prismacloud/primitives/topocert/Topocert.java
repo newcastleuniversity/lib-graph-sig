@@ -4,6 +4,8 @@ import eu.prismacloud.primitives.zkpgs.exception.*;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.orchestrator.ProverOrchestrator;
 import eu.prismacloud.primitives.zkpgs.orchestrator.RecipientOrchestrator;
 import eu.prismacloud.primitives.zkpgs.orchestrator.SignerOrchestrator;
@@ -71,11 +73,13 @@ public class Topocert {
 		String ekpFilename = TopocertDefaultOptionValues.DEF_EKP;
 		String epkFilename = (String) parser.getOptionValue(TopocertCmdLineParser.EPK, TopocertDefaultOptionValues.DEF_EPK);
 		String sigmaFilename = (String) parser.getOptionValue(TopocertCmdLineParser.GSSIGNATURE, TopocertDefaultOptionValues.DEF_GSSIGNATURE);
+		String hostAddress = (String) parser.getOptionValue(TopocertCmdLineParser.HOST_ADDRESS, TopocertDefaultOptionValues.DEF_HOST_ADDRESS);
+		
 
 		// Integer Options: Zero or Multiple Queries
 		@SuppressWarnings("unchecked")
 		Vector<Integer> queryValues = (Vector<Integer>) parser.getOptionValues(TopocertCmdLineParser.GEOSEPQUERY);
-
+		Integer portNumber = (Integer) parser.getOptionValue(TopocertCmdLineParser.PORT_NUMBER, TopocertDefaultOptionValues.DEF_PORT_NUMBER);
 		// User needing help?
 		if (offerHelp != null && offerHelp.booleanValue()) {
 			parser.printUsage();
@@ -146,7 +150,7 @@ public class Topocert {
 				}
 				System.out.println("   [done]\n");
 
-				topocert.sign(ekp, graphFilename);
+				topocert.sign(ekp, graphFilename, hostAddress, portNumber);
 
 				System.exit(0);
 			} else if (receiveMode != null && receiveMode.booleanValue()) {
@@ -156,7 +160,7 @@ public class Topocert {
 
 				topocert.readEPK(epkFilename);
 
-				topocert.receive(graphFilename, sigmaFilename);
+				topocert.receive(graphFilename, sigmaFilename, hostAddress, portNumber);
 
 				System.exit(0);
 			} else if (proveMode != null && proveMode.booleanValue()) {
@@ -166,7 +170,7 @@ public class Topocert {
 
 				topocert.readEPK(epkFilename);
 
-				topocert.prove(graphFilename, sigmaFilename);
+				topocert.prove(graphFilename, sigmaFilename, hostAddress, portNumber);
 
 				System.exit(0);
 			} else if (verifyMode != null && verifyMode.booleanValue()) {
@@ -188,7 +192,7 @@ public class Topocert {
 
 				topocert.readEPK(epkFilename);
 
-				topocert.verify(queryValues);
+				topocert.verify(queryValues, hostAddress, portNumber);
 
 				System.exit(0);
 			} else {
@@ -324,9 +328,10 @@ public class Topocert {
 	}
 
 
-	void sign(ExtendedKeyPair ekp, String graphFilename) {
+	void sign(ExtendedKeyPair ekp, String graphFilename, String hostAddress, int portNumber) {
 		System.out.println("  Sign: Acts as client for interactive signing of graph: " + graphFilename + ".");
-		SignerOrchestrator signer = new SignerOrchestrator(graphFilename, ekp);
+		IMessageGateway messageGateway = new MessageGatewayProxy("client", hostAddress, portNumber);
+		SignerOrchestrator signer = new SignerOrchestrator(graphFilename, ekp, messageGateway);
 
 		System.out.print("  Sign: Initializing the Signer role...");
 		try {
@@ -390,10 +395,10 @@ public class Topocert {
 		System.out.println("  Sign: Completed");
 	}
 
-	void receive(String graphFilename, String sigmaFilename) {
+	void receive(String graphFilename, String sigmaFilename, String hostAddress, int portNumber) {
 		System.out.println("  Receive: Acts as host to receive a new graph signature.");
-
-		RecipientOrchestrator recipient = new RecipientOrchestrator(graphFilename, epk);
+		IMessageGateway messageGateway = new MessageGatewayProxy("client", hostAddress, portNumber);
+		RecipientOrchestrator recipient = new RecipientOrchestrator(graphFilename, epk, messageGateway);
 
 		System.out.print("  Receive: Initializing the Recipient role...");
 		try {
@@ -471,10 +476,11 @@ public class Topocert {
 		System.out.println("  Receive: Completed");
 	}
 
-	void prove(String graphFilename, String sigmaFilename) {
+	void prove( String graphFilename, String sigmaFilename,String hostAddress, Integer portNumber) {
 		System.out.println("  Prove: Acts as host prover for certified graph " + graphFilename + ".");
 
-		ProverOrchestrator prover = new ProverOrchestrator(epk);
+		IMessageGateway messageGateway = new MessageGatewayProxy("server", hostAddress, portNumber);
+		ProverOrchestrator prover = new ProverOrchestrator(epk, messageGateway);
 
 		System.out.print("  Prove: Reading the graph signature from file: "
 				+ sigmaFilename + "...");
@@ -525,10 +531,10 @@ public class Topocert {
 		System.out.println("  Prove: Completed");
 	}
 
-	void verify(Vector<Integer> vertexQueries) {
+	void verify(Vector<Integer> vertexQueries,  String hostAddress, Integer portNumber) {
 		System.out.println("  Verify: Acts as client for geo-location verification.");
-
-		VerifierOrchestrator verifier = new VerifierOrchestrator(epk);
+		IMessageGateway messageGateway = new MessageGatewayProxy("client", hostAddress, portNumber);
+		VerifierOrchestrator verifier = new VerifierOrchestrator(epk, messageGateway);
 
 		System.out.print("  Verify: Creating geo-location query predicate...");
 		verifier.createQuery(vertexQueries);

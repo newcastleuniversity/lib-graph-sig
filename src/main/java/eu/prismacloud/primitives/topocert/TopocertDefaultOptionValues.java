@@ -13,4 +13,6 @@ public class TopocertDefaultOptionValues {
 	public static final String DEF_PK = "SignerPublicKey-2048.ser";
 	public static final String DEF_SKP = "SignerKeyPair-2048.ser";
 	public static final String DEF_EKP = "ExtendedKeyPair-2048.ser";
+	public static final String DEF_HOST_ADDRESS = "127.0.0.1";
+	public static final int DEF_PORT_NUMBER = 9999;
 }
