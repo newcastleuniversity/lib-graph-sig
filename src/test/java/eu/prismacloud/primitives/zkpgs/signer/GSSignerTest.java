@@ -63,7 +63,7 @@ public class GSSignerTest {
 		qrGroup = (QRGroupPQ) privateKey.getGroup();
 		extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.createExtendedKeyPair();
-		IMessageGateway messageGateway = new MessageGatewayProxy("client", HOST, PORT);
+		IMessageGateway messageGateway = new MessageGatewayProxy(DefaultValues.CLIENT, HOST, PORT);
 		signer = new GSSigner(extendedKeyPair, messageGateway);
 		signer.init();
 	}

@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.orchestrator;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -46,7 +47,6 @@ class SignerOrchestratorTest {
 	private SignerPrivateKey privateKey;
 	private static final String HOST = "127.0.0.1";
 	private static final int PORT = 9999;
-	private static final String CLIENT = "client";
 	private IMessageGateway messageGateway;
 
 	@BeforeAll
@@ -61,7 +61,7 @@ class SignerOrchestratorTest {
 		extendedKeyPair.generateBases();
 		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
-		messageGateway = new MockGatewayProxy(CLIENT, HOST, PORT);
+		messageGateway = new MockGatewayProxy(DefaultValues.CLIENT, HOST, PORT);
 	}
 
 	@Test

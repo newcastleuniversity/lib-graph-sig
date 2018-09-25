@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.topocert;
 
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.exception.*;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
@@ -22,6 +23,9 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Vector;
+
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.CLIENT;
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.SERVER;
 
 
 public class Topocert {
@@ -330,7 +334,7 @@ public class Topocert {
 
 	void sign(ExtendedKeyPair ekp, String graphFilename, String hostAddress, int portNumber) {
 		System.out.println("  Sign: Acts as client for interactive signing of graph: " + graphFilename + ".");
-		IMessageGateway messageGateway = new MessageGatewayProxy("client", hostAddress, portNumber);
+		IMessageGateway messageGateway = new MessageGatewayProxy(CLIENT, hostAddress, portNumber);
 		SignerOrchestrator signer = new SignerOrchestrator(graphFilename, ekp, messageGateway);
 
 		System.out.print("  Sign: Initializing the Signer role...");
@@ -397,7 +401,7 @@ public class Topocert {
 
 	void receive(String graphFilename, String sigmaFilename, String hostAddress, int portNumber) {
 		System.out.println("  Receive: Acts as host to receive a new graph signature.");
-		IMessageGateway messageGateway = new MessageGatewayProxy("client", hostAddress, portNumber);
+		IMessageGateway messageGateway = new MessageGatewayProxy(SERVER, hostAddress, portNumber);
 		RecipientOrchestrator recipient = new RecipientOrchestrator(graphFilename, epk, messageGateway);
 
 		System.out.print("  Receive: Initializing the Recipient role...");
@@ -479,7 +483,7 @@ public class Topocert {
 	void prove( String graphFilename, String sigmaFilename,String hostAddress, Integer portNumber) {
 		System.out.println("  Prove: Acts as host prover for certified graph " + graphFilename + ".");
 
-		IMessageGateway messageGateway = new MessageGatewayProxy("server", hostAddress, portNumber);
+		IMessageGateway messageGateway = new MessageGatewayProxy(SERVER, hostAddress, portNumber);
 		ProverOrchestrator prover = new ProverOrchestrator(epk, messageGateway);
 
 		System.out.print("  Prove: Reading the graph signature from file: "
@@ -533,7 +537,7 @@ public class Topocert {
 
 	void verify(Vector<Integer> vertexQueries,  String hostAddress, Integer portNumber) {
 		System.out.println("  Verify: Acts as client for geo-location verification.");
-		IMessageGateway messageGateway = new MessageGatewayProxy("client", hostAddress, portNumber);
+		IMessageGateway messageGateway = new MessageGatewayProxy(CLIENT, hostAddress, portNumber);
 		VerifierOrchestrator verifier = new VerifierOrchestrator(epk, messageGateway);
 
 		System.out.print("  Verify: Creating geo-location query predicate...");

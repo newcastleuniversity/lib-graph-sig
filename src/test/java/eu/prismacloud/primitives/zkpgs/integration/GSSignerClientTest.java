@@ -1,6 +1,7 @@
 package eu.prismacloud.primitives.zkpgs.integration;
 
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -55,7 +56,7 @@ public class GSSignerClientTest {
 		extendedKeyPair.generateBases();
 		extendedKeyPair.setupEncoding();
 		extendedKeyPair.createExtendedKeyPair();
-		messageGateway = new MessageGatewayProxy("client", HOST, PORT);
+		messageGateway = new MessageGatewayProxy(DefaultValues.CLIENT, HOST, PORT);
 	}
 
 	@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)

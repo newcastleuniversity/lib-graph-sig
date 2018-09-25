@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.recipient;
 
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.SERVER;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,7 +61,7 @@ public class GSRecipientTest {
 		qrGroup = (QRGroupPQ) privateKey.getGroup();
 		extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.createExtendedKeyPair();
-		IMessageGateway messageGateway = new MessageGatewayProxy("server", HOST, PORT);
+		IMessageGateway messageGateway = new MessageGatewayProxy(SERVER, HOST, PORT);
 		recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(), messageGateway);
 		recipient.init();
 	}

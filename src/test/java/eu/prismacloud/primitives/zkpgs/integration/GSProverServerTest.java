@@ -32,6 +32,7 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.SERVER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -64,7 +65,6 @@ public class GSProverServerTest {
 	private String gsSignatureFileName;
 	private static final String HOST = "127.0.0.1";
 	private static final int PORT = 9999;
-	private static final String SERVER = "server";
 
 	@BeforeAll
 	void setupKey()

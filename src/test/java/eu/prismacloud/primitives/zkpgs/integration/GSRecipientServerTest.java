@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.SERVER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -54,7 +55,7 @@ public class GSRecipientServerTest {
 		gslog.info("read ExtendedPublicKey...");
 		String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
 		extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
-		messageGateway = new MessageGatewayProxy("server", HOST, PORT);
+		messageGateway = new MessageGatewayProxy(SERVER, HOST, PORT);
 	}
 
 	@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)

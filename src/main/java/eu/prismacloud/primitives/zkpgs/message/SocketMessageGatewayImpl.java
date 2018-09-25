@@ -1,9 +1,11 @@
 package eu.prismacloud.primitives.zkpgs.message;
 
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.CLIENT;
+import static eu.prismacloud.primitives.zkpgs.DefaultValues.SERVER;
 
 /**
  * Creates either a socket-based server or client, while implementing the message gateway interface.
@@ -11,11 +13,9 @@ import java.util.logging.Logger;
  */
 public class SocketMessageGatewayImpl implements IMessageGateway {
 
-	private String type;
+	private final String type;
 	private final String hostAddress;
 	private final Integer portNumber;
-	private static final String CLIENT = "client";
-	private static final String SERVER = "server";
 	private GSClient clientGateway;
 	private GSServer serverGateway;
 
@@ -26,7 +26,7 @@ public class SocketMessageGatewayImpl implements IMessageGateway {
 	 * @param hostAddress the host address for the message gateway
 	 * @param portNumber  the port number for the message gateway
 	 */
-	public SocketMessageGatewayImpl(String type, String hostAddress, Integer portNumber) {
+	public SocketMessageGatewayImpl(final String type, final String hostAddress, final Integer portNumber) {
 
 		this.type = type;
 		this.hostAddress = hostAddress;
