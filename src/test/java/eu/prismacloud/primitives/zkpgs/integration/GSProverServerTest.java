@@ -10,6 +10,8 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.orchestrator.ProverOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -38,71 +40,74 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
 @TestInstance(Lifecycle.PER_CLASS)
 public class GSProverServerTest {
-    private Logger gslog = GSLoggerConfiguration.getGSlog();
-    private KeyGenParameters keyGenParameters;
-    private GraphEncodingParameters graphEncodingParameters;
-    private ProverOrchestrator proverOrchestrator;
-    private ExtendedPublicKey extendedPublicKey;
-    private FilePersistenceUtil persistenceUtil;
-    private GroupElement A;
-    private BigInteger e;
-    private BigInteger v;
-    private BaseCollection baseCollection;
-    private SignerPublicKey publicKey;
-    private SignerKeyPair signerKeyPair;
-    private SignerPrivateKey privateKey;
-    private GSSignature gsSignature;
-    private BigInteger m_0;
-    private GSCommitment commitment;
-    private Iterator<BaseRepresentation> vertexIterator;
-    private ProofStore<Object> proofStore;
-    private GSSigningOracle oracle;
-    private GSSignature sigmaM;
-    private GSSignature sig;
-    private String gsSignatureFileName;
+	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private KeyGenParameters keyGenParameters;
+	private GraphEncodingParameters graphEncodingParameters;
+	private ProverOrchestrator proverOrchestrator;
+	private ExtendedPublicKey extendedPublicKey;
+	private FilePersistenceUtil persistenceUtil;
+	private GroupElement A;
+	private BigInteger e;
+	private BigInteger v;
+	private BaseCollection baseCollection;
+	private SignerPublicKey publicKey;
+	private SignerKeyPair signerKeyPair;
+	private SignerPrivateKey privateKey;
+	private GSSignature gsSignature;
+	private BigInteger m_0;
+	private GSCommitment commitment;
+	private Iterator<BaseRepresentation> vertexIterator;
+	private ProofStore<Object> proofStore;
+	private GSSigningOracle oracle;
+	private GSSignature sigmaM;
+	private GSSignature sig;
+	private String gsSignatureFileName;
+	private static final String HOST = "127.0.0.1";
+	private static final int PORT = 9999;
+	private static final String SERVER = "server";
 
-    @BeforeAll
-    void setupKey()
-            throws IOException, ClassNotFoundException, InterruptedException, ProofStoreException {
-        BaseTest baseTest = new BaseTest();
-        baseTest.setup();
-        FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
-        graphEncodingParameters = baseTest.getGraphEncodingParameters();
-        keyGenParameters = baseTest.getKeyGenParameters();
+	@BeforeAll
+	void setupKey()
+			throws IOException, ClassNotFoundException, InterruptedException, ProofStoreException {
+		BaseTest baseTest = new BaseTest();
+		baseTest.setup();
+		FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
+		graphEncodingParameters = baseTest.getGraphEncodingParameters();
+		keyGenParameters = baseTest.getKeyGenParameters();
 
-        gslog.info("read ExtendedPublicKey...");
+		gslog.info("read ExtendedPublicKey...");
 
-        String signerKeyPairFileName = "SignerKeyPair-" + keyGenParameters.getL_n() + ".ser";
-        signerKeyPair = (SignerKeyPair) persistenceUtil.read(signerKeyPairFileName);
-        privateKey = signerKeyPair.getPrivateKey();
+		String signerKeyPairFileName = "SignerKeyPair-" + keyGenParameters.getL_n() + ".ser";
+		signerKeyPair = (SignerKeyPair) persistenceUtil.read(signerKeyPairFileName);
+		privateKey = signerKeyPair.getPrivateKey();
 
-        String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
-        extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
-        publicKey = extendedPublicKey.getPublicKey();
-        gslog.info("read persisted graph signature");
+		String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
+		extendedPublicKey = (ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyFileName);
+		publicKey = extendedPublicKey.getPublicKey();
+		gslog.info("read persisted graph signature");
 
-        gsSignatureFileName = "signer-infra.gs.ser";
-        sig = (GSSignature) persistenceUtil.read(gsSignatureFileName);
+		gsSignatureFileName = "signer-infra.gs.ser";
+		sig = (GSSignature) persistenceUtil.read(gsSignatureFileName);
 
-        gslog.info("read encoded base collection");
-        baseCollection = sig.getEncodedBases();
+		gslog.info("read encoded base collection");
+		baseCollection = sig.getEncodedBases();
 //        gslog.info("bases: " + baseCollection.getStringOverview());
 
-        proofStore = new ProofStore<>();
-    }
+		proofStore = new ProofStore<>();
+	}
 
-    @EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
-    @Test
-    void testProverSide() throws Exception {
-
-        proverOrchestrator = new ProverOrchestrator(extendedPublicKey);
-        proverOrchestrator.readSignature(gsSignatureFileName);
-        proverOrchestrator.init();
-        proverOrchestrator.executePreChallengePhase();
-        BigInteger cChallenge = proverOrchestrator.computeChallenge();
-        assertNotNull(cChallenge);
-        proverOrchestrator.executePostChallengePhase(cChallenge);
-        proverOrchestrator.close();
-    }
+	@EnabledOnSuite(name = GSSuite.PROVER_VERIFIER)
+	@Test
+	void testProverSide() throws Exception {
+		IMessageGateway msg = new MessageGatewayProxy(SERVER, HOST, PORT);
+		proverOrchestrator = new ProverOrchestrator(extendedPublicKey, msg);
+		proverOrchestrator.readSignature(gsSignatureFileName);
+		proverOrchestrator.init();
+		proverOrchestrator.executePreChallengePhase();
+		BigInteger cChallenge = proverOrchestrator.computeChallenge();
+		assertNotNull(cChallenge);
+		proverOrchestrator.executePostChallengePhase(cChallenge);
+		proverOrchestrator.close();
+	}
 
 }

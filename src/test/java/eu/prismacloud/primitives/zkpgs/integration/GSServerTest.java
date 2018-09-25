@@ -30,7 +30,7 @@ class GSServerTest {
   @BeforeAll
   void setUp() throws IOException {
     log.info("setup server in port " + PORT);
-    server = new GSServer(PORT);
+    server = new GSServer("127.0.0.1", PORT);
     server.init();
   }
   

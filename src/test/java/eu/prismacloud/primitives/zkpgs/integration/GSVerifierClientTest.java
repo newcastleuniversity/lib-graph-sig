@@ -5,6 +5,8 @@ import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.EnabledOnSuite;
 import eu.prismacloud.primitives.zkpgs.GSSuite;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedPublicKey;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.orchestrator.VerifierOrchestrator;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
@@ -65,12 +67,12 @@ public class GSVerifierClientTest {
 	@Test
 	void testVerifierSide() throws Exception {
 //        Thread.sleep(15000); // wait for server socket
-
-		verifierOrchestrator = new VerifierOrchestrator(extendedPublicKey);
+		IMessageGateway messageGateway = new MessageGatewayProxy("client", "127.0.0.1", 9999);
+		verifierOrchestrator = new VerifierOrchestrator(extendedPublicKey, messageGateway);
 		Vector<Integer> vertexIndexes = new Vector<>();
 
 		vertexIndexes.add(1);  //GB
-		vertexIndexes.add(16); //IT
+		vertexIndexes.add(11); //IT
 //		vertexIndexes.add(2);  //GB
 //		vertexIndexes.add(17); //IT
 //		vertexIndexes.add(23);

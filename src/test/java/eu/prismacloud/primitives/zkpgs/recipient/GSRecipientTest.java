@@ -11,6 +11,8 @@ import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
 import eu.prismacloud.primitives.zkpgs.message.GSMessage;
+import eu.prismacloud.primitives.zkpgs.message.IMessageGateway;
+import eu.prismacloud.primitives.zkpgs.message.MessageGatewayProxy;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.recipient.GSRecipient;
@@ -43,6 +45,8 @@ public class GSRecipientTest {
 	private GSSigner signer;
 	private GSRecipient recipient;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
+	private static final String HOST = "127.0.0.1";
+	private static final int PORT = 8888;
 
 	@BeforeAll
 	void setupKey() throws IOException, ClassNotFoundException, InterruptedException {
@@ -56,8 +60,8 @@ public class GSRecipientTest {
 		qrGroup = (QRGroupPQ) privateKey.getGroup();
 		extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
 		extendedKeyPair.createExtendedKeyPair();
-
-		recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey());
+		IMessageGateway messageGateway = new MessageGatewayProxy("server", HOST, PORT);
+		recipient = new GSRecipient(extendedKeyPair.getExtendedPublicKey(), messageGateway);
 		recipient.init();
 	}
 
