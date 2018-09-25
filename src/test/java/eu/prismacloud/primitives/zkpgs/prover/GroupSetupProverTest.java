@@ -1,10 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.prover;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -14,28 +10,23 @@ import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.store.URNType;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 class GroupSetupProverTest {
-
-
-
 	private KeyGenParameters keyGenParameters;
 	private GraphEncodingParameters graphEncodingParameters;
 	private Logger log = GSLoggerConfiguration.getGSlog();
@@ -72,10 +63,34 @@ class GroupSetupProverTest {
 	}
 
 	@Test
-	void testInformationFlow() {
-		// TODO Check for information flow!
-		fail("Test for information flow not implemented yet.");
+	void testInformationFlow() throws ProofStoreException {
+		groupSetupProver.executeCompoundPreChallengePhase();
+
+		tildeZ = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeZ");
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ));
+
+		GroupElement tildeR = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeR");
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeR));
+
+		GroupElement tildeR0 = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeR_0");
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeR0));
+
+
+		BaseCollection baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
+
+		BaseIterator vertexIterator = baseCollection.createIterator(BaseRepresentation.BASE.VERTEX);
+		for (BaseRepresentation baseRepresentation : vertexIterator) {
+			GroupElement witness = (GroupElement) proofStore.retrieve(groupSetupProver.getProverURN(URNType.TILDEBASERI, baseRepresentation.getBaseIndex()));
+			assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(witness));
+		}
+
+		BaseIterator edgeIterator = baseCollection.createIterator(BaseRepresentation.BASE.EDGE);
+		for (BaseRepresentation baseRepresentation : edgeIterator) {
+			GroupElement witness = (GroupElement) proofStore.retrieve(groupSetupProver.getProverURN(URNType.TILDEBASERIJ, baseRepresentation.getBaseIndex()));
+			assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(witness));
+		}
 	}
+
 	@Test
 	void preChallengePhase() throws Exception {
 
@@ -153,12 +168,18 @@ class GroupSetupProverTest {
 		groupSetupProver.executeCompoundPreChallengePhase();
 		tildeZ = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeZ");
 		assertNotNull(tildeZ);
+
+		GroupElement tildeR = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeR");
+		assertNotNull(tildeR);
+
+		GroupElement tildeR0 = (GroupElement) proofStore.retrieve("groupsetupprover.witnesses.tildeR_0");
+		assertNotNull(tildeR0);
 		/** TODO test that it is congruent */
 	}
 
 	@Test
 	@DisplayName("Test post challenge phase")
-	//  @RepeatedTest(15)
+		//  @RepeatedTest(15)
 	void postChallengePhase() throws ProofStoreException, NoSuchAlgorithmException {
 		int bitLength = keyGenParameters.getL_n() + keyGenParameters.getProofOffset();
 		BigInteger max = NumberConstants.TWO.getValue().pow(bitLength);
@@ -266,10 +287,10 @@ class GroupSetupProverTest {
 
 		@SuppressWarnings("unchecked")
 		Map<URN, BigInteger> vertexResponses =
-		((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_iMap"));
+				((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_iMap"));
 		@SuppressWarnings("unchecked")
 		Map<URN, BigInteger> edgeResponses =
-		((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_i_jMap"));
+				((Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_i_jMap"));
 
 		for (BigInteger vertexResponse : vertexResponses.values()) {
 			assertTrue(inRange(vertexResponse, min, max));
