@@ -1,10 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
@@ -12,28 +7,23 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
-import eu.prismacloud.primitives.zkpgs.parameters.JSONParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
-import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
@@ -123,7 +113,7 @@ class GSSignatureTest {
 
 		assertTrue(
 				(vPrimePrime.compareTo(this.keyGenParameters.getLowerBoundV()) > 0)
-				&& (vPrimePrime.compareTo(this.keyGenParameters.getUpperBoundV()) < 0));
+						&& (vPrimePrime.compareTo(this.keyGenParameters.getUpperBoundV()) < 0));
 
 		Sv = baseS.modPow(vPrimePrime);
 		GroupElement Sv1 = (Sv.multiply(commitment));
@@ -216,11 +206,56 @@ class GSSignatureTest {
 	void blind() {
 		fail("Blinding test not implemented.");
 	}
-	
+
 	@Test
 	void testInformationFlow() {
-		fail("Information flow test not implemented.");
 		// A must not reveal information. Bases neither.
+
+		modN = publicKey.getModN();
+		m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		baseS = publicKey.getBaseS();
+		baseZ = publicKey.getBaseZ();
+		R_0 = publicKey.getBaseR_0();
+
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS);
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ);
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0);
+		QRGroupPQ group = (QRGroupPQ) privateKey.getGroup();
+
+
+		vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
+		R_0com = R_0.modPow(m_0);
+		baseScom = baseS.modPow(vbar);
+		commitment = R_0com.multiply(baseScom);
+
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0com);
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseScom);
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment);
+
+		e = CryptoUtilsFacade.computePrimeInRange(
+				keyGenParameters.getLowerBoundE(),
+				keyGenParameters.getUpperBoundE());
+
+		vPrimePrime = CryptoUtilsFacade.computePrimeInRange(
+				keyGenParameters.getLowerBoundV(),
+				keyGenParameters.getUpperBoundV());
+
+		Sv = baseS.modPow(vPrimePrime);
+		GroupElement Sv1 = Sv.multiply(commitment);
+		Q = (baseZ.multiply(Sv1.modInverse()));
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(Q);
+
+		BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
+		BigInteger d = e.modInverse(order);
+		A = Q.modPow(d);
+		GroupElement sigma = A.modPow(e);
+		assertEquals(sigma, Q, "Signature A not reverting to Q.");
+		
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(A);
+
+		gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
+		assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));
+
 	}
-	
+
 }

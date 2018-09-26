@@ -1,10 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
@@ -20,19 +15,19 @@ import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
@@ -82,7 +77,7 @@ class SingletonPossessionVerifierTest {
 		proverProofStore = new ProofStore<Object>();
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 		assertNotNull(testM, "Test message, a random number, could not be generated.");
-		
+
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
 		sigmaM = oracle.sign(testM).blind();
 		storeBlindedGS(sigmaM);
@@ -90,23 +85,25 @@ class SingletonPossessionVerifierTest {
 		BaseRepresentation baseR0 =
 				new BaseRepresentation(epk.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
 		baseR0.setExponent(testM);
-		
+
 		proverProofStore.store("bases.exponent.m_0", testM);
 
 		baseCollection = new BaseCollectionImpl();
 		baseCollection.add(baseR0);
-		
+
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proverProofStore);
 		tildeZ = prover.executePreChallengePhase();
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ);
 
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
 
-		
+
 		verifierProofStore = new ProofStore<Object>();
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaM.getA());
 		storeVerifierView(sigmaM.getA());
-		
+
 		// Setting up a separate base collection for the verifier side, exponents purged.
 		BaseCollection verifierBaseCollection = baseCollection.clone();
 		verifierBaseCollection.removeExponents();
@@ -114,23 +111,29 @@ class SingletonPossessionVerifierTest {
 		verifier = new PossessionVerifier(verifierBaseCollection, epk, verifierProofStore);
 	}
 
-  /** The test checks whether the PossessionVerifier computes hatZ correctly. */
+	/**
+	 * The test checks whether the PossessionVerifier computes hatZ correctly.
+	 */
 	@Test
 	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
-    GroupElement hatZ = verifier.executeVerification(cChallenge);
-    assertEquals(
-        tildeZ,
-        hatZ,
-        "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
+		GroupElement hatZ = verifier.executeVerification(cChallenge);
+
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ);
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ);
+
+		assertEquals(
+				tildeZ,
+				hatZ,
+				"The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
 	}
 
 	/**
-   * The test checks whether the PossessionVerifier correctly aborts when inputs (hat-values) with
-   * wrong lengths are used. The critical case is that the lengths may be longer than asked for.
+	 * The test checks whether the PossessionVerifier correctly aborts when inputs (hat-values) with
+	 * wrong lengths are used. The critical case is that the lengths may be longer than asked for.
 	 */
 	@Test
-  void testIllegalLengths() throws Exception {
+	void testIllegalLengths() throws Exception {
 		// Compute hat-values that are too long and store them in the ProofStore.
 		log.info("Replacing correct hat-values with oversized ones.");
 		hate = hate.multiply(BigInteger.TEN);
@@ -145,12 +148,13 @@ class SingletonPossessionVerifierTest {
 		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-    GroupElement hatZ = verifier.executeVerification(cChallenge);
+		GroupElement hatZ = verifier.executeVerification(cChallenge);
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ);
 
-    assertNull(
-        hatZ,
-        "The PossionVerifier should have aborted outputting null "
-				+ "upon receiving ill-sized inputs, but produced a non-null output.");
+		assertNull(
+				hatZ,
+				"The PossionVerifier should have aborted outputting null "
+						+ "upon receiving ill-sized inputs, but produced a non-null output.");
 	}
 
 	private void storeBlindedGS(GSSignature sigma) throws Exception {
@@ -172,16 +176,21 @@ class SingletonPossessionVerifierTest {
 		hate = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATE));
 		hatvPrime = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATVPRIME));
 		hatm_0 = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATM0));
-		
+
 		verifierProofStore.store("verifier.responses.hate", hate);
 		verifierProofStore.store("verifier.responses.hatvPrime", hatvPrime);
 		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
 		verifierProofStore.store("verifier.c", cChallenge);
 		verifierProofStore.store("verifier.APrime", aPrime);
 	}
-	
+
 	@Test
 	void testInformationFlow() {
-		fail("Information flow test not implemented yet.");
+		BaseIterator bases = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : bases) {
+			InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base);
+		}
+
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaM.getA());
 	}
 }

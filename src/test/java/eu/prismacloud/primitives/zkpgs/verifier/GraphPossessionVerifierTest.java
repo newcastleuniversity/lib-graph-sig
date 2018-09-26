@@ -23,12 +23,7 @@ import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollection;
-import eu.prismacloud.primitives.zkpgs.util.BaseIterator;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.GraphUtils;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -47,7 +42,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 class GraphPossessionVerifierTest {
 	
 	private Logger log = GSLoggerConfiguration.getGSlog();
-
 	private SignerKeyPair signerKeyPair;
 	private GraphEncodingParameters graphEncodingParameters;
 	private KeyGenParameters keyGenParameters;
@@ -62,7 +56,6 @@ class GraphPossessionVerifierTest {
 	private GSSignature sigmaG;
 	private BaseCollection baseCollection;
 	private BigInteger cChallenge;
-
 	private BigInteger hate;
 	private BigInteger hatvPrime;
 	private BigInteger hatm_0;
@@ -95,10 +88,8 @@ class GraphPossessionVerifierTest {
 		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
 		baseCollection = gr.getEncodedBaseCollection();
 		
-
 		proverProofStore.store("bases.exponent.m_0", testM);
-		
-		
+
 		assertNotNull(baseCollection);
 		assertTrue(baseCollection.size() > 0);
 		log.info("Size of the base collection: " + baseCollection.size());
@@ -183,6 +174,10 @@ class GraphPossessionVerifierTest {
 	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
     GroupElement hatZ = verifier.executeVerification(cChallenge);
+
+    InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ);
+    InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ);
+
     assertEquals(
         tildeZ,
         hatZ,
@@ -265,6 +260,11 @@ class GraphPossessionVerifierTest {
 	
 	@Test
 	void testInformationFlow() {
-		fail("Information flow test not implemented yet.");
+		BaseIterator bases = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation base : bases) {
+			InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base);
+		}
+
+		InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaG.getA());
 	}
 }
