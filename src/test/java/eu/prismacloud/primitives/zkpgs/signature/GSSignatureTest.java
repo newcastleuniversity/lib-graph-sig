@@ -1,7 +1,17 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
+
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
+import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
@@ -9,6 +19,7 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
+
 import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
@@ -20,6 +31,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.fail;
@@ -62,6 +74,7 @@ class GSSignatureTest {
 
 	@BeforeAll
 	void setupKey() throws IOException, ClassNotFoundException {
+
 		baseTest = new BaseTest();
 		baseTest.setup();
 		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
@@ -208,54 +221,80 @@ class GSSignatureTest {
 	}
 
 	@Test
-	void testInformationFlow() {
-		// A must not reveal information. Bases neither.
+//<<<<<<< Updated upstream
+//	void testInformationFlow() {
+//		// A must not reveal information. Bases neither.
+//
+//		modN = publicKey.getModN();
+//		m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+//		baseS = publicKey.getBaseS();
+//		baseZ = publicKey.getBaseZ();
+//		R_0 = publicKey.getBaseR_0();
+//
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS));
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ));
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0));
+//		QRGroupPQ group = (QRGroupPQ) privateKey.getGroup();
+//
+//
+//		vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
+//		R_0com = R_0.modPow(m_0);
+//		baseScom = baseS.modPow(vbar);
+//		commitment = R_0com.multiply(baseScom);
+//
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0com));
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseScom));
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment));
+//
+//		e = CryptoUtilsFacade.computePrimeInRange(
+//				keyGenParameters.getLowerBoundE(),
+//				keyGenParameters.getUpperBoundE());
+//
+//		vPrimePrime = CryptoUtilsFacade.computePrimeInRange(
+//				keyGenParameters.getLowerBoundV(),
+//				keyGenParameters.getUpperBoundV());
+//
+//		Sv = baseS.modPow(vPrimePrime);
+//		GroupElement Sv1 = Sv.multiply(commitment);
+//		Q = (baseZ.multiply(Sv1.modInverse()));
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(Q));
+//
+//		BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
+//		BigInteger d = e.modInverse(order);
+//		A = Q.modPow(d);
+//		GroupElement sigma = A.modPow(e);
+//		assertEquals(sigma, Q, "Signature A not reverting to Q.");
+//		
+//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(A));
+//
+//		gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
+//		assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));
+//
+//=======
+	void testInformationFlow() throws ClassNotFoundException, IOException {
+		testSignatureRandom();
 
-		modN = publicKey.getModN();
-		m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-		baseS = publicKey.getBaseS();
-		baseZ = publicKey.getBaseZ();
-		R_0 = publicKey.getBaseR_0();
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(gsSignature.getA()));
 
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS));
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ));
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0));
-		QRGroupPQ group = (QRGroupPQ) privateKey.getGroup();
+		BaseIterator baseIterator = gsSignature.getEncodedBases().createIterator(BASE.ALL);
+		for (BaseRepresentation base : baseIterator) {
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
+		}
 
 
-		vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-		R_0com = R_0.modPow(m_0);
-		baseScom = baseS.modPow(vbar);
-		commitment = R_0com.multiply(baseScom);
+		if (gsSignature.getGraphRepresentation() != null) {
+			BaseIterator grBaseIterator = gsSignature.getGraphRepresentation().getEncodedBaseCollection().createIterator(BASE.ALL);
+			for (BaseRepresentation base : grBaseIterator) {
+				assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
+			}
 
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0com));
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseScom));
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment));
-
-		e = CryptoUtilsFacade.computePrimeInRange(
-				keyGenParameters.getLowerBoundE(),
-				keyGenParameters.getUpperBoundE());
-
-		vPrimePrime = CryptoUtilsFacade.computePrimeInRange(
-				keyGenParameters.getLowerBoundV(),
-				keyGenParameters.getUpperBoundV());
-
-		Sv = baseS.modPow(vPrimePrime);
-		GroupElement Sv1 = Sv.multiply(commitment);
-		Q = (baseZ.multiply(Sv1.modInverse()));
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(Q));
-
-		BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
-		BigInteger d = e.modInverse(order);
-		A = Q.modPow(d);
-		GroupElement sigma = A.modPow(e);
-		assertEquals(sigma, Q, "Signature A not reverting to Q.");
-		
-		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(A));
-
-		gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
-		assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));
-
+			Iterator<BaseRepresentation> bases = 
+					gsSignature.getGraphRepresentation().getEncodedBases().values().iterator();
+			while (bases.hasNext()) {
+				BaseRepresentation base = (BaseRepresentation) bases.next();
+				assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
+			}
+		}
 	}
 
 }
