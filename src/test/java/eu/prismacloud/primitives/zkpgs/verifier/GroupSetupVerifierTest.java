@@ -1,5 +1,6 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
+import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -13,10 +14,7 @@ import eu.prismacloud.primitives.zkpgs.prover.ProofSignature;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.InfoFlowUtil;
-import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -177,9 +175,7 @@ class GroupSetupVerifierTest {
 								.get(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"));
 		hatr_0 = hatr_0.multiply(BigInteger.TEN);
 
-		proofSignature
-				.getProofSignatureElements()
-				.replace(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"), hatr_0);
+		proofSignature.getProofSignatureElements().replace(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"), hatr_0);
 
 		GroupSetupVerifier groupSetupVerifier =
 				new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
@@ -250,6 +246,28 @@ class GroupSetupVerifierTest {
 
 	@Test
 	void testInformationFlow() {
-		fail("Information flow test not implemented yet.");
+		GroupElement baseZ = signerPubliKey.getBaseZ();
+		assertNotNull(baseZ);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ));
+		
+		GroupElement baseS = signerPubliKey.getBaseS();
+		assertNotNull(baseS);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS));
+
+		GroupElement baseR = signerPubliKey.getBaseR();
+		assertNotNull(baseR);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseR));
+
+		GroupElement baseR_0 = signerPubliKey.getBaseR_0();
+		assertNotNull(baseR_0);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseR_0));
+
+		BaseCollection baseCollection = extendedKeyPair.getExtendedPublicKey().getBaseCollection();
+
+		BaseIterator baseIterator = baseCollection.createIterator(BaseRepresentation.BASE.ALL);
+
+		for (BaseRepresentation baseRepresentation : baseIterator) {
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(baseRepresentation));
+		}
 	}
 }

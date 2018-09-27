@@ -221,56 +221,6 @@ class GSSignatureTest {
 	}
 
 	@Test
-//<<<<<<< Updated upstream
-//	void testInformationFlow() {
-//		// A must not reveal information. Bases neither.
-//
-//		modN = publicKey.getModN();
-//		m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-//		baseS = publicKey.getBaseS();
-//		baseZ = publicKey.getBaseZ();
-//		R_0 = publicKey.getBaseR_0();
-//
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS));
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ));
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0));
-//		QRGroupPQ group = (QRGroupPQ) privateKey.getGroup();
-//
-//
-//		vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-//		R_0com = R_0.modPow(m_0);
-//		baseScom = baseS.modPow(vbar);
-//		commitment = R_0com.multiply(baseScom);
-//
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0com));
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseScom));
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment));
-//
-//		e = CryptoUtilsFacade.computePrimeInRange(
-//				keyGenParameters.getLowerBoundE(),
-//				keyGenParameters.getUpperBoundE());
-//
-//		vPrimePrime = CryptoUtilsFacade.computePrimeInRange(
-//				keyGenParameters.getLowerBoundV(),
-//				keyGenParameters.getUpperBoundV());
-//
-//		Sv = baseS.modPow(vPrimePrime);
-//		GroupElement Sv1 = Sv.multiply(commitment);
-//		Q = (baseZ.multiply(Sv1.modInverse()));
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(Q));
-//
-//		BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
-//		BigInteger d = e.modInverse(order);
-//		A = Q.modPow(d);
-//		GroupElement sigma = A.modPow(e);
-//		assertEquals(sigma, Q, "Signature A not reverting to Q.");
-//		
-//		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(A));
-//
-//		gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
-//		assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));
-//
-//=======
 	void testInformationFlow() throws ClassNotFoundException, IOException {
 		testSignatureRandom();
 
