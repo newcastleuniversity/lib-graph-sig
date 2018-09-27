@@ -1,10 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
@@ -20,22 +15,25 @@ import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.InfoFlowUtil;
 import eu.prismacloud.primitives.zkpgs.util.NumberConstants;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-/** Test group setup verifier */
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test group setup verifier
+ */
 @TestInstance(Lifecycle.PER_CLASS)
 class GroupSetupVerifierTest {
 
@@ -81,7 +79,6 @@ class GroupSetupVerifierTest {
 
 		proofStore = new ProofStore<Object>();
 		groupSetupProver = new GroupSetupProver(extendedKeyPair, proofStore);
-
 		groupSetupProver.executeCompoundPreChallengePhase();
 		tilder = (BigInteger) proofStore.retrieve("groupsetupprover.witnesses.randomness.tilder");
 
@@ -134,11 +131,11 @@ class GroupSetupVerifierTest {
 
 		@SuppressWarnings("unchecked")
 		Map<URN, BigInteger> vertexResponses =
-		(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_iMap");
+				(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_iMap");
 
 		@SuppressWarnings("unchecked")
 		Map<URN, BigInteger> edgeResponses =
-		(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_i_jMap");
+				(Map<URN, BigInteger>) proofSignature.get("proofsignature.P.responses.hatr_i_jMap");
 
 		for (BigInteger vertexResponse : vertexResponses.values()) {
 			assertTrue(inRange(vertexResponse, min, max));
@@ -150,8 +147,7 @@ class GroupSetupVerifierTest {
 			//      assertEquals(bitLength, edgeResponse.bitLength() + 1);
 		}
 
-		groupSetupVerifier =
-				new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
+		groupSetupVerifier = new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
 	}
 
 	boolean inRange(BigInteger number, BigInteger min, BigInteger max) {
@@ -176,14 +172,14 @@ class GroupSetupVerifierTest {
 		gslog.info("compute bit length: " + length);
 		BigInteger hatr_0 =
 				(BigInteger)
-				proofSignature
-				.getProofSignatureElements()
-				.get(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"));
+						proofSignature
+								.getProofSignatureElements()
+								.get(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"));
 		hatr_0 = hatr_0.multiply(BigInteger.TEN);
 
 		proofSignature
-		.getProofSignatureElements()
-		.replace(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"), hatr_0);
+				.getProofSignatureElements()
+				.replace(URN.createZkpgsURN("proofsignature.P.responses.hatr_0"), hatr_0);
 
 		GroupSetupVerifier groupSetupVerifier =
 				new GroupSetupVerifier(proofSignature, extendedKeyPair.getExtendedPublicKey(), proofStore);
@@ -202,27 +198,39 @@ class GroupSetupVerifierTest {
 		GroupElement baseS = signerPubliKey.getBaseS();
 		GroupElement baseZ = signerPubliKey.getBaseZ();
 
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ));
+
 		Map<URN, GroupElement> responses = groupSetupVerifier.computeHatValues();
+
 		assertNotNull(responses);
 		assertTrue(responses.size() > 0);
+
+		for (GroupElement element : responses.values()) {
+			assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(element));
+		}
 
 		GroupElement hatZ =
 				responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATZ)));
 		GroupElement testHatZ = baseZ.modPow(negChallenge).multiply(baseS.modPow(hatr_Z));
 		assertEquals(testHatZ, hatZ);
 
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(testHatZ));
+
 		GroupElement tildeZ = baseS.modPow(tilder_Z);
 		assertEquals(tildeZ, hatZ);
 
-		GroupElement hatR =
-				responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATBASER)));
+		GroupElement hatR = responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATBASER)));
 		GroupElement tildeR = baseS.modPow(tilder);
 		assertEquals(tildeR, hatR);
 
-		GroupElement hatR0 =
-				responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATBASER0)));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeR));
+
+		GroupElement hatR0 = responses.get(URN.createZkpgsURN(groupSetupVerifier.getVerifierURN(URNType.HATBASER0)));
 		GroupElement tildeR0 = baseS.modPow(tilder_0);
 		assertEquals(tildeR0, hatR0);
+
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeR0));
 	}
 
 	@Test
@@ -233,10 +241,13 @@ class GroupSetupVerifierTest {
 		Map<URN, GroupElement> hatValues = groupSetupVerifier.executeCompoundVerification(cChallenge);
 
 		assertNotNull(hatValues);
-
 		assertTrue(hatValues.size() > 0);
+
+		for (GroupElement element : hatValues.values()) {
+			assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(element));
+		}
 	}
-	
+
 	@Test
 	void testInformationFlow() {
 		fail("Information flow test not implemented yet.");

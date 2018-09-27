@@ -1,10 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
@@ -22,29 +17,26 @@ import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
-import eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 public class CommitmentVerifierTest {
-
-	public static final int PROVER_INDEX = 1;
-
+	private static final int PROVER_INDEX = 1;
 	private SignerKeyPair skp;
 	private GraphEncodingParameters graphEncodingParameters;
 	private KeyGenParameters keyGenParameters;
@@ -62,7 +54,6 @@ public class CommitmentVerifierTest {
 	private BigInteger hatr_i;
 	private BigInteger hatm_i;
 	private GroupElement tildeC_i;
-
 	private BigInteger cChallenge;
 
 	@BeforeAll
@@ -85,8 +76,8 @@ public class CommitmentVerifierTest {
 	void setUp() throws Exception {
 		proverProofStore = new ProofStore<Object>();
 		verifierProofStore = new ProofStore<Object>();
-		
-		
+
+
 		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 
 		// Establishing the commitment
@@ -98,8 +89,6 @@ public class CommitmentVerifierTest {
 
 		BigInteger r_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_n());
 		GSCommitment C_i = GSCommitment.createCommitment(baseCollection, r_i, epk);
-		
-		
 		// New prover on commitment
 		cprover = new CommitmentProver(C_i, PROVER_INDEX, extendedKeyPair.getPublicKey(), proverProofStore);
 
@@ -107,40 +96,35 @@ public class CommitmentVerifierTest {
 		BigInteger tildem_i = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
 		proverProofStore.save(URNType.buildURN(URNType.TILDEMI, PossessionProver.class, PROVER_INDEX), tildem_i);
 
-
-
 		// Running the commitment prover
 		tildeC_i = cprover.executePreChallengePhase();
 		assertNotNull(tildeC_i);
-		
-		
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeC_i));
+
 		String tilder_iURN = URNType.buildURNComponent(URNType.TILDERI, CommitmentProver.class, PROVER_INDEX);
 		gslog.info("tilder_iUrn: " + tilder_iURN);
 		tilder_i = (BigInteger) proverProofStore.retrieve(tilder_iURN);
 
-		
-		
 		cChallenge = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_H());
 		assertNotNull(cChallenge);
-		
+
 		String hatm_iURN = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, PROVER_INDEX);
 		hatm_i = tildem_i.add(cChallenge.multiply(testM));
 		proverProofStore.store(hatm_iURN, hatm_i);
-		
-		
+
 		Map<URN, BigInteger> responses = cprover.executePostChallengePhase(cChallenge);
-		
+
 		String hatr_iURN = URNType.buildURNComponent(URNType.HATRI, CommitmentProver.class, PROVER_INDEX);
 		hatr_i = responses.get(URN.createZkpgsURN(hatr_iURN));
 		gslog.info("hatr_i: " + hatr_i);
-		
+
 		// Populating Verifier ProofStore
 		String hatr_iURNverifier = URNType.buildURNComponent(URNType.HATRI, CommitmentVerifier.class, PROVER_INDEX);
 		verifierProofStore.save(URN.createZkpgsURN(hatr_iURNverifier), hatr_i);
-		
+
 		String hatm_iURNverifier = URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, PROVER_INDEX);
 		verifierProofStore.save(URN.createZkpgsURN(hatm_iURNverifier), hatm_i);
-		
+
 		// Creating a tested verifier.
 		cverifier = new CommitmentVerifier(C_i.getCommitmentValue(), C_i.getBaseCollection(), PROVER_INDEX, epk, verifierProofStore);
 	}
@@ -159,6 +143,7 @@ public class CommitmentVerifierTest {
 
 		assertNotNull(hatC_i);
 		assertEquals(tildeC_i, hatC_i);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeC_i));
 	}
 
 	@Test
@@ -169,14 +154,17 @@ public class CommitmentVerifierTest {
 		} catch (VerificationException e) {
 			fail("Length should have validated.");
 		}
-		
+
 		boolean isCorrectLength = cverifier.checkLengths();
 
 		assertTrue(isCorrectLength);
 	}
-	
+
 	@Test
 	void testInformationFlow() {
-		fail("Information flow test not implemented yet.");
+		BaseIterator baseIterator = baseCollection.createIterator(BASE.ALL);
+		for (BaseRepresentation baseRepresentation : baseIterator) {
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(baseRepresentation));
+		}
 	}
 }

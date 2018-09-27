@@ -217,9 +217,9 @@ class GSSignatureTest {
 		baseZ = publicKey.getBaseZ();
 		R_0 = publicKey.getBaseR_0();
 
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS);
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ);
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseS));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseZ));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0));
 		QRGroupPQ group = (QRGroupPQ) privateKey.getGroup();
 
 
@@ -228,9 +228,9 @@ class GSSignatureTest {
 		baseScom = baseS.modPow(vbar);
 		commitment = R_0com.multiply(baseScom);
 
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0com);
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseScom);
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(R_0com));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(baseScom));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(commitment));
 
 		e = CryptoUtilsFacade.computePrimeInRange(
 				keyGenParameters.getLowerBoundE(),
@@ -243,7 +243,7 @@ class GSSignatureTest {
 		Sv = baseS.modPow(vPrimePrime);
 		GroupElement Sv1 = Sv.multiply(commitment);
 		Q = (baseZ.multiply(Sv1.modInverse()));
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(Q);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(Q));
 
 		BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
 		BigInteger d = e.modInverse(order);
@@ -251,7 +251,7 @@ class GSSignatureTest {
 		GroupElement sigma = A.modPow(e);
 		assertEquals(sigma, Q, "Signature A not reverting to Q.");
 		
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(A);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(A));
 
 		gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
 		assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));

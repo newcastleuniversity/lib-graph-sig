@@ -1,11 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
@@ -25,22 +19,25 @@ import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
+
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 class GraphPossessionVerifierTest {
-	
+
 	private Logger log = GSLoggerConfiguration.getGSlog();
 	private SignerKeyPair signerKeyPair;
 	private GraphEncodingParameters graphEncodingParameters;
@@ -87,7 +84,7 @@ class GraphPossessionVerifierTest {
 		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
 		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, testM, epk);
 		baseCollection = gr.getEncodedBaseCollection();
-		
+
 		proverProofStore.store("bases.exponent.m_0", testM);
 
 		assertNotNull(baseCollection);
@@ -143,8 +140,8 @@ class GraphPossessionVerifierTest {
 		assertNotNull(sigmaG.getEncodedBases(), "Encoded bases were null after blinding in testcase setup.");
 
 		storeBlindedGS(sigmaG);
-		
-		
+
+
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaG, epk, proverProofStore);
 
@@ -152,44 +149,46 @@ class GraphPossessionVerifierTest {
 
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
-		
-		
+
+
 		// Setting up verifier proof store
 		verifierProofStore = new ProofStore<Object>();
 		storeVerifierView(sigmaG.getA());
-		
+
 		// Setting up a separate base collection for the verifier side, exponents purged.
 
 		BaseCollection verifierBaseCollection = baseCollection.clone();
 		verifierBaseCollection.removeExponents();
-		log.info("||Verifier collection: " 
-		+ GraphUtils.iteratedGraphToExpString(verifierBaseCollection.createIterator(BASE.ALL).iterator(), 
+		log.info("||Verifier collection: "
+				+ GraphUtils.iteratedGraphToExpString(verifierBaseCollection.createIterator(BASE.ALL).iterator(),
 				verifierProofStore));
 
 		verifier = new PossessionVerifier(verifierBaseCollection, epk, verifierProofStore);
 	}
 
-  /** The test checks whether the PossessionVerifier computes hatZ correctly. */
+	/**
+	 * The test checks whether the PossessionVerifier computes hatZ correctly.
+	 */
 	@Test
 	void testComputeHatZ() throws Exception {
 		log.info("Checking the verifier's computation of hatZ");
-    GroupElement hatZ = verifier.executeVerification(cChallenge);
+		GroupElement hatZ = verifier.executeVerification(cChallenge);
 
-    InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ);
-    InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ));
 
-    assertEquals(
-        tildeZ,
-        hatZ,
-        "The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
+		assertEquals(
+				tildeZ,
+				hatZ,
+				"The hatZ computed by the verifier is not equal to the prover's witness tildeZ.");
 	}
 
 	/**
-   * The test checks whether the PossessionVerifier correctly aborts when inputs (hat-values) with
-   * wrong lengths are used. The critical case is that the lengths may be longer than asked for.
+	 * The test checks whether the PossessionVerifier correctly aborts when inputs (hat-values) with
+	 * wrong lengths are used. The critical case is that the lengths may be longer than asked for.
 	 */
 	@Test
-  void testIllegalLengths() throws Exception {
+	void testIllegalLengths() throws Exception {
 		// Compute hat-values that are too long and store them in the ProofStore.
 		log.info("Replacing correct hat-values with oversized ones.");
 		hate = hate.multiply(BigInteger.TEN);
@@ -204,12 +203,12 @@ class GraphPossessionVerifierTest {
 		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
-    GroupElement hatZ = verifier.executeVerification(cChallenge);
+		GroupElement hatZ = verifier.executeVerification(cChallenge);
 
-    assertNull(
-        hatZ,
-        "The PossionVerifier should have aborted outputting null "
-				+ "upon receiving ill-sized inputs, but produced a non-null output.");
+		assertNull(
+				hatZ,
+				"The PossionVerifier should have aborted outputting null "
+						+ "upon receiving ill-sized inputs, but produced a non-null output.");
 	}
 
 	private void storeBlindedGS(GSSignature sigma) throws Exception {
@@ -234,14 +233,14 @@ class GraphPossessionVerifierTest {
 		verifierProofStore.store("verifier.responses.hate", hate);
 		verifierProofStore.store("verifier.responses.hatvPrime", hatvPrime);
 		verifierProofStore.store("verifier.responses.hatm_0", hatm_0);
-		
+
 		BaseIterator vertexIter = baseCollection.createIterator(BASE.VERTEX);
 		while (vertexIter.hasNext()) {
 			BaseRepresentation base = (BaseRepresentation) vertexIter.next();
-			
+
 			BigInteger hatm = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATMI, base.getBaseIndex()));
 			Assert.notNull(hatm, "ProofStore did not contain expected prover hat-value: " + base.getBaseIndex());
-			
+
 			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, base.getBaseIndex()), hatm);
 		}
 
@@ -250,21 +249,21 @@ class GraphPossessionVerifierTest {
 			BaseRepresentation base = (BaseRepresentation) edgeIter.next();
 			BigInteger hatm = (BigInteger) proverProofStore.retrieve(prover.getProverURN(URNType.HATMIJ, base.getBaseIndex()));
 			Assert.notNull(hatm, "ProofStore did not contain expected prover hat-value: " + base.getBaseIndex());
-			
+
 			verifierProofStore.store(URNType.buildURNComponent(URNType.HATMIJ, PossessionProver.class, base.getBaseIndex()), hatm);
 		}
 
 		verifierProofStore.store("verifier.c", cChallenge);
 		verifierProofStore.store("verifier.APrime", aPrime);
 	}
-	
+
 	@Test
 	void testInformationFlow() {
 		BaseIterator bases = baseCollection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : bases) {
-			InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base);
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
 		}
 
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaG.getA());
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaG.getA()));
 	}
 }

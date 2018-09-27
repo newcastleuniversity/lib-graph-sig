@@ -1,10 +1,5 @@
 package eu.prismacloud.primitives.zkpgs.verifier;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.commitment.GSCommitment;
 import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
@@ -20,23 +15,27 @@ import eu.prismacloud.primitives.zkpgs.store.URN;
 import eu.prismacloud.primitives.zkpgs.store.URNType;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
+import eu.prismacloud.primitives.zkpgs.util.InfoFlowUtil;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Map;
-import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
+
 /** */
 @TestInstance(Lifecycle.PER_CLASS)
 class PairWiseDifferenceVerifierTest {
 
 	private Logger log = GSLoggerConfiguration.getGSlog();
-
 	private GraphEncodingParameters graphEncodingParameters;
 	private KeyGenParameters keyGenParameters;
 	private SignerKeyPair skp;
@@ -44,12 +43,9 @@ class PairWiseDifferenceVerifierTest {
 	private ProofStore<Object> proofStore;
 	private ExtendedPublicKey epk;
 	private BigInteger cChallenge;
-
 	private PairWiseDifferenceProver prover;
 	private PairWiseDifferenceVerifier verifier;
-
 	private int testIndex;
-
 	private BigInteger m1, m2coprime;
 	private GSCommitment c1, c2coprime;
 	private BigInteger hata_BariBarj, hatb_BariBarj, hatr_BariBarj;
@@ -126,6 +122,7 @@ class PairWiseDifferenceVerifierTest {
 
 		assertNotNull(verifier);
 		assertNotNull(hatR);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatR));
 		assertEquals(
 				tildeR,
 				hatR,
@@ -184,6 +181,7 @@ class PairWiseDifferenceVerifierTest {
 
 	@Test
 	void testInformationFlow() {
-		fail("Information flow test not implemented yet.");
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeR));
+
 	}
 }

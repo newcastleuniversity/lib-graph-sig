@@ -94,14 +94,14 @@ class SingletonPossessionVerifierTest {
 		log.info("Computing a PossessionProof to be verified.");
 		prover = new PossessionProver(sigmaM, epk, proverProofStore);
 		tildeZ = prover.executePreChallengePhase();
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ));
 
 		cChallenge = prover.computeChallenge();
 		prover.executePostChallengePhase(cChallenge);
 
 
 		verifierProofStore = new ProofStore<Object>();
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaM.getA());
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaM.getA()));
 		storeVerifierView(sigmaM.getA());
 
 		// Setting up a separate base collection for the verifier side, exponents purged.
@@ -119,8 +119,8 @@ class SingletonPossessionVerifierTest {
 		log.info("Checking the verifier's computation of hatZ");
 		GroupElement hatZ = verifier.executeVerification(cChallenge);
 
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ);
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ));
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(tildeZ));
 
 		assertEquals(
 				tildeZ,
@@ -149,7 +149,7 @@ class SingletonPossessionVerifierTest {
 
 		log.info("Testing whether the verifier correctly aborts on over-sized hat-values");
 		GroupElement hatZ = verifier.executeVerification(cChallenge);
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ);
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(hatZ));
 
 		assertNull(
 				hatZ,
@@ -188,9 +188,9 @@ class SingletonPossessionVerifierTest {
 	void testInformationFlow() {
 		BaseIterator bases = baseCollection.createIterator(BASE.ALL);
 		for (BaseRepresentation base : bases) {
-			InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base);
+			assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
 		}
 
-		InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaM.getA());
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(sigmaM.getA()));
 	}
 }
