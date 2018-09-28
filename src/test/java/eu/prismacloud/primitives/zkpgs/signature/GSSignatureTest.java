@@ -4,25 +4,28 @@ package eu.prismacloud.primitives.zkpgs.signature;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.BaseTest;
+import eu.prismacloud.primitives.zkpgs.DefaultValues;
+import eu.prismacloud.primitives.zkpgs.exception.EncodingException;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
-import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
-import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
+import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
+import eu.prismacloud.primitives.zkpgs.keys.*;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
+import eu.prismacloud.primitives.zkpgs.signer.GSSigningOracle;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
 import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.QRGroupPQ;
-import org.junit.jupiter.api.*;
+import org.jgrapht.io.ImportException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -62,75 +65,47 @@ class GSSignatureTest {
 	private GSSignature gsSignature;
 	private SignerKeyPair signerKeyPair;
 	private BaseTest baseTest;
+	private GSSigningOracle oracle;
+	private BigInteger testM;
+	private BaseCollection baseCollection;
+	private ExtendedPublicKey extendedPublicKey;
 
 	@BeforeAll
-	void setupKey() throws IOException, ClassNotFoundException {
-
-		baseTest = new BaseTest();
+	void setupKey() throws IOException, ClassNotFoundException, EncodingException {
+		BaseTest baseTest = new BaseTest();
 		baseTest.setup();
 		baseTest.shouldCreateASignerKeyPair(BaseTest.MODULUS_BIT_LENGTH);
-		keyGenParameters = baseTest.getKeyGenParameters();
-		Assert.notNull(keyGenParameters, "KeyGenParameters were not retrieved from the base test.");
-
-		graphEncodingParameters = baseTest.getGraphEncodingParameters();
 		signerKeyPair = baseTest.getSignerKeyPair();
-		publicKey = signerKeyPair.getPublicKey();
-		privateKey = signerKeyPair.getPrivateKey();
+		graphEncodingParameters = baseTest.getGraphEncodingParameters();
+		keyGenParameters = baseTest.getKeyGenParameters();
+		extendedKeyPair = new ExtendedKeyPair(signerKeyPair, graphEncodingParameters, keyGenParameters);
+		extendedKeyPair.generateBases();
+		extendedKeyPair.setupEncoding();
+		extendedKeyPair.createExtendedKeyPair();
+		extendedPublicKey = extendedKeyPair.getExtendedPublicKey();
+		oracle = new GSSigningOracle(signerKeyPair, keyGenParameters);
 	}
 
 	@BeforeEach
-	void setUp()
-			throws NoSuchAlgorithmException, ProofStoreException, IOException, ClassNotFoundException {
-	}
+	void setup() throws EncodingException, ImportException, ProofStoreException {
+		testM = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
+		assertNotNull(testM, "Test message, a random number, could not be generated.");
+		log.info("Creating test signature with GSSigningOracle on testM: " + testM);
 
-	@Test
-	@RepeatedTest(10)
-	void testSignatureRandom() throws IOException, ClassNotFoundException {
+		GraphRepresentation gr = GraphUtils.createGraph(DefaultValues.SIGNER_GRAPH_FILE, extendedPublicKey);
+		baseCollection = gr.getEncodedBaseCollection();
 
-		modN = publicKey.getModN();
-		m_0 = CryptoUtilsFacade.computeRandomNumber(keyGenParameters.getL_m());
-		baseS = publicKey.getBaseS();
-		baseZ = publicKey.getBaseZ();
-		R_0 = publicKey.getBaseR_0();
-		QRGroupPQ group = (QRGroupPQ) privateKey.getGroup();
+		BaseRepresentation baseR0 =
+				new BaseRepresentation(extendedKeyPair.getPublicKey().getBaseR_0(), -1, BASE.BASE0);
+		baseR0.setExponent(testM);
 
-		assertTrue(group.isElement(baseS.getValue()), "S is not a Quadratic Residue.");
-		assertTrue(checkQRGenerator(baseS.getValue()), "S not a generator!");
-		assertTrue(group.isElement(baseZ.getValue()), "Z is not a Quadratic Residue.");
-		assertTrue(checkQRGenerator(baseZ.getValue()), "Z not a generator!");
-		assertTrue(group.isElement(R_0.getValue()), "R_0 is not a Quadratic Residue.");
-		assertTrue(checkQRGenerator(R_0.getValue()), "R_0 not a generator!");
+		baseCollection.add(baseR0);
 
-		vbar = CryptoUtilsFacade.computeRandomNumberMinusPlus(keyGenParameters.getL_v() - 1);
-		R_0com = R_0.modPow(m_0);
-		baseScom = baseS.modPow(vbar);
-		commitment = R_0com.multiply(baseScom);
+		assertNotNull(baseCollection);
+		assertTrue(baseCollection.size() > 0);
+		gsSignature = oracle.sign(baseCollection);
+		assertNotNull(gsSignature);
 
-		e =
-				CryptoUtilsFacade.computePrimeInRange(
-						keyGenParameters.getLowerBoundE(), keyGenParameters.getUpperBoundE());
-
-		vPrimePrime =
-				CryptoUtilsFacade.computePrimeInRange(
-						keyGenParameters.getLowerBoundV(), keyGenParameters.getUpperBoundV());
-
-
-		assertTrue(
-				(vPrimePrime.compareTo(this.keyGenParameters.getLowerBoundV()) > 0)
-						&& (vPrimePrime.compareTo(this.keyGenParameters.getUpperBoundV()) < 0));
-
-		Sv = baseS.modPow(vPrimePrime);
-		GroupElement Sv1 = (Sv.multiply(commitment));
-		Q = (baseZ.multiply(Sv1.modInverse()));
-
-		BigInteger order = privateKey.getPPrime().multiply(privateKey.getQPrime());
-		BigInteger d = e.modInverse(order);
-		A = Q.modPow(d);
-		GroupElement sigma = A.modPow(e);
-		assertEquals(sigma, Q, "Signature A not reverting to Q.");
-
-		gsSignature = new GSSignature(signerKeyPair.getPublicKey(), A, e, vPrimePrime);
-		assertTrue(gsSignature.verify(signerKeyPair.getPublicKey(), commitment));
 	}
 
 	private boolean checkQRGenerator(BigInteger candidate) {
@@ -187,41 +162,38 @@ class GSSignatureTest {
 
 	@Test
 	void getA() throws Exception {
-		testSignatureRandom();
 		assertNotNull(gsSignature.getA());
-		assertEquals(A, gsSignature.getA());
 	}
+
 
 	@Test
 	void getE() throws Exception {
-		testSignatureRandom();
 		assertNotNull(gsSignature.getE());
-		assertEquals(e, gsSignature.getE());
 	}
 
 	@Test
 	void getV() throws Exception {
-		testSignatureRandom();
 		assertNotNull(gsSignature.getV());
-		assertEquals(vPrimePrime, gsSignature.getV());
 	}
 
 	@Test
 	void blind() throws IOException, ClassNotFoundException {
-		testSignatureRandom();
+
 		GSSignature blindSignature = gsSignature.blind();
 		assertNotNull(blindSignature);
 		assertNotNull(blindSignature.getA());
+		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(blindSignature.getA()));
+
 		assertNotNull(blindSignature.getE());
 		assertNotNull(blindSignature.getEPrime());
 		assertNotNull(blindSignature.getV());
-		assertTrue(blindSignature.verify(signerKeyPair.getPublicKey(), commitment));
+
+		assertTrue(blindSignature.verify(extendedPublicKey, baseCollection));
 
 	}
 
 	@Test
 	void testInformationFlow() throws ClassNotFoundException, IOException {
-		testSignatureRandom();
 
 		assertFalse(InfoFlowUtil.doesGroupElementLeakPrivateInfo(gsSignature.getA()));
 
