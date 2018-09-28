@@ -1,17 +1,10 @@
 package eu.prismacloud.primitives.zkpgs.signature;
 
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.exception.ProofStoreException;
-import eu.prismacloud.primitives.zkpgs.graph.GraphRepresentation;
 import eu.prismacloud.primitives.zkpgs.keys.ExtendedKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerKeyPair;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPrivateKey;
@@ -19,7 +12,6 @@ import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.GraphEncodingParameters;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.store.ProofStore;
-
 import eu.prismacloud.primitives.zkpgs.util.*;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN;
@@ -34,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** */
@@ -216,8 +207,16 @@ class GSSignatureTest {
 	}
 
 	@Test
-	void blind() {
-		fail("Blinding test not implemented.");
+	void blind() throws IOException, ClassNotFoundException {
+		testSignatureRandom();
+		GSSignature blindSignature = gsSignature.blind();
+		assertNotNull(blindSignature);
+		assertNotNull(blindSignature.getA());
+		assertNotNull(blindSignature.getE());
+		assertNotNull(blindSignature.getEPrime());
+		assertNotNull(blindSignature.getV());
+		assertTrue(blindSignature.verify(signerKeyPair.getPublicKey(), commitment));
+
 	}
 
 	@Test
@@ -238,7 +237,7 @@ class GSSignatureTest {
 				assertFalse(InfoFlowUtil.doesBaseGroupElementLeakPrivateInfo(base));
 			}
 
-			Iterator<BaseRepresentation> bases = 
+			Iterator<BaseRepresentation> bases =
 					gsSignature.getGraphRepresentation().getEncodedBases().values().iterator();
 			while (bases.hasNext()) {
 				BaseRepresentation base = (BaseRepresentation) bases.next();
