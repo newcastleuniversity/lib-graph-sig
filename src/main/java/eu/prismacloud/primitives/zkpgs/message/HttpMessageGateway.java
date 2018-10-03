@@ -17,18 +17,25 @@ import java.util.logging.Logger;
 import static eu.prismacloud.primitives.zkpgs.DefaultValues.*;
 
 /**
+ * Creates a message gateway that sends json messages using the Http protocol.
+ * Internally, it creates an embedded http server using the {@link com.sun.net.httpserver.HttpServer} class.
  */
 public class HttpMessageGateway implements IMessageGateway {
 	private final String hostAddress;
 	private final int portNumber;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private HttpServer server;
-	private GSHttpClient client;
 	private HttpURLConnection con;
 	private GSMessageHandler gsMessageHandler;
 	private ProofSignatureHandler proofSignatureHandler;
 	private ProofRequestHandler proofRequestHandler;
 
+	/**
+	 * Creates a new Http message gateway.
+	 *
+	 * @param hostAddress the host address
+	 * @param portNumber  the port number
+	 */
 	public HttpMessageGateway(final String hostAddress, final int portNumber) {
 		this.hostAddress = hostAddress;
 		this.portNumber = portNumber;
@@ -36,7 +43,6 @@ public class HttpMessageGateway implements IMessageGateway {
 
 	@Override
 	public void init() throws IOException {
-
 		// create handlers
 		this.gsMessageHandler = new GSMessageHandler();
 		this.proofSignatureHandler = new ProofSignatureHandler();
@@ -57,6 +63,13 @@ public class HttpMessageGateway implements IMessageGateway {
 	}
 
 
+	/**
+	 * Sends a message represented as a json object to the specified context in the remote http server.
+	 *
+	 * @param context the context in the remote server that will handle the http request
+	 * @param message the message to send to the remote http server
+	 * @throws IOException the io exception
+	 */
 	public void send(String context, JsonObject message) throws IOException {
 		String url = "http://" + this.hostAddress + ":" + this.portNumber + context;
 		URL obj = new URL(url);
