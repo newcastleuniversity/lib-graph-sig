@@ -169,6 +169,7 @@ class GSSignatureTest {
 	@Test
 	void getE() throws Exception {
 		assertNotNull(gsSignature.getE());
+		assertTrue(gsSignature.getE().isProbablePrime(80));
 	}
 
 	@Test
