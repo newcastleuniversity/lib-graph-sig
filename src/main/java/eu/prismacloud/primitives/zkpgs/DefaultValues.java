@@ -13,4 +13,5 @@ public class DefaultValues {
 	public static final String ROOT_CONTEXT = "/";
 	public static final String PROOF_SIGNATURE_CONTEXT = "/proof_signature";
 	public static final String PROOF_REQUEST_CONTEXT = "/proof_request";
+	public static final int SERVER_BACKLOG = 1;
 }
