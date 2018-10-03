@@ -18,13 +18,13 @@ import static eu.prismacloud.primitives.zkpgs.DefaultValues.*;
 
 /**
  * Creates a message gateway that sends json messages using the Http protocol.
- * Internally, it creates an embedded http server using the {@link com.sun.net.httpserver.HttpServer} class.
+ *
  */
 public class HttpMessageGateway implements IMessageGateway {
 	private final String hostAddress;
 	private final int portNumber;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
-	private HttpServer server;
+	private GSHttpServer server;
 	private HttpURLConnection con;
 	private GSMessageHandler gsMessageHandler;
 	private ProofSignatureHandler proofSignatureHandler;
@@ -48,20 +48,17 @@ public class HttpMessageGateway implements IMessageGateway {
 		this.proofSignatureHandler = new ProofSignatureHandler();
 		this.proofRequestHandler = new ProofRequestHandler();
 
-		// create an http server
-		server = createHttpServer(portNumber);
+		// create an http server using builder
+		server = GSHttpServerBuilder
+				.httpServer()
+				.addPort(portNumber)
+				.addHandler(ROOT_CONTEXT, this.gsMessageHandler)
+				.addHandler(PROOF_SIGNATURE_CONTEXT, this.proofSignatureHandler)
+				.addHandler(PROOF_REQUEST_CONTEXT, this.proofRequestHandler)
+				.build();
+		
+		server.start();
 	}
-
-	private HttpServer createHttpServer(int portNumber) throws IOException {
-		HttpServer httpServer = HttpServer.create(new InetSocketAddress(portNumber), 1);
-		httpServer.createContext(ROOT_CONTEXT, this.gsMessageHandler);
-		httpServer.createContext(PROOF_SIGNATURE_CONTEXT, this.proofSignatureHandler);
-		httpServer.createContext(PROOF_REQUEST_CONTEXT, this.proofRequestHandler);
-		httpServer.setExecutor(Executors.newCachedThreadPool());
-		httpServer.start();
-		return httpServer;
-	}
-
 
 	/**
 	 * Sends a message represented as a json object to the specified context in the remote http server.
@@ -111,7 +108,7 @@ public class HttpMessageGateway implements IMessageGateway {
 
 	@Override
 	public void close() throws IOException {
-		server.stop(0);
+		server.stop();
 	}
 
 }
