@@ -85,7 +85,7 @@ private enum cryptoUtil {
     return CryptoUtilsFactory.getInstance(GS).computeA();
   }
 
-  public SafePrime computeRandomSafePrime(KeyGenParameters keyGenParameters) {
+  public static SafePrime computeRandomSafePrime(KeyGenParameters keyGenParameters) {
     return CryptoUtilsFactory.getInstance(GS).generateRandomSafePrime(keyGenParameters);
   }
 
@@ -117,6 +117,11 @@ private enum cryptoUtil {
   public static Boolean isElementOfQR(BigInteger value, BigInteger modulus) {
     return CryptoUtilsFactory.getInstance(GS).elementOfQRN(value, modulus);
   }
+
+  public static Boolean isPrime(BigInteger value){
+    return CryptoUtilsFactory.getInstance(GS).isPrime(value);
+  }
+
 
   public static BigInteger generateRandomPrime(int bitLength) {
     return CryptoUtilsFactory.getInstance(GS).generateRandomPrime(bitLength);

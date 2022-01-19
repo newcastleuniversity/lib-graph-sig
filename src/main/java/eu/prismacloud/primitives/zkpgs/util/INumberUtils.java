@@ -74,4 +74,6 @@ Boolean elementOfQRN(BigInteger value, BigInteger modulus);
   boolean isInPMRange(BigInteger number, int bitLength);
 
   boolean isInRange(BigInteger number, BigInteger min, BigInteger max);
+
+  Boolean isPrime(BigInteger value);
 }

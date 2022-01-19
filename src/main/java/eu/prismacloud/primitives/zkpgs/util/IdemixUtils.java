@@ -240,6 +240,11 @@ public class IdemixUtils extends Utils implements INumberUtils {
     }
 
     @Override
+    public Boolean isPrime(BigInteger value) {
+        throw new RuntimeException("not currently used from idemix library");
+    }
+
+    @Override
     public GroupElement computeMultiBaseExp(BaseCollection collection, BASE baseType, Group G) {
         throw new RuntimeException("not currently used from idemix library");
     }
