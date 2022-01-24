@@ -15,3 +15,5 @@
 /.settings
 /coverage-report
 /.clover
+/prime_order_group.ser
+/graph-sig.iml
