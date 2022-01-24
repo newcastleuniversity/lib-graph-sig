@@ -16,7 +16,7 @@ public class SquareHashing {
 	private final int TWO = 2;
 
 
-	public SquareHashing(final BigInteger modulus, BigInteger z, BigInteger b){
+	public SquareHashing(final BigInteger modulus, final BigInteger z, final BigInteger b) {
 		this.modulus = modulus;
 		this.z = z;
 		this.b = b;
@@ -25,10 +25,11 @@ public class SquareHashing {
 
 	/**
 	 * Computes square hash.
+	 *
 	 * @param x number for the square hash
 	 * @return
 	 */
-	public BigInteger hash(BigInteger x){
+	public BigInteger hash(BigInteger x) {
 		return x.add(z).pow(TWO).add(b).mod(modulus);
 	}
 }
