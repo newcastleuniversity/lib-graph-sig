@@ -25,7 +25,7 @@ public class SquareHashing {
 	 * @param b the big integer b parameter for the square hash
 	 */
 	public SquareHashing(final BigInteger p, final BigInteger z, final BigInteger b) {
-		Assert.notNull(p, "modulus parameter for the square hash must not be null");
+		Assert.notNull(p, "p parameter for the square hash must not be null");
 		Assert.notNull(z, "z parameter for the square hash must not be null");
 		Assert.notNull(b, "b parameter for the square hash must not be null");
 
