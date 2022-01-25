@@ -36,7 +36,7 @@ public class SquareHashing {
 
 	/**
 	 * Computes the square hash of the big integer input
-	 * \( (x + z)^{2} + b \mod modulus \)
+	 * \( (x + z)^{2} + b \mod p \)
 	 *
 	 * @param x big integer number for the square hash
 	 * @return a big integer representing the result of the square hash computation
