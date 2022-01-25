@@ -1,6 +1,5 @@
 package uk.ac.ncl.cascade.hashToPrime;
 
-import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
@@ -8,7 +7,6 @@ import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
 import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
 import eu.prismacloud.primitives.zkpgs.util.crypto.PrimeOrderGroup;
 import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,10 +19,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class NaorReingoldPRGTest {
-	private static final int MODULUS_LENGTH = 512;
+	private static final int MODULUS_LENGTH = 256;
 	private static final String GROUP_FILENAME = "prime_order_group.ser";
 	private static final Logger log = GSLoggerConfiguration.getGSlog();
 	private static KeyGenParameters keyGenParameters;
@@ -112,7 +109,7 @@ class NaorReingoldPRGTest {
 
 		BigInteger pr = nrprg.compute(x, sequence);
 		assertTrue(pr.isProbablePrime(keyGenParameters.getL_pt()));
-		assertEquals(pr,res);
+		assertEquals(pr, res);
 
 	}
 
@@ -120,11 +117,11 @@ class NaorReingoldPRGTest {
 	@Test
 	@DisplayName("check if the NR generator outputs the same prime")
 	void checkIfNROutputSamePrime() {
-		assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
+//		assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
 		List<BigInteger> primes = new ArrayList<BigInteger>();
-		BigInteger x = CryptoUtilsFacade.computeRandomNumber(512);
+		BigInteger x = CryptoUtilsFacade.computeRandomNumber(128);
 		log.info("x:" + x);
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 
 			NaorReingoldPRG nr = new NaorReingoldPRG(group);
 			BigInteger res;
@@ -136,15 +133,15 @@ class NaorReingoldPRGTest {
 
 			assertTrue(group.isElement(res));
 			assertTrue(res.isProbablePrime(keyGenParameters.getL_pt()));
-			log.info("prime: " + res);
+			log.info("index: " + i + " prime: " + res);
 			log.info("prime bitlength: " + res.bitLength());
 			if (i == 0) {
 				primes.add(i, res);
 			} else {
 				assertFalse(primes.contains(res));
 				primes.add(i, res);
-
 			}
+			log.info("list size: " + primes.size());
 		}
 
 	}
