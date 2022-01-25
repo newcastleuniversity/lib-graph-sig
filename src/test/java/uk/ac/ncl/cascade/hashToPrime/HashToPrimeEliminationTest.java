@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HashToPrimeEliminationTest {
-	private static final int MODULUS_LENGTH = 512;
+	private static final int MODULUS_LENGTH = 256;
 	private static final String GROUP_FILENAME = "prime_order_group.ser";
 	private static final Logger log = GSLoggerConfiguration.getGSlog();
 	private static KeyGenParameters keyGenParameters;
@@ -81,6 +81,10 @@ class HashToPrimeEliminationTest {
 		SquareHashing sq = new SquareHashing(sqPrime, z, b);
 		BigInteger hs = sq.hash(message);
 		assertEquals(hs, res);
+
+		BigInteger localres = message.add(z).pow(2).add(b).mod(sqPrime);
+		assertEquals(localres, res);
+
 	}
 
 	@Test
@@ -109,6 +113,9 @@ class HashToPrimeEliminationTest {
 		SquareHashing sq = new SquareHashing(sqPrime, z, b);
 		BigInteger hs = sq.hash(message);
 		assertEquals(hs, res);
+
+		BigInteger localres = message.add(z).pow(2).add(b).mod(sqPrime);
+		assertEquals(localres, res);
 	}
 
 	@Test
@@ -147,8 +154,8 @@ class HashToPrimeEliminationTest {
 		List<BigInteger> primeSequence;
 
 		primeSequence = htp.getPrimeSequence();
-		htPrime = nrprg.compute(res,primeSequence);
-		
+		htPrime = nrprg.compute(res, primeSequence);
+
 		assertTrue(htPrime.isProbablePrime(keyGenParameters.getL_pt()));
 		assertEquals(htPrime, prime);
 	}
@@ -156,7 +163,6 @@ class HashToPrimeEliminationTest {
 	@Test
 	@DisplayName("test returning candidates after finding a prime number")
 	void getCandidates() {
-
 		log.info("setup square hashing");
 		SafePrime sqSafePrime = CryptoUtilsFacade.computeRandomSafePrime(keyGenParameters);
 		BigInteger sqPrime = sqSafePrime.getSafePrime();
@@ -190,5 +196,5 @@ class HashToPrimeEliminationTest {
 		assertTrue(cand.size() > 0);
 		log.info("size of candidates: " + cand.size());
 	}
-	
+
 }
