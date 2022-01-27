@@ -17,18 +17,39 @@ public class PrimeOrderGroup extends Group {
 	private final BigInteger qPrime;
 	private GroupElement generator;
 
+	/**
+	 * Instantiates a new Prime order group.
+	 *
+	 * @param pPrime the p prime
+	 * @param qPrime the q prime
+	 */
 	public PrimeOrderGroup(final BigInteger pPrime, final BigInteger qPrime) {
 		Assert.notNull(pPrime, "pPrime must not be null");
 		Assert.notNull(qPrime, "qPrime must not be null");
-//		log.info("p: " + pPrime);
-//		log.info("p bitlength : " + pPrime.bitLength());
-//
-//		log.info("q: " + qPrime);
-		//		log.info("q bitlength : " + qPrime.bitLength());
 
 		this.pPrime = pPrime;
 		this.qPrime = qPrime;
 		validateGroup(pPrime, qPrime);
+	}
+
+	/**
+	 * Instantiates a new Prime order group.
+	 *
+	 * @param pPrime    the p prime
+	 * @param qPrime    the q prime
+	 * @param generator the generator
+	 */
+	public PrimeOrderGroup(final BigInteger pPrime, final BigInteger qPrime, final BigInteger generator) {
+		Assert.notNull(pPrime, "pPrime must not be null");
+		Assert.notNull(qPrime, "qPrime must not be null");
+		Assert.notNull(generator, "generator must not be null");
+
+		validateGroup(pPrime, qPrime);
+        this.pPrime = pPrime;
+		this.qPrime = qPrime;
+
+		if (!isElement(generator)) throw new IllegalArgumentException("generator is not member of group");
+		this.generator = new PrimeOrderGroupElement(this, generator);
 	}
 
 	private void validateGroup(final BigInteger p, final BigInteger q) {
@@ -119,6 +140,26 @@ public class PrimeOrderGroup extends Group {
 	@Override
 	public Group publicClone() {
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		PrimeOrderGroup that = (PrimeOrderGroup) o;
+
+		if (!pPrime.equals(that.pPrime)) return false;
+		if (!qPrime.equals(that.qPrime)) return false;
+		return generator.equals(that.generator);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = pPrime != null ? pPrime.hashCode() : 0;
+		result = 31 * result + (qPrime != null ? qPrime.hashCode() : 0);
+		result = 31 * result + (generator != null ? generator.hashCode() : 0);
+		return result;
 	}
 
 	@Override

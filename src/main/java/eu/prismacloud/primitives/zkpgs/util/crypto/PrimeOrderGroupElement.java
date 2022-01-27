@@ -105,15 +105,9 @@ public class PrimeOrderGroupElement extends GroupElement {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.util.crypto.PrimeOrderGroupElement{");
-//		sb.append("zStarPGroup=").append(zStarPGroup);
-//		sb.append(", group=").append(getGroup());
-//		sb.append(", elementOrder=").append(getElementOrder());
-//		sb.append(", orderKnown=").append(isOrderKnown());
 		sb.append(", value=").append(getValue());
-//		sb.append(", modInverse=").append(modInverse());
 		sb.append(", bitLength=").append(bitLength());
 		sb.append(", bitCount=").append(bitCount());
-//		sb.append(", publicClone=").append(publicClone());
 		sb.append('}');
 		return sb.toString();
 	}
