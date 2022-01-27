@@ -1,32 +1,24 @@
 package eu.prismacloud.primitives.zkpgs.util;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation;
 import eu.prismacloud.primitives.zkpgs.BaseRepresentation.BASE;
 import eu.prismacloud.primitives.zkpgs.keys.SignerPublicKey;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.signature.GSSignature;
 import eu.prismacloud.primitives.zkpgs.store.URN;
-import eu.prismacloud.primitives.zkpgs.util.crypto.CommitmentGroup;
-import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
-import eu.prismacloud.primitives.zkpgs.util.crypto.GroupElement;
-import eu.prismacloud.primitives.zkpgs.util.crypto.JacobiSymbol;
-import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
-import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
+import eu.prismacloud.primitives.zkpgs.util.crypto.*;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
+import java.util.*;
 
-/** Crypto Utilities class for graph signature library */
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+/**
+ * Crypto Utilities class for graph signature library
+ */
 public class GSUtils implements INumberUtils {
 
 	private final SecureRandom secureRandom;
@@ -43,7 +35,9 @@ public class GSUtils implements INumberUtils {
 
 	private HashMap<Integer, BigInteger> boundMap = new HashMap<Integer, BigInteger>();
 
-	/** Instantiates a new Gs utils. */
+	/**
+	 * Instantiates a new Gs utils.
+	 */
 	public GSUtils() {
 		this.secureRandom = new SecureRandom();
 	}
@@ -77,9 +71,9 @@ public class GSUtils implements INumberUtils {
 	 * Computes a multi base exponentiation using a list of bases, over a list of exponents and reduce
 	 * each operation by modulo N. Note that the list length of the bases and exponents must match.
 	 *
-	 * @param bases a list of BigIntegers representing different bases
+	 * @param bases     a list of BigIntegers representing different bases
 	 * @param exponents a list of BigIntegers which the bases are to be raised
-	 * @param modN modulus N
+	 * @param modN      modulus N
 	 * @return the result of the multi base exponentiation
 	 */
 	@Override
@@ -104,9 +98,9 @@ public class GSUtils implements INumberUtils {
 	 *
 	 * <p>Note that the list length of the bases and exponents must match.
 	 *
-	 * @param bases a map of BigIntegers representing different bases
+	 * @param bases     a map of BigIntegers representing different bases
 	 * @param exponents a list of BigIntegers which the bases are to be raised
-	 * @param modN modulus N
+	 * @param modN      modulus N
 	 * @return the result of the multi base exponentiation
 	 * @deprecated
 	 */
@@ -117,7 +111,7 @@ public class GSUtils implements INumberUtils {
 		BigInteger exponent;
 
 		// This function does not work. There is no guarantee that the two maps are ordered in the same way.
-		
+
 
 		Assert.notNull(bases, "bases must not be null");
 		Assert.notNull(exponents, "exponents must not be null");
@@ -287,7 +281,7 @@ public class GSUtils implements INumberUtils {
 	 * group modulus Γ.
 	 *
 	 * @return a new CommitmentGroup instance constructed with rho, gamma, g and h parameters as
-	 *     input.
+	 * input.
 	 */
 	@Override
 	public CommitmentGroup generateCommitmentGroup() {
@@ -305,7 +299,7 @@ public class GSUtils implements INumberUtils {
 	/**
 	 * Creates generator for the commitment group.
 	 *
-	 * @param rho random prime number
+	 * @param rho   random prime number
 	 * @param gamma commitment group modulus
 	 * @return generator for the commitment group
 	 */
@@ -333,7 +327,7 @@ public class GSUtils implements INumberUtils {
 	 *
 	 * <p>Create generator for \( Z^*_\Gamma \).
 	 *
-	 * @param gamma the gamma modulus
+	 * @param gamma        the gamma modulus
 	 * @param primeFactors the prime factors
 	 * @return generator for \( Z^*_\Gamma \)
 	 */
@@ -513,7 +507,7 @@ public class GSUtils implements INumberUtils {
 	 * <p>Input: candidate integer a, positive odd integer n Output: Jacobi symbol (a | n). Invariant:
 	 * n is odd and positive.
 	 *
-	 * @param alpha the candidate integer
+	 * @param alpha     the candidate integer
 	 * @param oddNumber the odd integer n
 	 * @return Jacobi symbol (a | n)
 	 */
@@ -574,8 +568,8 @@ public class GSUtils implements INumberUtils {
 	 * Algorithm <tt>alg:verifySGeneratorOfQRN_alt</tt> - topocert-doc Evaluate generator S properties
 	 * Input: generator S, modulus modN Output: true or false
 	 *
-	 * @param s the generator S
-	 * @param modN  modulus N
+	 * @param s    the generator S
+	 * @param modN modulus N
 	 * @return true if s is a generator of QRN or else return false
 	 */
 	public boolean verifySGeneratorOfQRN(final BigInteger s, BigInteger modN) {
@@ -585,7 +579,7 @@ public class GSUtils implements INumberUtils {
 	/**
 	 * Computes a hash of a list of string using the SHA algorithm with a specified hash length.
 	 *
-	 * @param list list of string to hash
+	 * @param list       list of string to hash
 	 * @param hashLength the length of the hash for the SHA algorithm
 	 * @return a BigInteger representing the result of the hash algorithm
 	 */
@@ -647,8 +641,8 @@ public class GSUtils implements INumberUtils {
 	 *
 	 * <p>Generate Camenisch-Lysyanskaya signature Input: message m Output: signature sigma
 	 *
-	 * @param m the m
-	 * @param base the base representation
+	 * @param m               the m
+	 * @param base            the base representation
 	 * @param signerPublicKey the signer's public key
 	 * @return the cl signature
 	 */
@@ -666,7 +660,7 @@ public class GSUtils implements INumberUtils {
 
 		int eBitLength =
 				(KeyGenParameters.getKeyGenParameters().getL_e() - 1)
-				+ (KeyGenParameters.getKeyGenParameters().getL_prime_e() - 1);
+						+ (KeyGenParameters.getKeyGenParameters().getL_prime_e() - 1);
 		e =
 				CryptoUtilsFacade.computePrimeWithLength(
 						KeyGenParameters.getKeyGenParameters().getL_e() - 1, eBitLength);
@@ -772,10 +766,10 @@ public class GSUtils implements INumberUtils {
 	/**
 	 * Checks whether a BigInteger argument is in the correct +/- range.
 	 *
-	 * @param number to be tested for correct range
+	 * @param number    to be tested for correct range
 	 * @param bitLength length of the +/- BigInteger
 	 * @return <tt>true</tt> if the BigInteger number is in the range <tt>[-2^(bitLength)+1 ...
-	 *     2^(bitLength)-1]</tt>
+	 * 2^(bitLength)-1]</tt>
 	 */
 	public boolean isInPMRange(final BigInteger number, final int bitLength) {
 		if (number == null) {
@@ -792,8 +786,8 @@ public class GSUtils implements INumberUtils {
 	 * Checks whether a BigInteger number is in the correct range of a minimum and maximum number
 	 *
 	 * @param number to be tested for correct range
-	 * @param min the mininum number in range
-	 * @param max the maximum number in range
+	 * @param min    the mininum number in range
+	 * @param max    the maximum number in range
 	 * @return <tt>true</tt> if the BigInteger number is in the range of <tt>[min, max]</tt>
 	 */
 	public boolean isInRange(BigInteger number, BigInteger min, BigInteger max) {
@@ -830,7 +824,7 @@ public class GSUtils implements INumberUtils {
 	 * treats bases with null exponent as 1.
 	 *
 	 * @param collection BaseCollection to iterate over.
-	 * @param G A Group to work in.
+	 * @param G          A Group to work in.
 	 * @return Product of the exponentiations.
 	 */
 	@Override
@@ -843,8 +837,8 @@ public class GSUtils implements INumberUtils {
 	 * method treats bases with null exponent as 1.
 	 *
 	 * @param collection BaseCollection to iterate over.
-	 * @param baseType type of base to include.
-	 * @param G A Group to work in.
+	 * @param baseType   type of base to include.
+	 * @param G          A Group to work in.
 	 * @return Product of the exponentiations.
 	 */
 	@Override
@@ -858,5 +852,40 @@ public class GSUtils implements INumberUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Split hex string list.
+	 *
+	 * @param str         the str
+	 * @param chunkLength the chunk length
+	 * @return the list
+	 */
+	public List<String> splitHexString(final String str, final int chunkLength) {
+		List<String> splitArray = new ArrayList<String>();
+
+		String element;
+		for (int i = 0; i < str.length(); i += chunkLength) {
+			element = str.substring(i, Math.min(str.length(), i + chunkLength));
+			splitArray.add(element);
+		}
+
+		return splitArray;
+	}
+
+	/**
+	 * Join hex string string.
+	 *
+	 * @param splitArray the split array
+	 * @return the string
+	 */
+	public String joinHexString(final List<String> splitArray) {
+		String binString = "";
+
+		for (String str : splitArray) {
+			binString = binString.concat(str);
+		}
+
+		return binString;
 	}
 }
