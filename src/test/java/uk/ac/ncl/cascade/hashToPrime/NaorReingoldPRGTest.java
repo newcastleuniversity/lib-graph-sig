@@ -1,5 +1,6 @@
 package uk.ac.ncl.cascade.hashToPrime;
 
+import eu.prismacloud.primitives.zkpgs.BaseTest;
 import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
 import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
 import eu.prismacloud.primitives.zkpgs.util.FilePersistenceUtil;
@@ -10,33 +11,63 @@ import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import sun.security.provider.DSAPublicKey;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class NaorReingoldPRGTest {
-	private static final int MODULUS_LENGTH = 256;
+	private static final int MODULUS_LENGTH = 512;
 	private static final String GROUP_FILENAME = "prime_order_group.ser";
+	private static final boolean KEYGEN_WITH_DSA = true;   // DSA java implementation supports modulus bit length > 512
 	private static final Logger log = GSLoggerConfiguration.getGSlog();
 	private static KeyGenParameters keyGenParameters;
 	private static PrimeOrderGroup group;
 	private static final String xst = "4408805283949452337274944115912404368023120815201040683313987545615992267988276742708053935754414213038144405485965997490557246410588106909994721006983224";
 
 	@BeforeAll
-	static void setUp() throws IOException, ClassNotFoundException {
+	static void setUp() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
 		FilePersistenceUtil persistenceUtil = new FilePersistenceUtil();
 		keyGenParameters = KeyGenParameters.createKeyGenParameters(MODULUS_LENGTH, 1632, 80, 256, 1, 597, 120, 2724, 80, 256, 80, 80);
+
 		File f = new File(GROUP_FILENAME);
 		boolean isFile = f.exists();
 		log.info("group file exists: " + isFile);
 		if (isFile) {
 			group = (PrimeOrderGroup) persistenceUtil.read(GROUP_FILENAME);
+		} else if (KEYGEN_WITH_DSA) {
+			Provider provider = Security.getProvider("BC");
+			KeyPairGenerator kg = KeyPairGenerator.getInstance("DSA");
+			kg.initialize(MODULUS_LENGTH);
+			log.info("DSA");
+			log.info("KeyPairGenerator Object Info: ");
+			log.info("Algorithm = " + kg.getAlgorithm());
+			log.info("Provider = " + kg.getProvider());
+			log.info("Key Size = " + MODULUS_LENGTH);
+			KeyPair pair = kg.generateKeyPair();
+			PrivateKey priKey = pair.getPrivate();
+			PublicKey pubKey = pair.getPublic();
+			log.info("Private Key Info: ");
+			log.info("Algorithm = " + priKey.getAlgorithm());
+			log.info("Format = " + priKey.getFormat());
+			log.info("toString = " + priKey.toString());
+			log.info("Public Key Info: ");
+			log.info("Algorithm = " + pubKey.getAlgorithm());
+			log.info("toString = " + pubKey.toString());
+			DSAPublicKey pk = (DSAPublicKey) pubKey;
+			BigInteger g = pk.getParams().getG();
+			BigInteger p = pk.getParams().getP();
+			BigInteger q = pk.getParams().getQ();
+			group = new PrimeOrderGroup(p, q, g);
+			persistenceUtil.write(group, GROUP_FILENAME);
 		} else {
 			SafePrime safePrime = CryptoUtilsFacade.computeRandomSafePrime(keyGenParameters);
 
@@ -117,7 +148,7 @@ class NaorReingoldPRGTest {
 	@Test
 	@DisplayName("check if the NR generator outputs the same prime")
 	void checkIfNROutputSamePrime() {
-//		assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
+		assumeTrue(BaseTest.EXECUTE_INTENSIVE_TESTS);
 		List<BigInteger> primes = new ArrayList<BigInteger>();
 		BigInteger x = CryptoUtilsFacade.computeRandomNumber(128);
 		log.info("x:" + x);
