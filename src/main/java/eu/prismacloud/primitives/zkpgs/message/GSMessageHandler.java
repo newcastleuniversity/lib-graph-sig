@@ -3,7 +3,6 @@ package eu.prismacloud.primitives.zkpgs.message;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import netscape.javascript.JSObject;
 
 import javax.json.Json;
 import javax.json.JsonObject;
