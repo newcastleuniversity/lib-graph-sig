@@ -14,8 +14,6 @@ import static eu.prismacloud.primitives.zkpgs.util.JsonUtils.mapToJson;
 public class GSMessage implements Serializable {
 
 	private static final long serialVersionUID = -8931520272759188134L;
-	private Logger gslog = GSLoggerConfiguration.getGSlog();
-
 	Map<URN, Object> messageElements = new HashMap<URN, Object>();
 
 	public GSMessage() {
