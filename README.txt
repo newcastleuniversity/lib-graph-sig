@@ -2,6 +2,10 @@ Build library without executing test cases
 --------------------------------------------
 mvn clean package  install -Dmaven.test.skip=true
 
+Build javadocs
+--------------
+mvn javadoc:javadoc
+
 Generate new public and secret keys
 -----------------------------------
 java -jar target/graph-sig-0.0.1-SNAPSHOT.jar -k 2048
@@ -20,4 +24,4 @@ Prover side:
 java -jar target/graph-sig-0.0.1-SNAPSHOT.jar  -p --verbose  -H localhost -T 9997
 
 Verifier side: 
-java -jar target/graph-sig-0.0.1-SNAPSHOT.jar  --verbose --verify -q 1 -q 14 -H localhost -T 9997
+java -jar target/graph-sig-0.0.1-SNAPSHOT.jar  -v --verbose  -q 1 -q 14 -H localhost -T 9997
