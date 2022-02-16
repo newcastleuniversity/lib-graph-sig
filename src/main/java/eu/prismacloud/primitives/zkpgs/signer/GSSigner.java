@@ -26,9 +26,10 @@ public class GSSigner implements IMessagePartner, IURNGoverner {
 	private GSMessage receiveMessage;
 
 	/**
-	 * Instantiates a new signer.
+	 * Creates a new signer.
 	 *
 	 * @param extendedKeyPair the extended key pair
+	 * @param messageGateway  the message gateway
 	 */
 	public GSSigner(final ExtendedKeyPair extendedKeyPair,
 					final IMessageGateway messageGateway) {

@@ -22,7 +22,7 @@ public class SpecialRSAMod implements Serializable, Cloneable, PublicCloneable {
 	/**
 	 * Instantiates a new Special RSA mod.
 	 *
-	 * @param modN the mod n
+	 * @param modN the modulus N
 	 * @param p the p
 	 * @param q the q
 	 * @param pPrime the p prime
@@ -41,9 +41,9 @@ public class SpecialRSAMod implements Serializable, Cloneable, PublicCloneable {
 	/**
 	 * Instantiates a new Special RSA mod.
 	 *
-	 * @param modN the mod n
-	 * @param sp the sp
-	 * @param sq the sq
+	 * @param modN the modulus N
+	 * @param sp the sp safe prime
+	 * @param sq the sq safe prime
 	 */
 	public SpecialRSAMod(BigInteger modN, SafePrime sp, SafePrime sq) {
 		this.modN = modN;
@@ -54,9 +54,7 @@ public class SpecialRSAMod implements Serializable, Cloneable, PublicCloneable {
 	/**
 	 * Instantiates a new PUBLIC Special RSA mod.
 	 *
-	 * @param modN the mod N
-	 * @param sp the sp
-	 * @param sq the sq
+	 * @param modN the modulus N
 	 */
 	public SpecialRSAMod(BigInteger modN) {
 		this.modN = modN;

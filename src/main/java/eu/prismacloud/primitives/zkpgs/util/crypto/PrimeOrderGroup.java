@@ -85,7 +85,7 @@ public class PrimeOrderGroup extends Group {
 
 	/**
 	 * Indicates whether the input value is an element of the prime order group.
-	 * Checks that  \( value > 1 \),   \( value < p \) and   value^{q} \bmod p == 1.
+	 * Checks that {@literal \( value > 1 \)}, {@literal \( value < p \)}  and  \(value^{q} \bmod p == 1 \).
 	 *
 	 * @param value the BigInteger to check if it belongs to the group.
 	 * @return <code>true</code> if the value parameter belongs to the group; <code>false</code> otherwise.
