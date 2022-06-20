@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>prismacloud.primitives</groupId>
+    <groupId>cascade</groupId>
     <artifactId>graph-sig</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -183,7 +183,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>eu.prismacloud.primitives.topocert.Topocert</mainClass>
+                                    <mainClass>uk.ac.ncl.cascade.topocert.Topocert</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
