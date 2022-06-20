@@ -1,10 +1,10 @@
 package uk.ac.ncl.cascade.hashToPrime;
 
-import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.crypto.PrimeOrderGroup;
-import eu.prismacloud.primitives.zkpgs.util.crypto.PrimeOrderGroupElement;
+import uk.ac.ncl.cascade.zkpgs.util.Assert;
+import uk.ac.ncl.cascade.zkpgs.util.CryptoUtilsFacade;
+import uk.ac.ncl.cascade.zkpgs.util.GSLoggerConfiguration;
+import uk.ac.ncl.cascade.zkpgs.util.crypto.PrimeOrderGroup;
+import uk.ac.ncl.cascade.zkpgs.util.crypto.PrimeOrderGroupElement;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

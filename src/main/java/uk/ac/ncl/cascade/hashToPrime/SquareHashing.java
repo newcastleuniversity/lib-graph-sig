@@ -1,6 +1,6 @@
 package uk.ac.ncl.cascade.hashToPrime;
 
-import eu.prismacloud.primitives.zkpgs.util.Assert;
+import uk.ac.ncl.cascade.zkpgs.util.Assert;
 
 import java.math.BigInteger;
 

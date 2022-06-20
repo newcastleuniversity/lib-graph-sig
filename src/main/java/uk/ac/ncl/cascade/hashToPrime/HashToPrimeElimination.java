@@ -1,8 +1,8 @@
 package uk.ac.ncl.cascade.hashToPrime;
 
-import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.Assert;
-import eu.prismacloud.primitives.zkpgs.util.crypto.Group;
+import uk.ac.ncl.cascade.zkpgs.parameters.KeyGenParameters;
+import uk.ac.ncl.cascade.zkpgs.util.Assert;
+import uk.ac.ncl.cascade.zkpgs.util.crypto.Group;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

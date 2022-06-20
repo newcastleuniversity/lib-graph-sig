@@ -1,12 +1,10 @@
 package uk.ac.ncl.cascade.hashToPrime;
 
-import eu.prismacloud.primitives.zkpgs.parameters.KeyGenParameters;
-import eu.prismacloud.primitives.zkpgs.util.CryptoUtilsFacade;
-import eu.prismacloud.primitives.zkpgs.util.GSLoggerConfiguration;
-import eu.prismacloud.primitives.zkpgs.util.GSUtils;
-import eu.prismacloud.primitives.zkpgs.util.crypto.SafePrime;
-import eu.prismacloud.primitives.zkpgs.util.crypto.SpecialRSAMod;
-import org.junit.jupiter.api.AfterEach;
+import uk.ac.ncl.cascade.zkpgs.parameters.KeyGenParameters;
+import uk.ac.ncl.cascade.zkpgs.util.CryptoUtilsFacade;
+import uk.ac.ncl.cascade.zkpgs.util.GSLoggerConfiguration;
+import uk.ac.ncl.cascade.zkpgs.util.crypto.SafePrime;
+import uk.ac.ncl.cascade.zkpgs.util.crypto.SpecialRSAMod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
