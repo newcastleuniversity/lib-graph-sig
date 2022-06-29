@@ -1,8 +1,13 @@
 package uk.ac.ncl.cascade.zkpgs.util;
 
 import java.io.*;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -48,5 +53,33 @@ public class FilePersistenceUtil {
 			lines.add(line);
 		}
 		return lines;
+	}
+
+	public void writeFileLines(String fileName, List<String> lines) throws IOException {
+		OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(fileName), StandardOpenOption.APPEND));
+		for (String line : lines) {
+			line = line.concat("\n");
+			System.out.println("line " + line);
+			out.write(line.getBytes());
+		}
+		out.close();
+	}
+
+	public void writeFileLines(String fileName, Map<String, BigInteger> lines) throws IOException {
+		File f = new File(fileName);
+		if (!f.exists()) {
+			f.createNewFile();
+		}
+		OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(fileName), StandardOpenOption.APPEND));
+		String key;
+		String value;
+		for (Map.Entry<String, BigInteger> entry : lines.entrySet()) {
+			key = entry.getKey().concat("\n");
+			out.write(key.getBytes());
+			value = entry.getValue().toString().concat("\n");
+			out.write(value.getBytes());
+		}
+
+		out.close();
 	}
 }
