@@ -19,7 +19,7 @@ public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 
 	private final Map<URN, BigInteger> vertexRepresentatives;
 	private final GraphEncodingParameters graphEncodingParameters;
-	private final List<String> values;
+	private final List<BigInteger> values;
 	private boolean setupCompleted = false;
 	private FilePersistenceUtil persistenceUtil;
 	private List<String> primes;
@@ -32,7 +32,7 @@ public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 	 * @param graphEncodingParameters the graph encoding parameters to use
 	 * @param values                  the list of prime numbers to encode
 	 */
-	public PseudonymPrimeEncoding(final GraphEncodingParameters graphEncodingParameters, final List<String> values) {
+	public PseudonymPrimeEncoding(final GraphEncodingParameters graphEncodingParameters, final List<BigInteger> values) {
 		this.vertexRepresentatives = new LinkedHashMap<URN, BigInteger>();
 		this.graphEncodingParameters = graphEncodingParameters;
 		this.values = values;
@@ -44,7 +44,7 @@ public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 
 		for (int i = 0; i < this.values.size(); i++) {
 
-			vertexPrimeRepresentative = new BigInteger(this.values.get(i));
+			vertexPrimeRepresentative = this.values.get(i);
 
 			if (!CryptoUtilsFacade.isInRange(
 					vertexPrimeRepresentative,
