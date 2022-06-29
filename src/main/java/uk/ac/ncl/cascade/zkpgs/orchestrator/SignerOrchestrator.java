@@ -7,6 +7,7 @@ import uk.ac.ncl.cascade.zkpgs.BaseRepresentation.BASE;
 import uk.ac.ncl.cascade.zkpgs.DefaultValues;
 import uk.ac.ncl.cascade.zkpgs.commitment.GSCommitment;
 import uk.ac.ncl.cascade.zkpgs.context.GSContext;
+import uk.ac.ncl.cascade.zkpgs.encoding.IGraphEncoding;
 import uk.ac.ncl.cascade.zkpgs.exception.EncodingException;
 import uk.ac.ncl.cascade.zkpgs.exception.ProofStoreException;
 import uk.ac.ncl.cascade.zkpgs.exception.VerificationException;
@@ -52,6 +53,7 @@ public class SignerOrchestrator implements IMessagePartner {
 	private final GraphEncodingParameters graphEncodingParameters;
 	private final GSSigner signer;
 	private final SignerPublicKey signerPublicKey;
+	private IGraphEncoding graphEncoding;
 	private BigInteger n_1;
 	private BigInteger n_2;
 	private ProofSignature P_1;
@@ -106,13 +108,13 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		/**
 		 * Sets the signature element Q once and makes it final thereafter.
+		 *
 		 * @param messageQ Signature element Q.
-		 * 
 		 * @throws IllegalStateException if the setter is called after Q was already established.
 		 */
 		void setQ(GroupElement messageQ) {
 			if (Q == null) {
-				Q = messageQ; 
+				Q = messageQ;
 			} else {
 				throw new IllegalStateException("The signature element Q can only be set once and is final thereafter");
 			}
@@ -222,7 +224,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		}
 
 		void setBasesProduct(GroupElement basesProduct) {
-			if(this.basesProduct == null) {
+			if (this.basesProduct == null) {
 				this.basesProduct = basesProduct;
 			} else {
 				throw new IllegalStateException("The preliminary bases product can only be set once and is final thereafter");
@@ -235,7 +237,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		}
 
 		public void setGraphRepresentation(GraphRepresentation graphRepresentation) {
-			if(this.graphRepresentation == null) {
+			if (this.graphRepresentation == null) {
 				this.graphRepresentation = graphRepresentation;
 			} else {
 				throw new IllegalStateException("The graph representation can only be set once and is final thereafter");
@@ -245,9 +247,23 @@ public class SignerOrchestrator implements IMessagePartner {
 	}
 
 	public SignerOrchestrator(String graphFilename,
-			ExtendedKeyPair extendedKeyPair, IMessageGateway messageGateway) {
+							  ExtendedKeyPair extendedKeyPair, IMessageGateway messageGateway) {
 		this.graphFilename = graphFilename;
 		this.extendedKeyPair = extendedKeyPair;
+		this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
+		this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
+		this.graphEncoding = extendedKeyPair.getEncoding();
+		this.proofStore = new ProofStore<Object>();
+		this.signer = new GSSigner(extendedKeyPair, messageGateway);
+		this.signerPublicKey = extendedKeyPair.getExtendedPublicKey().getPublicKey();
+	}
+
+
+	public SignerOrchestrator(String graphFilename,
+							  ExtendedKeyPair extendedKeyPair, IGraphEncoding encoding, IMessageGateway messageGateway) {
+		this.graphFilename = graphFilename;
+		this.extendedKeyPair = extendedKeyPair;
+		this.graphEncoding = encoding;
 		this.keyGenParameters = this.extendedKeyPair.getKeyGenParameters();
 		this.graphEncodingParameters = this.extendedKeyPair.getGraphEncodingParameters();
 		this.proofStore = new ProofStore<Object>();
@@ -332,7 +348,7 @@ public class SignerOrchestrator implements IMessagePartner {
 		return preSignatureElements;
 	}
 
-	private void verifyRecipientCommitment(GroupElement commitmentValue, BaseCollection commitmentBases ) throws NoSuchAlgorithmException, IOException, VerificationException, ProofStoreException {
+	private void verifyRecipientCommitment(GroupElement commitmentValue, BaseCollection commitmentBases) throws NoSuchAlgorithmException, IOException, VerificationException, ProofStoreException {
 		IssuingCommitmentVerifier commitmentVerifier =
 				new IssuingCommitmentVerifier(commitmentValue, commitmentBases, extendedKeyPair.getExtendedPublicKey(), proofStore);
 
@@ -351,8 +367,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		gsGraph = GSGraph.createGraph(graphFilename);
 		Assert.notNull(gsGraph, "Graph could not be created from graphml file.");
-		gsGraph.encodeGraph(extendedKeyPair.getEncoding());
-
+		gsGraph.encodeGraph(graphEncoding);
 		return GraphRepresentation.encodeGraph(gsGraph, extendedKeyPair.getExtendedPublicKey());
 	}
 
@@ -390,7 +405,7 @@ public class SignerOrchestrator implements IMessagePartner {
 
 		responses =
 				(Map<URN, BigInteger>)
-				proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses.hatMap"));
+						proofSignatureElements.get(URN.createZkpgsURN("proofsignature.P_1.responses.hatMap"));
 		//    proofStore.store("proofsignature.P_1.responses.hatMap", responses);
 
 		n_2 = (BigInteger) messageElements.get(URN.createZkpgsURN("recipient.n_2"));
@@ -464,7 +479,6 @@ public class SignerOrchestrator implements IMessagePartner {
 	 * Computes pre-signature value Q with a Recipient-provided commitment U.
 	 * The commitment U is to contain the Recipient's master secret key (msk/m_0)
 	 * encoded in base R_0. However, this msk is not privy to the signer.
-	 * 
 	 *
 	 * @return Pre-signature GroupElement Q.
 	 */
