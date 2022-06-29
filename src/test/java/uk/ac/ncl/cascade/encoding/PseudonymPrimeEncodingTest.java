@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -34,9 +35,15 @@ class PseudonymPrimeEncodingTest {
 		JSONParameters parameters = new JSONParameters();
 		graphEncodingParameters = parameters.getGraphEncodingParameters();
 		persistenceUtil = new FilePersistenceUtil();
-		List<String> values = persistenceUtil.readFileLines("ps-primes-5.txt");
+		List<String> values  = persistenceUtil.readFileLines("ps-primes-5.txt");
 
-		pe = new PseudonymPrimeEncoding(graphEncodingParameters, values);
+		List<BigInteger> primes  = new ArrayList<BigInteger>();
+
+		for (String line : values) {
+			primes.add(new BigInteger(line));
+		}
+
+		pe = new PseudonymPrimeEncoding(graphEncodingParameters, primes);
 	}
 
 	@Test

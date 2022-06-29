@@ -24,6 +24,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -109,8 +110,15 @@ class FilePersistenceUtilTest {
 			persistenceUtil.write(gsk.getPublicKey(), signerPublicKeyFileName);
 			// add custom encoding for the binding
 			// TODO create a dynamic method of importing prime numbers for the encoding process
-			List<String> values = persistenceUtil.readFileLines("ps-primes-5.txt");
-			IGraphEncoding ps = new PseudonymPrimeEncoding(graphEncodingParameters, values);
+			List<String> values = persistenceUtil.readFileLines("primes-50.txt");
+			List<BigInteger> primes = new ArrayList<BigInteger>();
+
+			for (String line : values) {
+				primes.add(new BigInteger(line));
+			}
+
+			IGraphEncoding ps = new PseudonymPrimeEncoding(graphEncodingParameters, primes);
+
 			extendedKeyPair = new ExtendedKeyPair(gsk, ps, graphEncodingParameters, keyGenParameters);
 			extendedKeyPair.generateBases();
 			extendedKeyPair.setupEncoding();
