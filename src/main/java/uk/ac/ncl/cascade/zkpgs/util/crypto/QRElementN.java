@@ -102,7 +102,7 @@ public class QRElementN extends QRElement {
 	@Override
 	public String toString() {
 		final StringBuilder sb =
-				new StringBuilder("eu.prismacloud.primitives.zkpgs.util.crypto.QRElementN{");
+				new StringBuilder("uk.ac.ncl.cascade.zkpgs.util.crypto.QRElementN{");
 		sb.append("qrGroup=").append(qrGroup);
 		sb.append(", number=").append(value);
 		sb.append(", group=").append(getGroup());

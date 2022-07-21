@@ -43,7 +43,7 @@ public class CountryEncoding {
   @Override
   public String toString() {
     final StringBuilder sb =
-        new StringBuilder("eu.prismacloud.primitives.zkpgs.encoding.CountryEncoding{");
+        new StringBuilder("uk.ac.ncl.cascade.zkpgs.encoding.CountryEncoding{");
     sb.append("countryCode='").append(countryCode).append('\'');
     sb.append(", countryName='").append(countryName).append('\'');
     sb.append(", primeRepresentative=").append(primeRepresentative);

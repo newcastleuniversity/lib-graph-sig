@@ -81,7 +81,7 @@ public class NamespaceComponent implements Serializable {
   @Override
   public String toString() {
     final StringBuilder sb =
-        new StringBuilder("eu.prismacloud.primitives.zkpgs.util.NamespaceComponent{");
+        new StringBuilder("uk.ac.ncl.cascade.zkpgs.util.NamespaceComponent{");
     sb.append("content='").append(content).append('\'');
     sb.append('}');
     return sb.toString();

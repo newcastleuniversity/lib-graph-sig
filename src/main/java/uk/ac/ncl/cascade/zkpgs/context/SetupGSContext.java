@@ -30,7 +30,7 @@ public class SetupGSContext implements IContext, IContextProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see eu.prismacloud.primitives.zkpgs.context.IContext#computeChallengeContext()
+	 * @see uk.ac.ncl.cascade.zkpgs.context.IContext#computeChallengeContext()
 	 */
 	@Override
 	public List<String> computeChallengeContext() {
@@ -42,7 +42,7 @@ public class SetupGSContext implements IContext, IContextProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see eu.prismacloud.primitives.zkpgs.context.IContext#computeWitnessContext(java.util.List)
+	 * @see uk.ac.ncl.cascade.zkpgs.context.IContext#computeWitnessContext(java.util.List)
 	 */
 	@Override
 	public void computeWitnessContext(List<String> witnesses) {
@@ -52,7 +52,7 @@ public class SetupGSContext implements IContext, IContextProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see eu.prismacloud.primitives.zkpgs.context.IContext#clearContext()
+	 * @see uk.ac.ncl.cascade.zkpgs.context.IContext#clearContext()
 	 */
 	@Override
 	public void clearContext() {

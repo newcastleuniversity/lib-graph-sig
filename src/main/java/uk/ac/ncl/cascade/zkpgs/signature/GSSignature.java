@@ -232,7 +232,7 @@ public class GSSignature implements Serializable {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.signature.GSSignature{");
+		final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.signature.GSSignature{");
 		sb.append("serialVersionUID=").append(serialVersionUID);
 		sb.append(", signerPublicKey=").append(signerPublicKey);
 		sb.append(", keyGenParameters=").append(keyGenParameters);

@@ -164,7 +164,7 @@ public class PrimeOrderGroup extends Group {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.util.crypto.PrimeOrderGroup{");
+		final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.util.crypto.PrimeOrderGroup{");
 		sb.append("pPrime=").append(pPrime);
 		sb.append(", qPrime=").append(qPrime);
 		sb.append(", generator=").append(generator);

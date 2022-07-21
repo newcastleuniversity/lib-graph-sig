@@ -104,7 +104,7 @@ public class PrimeOrderGroupElement extends GroupElement {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.util.crypto.PrimeOrderGroupElement{");
+		final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.util.crypto.PrimeOrderGroupElement{");
 		sb.append(", value=").append(getValue());
 		sb.append(", bitLength=").append(bitLength());
 		sb.append(", bitCount=").append(bitCount());

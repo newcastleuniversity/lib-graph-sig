@@ -26,7 +26,7 @@ public class ProofSignature implements Serializable {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.prover.ProofSignature{");
+    final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.prover.ProofSignature{");
     sb.append("serialVersionUID=").append(serialVersionUID);
     sb.append(", proofSignatureElements=").append(proofSignatureElements);
     sb.append('}');

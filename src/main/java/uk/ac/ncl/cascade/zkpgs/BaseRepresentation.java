@@ -66,7 +66,7 @@ public class BaseRepresentation implements Serializable, IContextProducer, Clone
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder(
-                "eu.prismacloud.primitives.zkpgs.BaseRepresentation{");
+                "uk.ac.ncl.cascade.zkpgs.BaseRepresentation{");
         sb.append("baseIndex=").append(baseIndex);
         sb.append(", baseType=").append(baseType);
         sb.append(", base=").append(base);

@@ -70,7 +70,7 @@ public class GSEdge extends DefaultEdge implements Cloneable {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.graph.GSEdge{");
+		final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.graph.GSEdge{");
 		sb.append("e_i=").append(v_i);
 		sb.append(", e_j=").append(v_j);
 		sb.append(", labelRepresentatives=").append(labelRepresentatives);

@@ -137,7 +137,7 @@ public class BaseCollectionImpl implements BaseCollection, Serializable, IContex
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.util.BaseCollectionImpl{");
+		final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.util.BaseCollectionImpl{");
 		sb.append(", bases=").append(bases);
 		sb.append(", first=").append(getFirst());
 		sb.append(", size=").append(size());

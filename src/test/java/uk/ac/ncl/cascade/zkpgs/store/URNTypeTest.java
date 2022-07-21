@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-//import eu.prismacloud.primitives.zkpgs.prover.PossessionProver;
-//import eu.prismacloud.primitives.zkpgs.prover.ProverFactory;
+//import uk.ac.ncl.cascade.zkpgs.prover.PossessionProver;
+//import uk.ac.ncl.cascade.zkpgs.prover.ProverFactory;
 import uk.ac.ncl.cascade.zkpgs.store.URNType;
 import uk.ac.ncl.cascade.zkpgs.verifier.PossessionVerifier;
 

@@ -69,7 +69,7 @@ public class GSVertex implements Serializable, Cloneable {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("eu.prismacloud.primitives.zkpgs.graph.GSVertex{");
+		final StringBuilder sb = new StringBuilder("uk.ac.ncl.cascade.zkpgs.graph.GSVertex{");
 		sb.append("labels=").append(labels);
 		sb.append(", id='").append(id).append('\'');
 		sb.append(", vertexPrimeRepresentative=").append(vertexRepresentative);

@@ -33,7 +33,7 @@ public class IssuingCommitmentVerifier extends AbstractCommitmentVerifier implem
 	}
 
 	/* (non-Javadoc)
-	 * @see eu.prismacloud.primitives.zkpgs.verifier.IVerifier#getGovernedURNs()
+	 * @see uk.ac.ncl.cascade.zkpgs.verifier.IVerifier#getGovernedURNs()
 	 */
 	@Override
 	public List<URN> getGovernedURNs() {
