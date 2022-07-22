@@ -2,10 +2,7 @@ package uk.ac.ncl.cascade.topographia;
 
 import jargs.gnu.CmdLineParser;
 import org.jgrapht.io.ImportException;
-import uk.ac.ncl.cascade.binding.ProverOrchestratorBC;
-import uk.ac.ncl.cascade.binding.RecipientOrchestratorBC;
-import uk.ac.ncl.cascade.binding.SignerOrchestratorBC;
-import uk.ac.ncl.cascade.binding.VerifierOrchestratorBC;
+import uk.ac.ncl.cascade.binding.*;
 import uk.ac.ncl.cascade.hashToPrime.HashToPrimeElimination;
 import uk.ac.ncl.cascade.hashToPrime.NaorReingoldPRG;
 import uk.ac.ncl.cascade.hashToPrime.SquareHashing;
@@ -24,6 +21,7 @@ import uk.ac.ncl.cascade.zkpgs.orchestrator.VerifierOrchestrator;
 import uk.ac.ncl.cascade.zkpgs.parameters.GraphEncodingParameters;
 import uk.ac.ncl.cascade.zkpgs.parameters.JSONParameters;
 import uk.ac.ncl.cascade.zkpgs.parameters.KeyGenParameters;
+import uk.ac.ncl.cascade.zkpgs.util.Assert;
 import uk.ac.ncl.cascade.zkpgs.util.CryptoUtilsFacade;
 import uk.ac.ncl.cascade.zkpgs.util.FilePersistenceUtil;
 import uk.ac.ncl.cascade.zkpgs.util.crypto.GroupElement;
@@ -37,7 +35,8 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.ac.ncl.cascade.topographia.TopographiaDefaultOptionValues.DEF_PSEUDONYMS;
+import static uk.ac.ncl.cascade.topographia.TopographiaDefaultOptionValues.DEF_PSEUDONYMS_PRIMES;
 import static uk.ac.ncl.cascade.zkpgs.DefaultValues.CLIENT;
 import static uk.ac.ncl.cascade.zkpgs.DefaultValues.SERVER;
 
@@ -45,10 +44,9 @@ import static uk.ac.ncl.cascade.zkpgs.DefaultValues.SERVER;
 public class Topographia {
 	private static final int MODULUS_LENGTH = 220;
 	private static FilePersistenceUtil persistenceUtil;
-	private static HashMap<String, BigInteger> pseudonymPrimes;
+	private static Map<String, BigInteger> pseudonymPrimes;
 	private KeyGenParameters keyGenParams;
 	private GraphEncodingParameters graphEncParams;
-	//	private FilePersistenceUtil persistenceUtil;
 	private ExtendedPublicKey epk;
 	private static boolean verbose = false;
 	private KeyGenParameters hKeyGenParameters;
@@ -105,7 +103,7 @@ public class Topographia {
 		String epkFilename = (String) parser.getOptionValue(TopographiaCmdLineParser.EPK, TopographiaDefaultOptionValues.DEF_EPK);
 		String sigmaFilename = (String) parser.getOptionValue(TopographiaCmdLineParser.GSSIGNATURE, TopographiaDefaultOptionValues.DEF_GSSIGNATURE);
 		String vertexCredFilename = (String) parser.getOptionValue(TopographiaCmdLineParser.VCRED, TopographiaDefaultOptionValues.DEF_VCRED);
-		String pseudonymFilename = (String) parser.getOptionValue(TopographiaCmdLineParser.PSEUDONYM_FILE, TopographiaDefaultOptionValues.DEF_PSEUDONYMS);
+		String pseudonymFilename = (String) parser.getOptionValue(TopographiaCmdLineParser.PSEUDONYM_FILE, DEF_PSEUDONYMS);
 		String pseudonym = (String) parser.getOptionValue(TopographiaCmdLineParser.NYM, TopographiaDefaultOptionValues.DEF_NYM);
 		String hostAddress = (String) parser.getOptionValue(TopographiaCmdLineParser.HOST_ADDRESS, TopographiaDefaultOptionValues.DEF_HOST_ADDRESS);
 
@@ -194,7 +192,7 @@ public class Topographia {
 
 				if (bindingCredMode != null && bindingCredMode) {
 					pseudonymPrimes = new LinkedHashMap<String, BigInteger>();
-					topographia.signbc(ekp,  pseudonym, hostAddress, portNumber);
+					topographia.signbc(ekp, pseudonym, hostAddress, portNumber);
 					persistenceUtil.writeFileLines("pseudonymPrimes.txt", pseudonymPrimes);
 				} else {
 					topographia.sign(ekp, graphFilename, hostAddress, portNumber);
@@ -241,7 +239,7 @@ public class Topographia {
 					pslist = persistenceUtil.readFileLines(pseudonymFilename);
 					for (int i = 0; i < pslist.size(); i++) {
 
-						topographia.receivebc(graphFilename, "vertexCred" + "_" + String.valueOf(i) + ".ser",i,  hostAddress, portNumber);
+						topographia.receivebc(graphFilename, "vertexCred" + "_" + String.valueOf(i) + ".ser", i, hostAddress, portNumber);
 					}
 				} else {
 					topographia.receive(graphFilename, sigmaFilename, hostAddress, portNumber);
@@ -271,10 +269,21 @@ public class Topographia {
 					pslist = persistenceUtil.readFileLines(pseudonymFilename);
 					for (int i = 0; i < pslist.size(); i++) {
 						topographia.provevc(pseudonymFilename, "vertexCred" + "_" + String.valueOf(i) + ".ser", hostAddress, portNumber);
+						portNumber++;
 					}
 				} else {
 					topographia.prove(graphFilename, sigmaFilename, hostAddress, portNumber);
 				}
+
+				System.exit(0);
+			} else if (proveBindingMode != null && proveBindingMode.booleanValue()) {
+				// Initialize proving
+				System.out.println("Entering TOPOGRAPHIA Prove binding mode...");
+				System.out.println("  Using Signer's extended public key: " + epkFilename);
+
+				topographia.readEPK(epkFilename);
+
+				topographia.proveBindings(graphFilename, sigmaFilename, hostAddress, portNumber);
 
 				System.exit(0);
 			} else if (verifyMode != null && verifyMode.booleanValue()) {
@@ -298,15 +307,19 @@ public class Topographia {
 				}
 				topographia.readEPK(epkFilename);
 				if (bindingCredMode != null && bindingCredMode) {
-
 					pslist = persistenceUtil.readFileLines(pseudonymFilename);
 					for (int i = 0; i < pslist.size(); i++) {
 						topographia.verifyvc(hostAddress, portNumber);
 					}
 				} else {
 					topographia.verify(queryValues, hostAddress, portNumber);
-
 				}
+
+				System.exit(0);
+			} else if (verifyBindingMode != null && verifyBindingMode.booleanValue()) {
+				topographia.readEPK(epkFilename);
+				System.out.println("Entering TOPOGRAPHIA Verify binding mode...");
+				topographia.verifyBindings(hostAddress, portNumber);
 
 				System.exit(0);
 			} else {
@@ -363,25 +376,19 @@ public class Topographia {
 			IOException, ClassNotFoundException {
 
 		SignerKeyPair signerKeyPair = (SignerKeyPair) persistenceUtil.read(signerKeyPairFilename);
-
 		return signerKeyPair;
 	}
 
 	ExtendedKeyPair readExtendedKeyPair(String extendedKeyPairFilename) throws
 			IOException, ClassNotFoundException {
-
-
 		ExtendedKeyPair extendedKeyPair = (ExtendedKeyPair) persistenceUtil.read(extendedKeyPairFilename);
-
 		return extendedKeyPair;
 	}
 
 	ExtendedPublicKey readExtendedPublicKey(String epkFilename) throws
 			IOException, ClassNotFoundException {
-
 		this.epk =
 				(ExtendedPublicKey) persistenceUtil.read(epkFilename);
-
 		return epk;
 	}
 
@@ -420,11 +427,6 @@ public class Topographia {
 
 		// TODO offer a command line option to add custom encodings
 		ExtendedKeyPair ekp = new ExtendedKeyPair(gsk, graphEncParams, keyGenParams);
-//		List<String> values = persistenceUtil.readFileLines("ps-primes-5.txt");
-//
-//		IGraphEncoding ps = new PseudonymPrimeEncoding(graphEncParams,values);
-//
-//		ExtendedKeyPair ekp = new ExtendedKeyPair(gsk, ps, graphEncParams, keyGenParams);
 		ekp.generateBases();
 		System.out.println("   [done]");
 
@@ -484,8 +486,7 @@ public class Topographia {
 		BigInteger message = new BigInteger(nym, 16);
 
 		BigInteger res = htp.computeSquareHash(message);
-		assertNotNull(res);
-
+		Assert.notNull(res, "Cannot compute square hash of input message");
 		return htp.computePrime(res);
 	}
 
@@ -546,7 +547,7 @@ public class Topographia {
 		System.out.println("  Sign: Completed");
 	}
 
-	void signbc(ExtendedKeyPair ekp,  String nym, String hostAddress, int portNumber) throws IOException, ClassNotFoundException, InterruptedException {
+	void signbc(ExtendedKeyPair ekp, String nym, String hostAddress, int portNumber) throws IOException, ClassNotFoundException, InterruptedException {
 		System.out.println("  Sign: Acts as client for interactive signing of binding credential.");
 		System.out.println("hostaddress: " + hostAddress);
 		System.out.println("portNumber: " + portNumber);
@@ -614,27 +615,35 @@ public class Topographia {
 		Thread.sleep(1000);
 	}
 
-	void signBindings(ExtendedKeyPair ekp, String graphFilename, Map<String, BigInteger> pseudonymPrimes, String hostAddress, int portNumber) throws FileNotFoundException, NoSuchAlgorithmException, ProofStoreException, InterruptedException {
+	void signBindings(ExtendedKeyPair ekp, String graphFilename, Map<String, BigInteger> pseudonymPrimes, String hostAddress, int portNumber) throws IOException, NoSuchAlgorithmException, ProofStoreException, InterruptedException, EncodingException {
 		System.out.println("  Sign: Acts as client for interactive signing of graph signature of binding credentials.");
 		System.out.println(" Sign: Request proof of possession for each binding credential.");
 
-		List<String> pslist = persistenceUtil.readFileLines(TopographiaDefaultOptionValues.DEF_PSEUDONYMS);
+		List<String> pslist = persistenceUtil.readFileLines(DEF_PSEUDONYMS);
 		for (int i = 0; i < pslist.size(); i++) {
+			System.out.println("Iteration: " + i);
 			System.out.println("hostaddress: " + hostAddress);
 			System.out.println("portNumber: " + portNumber);
 			verifyvc(hostAddress, portNumber);
+			portNumber++;
 		}
+
 		System.out.println("Successful proof of possession for binding credentials.");
 		System.out.println("Start issuing of graph signature...");
+
+
 		hostAddress = "127.0.0.1";
 		portNumber = 8888;
 		IMessageGateway messageGateway = new MessageGatewayProxy(CLIENT, hostAddress, portNumber);
 
 		System.out.println("Sign: graph file name: " + graphFilename);
-		
+		pseudonymPrimes = persistenceUtil.readFileLinesMap(DEF_PSEUDONYMS_PRIMES);
+
 		List<BigInteger> primes = new ArrayList<BigInteger>(pseudonymPrimes.values());
 		// add the primes in the interface
 		IGraphEncoding encoding = new PseudonymPrimeEncoding(ekp.getGraphEncodingParameters(), primes);
+		System.out.println("  Sign: Setup encoding...");
+		encoding.setupEncoding();
 		SignerOrchestrator signer = new SignerOrchestrator(graphFilename, ekp, encoding, messageGateway);
 
 		System.out.print("  Sign: Initializing the Signer role...");
@@ -825,7 +834,6 @@ public class Topographia {
 		System.out.println("  Receive - Round 3: Representation proof on pre-signature verified.");
 		System.out.println("  Receive - Round 3: Signature completed; internal consistency checked.");
 
-
 		try {
 			recipient.close();
 		} catch (IOException e) {
@@ -855,13 +863,11 @@ public class Topographia {
 
 	void receiveBindings(String graphFilename, String sigmaFilename, List<String> pseudonyms, String hostAddress, int portNumber) throws FileNotFoundException, ProofStoreException, NoSuchAlgorithmException, InterruptedException {
 
-//		System.out.println("  Sign: Acts as client for interactive signing of graph signature of binding credentials.");
-//		IMessageGateway messageGateway = new MessageGatewayProxy(CLIENT, hostAddress, portNumber);
 		System.out.println("  Receive: Acts as host to receive a new graph signature.");
 		hostAddress = "127.0.0.1";
 		portNumber = 8888;
 		IMessageGateway messageGateway = new MessageGatewayProxy(SERVER, hostAddress, portNumber);
-		System.out.println("Receive: graph file name: "  + graphFilename );
+		System.out.println("Receive: graph file name: " + graphFilename);
 		RecipientOrchestrator recipient = new RecipientOrchestrator(graphFilename, epk, messageGateway);
 		System.out.print("  Receive: Initializing the binding Recipient role...");
 		try {
@@ -991,26 +997,26 @@ public class Topographia {
 		System.out.println("  Prove: Completed");
 	}
 
-	void provevc(String graphFilename, String vCredFilename, String hostAddress, Integer portNumber) throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
-		System.out.println("  Prove: Acts as host prover for vertex credential.");
+	void provevc(String graphFilename, String bCredFilename, String hostAddress, Integer portNumber) throws ProofStoreException, NoSuchAlgorithmException, InterruptedException {
+		System.out.println("  Prove: Acts as host prover for binding credential.");
 		System.out.println("hostAddress: " + hostAddress);
 		System.out.println("portNumber: " + portNumber);
 
 		IMessageGateway messageGateway = new MessageGatewayProxy(SERVER, hostAddress, portNumber);
 
 		ProverOrchestratorBC prover = new ProverOrchestratorBC(epk, messageGateway);
-		System.out.print("  Prove: Reading the vertex credential from file: "
-				+ vCredFilename + "...");
+		System.out.print("  Prove: Reading the binding credential from file: "
+				+ bCredFilename + "...");
 		try {
-			prover.readSignature(vCredFilename);
+			prover.readSignature(bCredFilename);
 		} catch (NullPointerException e) {
-			handleException(e, "The Prover's vertex credential was null.",
+			handleException(e, "The Prover's binding credential was null.",
 					TopographiaErrorCodes.EX_DATAERR);
 		} catch (ClassNotFoundException e) {
 			handleException(e, "The signature file did not match the GSSignature class.",
 					TopographiaErrorCodes.EX_CRITFILE);
 		} catch (IOException e) {
-			handleException(e, "The Prover could not read the vertex credential from disk.",
+			handleException(e, "The Prover could not read the binding credential from disk.",
 					TopographiaErrorCodes.EX_CANTCREAT);
 		}
 		System.out.println("   [done]");
@@ -1051,8 +1057,80 @@ public class Topographia {
 			handleException(e, "The TOPOGRAPHIA Prover failed to close the connection to the Verifier soundly.",
 					TopographiaErrorCodes.EX_IOERR);
 		}
-//		Thread.sleep(1000);
 
+	}
+
+	void proveBindings(String graphFilename, String sigmaFilename, String hostAddress, Integer portNumber) throws IOException, NoSuchAlgorithmException, ProofStoreException, InterruptedException, EncodingException {
+		int port = portNumber;
+		System.out.println("  Prove: Acts as prover for proof of binding");
+		System.out.println(" Prove: Request proof of possession for each binding credential.");
+
+		List<String> pslist = persistenceUtil.readFileLines(DEF_PSEUDONYMS);
+		for (int i = 0; i < pslist.size(); i++) {
+			System.out.println("Iteration: " + i);
+			System.out.println("hostaddress: " + hostAddress);
+			System.out.println("portNumber: " + portNumber);
+			verifyvc(hostAddress, portNumber);
+			portNumber++;
+		}
+
+		System.out.println("Successful proof of possession for binding credentials.");
+		System.out.println("Start proof of possession of graph signature...");
+//			System.out.println("hostAddress: " + hostAddress);
+//			System.out.println("portNumber: " + port);
+
+
+		System.out.println("  Prove: Acts as host prover for certified graph " + graphFilename + ".");
+		IMessageGateway messageGateway = new MessageGatewayProxy(SERVER, hostAddress, port);
+		ProverOrchestratorPoB prover = new ProverOrchestratorPoB(epk, messageGateway);
+
+		System.out.print("  Prove: Reading the graph signature from file: "
+				+ sigmaFilename + "...");
+		try {
+			prover.readSignature(sigmaFilename);
+		} catch (NullPointerException e) {
+			handleException(e, "The Prover's graph signature was null.",
+					TopographiaErrorCodes.EX_DATAERR);
+		} catch (ClassNotFoundException e) {
+			handleException(e, "The signature file did not match the GSSignature class.",
+					TopographiaErrorCodes.EX_CRITFILE);
+		} catch (IOException e) {
+			handleException(e, "The Prover could not read the graph signature from disk.",
+					TopographiaErrorCodes.EX_CANTCREAT);
+		}
+		System.out.println("   [done]");
+
+
+		System.out.print("  Prove: Initializing the Prover role...");
+		try {
+			prover.init();
+		} catch (IOException e) {
+			handleException(e, "The TOPOGRAPHIA Prover could not open a socket to receive "
+							+ "messages from the Verifier.",
+					TopographiaErrorCodes.EX_NOHOST);
+		}
+		System.out.println("   [done]");
+		System.out.println();
+
+		System.out.print("  Prove: 1. Provers establishing signature proof witnesses...");
+		prover.executePreChallengePhase();
+		System.out.println("   [done]");
+
+		System.out.print("  Prove: 2. Prover Orchestrator computing overall challenge...");
+		BigInteger cChallenge = prover.computeChallenge();
+		System.out.println("   [done]");
+
+		System.out.print("  Prove: 3. Provers computing signature proof responses...");
+		try {
+			prover.executePostChallengePhase(cChallenge);
+		} catch (IOException e) {
+			handleException(e, "The Prover not send the proof to the Verifier.",
+					TopographiaErrorCodes.EX_IOERR);
+		}
+		System.out.println("   [done]");
+		System.out.println("  Prove: Signature proof of knowledge sent to Verifier.");
+
+		System.out.println("  Prove: Completed");
 	}
 
 	void verify(Vector<Integer> vertexQueries, String hostAddress, Integer portNumber) throws NoSuchAlgorithmException, ProofStoreException {
@@ -1189,6 +1267,65 @@ public class Topographia {
 		System.out.println("  Verify: Completed");
 //		Thread.sleep(1000);
 
+	}
+
+	void verifyBindings(String hostAddress, int portNumber) {
+		System.out.println("  Verify: Acts as client for verification of graph signature bound to hardware.");
+		IMessageGateway messageGateway = new MessageGatewayProxy(CLIENT, hostAddress, portNumber);
+		VerifierOrchestratorPoB verifier = new VerifierOrchestratorPoB(epk, messageGateway);
+
+		System.out.print("  Verify: Initializing the Verifier role...");
+		try {
+			verifier.init();
+		} catch (IOException e) {
+			handleException(e, "The TOPOGRAPHIA Verifier could not open a connection to the Prover.",
+					TopographiaErrorCodes.EX_NOHOST);
+		}
+		System.out.println("   [done]");
+		System.out.println();
+
+		System.out.println("  Verify: 1. Sent Prover to prover, awaiting signature proof...");
+		try {
+			verifier.receiveProverMessage();
+		} catch (VerificationException e) {
+			handleException(e, "The proof provided by the TOPOGRAPHIA Prover could not be verified. "
+							+ "Illegal message lengths.",
+					TopographiaErrorCodes.EX_VERIFY);
+		} catch (ProofException e) {
+			handleException(e, "The TOPOGRAPHIA Prover reported that it cannot complete the proof.",
+					TopographiaErrorCodes.EX_DATAERR);
+		} catch (IOException e) {
+			handleException(e, "The TOPOGRAPHIA Verifier not receive the proof from the Prover.",
+					TopographiaErrorCodes.EX_IOERR);
+		}
+		System.out.println("   [done]");
+
+		System.out.print("  Verify: 2. Computing verification for proof of binding...");
+		try {
+			verifier.executeVerification();
+		} catch (VerificationException e) {
+			handleException(e, "The proof provided by the TOPOGRAPHIA Prover could not be verified. ",
+					TopographiaErrorCodes.EX_VERIFY);
+		}
+
+		verifier.computeChallenge();
+
+		try {
+			verifier.verifyChallenge();
+		} catch (VerificationException e) {
+			handleException(e, "The proof provided by the TOPOGRAPHIA Prover could not be verified. ",
+					TopographiaErrorCodes.EX_VERIFY);
+		}
+		System.out.println("   [done]");
+
+		try {
+			verifier.close();
+		} catch (IOException e) {
+			handleException(e, "The TOPOGRAPHIA Verifier not receive the proof from the Prover.",
+					TopographiaErrorCodes.EX_IOERR);
+		}
+
+		System.out.println("  Verify: Completed");
 	}
 
 	private static void handleException(Throwable e, String highLevelMsg, int exitCode) {
