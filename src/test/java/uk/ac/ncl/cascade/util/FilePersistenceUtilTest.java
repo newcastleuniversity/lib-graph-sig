@@ -45,7 +45,10 @@ class FilePersistenceUtilTest {
 	private String extendedPublicKeyFileName;
 
 	private String graphSignatureFileName;
+
 	private String extendedKeyPairFileName;
+	private String extendedKeyPairBindingFileName;
+	private String extendedPublicKeyBindingFileName;
 
 	@BeforeAll
 	void setUp() {
@@ -57,6 +60,8 @@ class FilePersistenceUtilTest {
 		signerPublicKeyFileName = "SignerPublicKey-" + keyGenParameters.getL_n() + ".ser";
 		extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
 		extendedKeyPairFileName = "ExtendedKeyPair-" + keyGenParameters.getL_n() + ".ser";
+		extendedKeyPairBindingFileName = "ExtendedKeyPair-binding-" + keyGenParameters.getL_n() + ".ser";
+		extendedPublicKeyBindingFileName = "ExtendedPublicKey-binding-" + keyGenParameters.getL_n() + ".ser";
 
 		graphSignatureFileName = "signer-infra.gs.ser";
 	}
@@ -124,12 +129,12 @@ class FilePersistenceUtilTest {
 			extendedKeyPair.setupEncoding();
 			extendedKeyPair.createExtendedKeyPair();
 
-			log.info("Test writeExtendedPublicKey: writing new ExtendedKeyPair...");
-			persistenceUtil.write(extendedKeyPair, extendedKeyPairFileName);
+			log.info("Test writeExtendedPublicKey for binding: writing new ExtendedKeyPair...");
+			persistenceUtil.write(extendedKeyPair, extendedKeyPairBindingFileName);
 
-			log.info("Test writeExtendedPublicKey: writing new ExtendedPublicKey...");
-			String extendedPublicKeyFileName = "ExtendedPublicKey-" + keyGenParameters.getL_n() + ".ser";
-			persistenceUtil.write(extendedKeyPair.getExtendedPublicKey(), extendedPublicKeyFileName);
+			log.info("Test writeExtendedPublicKey for binding: writing new ExtendedPublicKey...");
+
+			persistenceUtil.write(extendedKeyPair.getExtendedPublicKey(), extendedPublicKeyBindingFileName);
 		}
 	}
 
@@ -183,9 +188,33 @@ class FilePersistenceUtilTest {
 	}
 
 	@Test
+	void readExtendedPublicKeyBinding() throws IOException, ClassNotFoundException {
+		ExtendedPublicKey extendedPublicKey =
+				(ExtendedPublicKey) persistenceUtil.read(extendedPublicKeyBindingFileName);
+		assertNotNull(extendedPublicKey);
+		assertNotNull(extendedPublicKey.getPublicKey());
+		assertNotNull(extendedPublicKey.getBaseCollection());
+		assertNotNull(extendedPublicKey.getVertexRepresentatives());
+		assertNotNull(extendedPublicKey.getLabelRepresentatives());
+	}
+
+	@Test
 	void readExtendedKeyPair() throws IOException, ClassNotFoundException {
 		ExtendedKeyPair readExtendedKeyPair =
 				(ExtendedKeyPair) persistenceUtil.read(extendedKeyPairFileName);
+		assertNotNull(readExtendedKeyPair);
+		assertNotNull(readExtendedKeyPair.getPublicKey());
+		assertNotNull(readExtendedKeyPair.getPrivateKey());
+		assertNotNull(readExtendedKeyPair.getBaseKeyPair());
+
+		assertNotNull(readExtendedKeyPair.getVertexRepresentatives());
+		assertNotNull(readExtendedKeyPair.getLabelRepresentatives());
+	}
+
+	@Test
+	void readExtendedKeyPairBinding() throws IOException, ClassNotFoundException {
+		ExtendedKeyPair readExtendedKeyPair =
+				(ExtendedKeyPair) persistenceUtil.read(extendedKeyPairBindingFileName);
 		assertNotNull(readExtendedKeyPair);
 		assertNotNull(readExtendedKeyPair.getPublicKey());
 		assertNotNull(readExtendedKeyPair.getPrivateKey());
