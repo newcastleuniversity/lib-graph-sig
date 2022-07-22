@@ -202,7 +202,7 @@ public class VerifierOrchestratorBC implements IVerifierOrchestrator {
 //		}
 
 		challengeList.add(String.valueOf(hatZ));
-		gslog.log(Level.INFO, "hatZ: " + hatZ);
+//		gslog.log(Level.INFO, "hatZ: " + hatZ);
 		
 		GroupElement commitment;
 		String hatC_iURN;
@@ -216,7 +216,7 @@ public class VerifierOrchestratorBC implements IVerifierOrchestrator {
 //		}
 
 		challengeList.add(String.valueOf(n_3));
-		gslog.log(Level.INFO, "n_3: " + n_3);
+//		gslog.log(Level.INFO, "n_3: " + n_3);
 
 		Collections.sort(challengeList);
 		return challengeList;

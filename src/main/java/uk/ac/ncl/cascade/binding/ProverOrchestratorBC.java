@@ -211,7 +211,7 @@ public class ProverOrchestratorBC implements IProverOrchestrator {
 //		}
 
 		challengeList.add(String.valueOf(tildeZ));
-		gslog.log(Level.INFO, "tildeZ: " + tildeZ);
+//		gslog.log(Level.INFO, "tildeZ: " + tildeZ);
 
 		String tildeC_iURN;
 
@@ -224,7 +224,7 @@ public class ProverOrchestratorBC implements IProverOrchestrator {
 //		}
 
 		challengeList.add(String.valueOf(n_3));
-		gslog.log(Level.INFO, "n_3: " + n_3);
+//		gslog.log(Level.INFO, "n_3: " + n_3);
 		Collections.sort(challengeList);
 		return challengeList;
 	}
