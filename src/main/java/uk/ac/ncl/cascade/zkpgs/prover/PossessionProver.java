@@ -147,7 +147,7 @@ public class PossessionProver implements IProver {
 		Assert.notNull(tildee, "TildeE must not be null.");
 		Assert.notNull(tildevPrime, "tildevPrime must not be null.");
 
-		gslog.info("aPrime: " + blindedSignature.getA());
+//		gslog.info("aPrime: " + blindedSignature.getA());
 		GroupElement aPrimeEtilde = blindedSignature.getA().modPow(tildee);
 
 		GroupElement sTildeVPrime = baseS.modPow(tildevPrime);
@@ -192,7 +192,7 @@ public class PossessionProver implements IProver {
 			baseProduct = baseProduct.multiply(baseRepresentation.getBase().modPow(edgeWitness));
 		}
 
-		gslog.info("baseproduct: " + baseProduct);
+//		gslog.info("baseproduct: " + baseProduct);
 //		gslog.info(
 //				"||TildeZ Graph: "
 //						+ GraphUtils.iteratedGraphToExpString(witnessBases.iterator(), proofStore));
@@ -213,7 +213,7 @@ public class PossessionProver implements IProver {
 
 		// gslog.info("prover: post challenge phase");
 		this.cChallenge = cChallenge;
-		gslog.info("cChallenge " + cChallenge);
+//		gslog.info("cChallenge " + cChallenge);
 
 		Map<URN, BigInteger> responses = new HashMap<URN, BigInteger>();
 
