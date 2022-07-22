@@ -1,8 +1,6 @@
 package uk.ac.ncl.cascade.binding;
 
 import uk.ac.ncl.cascade.BaseTest;
-import uk.ac.ncl.cascade.EnabledOnSuite;
-import uk.ac.ncl.cascade.GSSuite;
 import uk.ac.ncl.cascade.zkpgs.encoding.PseudonymPrimeEncoding;
 import uk.ac.ncl.cascade.zkpgs.exception.EncodingException;
 import uk.ac.ncl.cascade.zkpgs.exception.ProofStoreException;
@@ -40,9 +38,9 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledOnSuite(name = GSSuite.BCRECIPIENT_BCSIGNER)
+// Testing the issuing protocol for binding credentials
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SignerOrchestratorBCTest {
+class IssuingProtocolBCTest {
 	private static final int MODULUS_LENGTH = 220;
 	private static PrimeOrderGroup group;
 	private static final String GROUP_FILENAME = "prime_order_group.ser";
@@ -58,6 +56,8 @@ class SignerOrchestratorBCTest {
 	private GroupElement baseR0;
 	private String bitLength = "2048";
 	private SignerPublicKey publicKey;
+	private static final String VC_SIGNATURE_SER = "vertexCred_0.ser";
+
 	private SignerPrivateKey privateKey;
 	private Logger gslog = GSLoggerConfiguration.getGSlog();
 	private static final String HOST = "127.0.0.1";
@@ -77,23 +77,25 @@ class SignerOrchestratorBCTest {
 		persistenceUtil = new FilePersistenceUtil();
 		graphEncodingParameters = baseTest.getGraphEncodingParameters();
 		keyGenParameters = baseTest.getKeyGenParameters();
-
-//		Thread.sleep(3000);
+		assertNotNull(keyGenParameters);
 		gslog.info("read ExtendedKeyPair..");
-		String extendedKeyPairFileName = "ExtendedKeyPair-" + keyGenParameters.getL_n() + ".ser";
-		ExtendedKeyPair extendedKeyPair = (ExtendedKeyPair) persistenceUtil.read(extendedKeyPairFileName);
+		String extendedKeyPairFileName = "ExtendedKeyPair-binding-" + keyGenParameters.getL_n() + ".ser";
+		extendedKeyPair = (ExtendedKeyPair) persistenceUtil.read(extendedKeyPairFileName);
+		assertNotNull(extendedKeyPair);
+		assertNotNull(extendedKeyPair.getKeyGenParameters());
 		PseudonymPrimeEncoding ps = (PseudonymPrimeEncoding) extendedKeyPair.getGraphEncoding();
 		assertTrue(ps instanceof PseudonymPrimeEncoding);
-//		messageGateway = new MockGatewayProxy(DefaultValues.CLIENT, HOST, PORT);
 		setupHashToPrime();
 		this.e_i = computeHashToPrime();
 
 		proofStore = new ProofStore<Object>();
-		// create a mock gateway for testing prover orchestrator
+		// create a mock gateway for testing issuing protocol for binding credential
 		mockGateway = new MockGatewayProxy(SERVER, HOST, PORT);
 		BigInteger pseudonym = new BigInteger(N_G, 16);
 		signerOrchestrator = new SignerOrchestratorBC(pseudonym, this.e_i, extendedKeyPair, mockGateway);
+		assertNotNull(signerOrchestrator);
 		recipientOrchestrator = new RecipientOrchestratorBC(extendedKeyPair.getExtendedPublicKey(), mockGateway);
+		assertNotNull(recipientOrchestrator);
 	}
 
 	void setupHashToPrime() throws IOException, ClassNotFoundException {
@@ -136,26 +138,7 @@ class SignerOrchestratorBCTest {
 	}
 
 	@Test
-	void testCreateVCSignerOrchestrator() {
-		BigInteger pseudonym = new BigInteger(N_G, 16);
-		SignerOrchestratorBC signer = new SignerOrchestratorBC(pseudonym, e_i, extendedKeyPair, messageGateway);
-		assertNotNull(signer);
-	}
-
-	@Test
-	void init() throws IOException {
-		signerOrchestrator.init();
-	}
-
-	@Test
-	void round0() throws IOException {
-		signerOrchestrator.init();
-		signerOrchestrator.round0();
-
-	}
-
-	@Test
-	void round2() throws IOException, VerificationException, ProofStoreException, NoSuchAlgorithmException {
+	void testIssuingBindingCredential() throws IOException, VerificationException, ProofStoreException, NoSuchAlgorithmException {
 		signerOrchestrator.init();
 		recipientOrchestrator.init();
 		signerOrchestrator.round0();
@@ -163,41 +146,9 @@ class SignerOrchestratorBCTest {
 		signerOrchestrator.round2();
 		recipientOrchestrator.round3();
 		GSSignature gsSignature = recipientOrchestrator.getSignature();
-		gslog.info("signature: " + gsSignature);
-		persistenceUtil.write(gsSignature, "vcSignature.ser");
+		assertNotNull(gsSignature);
+		persistenceUtil.write(gsSignature, VC_SIGNATURE_SER);
 		assertNotNull(gsSignature);
 	}
 
-	@Test
-	void computeQ() {
-	}
-
-	@Test
-	void extractMessageElements() {
-	}
-
-
-	@Test
-	void close() {
-	}
-
-	@Test
-	void testRound2() {
-	}
-
-	@Test
-	void testComputeQ() {
-	}
-
-	@Test
-	void testExtractMessageElements() {
-	}
-
-	@Test
-	void testInit() {
-	}
-
-	@Test
-	void testClose() {
-	}
 }

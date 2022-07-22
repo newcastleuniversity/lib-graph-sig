@@ -16,6 +16,7 @@ import uk.ac.ncl.cascade.zkpgs.orchestrator.SignerOrchestrator;
 import uk.ac.ncl.cascade.zkpgs.parameters.GraphEncodingParameters;
 import uk.ac.ncl.cascade.zkpgs.parameters.KeyGenParameters;
 import uk.ac.ncl.cascade.zkpgs.prover.ProofSignature;
+import uk.ac.ncl.cascade.zkpgs.signature.GSSignature;
 import uk.ac.ncl.cascade.zkpgs.store.ProofStore;
 import uk.ac.ncl.cascade.zkpgs.util.FilePersistenceUtil;
 import uk.ac.ncl.cascade.zkpgs.util.GSLoggerConfiguration;
@@ -32,7 +33,6 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /** */
-@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
 @TestInstance(Lifecycle.PER_CLASS)
 class SignerOrchestratorTest {
 	private Logger log = GSLoggerConfiguration.getGSlog();
@@ -88,44 +88,11 @@ class SignerOrchestratorTest {
 		recipientOrchestrator.close();
 		signerOrchestrator.close();
 
-//		GSSignature gsSignature = recipientOrchestrator.getGraphSignature();
+		GSSignature gsSignature = recipientOrchestrator.getGraphSignature();
+		assertNotNull(gsSignature);
 //		persistenceUtil.write(gsSignature,"graphSignature.ser");
 //		assertNotNull(gsSignature);
 	}
 
-	@Test
-	void round2() throws Exception {
-//    signerOrchestrator.round2();
-		fail("Test not implemented yet.");
-	}
 
-	@Test
-	void computeChallenge() {
-		fail("Test not implemented yet.");
-	}
-
-	@Test
-	void verifyChallenge() {
-		fail("Test not implemented yet.");
-	}
-
-	@Test
-	void createPartialSignature() {
-		fail("Test not implemented yet.");
-	}
-
-	@Test
-	void computeRandomness() {
-		fail("Test not implemented yet.");
-	}
-
-	@Test
-	void computevPrimePrime() {
-		fail("Test not implemented yet.");
-	}
-
-	@Test
-	void store() {
-		fail("Test not implemented yet.");
-	}
 }

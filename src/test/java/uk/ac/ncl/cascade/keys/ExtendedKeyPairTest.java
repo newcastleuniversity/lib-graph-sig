@@ -34,7 +34,6 @@ class ExtendedKeyPairTest {
     keyGenParameters = baseTest.getKeyGenParameters();
     extendedKeyPair = new ExtendedKeyPair(gsk, graphEncodingParameters, keyGenParameters);
   }
-  //TODO Why is setupEncoding() called in every test?
 
   @Test
   void getExtendedPublicKey() throws EncodingException {

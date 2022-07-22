@@ -13,15 +13,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
+//@EnabledOnSuite(name = GSSuite.RECIPIENT_SIGNER)
 class PseudonymPrimeEncodingTest {
 
 	private GraphEncodingParameters graphEncodingParameters;
@@ -35,9 +37,9 @@ class PseudonymPrimeEncodingTest {
 		JSONParameters parameters = new JSONParameters();
 		graphEncodingParameters = parameters.getGraphEncodingParameters();
 		persistenceUtil = new FilePersistenceUtil();
-		List<String> values  = persistenceUtil.readFileLines("ps-primes-5.txt");
+		List<String> values = persistenceUtil.readFileLines("ps-primes-5.txt");
 
-		List<BigInteger> primes  = new ArrayList<BigInteger>();
+		List<BigInteger> primes = new ArrayList<BigInteger>();
 
 		for (String line : values) {
 			primes.add(new BigInteger(line));
@@ -49,6 +51,26 @@ class PseudonymPrimeEncodingTest {
 	@Test
 	void setupEncoding() throws EncodingException {
 		pe.setupEncoding();
+	}
+
+	@Test
+	void testPseudonymPrimesMap() throws IOException {
+		persistenceUtil = new FilePersistenceUtil();
+		Map<String, BigInteger> values = persistenceUtil.readFileLinesMap("pseudonyms-primes-50.txt");
+		assertEquals(50, values.size());
+		List<BigInteger> primes = new ArrayList<BigInteger>();
+		Collection<BigInteger> vl = values.values();
+		for (int i = 0; i < vl.size(); i++) {
+			primes.add((BigInteger) vl.toArray()[i]);
+		}
+
+		assertEquals(50, primes.size());
+//		for (String line : values.entrySet().) {
+//			primes.add(new BigInteger(line));
+//		}
+
+		pe = new PseudonymPrimeEncoding(graphEncodingParameters, primes);
+
 	}
 
 	@Test
