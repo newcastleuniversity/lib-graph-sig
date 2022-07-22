@@ -65,9 +65,6 @@ class PseudonymPrimeEncodingTest {
 		}
 
 		assertEquals(50, primes.size());
-//		for (String line : values.entrySet().) {
-//			primes.add(new BigInteger(line));
-//		}
 
 		pe = new PseudonymPrimeEncoding(graphEncodingParameters, primes);
 
@@ -96,21 +93,5 @@ class PseudonymPrimeEncodingTest {
 			assertTrue(vertexRep.bitLength() < graphEncodingParameters.getlPrime_V());
 
 		}
-	}
-
-	@Test
-	void getLabelRepresentatives() {
-	}
-
-	@Test
-	void getVertexRepresentative() {
-	}
-
-	@Test
-	void getVertexLabelRepresentative() {
-	}
-
-	@Test
-	void getEdgeLabelRepresentative() {
 	}
 }

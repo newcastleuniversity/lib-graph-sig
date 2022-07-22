@@ -91,7 +91,7 @@ public class GraphRepresentation implements IURNGoverner, Serializable {
 
 			// Storing the base index of the vertex.
 			encodedBasesByVertices.put(vertex, base.getBaseIndex());
-			
+//		 	System.out.println("vertex rep: " + vertex.toString());
 			BigInteger vertexRepresentative = vertex.getVertexRepresentative();
 			Assert.notNull(vertexRepresentative, "The GSVertex does not hold a vertex representative");
 

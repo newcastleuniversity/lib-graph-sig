@@ -17,8 +17,10 @@ import java.util.Map;
  */
 public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 
+	private static final long serialVersionUID = 8141780315193933809L;
 	private final Map<URN, BigInteger> vertexRepresentatives;
 	private final GraphEncodingParameters graphEncodingParameters;
+	private final Map<URN, BigInteger> labelRepresentatives;
 	private final List<BigInteger> values;
 	private boolean setupCompleted = false;
 	private FilePersistenceUtil persistenceUtil;
@@ -34,6 +36,7 @@ public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 	 */
 	public PseudonymPrimeEncoding(final GraphEncodingParameters graphEncodingParameters, final List<BigInteger> values) {
 		this.vertexRepresentatives = new LinkedHashMap<URN, BigInteger>();
+		this.labelRepresentatives = new LinkedHashMap<URN, BigInteger>();
 		this.graphEncodingParameters = graphEncodingParameters;
 		this.values = values;
 	}
@@ -45,23 +48,13 @@ public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 		for (int i = 0; i < this.values.size(); i++) {
 
 			vertexPrimeRepresentative = this.values.get(i);
-
-			if (!CryptoUtilsFacade.isInRange(
-					vertexPrimeRepresentative,
-					this.graphEncodingParameters.getLeastVertexRepresentative(),
-					this.graphEncodingParameters.getUpperBoundVertexRepresentatives())) {
-				throw new EncodingException(
-						"The encoding attempted to "
-								+ "create a vertex representative outside of the designated range.");
-			}
-
+//			System.out.println("vertexPrimeRepresentative: " + vertexPrimeRepresentative);
+		
 			this.vertexRepresentatives.put(
 					URN.createZkpgsURN("vertex.representative.e_i_" + i), vertexPrimeRepresentative);
 		}
 
-
 		setupCompleted = true;
-
 
 	}
 
@@ -77,7 +70,7 @@ public class PseudonymPrimeEncoding implements IGraphEncoding, Serializable {
 
 	@Override
 	public Map<URN, BigInteger> getLabelRepresentatives() {
-		return null;
+		return this.labelRepresentatives;
 	}
 
 	@Override
