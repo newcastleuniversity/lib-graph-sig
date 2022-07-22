@@ -264,12 +264,10 @@ public class SignerOrchestratorBC implements IMessagePartner, IURNGoverner {
 
 	private void encodeHost(List<BigInteger> pseudonym, BigInteger e_i) {
 
-//		encodeMessage(e_i);
-	   BigInteger numb = new BigInteger("245700965792822663870449893529325779697197305792202967812064624102182717");
-//		for (BigInteger element : pseudonym) {
+		for (BigInteger element : pseudonym) {
 			// Obtain a random base and exclude it from further selection
-			encodeMessage(numb);
-//		}
+			encodeMessage(element);
+		}
 	}
 
 	private void encodeMessage(BigInteger element) {
