@@ -5,10 +5,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * File persistence utility class used for serializing objects such as the SignerKeyPair with a very
@@ -55,6 +52,18 @@ public class FilePersistenceUtil {
 		return lines;
 	}
 
+	public Map<String, BigInteger> readFileLinesMap(String fileName) throws IOException {
+		Map<String, BigInteger> linesMap = new LinkedHashMap<String, BigInteger>();
+		FileInputStream inputStream = new FileInputStream(fileName);
+		Scanner sc = new Scanner(inputStream, "UTF-8");
+		while (sc.hasNextLine()) {
+			String key = sc.nextLine();
+			String valueSt = sc.nextLine();
+			BigInteger value = new BigInteger(valueSt);
+			linesMap.put(key,value );
+		}
+		return linesMap;
+	}
 	public void writeFileLines(String fileName, List<String> lines) throws IOException {
 		OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(fileName), StandardOpenOption.APPEND));
 		for (String line : lines) {
