@@ -97,16 +97,16 @@ public class PossessionVerifier implements IVerifier {
 		Assert.notNull(cChallenge, "The challenge must not be null.");
 
 		APrime = (GroupElement) proofStore.retrieve("verifier.APrime");
-		gslog.info("aPrime: " + APrime);
+//		gslog.info("aPrime: " + APrime);
 
 		hate = (BigInteger) proofStore.retrieve("verifier.responses.hate");
-		gslog.info("hate: " + hate);
+//		gslog.info("hate: " + hate);
 		
 		hatvPrime = (BigInteger) proofStore.retrieve("verifier.responses.hatvPrime");
-		gslog.info("hatvPrime: " + hatvPrime);
+//		gslog.info("hatvPrime: " + hatvPrime);
 
 		hatm_0 = (BigInteger) proofStore.retrieve("verifier.responses.hatm_0");
-		gslog.info("hatm_0: " + hatm_0);
+//		gslog.info("hatm_0: " + hatm_0);
 
 		// Aborting verification with output null, if lengths check rejects hat-values.
 		if (!checkLengths()) return null;
@@ -118,7 +118,7 @@ public class PossessionVerifier implements IVerifier {
 			BigInteger hatm = (BigInteger) proofStore.retrieve(
 					URNType.buildURNComponent(URNType.HATMI, PossessionProver.class, baseRepresentation.getBaseIndex()));
 			Assert.notNull(hatm, "Hat value could not be retrieved.");
-			gslog.info("hatm_i: " + hatm);
+//			gslog.info("hatm_i: " + hatm);
 
 			basesProduct =
 					basesProduct.multiply(
@@ -136,8 +136,8 @@ public class PossessionVerifier implements IVerifier {
 							baseRepresentation.getBase().modPow(hatm));
 		}
 
-		gslog.info("bases product: " + basesProduct);
-		gslog.info("cChallenge " + cChallenge);
+//		gslog.info("bases product: " + basesProduct);
+//		gslog.info("cChallenge " + cChallenge);
 
 		BigInteger offsetExp = NumberConstants.TWO.getValue().pow(keyGenParameters.getL_e() - 1);
 
